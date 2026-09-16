@@ -49,15 +49,6 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - `gh pr create --title "..." --body "..."`
 9. **Return only the PR URL**
 
-## Rules
-
-- Never create a PR with uncommitted changes in the working directory
-- Never create a PR without running verification first
-- Never create a PR with must-fix review findings
-- Never open a PR whose commits violate the project's convention or bundle unrelated changes — fix the history first
-- Never push without checking remote tracking status first
-- Always check for associated issues
-
 ## See also
 
 - `git` for commit conventions and rewriting history before push
