@@ -5,25 +5,7 @@ description: Deprecate and remove code safely. Use when replacing systems, remov
 
 # Deprecation
 
-Code is a liability, not an asset. Every line requires maintenance — bug fixes, dependency updates, security patches, cognitive overhead. When equivalent functionality requires less code or better abstraction, the old version should be retired.
-
-## Principles
-
-### Code as liability
-
-Value comes from functionality, not code volume. Less code serving the same purpose is strictly better.
-
-### Hyrum's Law makes removal hard
-
-All observable behaviors become dependencies. Users rely on bugs and undocumented side effects. Deprecation requires active migration, not just announcement.
-
-### No transitional architecture
-
-Don't maintain two systems in parallel. Land the replacement, migrate consumers, remove the old system. Dual systems double maintenance cost.
-
-### The Churn Rule
-
-If you own the infrastructure being deprecated, you are responsible for migrating your users — or providing backward-compatible updates that require no migration.
+Code is a liability: every line costs maintenance, so when equivalent functionality needs less code or a better abstraction, retire the old version. Hyrum's Law makes that hard — every observable behavior, bugs included, has a dependent — so deprecation is active migration, not an announcement. No transitional architecture: land the replacement, migrate consumers, remove the old system rather than running two in parallel. If you own the infrastructure being deprecated, migrating its users is your job.
 
 ## Workflow
 
@@ -35,12 +17,7 @@ If you own the infrastructure being deprecated, you are responsible for migratin
 
 ## Zombie code
 
-Code with no owner but active dependents. Signs:
-- No commits in months with active consumers
-- Failing tests left unfixed
-- Outdated dependencies
-
-Either assign an owner and maintain it, or deprecate it with a migration plan. Zombie code cannot remain suspended.
+Code with no owner but active dependents — stale for months, failing tests left unfixed, outdated dependencies. Assign an owner or deprecate it with a migration plan; it cannot stay suspended.
 
 ## Red flags
 
