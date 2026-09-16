@@ -13,7 +13,7 @@ Commits are save points, branches are sandboxes, history is documentation. Treat
 
 ## Commit discipline
 
-- **Commit after each successful slice.** Don't accumulate work — a commit is a save point you can return to.
+- **Commit after each successful slice (the save-point pattern).** A commit is a point you can return to; when exploring an uncertain change, commit early so a dead end reverts cleanly instead of being lost.
 - **One logical change per commit.** A commit that refactors and adds a feature is two commits.
 - **Explain intent, not mechanics.** Describe why the change matters, not what files were touched.
 
@@ -42,20 +42,9 @@ Separate refactoring from feature work. Separate formatting from behavior change
 - Treat worktrees as disposable branch sandboxes. Keep the primary checkout as an orchestrator, not a task workspace.
 - Create each task in a fresh topic branch using a separate worktree.
 - Run `git worktree list` before creating or removing one, and `git status` before beginning work or cleanup.
-- Run Git commands from the target worktree; never use `git -C <path>`.
+- Run Git commands from the target worktree.
 - Remove a worktree after its branch is merged or abandoned. Do not remove one with uncommitted changes.
 - Follow repository-specific worktree setup and cleanup commands when they exist; they determine the task's base and setup. When a worktree is gone outside Git, run `git worktree prune` to clear stale metadata.
-
-## Save-point pattern
-
-When exploring uncertain changes, commit early with a clear message. If the approach doesn't work out, you can revert cleanly. Uncommitted work can't be reverted — only lost.
-
-## Change summaries
-
-After a set of changes, provide a structured summary:
-- **What changed** — the diff in plain language
-- **What was intentionally excluded** — scope discipline
-- **What to watch** — potential concerns for reviewers
 
 ## Red flags
 
