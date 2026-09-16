@@ -50,12 +50,9 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 1. **Read the code.** The doc describes what the code does, not what you think it should do. Read source files, contracts, and tests before writing anything.
 2. **Read adjacent docs.** Understand what's already documented. Identify the owner for any overlapping detail.
 3. **Determine the doc type.** Architecture, design, security, runtime, reference, or comparison — different types emphasize different sections.
-4. **Write the summary line.** One sentence. What does this system/concept do?
-5. **Write the primary content.** Tables for structured data. Flow diagrams for sequences. Bullets for lists of facts. Track live/planned/deferred status.
-6. **Write the design rule.** One paragraph. What principle explains why this design is the way it is?
-7. **Cross-reference.** Link to related docs where they own adjacent context.
-8. **Add to the docs index.** (e.g. `docs/README.md`)
-9. **Verify.** Read the doc against the code. Every claim should be provable from the source.
+4. **Fill the template** under the conventions above, cross-referencing docs that own adjacent context.
+5. **Add to the docs index.** (e.g. `docs/README.md`)
+6. **Verify.** Read the doc against the code. Every claim should be provable from the source.
 
 ### Edit mode
 
