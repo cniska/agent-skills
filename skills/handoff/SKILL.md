@@ -46,6 +46,11 @@ A decision goes in as its rule, not its history:
     permission prompts on Sonoma and we lost 40 minutes to it..."
     Rule:         "- Clipboard via pbcopy, not osascript (permission prompts). Settled."
 
+## See also
+
+- `search-sessions` — recover what an earlier session decided when no handoff carried it forward
+- `git` — commit the unfinished work this document points at
+
 ## Red flags
 
 - Reads like a report — narrates what happened instead of what to do next. The reader was never here; the past is unusable to them.

@@ -27,6 +27,11 @@ Create a GitHub issue from a short description.
 5. **Create the issue**: `gh issue create --title "..." --label "..." --body "..."`
 6. **Return only the issue URL**
 
+## See also
+
+- `plan` — design the work once the issue is accepted; the issue states what and why, not how
+- `pr` — the pull request that closes it
+
 ## Red flags
 
 - Referencing internal shorthand or a local doc a repo reader can't resolve
