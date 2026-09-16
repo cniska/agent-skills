@@ -33,8 +33,8 @@ if ! [[ "$subject" =~ $cc_re ]]; then
   exit 1
 fi
 
-if [ "${#subject}" -gt 72 ]; then
-  echo "error: subject exceeds 72 characters (${#subject})." >&2
+if [ "${#subject}" -gt 50 ]; then
+  echo "error: subject exceeds 50 characters (${#subject})." >&2
   exit 1
 fi
 

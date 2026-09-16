@@ -20,4 +20,4 @@ Self-contained engineering skills for AI coding agents — one per file at `skil
 ## Commits
 
 - Commit directly to `main` — no branch or PR.
-- Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, aim under 50 characters and never over 72.
+- Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, under 50 characters.

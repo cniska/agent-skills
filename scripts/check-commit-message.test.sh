@@ -44,11 +44,11 @@ assert "body rejected"          "$(code 'feat: x' 'a body line')" 1
 assert "non-ascii rejected"     "$(code 'feat: add café menu')"  1
 assert "empty subject is usage" "$(code '')"                     2
 
-# Length boundary: 72 chars ok, 73 too long.
-s72="feat: $(printf 'x%.0s' {1..66})"
-s73="feat: $(printf 'x%.0s' {1..67})"
-assert "72 chars accepted" "${#s72}:$(code "$s72")" "72:0"
-assert "73 chars rejected" "${#s73}:$(code "$s73")" "73:1"
+# Length boundary: 50 chars ok, 51 too long.
+s50="feat: $(printf 'x%.0s' {1..44})"
+s51="feat: $(printf 'x%.0s' {1..45})"
+assert "50 chars accepted" "${#s50}:$(code "$s50")" "50:0"
+assert "51 chars rejected" "${#s51}:$(code "$s51")" "51:1"
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
