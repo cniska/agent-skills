@@ -1,4 +1,4 @@
-.PHONY: help validate bootstrap new-skill eval test lint
+.PHONY: help validate bootstrap new-skill eval rules test lint
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -12,6 +12,9 @@ bootstrap: ## Configure local hooks and run validation
 
 eval: ## Run behavioral evals (calls claude -p; costs tokens). Pass ARGS="--baseline" etc.
 	./evals/run.sh $(ARGS)
+
+rules: ## Report which skill rules have an assertion behind them (offline, free)
+	./evals/rules.sh $(ARGS)
 
 test: ## Run bash tests (offline, no API)
 	@for t in $$(find . -name '*.test.sh' -not -path './node_modules/*' | sort); do echo "== $$t =="; bash "$$t" || exit 1; done

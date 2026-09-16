@@ -16,9 +16,19 @@ k=5
 det_id=(severity-label contract-shape)
 det_re=('\*\*(Critical|Fix|Consider|Nit)\*\*' 'triggering input|fix direction|→')
 det_expect=(present present)
+# The rule in SKILL.md each assertion proves — an address is a substring
+# matching exactly one rule-shaped line. `rules.sh` reports the rest as untested.
+det_rule=(
+  "**label** (Critical / Fix / Consider / Nit"
+  "triggering input → wrong result"
+)
 
 # Semantic checks (blinded LLM judge).
 sem_id=(names-trigger no-style-as-bug)
+sem_rule=(
+  "name the input or sequence and the wrong result it produces"
+  "Flagging style, naming, or structure as correctness"
+)
 sem_assertion=(
   "The review names a CONCRETE triggering input (a specific value or scenario) AND states the wrong result it produces."
   "The review does NOT report naming, comments, formatting, or code style as a correctness bug. Mentioning them as non-issues is acceptable."
