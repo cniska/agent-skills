@@ -5,11 +5,11 @@ description: Implement features incrementally through vertical slices. Use when 
 
 # Build
 
-Build in thin vertical slices. Implement one piece, verify it, commit it, then move on. Never accumulate uncommitted work across multiple slices.
+Build in thin vertical slices. Implement one piece, verify it, commit it, then move on.
 
 ## Workflow
 
-Before the first slice, if not already on a dedicated branch, create one. Consider an isolated worktree (`git worktree add -b <topic> .claude/worktrees/<topic>`) so the main session stays an orchestrator. Never use `git -C <path>` — always `cd` into the target first.
+Before the first slice, if not already on a dedicated branch, create one. Consider an isolated worktree (`git worktree add -b <topic> .claude/worktrees/<topic>`) so the main session stays an orchestrator.
 
 1. **Pick the smallest slice** that delivers a complete, testable path through the change.
 2. **Read before writing.** Load the relevant files, understand existing patterns, check for utilities you can reuse. For external libraries and version-sensitive APIs, confirm behavior against the docs or upstream source for the version pinned in this repo — not memory, not blog posts.
@@ -44,11 +44,10 @@ Say what stopped it and which slices landed. The per-slice commits are the recor
 
 ## Red flags
 
-- More than 3 files changed without a commit
+- Uncommitted work spanning more than one slice — "I'll commit it all at the end"
 - Tests haven't run since the last significant change
 - Mixing refactoring with feature work in the same slice
 - Expanding scope mid-slice instead of deferring to the next one
-- "I'll commit it all at the end"
 - Implementing a version-sensitive API from memory
 - Comments that restate the code, or banner/separator comments
 - A fallback added because the correct behavior was unclear, or a deliberate one whose reason a reader can't infer
