@@ -5,7 +5,7 @@ description: Manage commits, branches, and change history. Use when committing, 
 
 # Git
 
-Commits are save points, branches are sandboxes, history is documentation. Treat them accordingly.
+Commits are save points, branches are disposable, history is read later by people who weren't there. Treat them accordingly.
 
 ## Commit messages
 
@@ -39,12 +39,18 @@ Separate refactoring from feature work. Separate formatting from behavior change
 
 ## Worktrees
 
-- Treat worktrees as disposable branch sandboxes. Keep the primary checkout as an orchestrator, not a task workspace.
+- Treat a worktree as a throwaway checkout for one branch. Keep the primary checkout as an orchestrator, not a task workspace.
 - Create each task in a fresh topic branch using a separate worktree.
 - Run `git worktree list` before creating or removing one, and `git status` before beginning work or cleanup.
 - Run Git commands from the target worktree.
 - Remove a worktree after its branch is merged or abandoned. Do not remove one with uncommitted changes.
 - Follow repository-specific worktree setup and cleanup commands when they exist; they determine the task's base and setup. When a worktree is gone outside Git, run `git worktree prune` to clear stale metadata.
+
+## See also
+
+- `build` — the slice boundary each commit records
+- `pr` — opening the branch for merge, and the history audit that precedes it
+- `ship` — the version bump reads the commit subjects this skill shapes
 
 ## Red flags
 
