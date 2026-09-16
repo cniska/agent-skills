@@ -42,7 +42,7 @@ Flag a bug only with a concrete trigger: name the input or sequence and the wron
 1. Read the diff and enough surrounding code to know what each change is *supposed* to do.
 2. For each change, ask: what input or interleaving makes this do the wrong thing? Trace actual behavior against claimed behavior.
 3. Check the tests — a green suite around wrong behavior means the test is wrong too; note both.
-4. For large diffs (more than 3 files), fan out **fast-tier** readers — one per area — to surface candidate bugs. Verify each trigger yourself before reporting.
+4. When the diff is wider than you can hold in one read, fan out **fast-tier** readers — one per independent question — to surface candidate bugs. Verify each trigger yourself before reporting.
 
 ## Output
 

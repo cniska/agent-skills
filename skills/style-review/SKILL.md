@@ -58,7 +58,7 @@ A suppression comment is the exception: the lint or type config it silences is i
 
 1. Identify local style conventions from nearby code.
 2. Compare against repo-wide documented conventions.
-3. Find concrete deviations with evidence. For large diffs (more than 3 files), fan out **fast-tier** readers — one per file or logical area — to surface candidate findings. Verify each before reporting.
+3. Find concrete deviations with evidence. When the diff is wider than you can hold in one read, fan out **fast-tier** readers — one per independent question — to surface candidate findings. Verify each before reporting.
 4. Report findings ordered by severity.
 
 ## Output
