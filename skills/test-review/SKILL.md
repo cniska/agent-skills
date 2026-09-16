@@ -60,7 +60,7 @@ Flag a gap as Must-add or Should-add only if you can name the concrete bug or re
 
 For each finding: **label** (`Restore` | `Must-add` | `Should-add` | `Optional` | `Remove`), **source file + test file**, **what is untested**, **why it matters** (the concrete bug the test would catch), **fix direction**. When invoked from `review`, map Restore → Critical, Must-add → Critical/Fix, Should-add → Fix, Optional/Remove → Consider.
 
-Group the summary by those labels. Cap Must-add/Should-add at ~5; fold the rest into one Optional line or omit. If nothing clears the threshold, say "No test findings".
+Group the summary by those labels. Report every Must-add and Should-add with its label — the caller filters by severity, not you; fold Optional items into one line or omit them. If nothing clears the threshold, say "No test findings".
 
 ## See also
 
