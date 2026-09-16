@@ -5,50 +5,17 @@ description: Debug systematically with structured triage. Use when tests fail, b
 
 # Debug
 
-When something breaks, stop building. Preserve evidence, diagnose the root cause, fix it, guard against recurrence. Guessing wastes time.
+When something breaks, stop building. Preserve evidence, diagnose the root cause, fix it, guard against recurrence.
 
 ## Workflow
 
-### 1. Stop the line
-
-Stop adding features or making changes. Errors compound — a bug in step 3 makes steps 4-10 wrong.
-
-### 2. Reproduce
-
-Make the failure happen reliably. Run the specific failing test in isolation. If you can't reproduce it, you can't fix it with confidence.
-
-### 3. Localize
-
-Narrow down where the failure occurs:
-- Which layer is failing?
-- Which change introduced it? (use `git bisect` for regressions)
-- Is it the test or the code that's wrong?
-
-For bugs that span multiple files, spawn a **fast-tier** reader to collect raw evidence — the failing test, the relevant code paths, recent git log for affected files — then analyze in this session. For non-obvious root causes, switch to a **powerful-tier** model with high reasoning effort before the analysis pass.
-
-### 4. Reduce
-
-Strip to the minimal failing case. Remove unrelated code until only the bug remains. A minimal reproduction makes the root cause obvious.
-
-### 5. Fix the root cause
-
-Fix the underlying issue, not the symptom. Ask "why does this happen?" until you reach the actual cause.
-
-### 6. Guard against recurrence
-
-Write a test that catches this specific failure. It should fail without the fix and pass with it.
-
-### 7. Verify end-to-end
-
-Run the specific test, then the full suite. Resume only after everything passes.
-
-## Prove-It pattern (for bug fixes)
-
-1. Write a test that demonstrates the bug (must FAIL with current code)
-2. Confirm it fails
-3. Implement the fix
-4. Confirm the test passes
-5. Run the full test suite
+1. **Stop the line.** No new features or unrelated changes until the failure is understood.
+2. **Reproduce.** Make the failure happen reliably — the specific failing test, in isolation.
+3. **Localize.** Which layer, which change (`git bisect` for regressions), and whether the test or the code is wrong. For bugs that span multiple files, spawn a **fast-tier** reader to collect raw evidence — the failing test, the relevant code paths, recent git log for affected files — then analyze in this session. For non-obvious root causes, switch to a **powerful-tier** model before the analysis pass.
+4. **Reduce.** Strip to the minimal failing case.
+5. **Fix the root cause**, not the symptom.
+6. **Guard against recurrence (Prove-It).** Write a test that fails without the fix and passes with it; confirm both.
+7. **Verify end-to-end.** Run the specific test, then the full suite. Resume only after everything passes.
 
 ## Treating error output as data
 
