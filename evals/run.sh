@@ -6,8 +6,9 @@
 
 EVALS_DIR="$(cd "$(dirname "$0")" && pwd)"
 BASELINE_FILE="$EVALS_DIR/baseline-results.json"
+SKILLS_DIR="$(cd "$EVALS_DIR/.." && pwd)/skills"
 
-opt_baseline=0 opt_update=0 opt_yes=0 opt_skill="" opt_k=""
+opt_baseline=0 opt_update=0 opt_yes=0 opt_skill="" opt_k="" opt_ablate=""
 for a in "$@"; do
   case "$a" in
     --baseline) opt_baseline=1 ;;
@@ -15,15 +16,36 @@ for a in "$@"; do
     --yes | -y) opt_yes=1 ;;
     --skill=*) opt_skill="${a#--skill=}" ;;
     --k=*) opt_k="${a#--k=}" ;;
+    --ablate=*) opt_ablate="${a#--ablate=}" ;;
   esac
 done
 
+# A rate gap this wide or wider counts as a real difference between two arms;
+# anything narrower is two runs flipping at k=5 and proves nothing either way.
+ABLATE_THRESHOLD=40
+
 # The single point of API access. skills=0 disables all skills (the baseline arm).
+# $3, when set, is a file whose text is appended to the system prompt — how the
+# ablation arms deliver skill text, since the installed skill is disabled.
 # Tests override this with a stub, so the whole harness runs offline.
-claude_run() { # prompt skills
+claude_run() { # prompt skills [system-prompt-file]
   local extra=()
   [ "$2" = 0 ] && extra=(--disable-slash-commands)
+  [ -n "${3:-}" ] && extra+=(--append-system-prompt-file "$3")
   claude -p "$1" --output-format json "${extra[@]}" | jq -r '.result // ""'
+}
+
+# The skill with one addressed rule line removed. The address must resolve to
+# exactly one line — rules.sh enforces that; here a miss is fatal rather than a
+# silently unmodified arm, which would read as "the rule does nothing".
+trim_skill() { # skill-file address -> trimmed text on stdout
+  local hits
+  hits="$(grep -Fc -- "$2" "$1")"
+  [ "$hits" -eq 1 ] || {
+    echo "ablate: address matches $hits lines in $1, need exactly 1: $2" >&2
+    return 1
+  }
+  grep -Fv -- "$2" "$1"
 }
 
 # Blinded per-assertion judge -> "pass"/"fail". A pass whose evidence isn't a
@@ -59,13 +81,13 @@ det_check() { # transcript regex expect(present|absent)
 
 # Runs one arm k times and sets det_rate[]/sem_rate[] (percent, parallel to the
 # scenario's det_id[]/sem_id[]). Reads the scenario arrays from the global scope.
-run_arm() { # prompt skills k
-  local prompt="$1" skills="$2" k="$3" t i transcript
+run_arm() { # prompt skills k [system-prompt-file]
+  local prompt="$1" skills="$2" k="$3" sys="${4:-}" t i transcript
   local dc=() sc=()
   for i in "${!det_id[@]}"; do dc[i]=0; done
   for i in "${!sem_id[@]}"; do sc[i]=0; done
   for ((t = 0; t < k; t++)); do
-    transcript="$(claude_run "$prompt" "$skills")"
+    transcript="$(claude_run "$prompt" "$skills" "$sys")"
     for i in "${!det_id[@]}"; do
       [ "$(det_check "$transcript" "${det_re[i]}" "${det_expect[i]}")" = pass ] && dc[i]=$((dc[i] + 1))
     done
@@ -85,6 +107,59 @@ rate_of() { # id -> percent from the last run_arm
   echo 0
 }
 
+# Three arms differing only in the skill text: full, full minus one rule, none.
+# The installed skill is disabled in all three, so the arms cannot differ by how
+# the skill was invoked — only by what it said.
+run_ablation() { # scenario-file address k -> prints the comparison
+  local f="$1" addr="$2" kk="$3" skill_file trimmed prompt i id full trim none verdict
+  skill_file="$SKILLS_DIR/$skill/SKILL.md"
+  [ -f "$skill_file" ] || {
+    echo "ablate: no such skill: $skill" >&2
+    return 1
+  }
+  trimmed="$(mktemp)"
+  trim_skill "$skill_file" "$addr" > "$trimmed" || {
+    rm -f "$trimmed"
+    return 1
+  }
+
+  prompt="$task
+
+$(cat "$(dirname "$f")/$fixture")"
+
+  local -a full_det full_sem trim_det trim_sem none_det none_sem
+  run_arm "$prompt" 0 "$kk" "$skill_file"
+  full_det=(${det_rate[@]+"${det_rate[@]}"}) full_sem=(${sem_rate[@]+"${sem_rate[@]}"})
+  run_arm "$prompt" 0 "$kk" "$trimmed"
+  trim_det=(${det_rate[@]+"${det_rate[@]}"}) trim_sem=(${sem_rate[@]+"${sem_rate[@]}"})
+  run_arm "$prompt" 0 "$kk" ""
+  none_det=(${det_rate[@]+"${det_rate[@]}"}) none_sem=(${sem_rate[@]+"${sem_rate[@]}"})
+  rm -f "$trimmed"
+
+  printf '\n  %-20s %6s %8s %6s   %s\n' assertion full trimmed none verdict
+  for i in "${!det_id[@]}"; do
+    id="${det_id[i]}" full="${full_det[i]}" trim="${trim_det[i]}" none="${none_det[i]}"
+    verdict="$(ablate_verdict "$full" "$trim")"
+    printf '  %-20s %5d%% %7d%% %5d%%   %s\n' "$id" "$full" "$trim" "$none" "$verdict"
+  done
+  for i in "${!sem_id[@]}"; do
+    id="${sem_id[i]}" full="${full_sem[i]}" trim="${trim_sem[i]}" none="${none_sem[i]}"
+    verdict="$(ablate_verdict "$full" "$trim")"
+    printf '  %-20s %5d%% %7d%% %5d%%   %s\n' "$id" "$full" "$trim" "$none" "$verdict"
+  done
+}
+
+ablate_verdict() { # full trimmed -> proven | harm | no effect
+  local d=$(($1 - $2))
+  if [ "$d" -ge "$ABLATE_THRESHOLD" ]; then
+    echo "proven — removing it costs ${d} points"
+  elif [ "$d" -le "-$ABLATE_THRESHOLD" ]; then
+    echo "HARM — removing it gains $((-d)) points"
+  else
+    echo "no effect at this threshold"
+  fi
+}
+
 main() {
   set -uo pipefail
   local scns=() f
@@ -99,6 +174,7 @@ main() {
 
   local arms=1
   [ "$opt_baseline" = 1 ] && arms=2
+  [ -n "$opt_ablate" ] && arms=3
   local est=0 sk sn
   for f in "${scns[@]}"; do
     read -r sk sn < <(
@@ -139,6 +215,16 @@ main() {
     fx="$(cat "$(dirname "$f")/$fixture")"
     echo
     echo "=== $key (k=$kk, $ver) ==="
+
+    # Ablation is a self-contained three-arm experiment: it answers whether one
+    # rule earns its place, and never touches the baseline file, whose numbers
+    # come from the installed skill rather than injected text.
+    if [ -n "$opt_ablate" ]; then
+      echo "  ablating: $opt_ablate"
+      run_ablation "$f" "$opt_ablate" "$kk" || exit 1
+      continue
+    fi
+
     run_arm "$invoke
 
 $task

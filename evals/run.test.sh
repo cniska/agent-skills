@@ -53,5 +53,30 @@ claude_run() { case "$1" in *ASSERTION:*) printf '{"verdict":"pass","evidence_qu
 run_arm p 1 3
 assert "run_arm det 0% when label absent" "${det_rate[0]}" 0
 
+# trim_skill: removes exactly the addressed line, and refuses to guess.
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+printf 'keep one\nremove this rule\nkeep two\n' > "$TMP/SKILL.md"
+assert "trim drops the addressed line" \
+  "$(trim_skill "$TMP/SKILL.md" 'remove this rule' | grep -c 'remove this rule')" 0
+assert "trim keeps the rest" "$(trim_skill "$TMP/SKILL.md" 'remove this rule' | grep -c keep)" 2
+trim_skill "$TMP/SKILL.md" 'no such line' > /dev/null 2>&1
+assert "trim refuses an address matching nothing" "$?" 1
+printf 'dup rule\ndup rule\n' > "$TMP/DUP.md"
+trim_skill "$TMP/DUP.md" 'dup rule' > /dev/null 2>&1
+assert "trim refuses an ambiguous address" "$?" 1
+
+# ablate_verdict: only a gap at or past the threshold is a finding.
+assert "verdict proven" "$(ablate_verdict 100 40 | cut -d' ' -f1)" proven
+assert "verdict harm" "$(ablate_verdict 40 100 | cut -d' ' -f1)" HARM
+assert "verdict no effect below threshold" "$(ablate_verdict 100 61 | cut -d' ' -f1-2)" "no effect"
+assert "verdict at exactly the threshold counts" "$(ablate_verdict 100 60 | cut -d' ' -f1)" proven
+
+# claude_run passes the skill text as a system-prompt file, and disables the
+# installed skill in every ablation arm so the arms differ only by that text.
+claude_run() { printf 'skills=%s sys=%s' "$2" "${3:-none}"; }
+assert "arm carries its system prompt" "$(claude_run p 0 /tmp/x.md)" "skills=0 sys=/tmp/x.md"
+assert "arm with no text" "$(claude_run p 0 '')" "skills=0 sys=none"
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
