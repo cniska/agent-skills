@@ -44,18 +44,9 @@ Spell out abbreviations and acronyms on first use — a reader fluent in code is
 
 ## Red flags
 
-- Narrating mechanics the diff already shows instead of the why and the risk
 - Presenting inferred intent as stated fact
-- Explaining file-by-file instead of by logical change
-- Gate questions that are trivia or gotchas, free-text instead of multiple choice, or a gate you rubber-stamp instead of answering
 - No "what to scrutinize" — an explanation that names no risk explained nothing
-- Beginner padding when a plain answer would do
 - A walkthrough so long the reader would rather just read the diff
-- Plain text output when a self-contained HTML file could have been written
-- External fonts, CDNs, packages, or network calls in the HTML instead of a fully self-contained file
-- An acronym or abbreviation used without spelling it out on first use
-- A term gloss long enough to interrupt the narrative instead of a short parenthetical, collapsed aside, or up-front glossary block for jargon-dense diffs
-- Running the pass in this session when a fresh subagent was available, or judging a diff too small to be worth delegating
+- A gate you rubber-stamp instead of answering, or a guessable one — correct answer in a fixed position, or a distractor that's a joke, an impossible claim, or trivia instead of a plausible misunderstanding
 - Briefing the subagent with your intent, rationale, or findings, so it grades your reading instead of forming its own
 - Trusting a diff's hunk-header function label without checking it against the file
-- A guessable gate — correct answer in a fixed position, or a distractor that's a joke, an impossible claim, or trivia instead of a plausible misunderstanding
