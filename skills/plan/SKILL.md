@@ -31,7 +31,7 @@ Match the tier to the question: **fast-tier** for retrieval (where a thing lives
 - **Medium (3-5 files):** one feature slice through the stack
 - **Large (5-8 files):** multi-component feature — consider splitting
 
-Anything larger needs further decomposition. Count seams of judgment, not files touched: mechanical churn (one derive added to fifteen types) and mandated doc or spec updates that mirror a decision already made don't move the band, while in a large codebase a single file can be several seams. Count decisions a reviewer could push back on — that is what a seam is. Slice vertically (complete paths through the stack), not horizontally (all types, then all implementations, then all tests).
+Anything larger needs further decomposition. Count decisions a reviewer could push back on, not files touched: mechanical churn (one derive added to fifteen types) and mandated doc or spec updates that mirror a decision already made don't move the band, while in a large codebase a single file can carry several. Slice vertically (complete paths through the stack), not horizontally (all types, then all implementations, then all tests).
 
 ## When aligned
 
