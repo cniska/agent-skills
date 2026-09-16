@@ -29,7 +29,7 @@ Separate refactoring from feature work. Separate formatting from behavior change
 
 ## Branch workflow
 
-- Branch when the change needs review or outlives a sitting. A small fix in a repo whose own rules allow it goes straight onto the integration branch — a branch and a PR for a one-line change is ceremony.
+- Branch when the change needs review or outlives a sitting. Where the project states nothing either way, its log answers: a history of squash-merged pull requests means branch; a history of direct commits to the integration branch means a small fix can go straight there.
 - Start task branches from the current integration base; `git symbolic-ref refs/remotes/origin/HEAD` names it, and on a project with release lines it is often not `main`. Fetch first rather than updating a shared primary checkout.
 - Use short topic branch names without type prefixes, e.g. `signal-toolkit`, not `feat/signal-toolkit`.
 - Keep branches short-lived — merge within days, not weeks.
@@ -54,6 +54,7 @@ Where a project uses them: a worktree is a throwaway checkout for one branch, cr
 
 - Long-lived topic branches diverging from the integration base — a permanent release line is not this
 - Imposing this file's commit format on a repo whose log already shows a different one
+- Running a write command — commit, fetch, push, `worktree prune` — in a repo whose rules say to ask first. Tidying up is still writing
 - Commits with "misc", "fix", "update" as the entire message
 - Force-pushing to shared branches
 - Mixing unrelated changes in one commit
