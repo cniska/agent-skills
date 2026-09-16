@@ -81,6 +81,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [issue](skills/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
 | | [pr](skills/pr/SKILL.md) | Self-review gated PR create or description update |
 | | [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, then reset context |
+| | [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited |
 | | [skill-authoring](skills/skill-authoring/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
 | | [skill-test](skills/skill-test/SKILL.md) | Dry-run a changed skill on unlike real repos before publishing |
 
