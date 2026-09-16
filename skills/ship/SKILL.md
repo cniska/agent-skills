@@ -7,7 +7,7 @@ description: Run pre-release checks, pick the version bump, and cut the release.
 
 Run a structured pre-release gate, determine the version bump from the commits, and cut the release. This is a release gate over the whole project, not a diff review — review already happened.
 
-The skill orchestrates and gates; the release mechanics belong to the project. Read `AGENTS.md` for the verify and release commands, and defer to them — the release entry point (a script or CI workflow) owns the version bump, changelog, tag, and any project-specific pre-release gates. Where none exists, take the manual path in the workflow. The release shape varies by ecosystem — tag-and-bump, or build-and-publish a checksummed artifact — and this skill assumes none. Where the project has no release entry point, take the manual path in the workflow.
+The skill orchestrates and gates; the release mechanics belong to the project. Read `AGENTS.md` for the verify and release commands, and defer to them — the release entry point (a script or CI workflow) owns the version bump, changelog, tag, and any project-specific pre-release gates. The release shape varies by ecosystem — tag-and-bump, or build-and-publish a checksummed artifact — and this skill assumes none. Where the project has no release entry point, take the manual path in the workflow.
 
 ## Scope
 
@@ -18,12 +18,12 @@ Check the entire project against the preconditions below. Never push; the last h
 1. **Verify preconditions** (all must pass to proceed):
    - on the release branch (`main` unless the project says otherwise)
    - working directory is clean
+   - commits exist since the last release tag — a tag over no new commits releases nothing
    - the project's verification passes (its verify command per `AGENTS.md`)
    - no secrets in tracked files — grep tracked, non-`.env` files for common key shapes (`sk-`, `Bearer `, `-----BEGIN`, provider API-key env names)
 2. **Prepare context**: if the release follows a long implementation or review session, suggest running `handoff` and re-running in a fresh session, so the gate starts from a compact summary rather than a saturated context.
 3. **Run quality checks** (warn, don't block):
    - no `TODO` / `FIXME` left in non-test source
-   - commits exist since the last release tag
    - user-facing docs and changelog reflect the user-visible features since the last tag — cross-reference `feat` subjects; defer drift detail to `doc-review`
 4. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits):
    - previous tag: `git describe --tags --abbrev=0 --match 'v[0-9]*'`
@@ -53,13 +53,6 @@ Check the entire project against the preconditions below. Never push; the last h
 - **Ship it** — preconditions pass, no warnings
 - **Ship with caution** — preconditions pass, warnings present
 - **Fix first** — a precondition fails
-
-## Rules
-
-- Never cut a release if any precondition fails.
-- Always ask for confirmation before creating the commit or tag.
-- Never push — print the push commands for the user.
-- If there are no commits since the last tag, stop and report that.
 
 ## See also
 
