@@ -15,8 +15,10 @@ Before the first slice, if not already on a dedicated branch, create one. Consid
 2. **Read before writing.** Load the relevant files, understand existing patterns, check for utilities you can reuse. For external libraries and version-sensitive APIs, confirm behavior against the docs or upstream source for the version pinned in this repo — not memory, not blog posts.
 3. **Implement the slice.** Stay within its boundary — don't fix adjacent issues or refactor unrelated code. Comments must earn their keep: write one only for a *why* a name, type, or test can't carry — never narrate *what* the code does. Don't hedge: a default or `catch`-and-continue written because you don't know the correct behavior turns uncertainty into silent runtime behavior — ask, or fail where the caller can see it. Degradation you chose on purpose is fine; say so in a comment where the choice isn't obvious from the line.
 4. **Verify the slice.** Run the targeted tests; they must pass before the next slice starts. Green reached by skipping a test, deleting an assertion, silencing a check, or lowering a threshold is not verification — restore the check and fix the code under it. Run the project's full verification once before pushing or opening a PR.
-5. **Commit the slice.** One logical change per commit.
-6. **Repeat.** Pick the next slice. If the plan no longer fits the work, stop and say so — the plan's boundary is the user's to move, not the loop's.
+5. **Simplify the slice.** Use `simplify` for the behavior-preserving cleanup pass.
+6. **Review the slice.** Have a read-only reviewer check the diff against its claim and the project rules: every claimed invariant needs a meaningful test, changed behavior needs matching docs, and defaults or fallbacks must represent a deliberate decision. Fix or explicitly answer every finding, then rerun the repository check.
+7. **Commit the slice.** One logical change per commit.
+8. **Repeat.** Pick the next slice. If the plan no longer fits the work, stop and say so — the plan's boundary is the user's to move, not the loop's.
 
 ## Slicing strategies
 
@@ -41,6 +43,7 @@ Say what stopped it and which slices landed. The per-slice commits are the recor
 
 - `plan` for scope and phase boundaries
 - `tdd` for red-green-refactor within each slice
+- `simplify` for the behavior-preserving cleanup pass
 
 ## Red flags
 
