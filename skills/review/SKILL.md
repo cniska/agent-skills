@@ -35,7 +35,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 3. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
 4. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
 5. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
-6. Run every dimension pass in this session — load each skill (`correctness-review`, `style-review`, `architecture-review`, `doc-review`, `security-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. If a skill fails to load, say so in that category's output rather than improvising.
+6. Run every dimension pass in this session — load each skill (`correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. If a skill fails to load, say so in that category's output rather than improvising.
 7. Fold in the second opinion's findings. Verify each; discard false positives.
 8. Merge findings: deduplicate, keep strongest framing per root issue.
 9. Label every finding by severity (see below). Fix all findings by default — commit each fix as its own subject-scoped commit.
@@ -105,20 +105,21 @@ If the change includes database migrations, run this pass too and file its findi
 
 ## Output
 
-One section per review dimension (Correctness, Style, Architecture, Documentation, Security, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Optional):
+One section per review dimension (Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Optional):
 
 | Category | Critical | Fix | Optional |
 |----------|----------|-----|----------|
 | Correctness | 0 | 0 | 0 |
-| Style | 0 | 0 | 0 |
+| Maintainability | 0 | 0 | 0 |
 | Architecture | 0 | 0 | 0 |
 | Documentation | 0 | 0 | 0 |
 | Security | 0 | 0 | 0 |
+| Performance | 0 | 0 | 0 |
 | Tests | 0 | 0 | 0 |
 
 ## See also
 
-- `correctness-review`, `style-review`, `architecture-review`, `doc-review`, `security-review`, `test-review` for dimension-specific depth
+- `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
 - `simplify` for acting on structural findings
 - `explain-diff` for building the understanding this skill judges against, on a complex or unfamiliar change
 

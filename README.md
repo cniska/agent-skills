@@ -70,9 +70,10 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | **Review** | [explain-diff](skills/explain-diff/SKILL.md) | Explain a diff's intent and risk, gate your understanding before review |
 | | [review](skills/review/SKILL.md) | All review dimensions — self, PR, or path mode |
 | | [correctness-review](skills/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
-| | [style-review](skills/style-review/SKILL.md) | Local conventions, naming, control flow, readability |
+| | [maintainability-review](skills/maintainability-review/SKILL.md) | Local conventions, naming, control flow, readability |
 | | [architecture-review](skills/architecture-review/SKILL.md) | Boundaries, indirection pressure, contract integrity |
 | | [security-review](skills/security-review/SKILL.md) | Trust boundaries, execution safety, concrete attack paths only |
+| | [performance-review](skills/performance-review/SKILL.md) | Repeated work, unbounded operations, and resource use |
 | | [test-review](skills/test-review/SKILL.md) | Coverage gaps, edge cases, test quality |
 | | [doc-review](skills/doc-review/SKILL.md) | Drift detection, terminology, outdated names |
 | **Ship** | [ship](skills/ship/SKILL.md) | Pre-release gate, version bump from commits, cut the tag |

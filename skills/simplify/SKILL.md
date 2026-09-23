@@ -45,7 +45,7 @@ All existing tests must pass without modification — if tests needed updating, 
 
 - `review` for the loop that surfaces these findings
 - `architecture-review` for finding misplaced logic and indirection
-- `style-review` for finding naming and hygiene drift
+- `maintainability-review` for finding naming and hygiene drift
 
 ## Red flags
 

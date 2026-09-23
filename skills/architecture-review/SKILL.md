@@ -46,11 +46,6 @@ Default: if a layer carries no policy, invariants, or boundary isolation, remove
 - at *function* scale length is a finding on its own: a body past ~50 lines, one needing section comments to navigate, or one that computes a result and then formats it for presentation. An exhaustive match or switch whose length is entirely its arms is not this — there is no substructure to lift out
 - duplication wants a name once it is a substantial block repeated twice or a small one repeated three times, in one file or across modules — size and copy count trade off against each other, so a two-line body appearing seven times counts. Leave what is duplicated on purpose: boundary-local copies keeping two modules independent, and conditionally-compiled twins that merging would defeat
 
-### 5. Portability and product fit
-
-- hard-coded runtime/framework assumptions violating documented goals
-- abstractions that look framework-first instead of product-first
-
 ## Evidence threshold
 
 Only report issues with concrete evidence in code, contracts, or dependency flow. Prefer demonstrated issues over speculative concerns.

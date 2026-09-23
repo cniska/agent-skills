@@ -17,15 +17,6 @@ Report only drift caused or exposed by the diff. Pre-existing doc debt untouched
 - outdated names or contracts after refactors
 - new or changed docs staying conceptual rather than describing implementation
 
-## Style conventions
-
-Apply these only to lines the change adds or modifies — never flag untouched text.
-
-- One H1 per doc (page title). Headings follow semantic order.
-- H1 title case, H2+ sentence case.
-- Bullets starting with a word or phrase use a capital letter.
-- No unnecessary fenced code blocks for content that reads as prose.
-
 ## Workflow
 
 Read the diff, then the affected doc files. For changes touching many docs, fan out **fast-tier** readers — one per doc — to surface drift candidates. Verify each before reporting.

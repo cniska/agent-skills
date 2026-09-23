@@ -1,15 +1,15 @@
 ---
-name: style-review
-description: Review code style, naming, patterns, and consistency. Use when reviewing code quality or style drift.
+name: maintainability-review
+description: Review code maintainability, naming, patterns, and consistency. Use when reviewing code quality or changeability.
 ---
 
-# Style Review
+# Maintainability Review
 
-Review naming, coding patterns, and style consistency against the codebase's existing conventions.
+Review whether the code is easy to understand, change, and extend against the codebase's existing conventions.
 
 ## Scope
 
-### 1. Naming and shape consistency
+### 1. Naming and organization
 
 - naming consistency across types, constants, functions, and files
 - names that describe their content rather than their category, judged in context: a bare `data`, `temp`, or `result` holding something specific is the smell, but the same word is right where it is the domain's own term, a published API name, or an accumulator the function builds and returns — check the spec and the exports before flagging one
@@ -23,7 +23,7 @@ Review naming, coding patterns, and style consistency against the codebase's exi
 - exhaustive handling of state variants where applicable
 - consistent assertion and error patterns
 - prefer explicit status/state fields over boolean flags for state transitions
-- prefer guard clauses and early returns over deep nesting — three levels of conditional in one body is the trigger
+- prefer guard clauses and early returns when they make the control flow easier to follow
 - prefer data-driven lookups over long control-flow chains; likewise for one predicate re-tested throughout a body, and for a dispatch whose arms share an implementation. Not an exhaustive match over a closed type — a lookup table there trades a compile-time guarantee for a runtime one
 - one error boundary per failure mode: nested or back-to-back `try` blocks mean the boundary hasn't been decided — extract each fallible step into a function that handles or propagates
 
@@ -37,16 +37,14 @@ Check where the codebase already has a clear local pattern:
 - raw strings or magic values that should become typed constants
 - sibling concepts with different intent should not collapse into one ambiguous shape or name
 
-### 4. Readability and hygiene
+### 4. Readability and changeability
 
 - comments must earn their keep: flag any that restate *what* the code does, and banner/separator comments — a comment justifies itself only by a *why* a name, type, or test can't carry
 - no unused params, dead branches, or ad-hoc fallbacks
 - a new inline comment silencing a type, lint, or security check, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag it unless the diff says why
-- keep style aligned with nearby code
+- keep structure and terminology aligned with nearby code
 - abstractions must earn their complexity — if a wrapper adds no value, inline it, judged against the language's own idiom rather than a general one: a newtype, or a constructor delegating to a default, is conventional and not an empty wrapper
-- avoid nested ternaries for branching logic; use explicit conditionals, maps, or helpers when multiple cases affect readability
-- prefer clarity over cleverness: dense one-liners that require a mental pause should be simplified
-- a temp holding a complex expression, where the expression itself would read better named as a query
+- prefer clear, idiomatic code over cleverness
 
 ## Evidence threshold
 
@@ -68,7 +66,7 @@ For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), 
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
 - Good: **Fix** — `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`). Rename to `fetchUserData`.
 
-Order Critical → Fix → Consider → Nit. If nothing clears the threshold, report "No style findings" — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
+Order Critical → Fix → Consider → Nit. If nothing clears the threshold, report "No maintainability findings" — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
 
 ## See also
 
