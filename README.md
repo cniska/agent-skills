@@ -61,6 +61,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | **Plan** | [spec](skills/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
 | | [plan](skills/plan/SKILL.md) | Design through dialogue, slice vertically |
 | | [design](skills/design/SKILL.md) | Hard-to-misuse interfaces, contract first, validate at boundaries |
+| | [interface-design](skills/interface-design/SKILL.md) | Design or review web and Flutter interfaces against product states and visual hierarchy |
 | **Build** | [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
 | | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, mock at boundaries |
 | | [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
@@ -83,6 +84,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [pr](skills/pr/SKILL.md) | Self-review gated PR create or description update |
 | | [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, then reset context |
 | | [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited |
+| | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
 | | [verification-setup](skills/verification-setup/SKILL.md) | Set up agent-driven verification for one app interface |
 | | [skill-author](skills/skill-author/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
 | | [skill-test](skills/skill-test/SKILL.md) | Dry-run a changed skill on unlike real repos before publishing |
