@@ -73,6 +73,7 @@ Look for these patterns in every review:
 - shared contracts that blur distinct intent where separate variants or schemas would be clearer
 - escape hatches, bypass flags, and special-case options that are broader than the behavior they enable
 - updated implementation that leaves stale references behind in tests or docs
+- for a small diff with effects beyond the changed files, name the fact its safety depends on, trace the relevant callers or contracts, and run a focused check when practical; report it as unproven if the check cannot run
 
 ## Dependency review
 
