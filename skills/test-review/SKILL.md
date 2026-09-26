@@ -25,10 +25,12 @@ Review test adequacy for changed code. For large changes spanning many files or 
 ### 3. Test quality
 
 - tests asserting implementation details instead of behavior (method call sequences break on refactor)
-- tests duplicating coverage without distinct scenarios
+- tests repeating behavior another test already proves, without a failure mode unique to each layer
 - fragile tests (timing, ordering, absolute paths)
 - missing cleanup (temp files, cache state)
-- mocking internals instead of testing through the real contract — mock at boundaries only
+- mocks that supply the asserted result, or mock internals instead of testing through the real contract — mock at boundaries only
+- tests that require exports, flags, or wrappers with no production caller
+- negative tests that pass because a different guard refuses the input first
 - test names that don't read as specifications
 - tests with more than one reason to fail — assert one behavior each
 
@@ -52,6 +54,8 @@ Label these `Restore` unless the diff or commit message says why. The weakening 
 ## Evidence threshold
 
 Flag a gap as Must-add or Should-add only if you can name the concrete bug or regression the test would catch. If you can't name the bug, don't flag it. Never demand 100% coverage.
+
+For a new or changed test, identify the behavior, a regression it would catch, and why existing coverage misses it. Suggest removal only when stronger proof survives or no proof is needed. Keep source-reading tests that guard literal wire values or generated contracts.
 
 - Low-value (don't flag): `formatLabel()` has no test — trivial pass-through, no failure mode.
 - High-value (flag): `parseConfig()` on an empty file returns `undefined` but callers assume an object — untested path crashes startup.
