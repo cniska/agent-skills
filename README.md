@@ -61,7 +61,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | **Plan** | [spec](skills/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
 | | [plan](skills/plan/SKILL.md) | Design through dialogue, slice vertically |
 | | [design](skills/design/SKILL.md) | Hard-to-misuse interfaces, contract first, validate at boundaries |
-| | [interface-design](skills/interface-design/SKILL.md) | Design or review web and Flutter interfaces against product states and visual hierarchy |
+| | [ui-design](skills/ui-design/SKILL.md) | Design or review web and Flutter interfaces against product states and visual hierarchy |
 | **Build** | [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
 | | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, mock at boundaries |
 | | [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |

@@ -1,13 +1,13 @@
 ---
-name: interface-design
+name: ui-design
 description: Design or review user interfaces for web or Dart/Flutter products when visual hierarchy, state communication, responsive behavior, and product polish matter.
 ---
 
-# Interface Design
+# UI Design
 
 Design the interface as a coherent product surface, not as a collection of technically valid widgets.
 
-## Before editing
+## Before designing or reviewing
 
 - Read the existing interface, theme tokens, typography, layout primitives and nearby screens before choosing a new shape.
 - Find the repository's canonical owner of those tokens and the real target sizes. Extend source tokens or primitives; do not edit generated output or invent a viewport contract the product does not have.
@@ -39,7 +39,9 @@ Design the interface as a coherent product surface, not as a collection of techn
 
 ## Review gate
 
-Before calling the interface done, use representative fixture data that exercises the meaningful domain states, long labels and empty or stale sources. Review screenshots or the running surface at the target sizes in addition to automated checks. Ask an independent reviewer when the workflow provides one; otherwise record a deliberate self-review against hierarchy, alignment, spacing, contrast, typography, state clarity, responsive behavior and whether every visible element earns its place.
+Before calling a design done or judging visual quality in a review, use representative fixture data that exercises the meaningful domain states, long labels and empty or stale sources. Review screenshots or the running surface at the target sizes in addition to automated checks. Ask an independent reviewer when the workflow provides one; otherwise record a deliberate self-review against hierarchy, alignment, spacing, contrast, typography, state clarity, responsive behavior and whether every visible element earns its place.
+
+For a review, report concrete findings with the screen, state, size, and evidence. If the running interface could not be inspected, identify the review as source-only and leave visual quality unverified.
 
 ## Red flags
 
