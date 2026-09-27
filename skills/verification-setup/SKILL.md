@@ -10,10 +10,10 @@ Give the next agent an executable path to drive a changed interface and inspect 
 ## Workflow
 
 1. **Choose one interface.** Read the project rules, run commands, and testing docs. Name the user action and visible result that matter for the current change. Give web, mobile, and other surfaces separate recipes when their launch or controls differ.
-2. **Audit the existing path.** Find how an agent launches the changed build in an isolated environment, checks readiness, operates the interface, inspects the visible result and any persistent side effect, captures evidence, and cleans up. Read existing scripts and tests behind the commands. A test suite alone does not complete this path.
-3. **Fill only the gap.** Reuse a working agent-control recipe if one exists. Otherwise add the smallest working control harness needed and a project-local `<project>-verify-<surface>` skill in the project's established skill location. Give exact launch, readiness, interaction, observation, evidence, and cleanup instructions. Point to existing commands and tests instead of copying their procedures. Use the project's worktree or test-stack bootstrap and teardown when available; state which process, device, data, and credentials the run owns.
-4. **Prove the recipe.** Follow the generated instructions from a clean start through cleanup. Operate one representative flow yourself, inspect the rendered result, and capture evidence of the action and result. Check a stored result when the behavior writes one. If controls are unreliable, improve the interface's semantic handles or add a suitable driver before calling the skill ready.
-5. **Report the outcome.** Name the recipe used or files added, the behavior driven, the evidence captured, and any step that could not be run. An unexecuted recipe is a draft.
+2. **Audit the existing path.** Find how an agent launches the changed build and its base build in an isolated environment, checks readiness, operates the interface, inspects the visible result, any persistent side effect, and the diagnostics an engineer checks on this surface, captures evidence, and cleans up. Read existing scripts and tests behind the commands. A test suite alone does not complete this path.
+3. **Fill only the gap.** Reuse a working agent-control recipe if one exists. Otherwise add the smallest working control harness needed and a project-local `<project>-verify-<surface>` skill in the project's established skill location. Give exact launch, readiness, interaction, observation, evidence, and cleanup instructions. Point to existing commands and tests instead of copying their procedures. Script launch, readiness, evidence capture, and cleanup so they fail loudly; keep the skill's prose for what to operate and how to judge the result. Use the project's worktree or test-stack bootstrap and teardown when available; derive ports, browser profiles, and app data per run so concurrent agents do not collide, and state which process, device, data, and credentials the run owns.
+4. **Prove the recipe.** Follow the generated instructions from a clean start through cleanup. Operate one representative flow yourself, inspect the rendered result, and capture evidence of the action and result on both the base and changed build, saved where a reviewer can open it without rerunning. Check a stored result when the behavior writes one. If controls are unreliable, improve the interface's semantic handles or add a suitable driver before calling the skill ready.
+5. **Report the outcome.** Name the recipe used or files added, the behavior driven, the evidence captured and where it is saved, and any step that could not be run. An unexecuted recipe is a draft.
 
 ## See also
 
@@ -27,4 +27,6 @@ Give the next agent an executable path to drive a changed interface and inspect 
 - Placeholder commands, selectors, or assertions in a generated skill
 - Coordinates used where a stable interface handle is needed
 - Driving shared data or a device without checking who owns it
+- Fixed ports, profiles, or app data that break a second concurrent run
+- Launch, readiness, or cleanup left as prose for the agent to improvise
 - Reporting an unrun recipe as verified
