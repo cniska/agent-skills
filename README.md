@@ -97,7 +97,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
 | | [verification-setup](skills/verification-setup/SKILL.md) | Set up agent-driven verification for one app interface |
 | | [writing](skills/writing/SKILL.md) | Write clear, natural prose for different readers and media |
-| | [skill-author](skills/skill-author/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
+| | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
 | | [skill-test](skills/skill-test/SKILL.md) | Dry-run a changed skill on unlike real repos before publishing |
 
 ## Design

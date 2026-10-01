@@ -19,7 +19,7 @@ Diversity beats count: three repos that differ in shape (stack, release model, d
 
 ## See also
 
-- `skill-author` — the change this dry-run gates
+- `skill-writing` — the change this dry-run gates
 
 ## Red flags
 

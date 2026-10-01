@@ -1,9 +1,9 @@
 ---
-name: skill-author
+name: skill-writing
 description: Create or update a skill in this repo, matching its conventions. Use when authoring a new skill or amending an existing one.
 ---
 
-# Skill author
+# Skill writing
 
 A skill is a self-contained instruction to a model — one per file at `skills/<name>/SKILL.md`. This skill carries the *how* of writing one here; `AGENTS.md` is the source of truth for the mechanical rules the validator enforces (frontmatter, `## Red flags`, no cross-directory links, tier vocabulary). Read it first; don't restate it here.
 
