@@ -96,6 +96,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, then reset context |
 | | [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited |
 | | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
+| | [second-opinion](skills/second-opinion/SKILL.md) | Have a different model attack a consequential call or a document's facts |
 | | [verification-setup](skills/verification-setup/SKILL.md) | Set up agent-driven verification for one app interface |
 | | [writing](skills/writing/SKILL.md) | Write clear, natural prose for different readers and media |
 | | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
