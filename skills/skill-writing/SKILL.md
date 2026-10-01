@@ -17,7 +17,7 @@ Two modes, inferred from the request:
 1. **Pick the mode** and read `AGENTS.md` (`## Authoring a skill`) for the rules in force.
 2. **Find the closest sibling** and match its shape — don't invent a new one. A "create/update a GitHub thing" clones `issue`; a two-modes artifact skill clones `docs` or `agents-md`; a review dimension clones a `*-review` skill.
 3. **Scaffold (Create only)**: `make new-skill NAME=<kebab-case> DESC="<imperative description>"`, or copy `SKILL_TEMPLATE.md`.
-4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name in `## See also`; end with `## Red flags`. Match wording to the sibling — same section order, same lead-in style.
+4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name in `## See also`; end with `## Red flags`. Match wording to the sibling — same section order, same lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method.
 5. **Validate**: `make validate`.
 6. **Dry-run before commit**: run `skill-test` on unlike real repos for any material change, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
 7. **Commit** direct to `main` with a Conventional Commit subject — only once the user gives the go.
@@ -34,4 +34,5 @@ Two modes, inferred from the request:
 - Committing a materially changed skill without the `skill-test` dry-run
 - Treating a small diff as automatically non-material — a single new bullet can change what a skill flags
 - Growing a skill with rules for one-off friction instead of trimming
+- Restating what the model already knows, such as a smell catalog or a well-known method, where it would act the same without it
 - Referencing another skill by path instead of bare name
