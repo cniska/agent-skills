@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 status=0
 
 # Allowed first words for imperative descriptions used in this repo.
-readonly IMPERATIVE_VERBS='implement|review|debug|deprecate|design|manage|create|run|simplify|drive|write|test|explain|search'
+readonly IMPERATIVE_VERBS='implement|review|audit|debug|deprecate|design|manage|create|run|simplify|drive|write|test|explain|search'
 
 # Skills name capability tiers, never models — a named model dates the guidance.
 # Model families only: "Claude" alone is a tool reference (CLAUDE.md, Claude Code).

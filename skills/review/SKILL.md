@@ -1,24 +1,24 @@
 ---
 name: review
-description: Run all review dimensions against a diff or a path. Use when reviewing a feature branch before merge, reviewing someone else's PR, or auditing a file path.
-argument-hint: "[pr-url-or-number-or-path]"
+description: Run all review dimensions against a diff. Use when reviewing a feature branch before merge or reviewing someone else's PR.
+argument-hint: "[pr-url-or-number]"
 ---
 
 # Review
 
 Run all review dimensions against the current branch and produce one unified review. Approve when a change improves overall code health, even if it isn't perfect.
 
-Three modes: **Self** (no argument) — current branch diff against `main`; **PR** (URL or number) — someone else's PR; **Path** (file or directory) — full-file audit of code already on `main`.
+Two modes: **Self** (no argument) — current branch diff against `main`; **PR** (URL or number) — someone else's PR. Code already on `main` with no diff is `audit`.
 
 ## Scope
 
-**Self / PR:** review only the diff, but read enough surrounding code and docs to understand conventions and boundaries. **Path:** review the enumerated files in full — there is no diff.
+Review only the diff, but read enough surrounding code and docs to understand conventions and boundaries.
 
 Do not duplicate the same issue across categories.
 
 ## Change sizing
 
-Self and PR modes only — Path has no diff. Before reviewing, check the diff size:
+Before reviewing, check the diff size:
 
 - ~100 lines: good, reviewable in one pass.
 - ~300 lines: acceptable if one logical change.
@@ -45,12 +45,6 @@ Refactoring mixed with feature work is two changes. Flag it.
 1. `gh pr view <N>` for metadata; `gh pr diff <N>` for the diff. Read repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 2. When the PR is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question. Verify findings yourself.
 3. Run every dimension pass (as in Self step 6). Attach evidence to every finding.
-
-### Path (file or directory)
-
-1. Enumerate files; skip generated content, lockfiles, `node_modules/`.
-2. For large paths, fan out **fast-tier** sub-agents per file or logical area.
-3. Read conventions. Run every dimension pass (as in Self step 6) over the full files.
 
 ## Severity
 
@@ -102,7 +96,6 @@ If the change includes database migrations, run this pass too and file its findi
 
 - **Self:** fix all findings by default — including trivial ones — each as its own subject-scoped commit. Small issues left unfixed accumulate into tech debt. Where a finding is structural rather than a defect — complexity, misplaced logic, indirection — load `simplify` and apply its named moves, one per commit.
 - **PR:** never commit to someone else's branch. Deliver findings as a review (`gh pr review`), or a comment block if asked.
-- **Path:** report findings; fix only when the user asks.
 
 ## Output
 
@@ -121,6 +114,7 @@ One section per review dimension (Correctness, Maintainability, Architecture, Do
 ## See also
 
 - `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
+- `audit` for a read-only sweep of code already on `main`
 - `simplify` for acting on structural findings
 - `explain-diff` for building the understanding this skill judges against, on a complex or unfamiliar change
 
