@@ -42,6 +42,16 @@ I remove or simplify guidance when it:
 npx skills add cniska/skills
 ```
 
+### Claude Code on the web
+
+Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). It runs before the session starts, so the skills are in place when it does:
+
+```
+npx -y skills add cniska/skills -g -a claude-code -s '*' -y --copy
+```
+
+`-g` installs user-level (`~/.claude/skills`), so every repo in the session gets the set; `-s '*'` takes every skill, and `-y` skips the prompts a setup script can't answer.
+
 ## Local setup
 
 Use Make targets for setup and checks:
