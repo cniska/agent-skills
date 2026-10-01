@@ -50,7 +50,7 @@ Cloud sessions start in a fresh container, so install the skills from the enviro
 npx -y skills add cniska/skills -g -a claude-code -s '*' -y --copy
 ```
 
-`-g` installs user-level (`~/.claude/skills`), so every repo in the session gets the set; `-s '*'` takes every skill, and `-y` skips the prompts a setup script can't answer.
+`-g` installs user-level (`~/.claude/skills`), so every repo in the session gets the set; `-s '*'` takes every skill, and `-y` skips the prompts a setup script can't answer. `bunx skills add` with the same flags works too.
 
 ## Local setup
 
