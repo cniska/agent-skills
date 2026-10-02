@@ -1,6 +1,6 @@
 ---
 name: explain-diff
-description: Explain a diff's intent and risk, then gate your understanding of it, so a change is grasped before review, handoff, or merge. Use when a change is complex, unfamiliar, or headed to other people.
+description: Explain a diff's intent and risk in the session, then quiz the reader on it, so a change is grasped before review, handoff, or merge. Use when a change is complex, unfamiliar, or headed to other people.
 argument-hint: "[pr-url-or-number]"
 ---
 
@@ -10,30 +10,28 @@ A diff shows *what* changed. It never shows *why*, *what to worry about*, or *wh
 
 Written for readers who read code fluently. Explain the why and the risk, never the what — the diff carries the what. High-signal, not a tutorial: no beginner walkthrough, no narrating mechanics the diff already shows.
 
-Two modes: **Self** (no argument) — current branch diff against `main`, including uncommitted changes; **PR** (URL or number) — someone else's PR.
+Three modes: **Self** (no argument) — current branch diff against `main`, including uncommitted changes; **PR** (URL or number) — someone else's PR; **Commit** (a sha or range) — `git show` or `git diff` of it, with its messages as stated intent.
 
 ## Workflow
 
-1. **Gather the change and its intent.** Intent is *stated* in spec IDs, design notes, ADRs, commit messages, or a linked issue — find it before inferring. **Self:** diff the current branch against `main` (`git diff main...HEAD`, plus `git diff HEAD` for uncommitted work); read `git log main..HEAD` for commit messages, and for an uncommitted change check the diff's own spec/doc hunks first — read those and the small contract files before the biggest code hunk, and treat them as the commit message you do not have. **PR:** fetch with `gh pr diff <N>` and read intent from `gh pr view <N>` — the description and any linked issue. Prefer stated intent to inferred; the code says what it does, never what the author meant. Delegate the whole gather-and-draft pass to a fresh subagent whenever one is available, whatever the diff's size — a session that touched the change explains its own mental model back, and the gaps it papers over are exactly the ones it cannot see. Hand the agent only where to look: repo or worktree path, diff range or PR number, and tooling quirks it would otherwise trip on (a shell proxy that rewrites command output, an unusual build). Never your intent, rationale, alternatives weighed, or findings — a cold reader that converges on your reading independently is signal; one you briefed is an echo. Run it on a **balanced-tier** model or better. Keep the comprehension gate in this session regardless: you cannot delegate answering it for yourself.
-2. **Name the one logical change** and the problem it solves. Group hunks by logical change, not by file — a change that spans five files is one story, not five. Git's hunk-header heuristic can mislabel the enclosing function; verify against the file rather than trusting the diff's own labels.
-3. **For each logical change, give three things:** the **intent** (what it is for), the **load-bearing decision and the alternative not taken** (why this shape), and the **risk** (what could break, what a reviewer should scrutinize).
+1. **Gather the change and its intent.** Intent is *stated* in spec IDs, design notes, ADRs, commit messages, or a linked issue — find it before inferring. **Self:** diff the current branch against `main` (`git diff main...HEAD`, plus `git diff HEAD` for uncommitted work); read `git log main..HEAD` for commit messages, and for an uncommitted change check the diff's own spec/doc hunks first — read those and the small contract files before the biggest code hunk, and treat them as the commit message you do not have. **PR:** fetch with `gh pr diff <N>` and read intent from `gh pr view <N>` — the description and any linked issue. Prefer stated intent to inferred; the code says what it does, never what the author meant. Unless this session is already a fresh agent that has not seen the change, delegate the whole gather-and-draft pass to one whenever available, whatever the diff's size — a session that touched the change explains its own mental model back, and the gaps it papers over are exactly the ones it cannot see. Hand the agent only where to look: repo or worktree path, diff range or PR number, and tooling quirks it would otherwise trip on (a shell proxy that rewrites command output, an unusual build). Never your intent, rationale, alternatives weighed, or findings — a cold reader that converges on your reading independently is signal; one you briefed is an echo. Run it on a **balanced-tier** model or better. Keep the comprehension gate in this session regardless: the reader answers it, not a delegate.
+2. **Name the change's goal** and the problem it solves, then the separable parts that deliver it. Group hunks by part, not by file — a part that spans five files is one story, not five. Git's hunk-header heuristic can mislabel the enclosing function; verify against the file rather than trusting the diff's own labels.
+3. **For each part, give three things:** the **intent** (what it is for), the **load-bearing decision and the alternative not taken** (why this shape), and the **risk** (what could break, what a reviewer should scrutinize).
 4. **Surface the non-obvious.** Implicit contracts touched, invariants relied on, ordering or concurrency, migrations, **trust dependencies** (where one component assumes an invariant another enforces without checking it — especially across a process or network boundary), anything a careful reader would miss on a first pass.
 5. **Separate stated from inferred.** Never present an inferred *why* as fact. A reverse-engineered intent no source confirms is a guess — mark it as one.
-6. **Stay high-signal.** Omit what the diff makes obvious. Mechanical renames, moves, and reindentation earn one line, not a tour. Measure length against the change's *meaning*, not its line count — a 200-line reindent carrying fifteen lines of real signal warrants a short explanation, not a long one.
-
-## Comprehension gate
-
-Close with a few multiple-choice questions, medium difficulty — hard enough that only someone who actually grasps the intent and risk can answer, never trivia or gotchas: *why this shape and not the alternative, what breaks if X changes, where the invariant lives.* One correct answer per question, plausible distractors drawn from real misunderstandings of the diff — never guessable from a fixed position or a tell in the phrasing. Let the reader click an option and see whether it's correct, with a brief explanation, before moving on. Answer them before you own the change — merge it, hand it off, or ship it.
-
-The gate is not education; it is a rule: **you do not pass on code whose explanation you cannot give.** If you cannot answer, the change is not understood well enough to own — go back to the diff, or to the author. Solo, it is a check on yourself before merge; for a handoff, it travels with the file described below.
+6. **Stay high-signal.** Omit what the diff makes obvious. Mechanical renames, moves, and reindentation earn one line, generated files none. Measure length against the change's *meaning*, not its line count.
 
 ## Output
 
-Render as a single self-contained HTML file — inline CSS and JS, no external fonts, CDNs, packages, or network calls, so it opens standalone in a browser with nothing to fetch. The gate's multiple-choice interactivity (option selection, reveal) needs the inline JS; it isn't optional polish. Use the environment's artifact-publishing capability if one is available; otherwise write the file directly, named with today's date (`YYYY-MM-DD-explain-<slug>.html`), to a scratch location outside the repo. Fall back to plain text with the gate as open questions only when there's nowhere to write a file, or the user asks for text directly.
+Write the explanation in the session as Markdown — the builder's account of the change, the way a plan is the planner's and a review the reviewer's. Lead with the change's goal and the problem it solves, then one `##` section per part with its intent, the load-bearing decision and the alternative not taken, and its risk. Close with **What to scrutinize** (the parts a reviewer must not skim) and **Assumptions I could not confirm** (inferred intent, flagged). Size it to the change's meaning: a narrow change is a few sentences under each heading, and a section with nothing to say is omitted. No code blocks restating the diff.
 
-A narrative organized by logical change, not by file. Close with **what to scrutinize** (the parts a reviewer must not skim), **assumptions I could not confirm** (inferred intent, flagged), and the **gate questions**. No code blocks restating the diff.
+Spell out abbreviations and acronyms on first use. Gloss an unfamiliar or domain-specific term in a short parenthetical; when several recur throughout, front-load one short glossary instead, then use the terms bare.
 
-Spell out abbreviations and acronyms on first use — a reader fluent in code isn't necessarily fluent in this codebase's jargon. Gloss unfamiliar or domain-specific terms briefly: a short parenthetical in text, or a collapsed `<details>` aside. If several terms recur throughout — jargon dense enough that scattering parentheticals would fragment the narrative — front-load one short glossary block instead, then use the terms bare afterward. Never a standalone paragraph mid-narrative that interrupts the flow.
+## Comprehension gate
+
+After the explanation, quiz the reader yourself, one question at a time: a few multiple-choice questions, medium difficulty — *why this shape and not the alternative, what breaks if X changes, where the invariant lives*, never trivia or gotchas. One correct answer per question, with plausible distractors drawn from real misunderstandings of the diff and nothing that gives the answer away by position or phrasing. Ask through the harness's multiple-choice question tool where it has one, otherwise in plain text. Tell the reader whether each answer was right and why before asking the next, and end with the score and the parts of the change a wrong answer points back to.
+
+The gate is a rule, not education: **you do not pass on code whose explanation you cannot give.** A wrong answer sends the reader back to that part of the diff or to its author before the change is merged, handed off, or shipped. With no human in the session — a subagent, a scheduled run — open the gate with **Understanding: unchecked**, list the questions without answers, and return the answer key to the caller separately from the explanation.
 
 ## See also
 
@@ -47,6 +45,6 @@ Spell out abbreviations and acronyms on first use — a reader fluent in code is
 - Presenting inferred intent as stated fact
 - No "what to scrutinize" — an explanation that names no risk explained nothing
 - A walkthrough so long the reader would rather just read the diff
-- A gate you rubber-stamp instead of answering, or a guessable one — correct answer in a fixed position, or a distractor that's a joke, an impossible claim, or trivia instead of a plausible misunderstanding
+- Asking the gate's questions all at once, revealing answers before the reader commits, or a guessable gate — correct answer in a fixed position, or a distractor that's a joke, an impossible claim, or trivia instead of a plausible misunderstanding
 - Briefing the subagent with your intent, rationale, or findings, so it grades your reading instead of forming its own
 - Trusting a diff's hunk-header function label without checking it against the file

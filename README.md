@@ -82,7 +82,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [simplify](skills/simplify/SKILL.md) | Reduce complexity, Chesterton's Fence, preserve behavior |
 | | [git](skills/git/SKILL.md) | Conventional commits, rebase to sync, squash to land |
 | | [deprecation](skills/deprecation/SKILL.md) | Build replacement first, migrate consumers, remove completely |
-| **Review** | [explain-diff](skills/explain-diff/SKILL.md) | Explain a diff's intent and risk, gate your understanding before review |
+| **Review** | [explain-diff](skills/explain-diff/SKILL.md) | Explain a diff's intent and risk in the session, then quiz the reader |
 | | [review](skills/review/SKILL.md) | All review dimensions on a diff — self or PR mode |
 | | [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
 | | [correctness-review](skills/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
