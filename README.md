@@ -91,6 +91,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | **Ship** | [ship](skills/ship/SKILL.md) | Pre-release gate, version bump from commits, cut the tag |
 | **Meta** | [agents-md](skills/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
 | | [docs](skills/docs/SKILL.md) | Create or update project documentation |
+| | [adr](skills/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
 | | [issue](skills/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
 | | [pr](skills/pr/SKILL.md) | Self-review gated PR create or description update |
 | | [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, then reset context |
