@@ -73,7 +73,8 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [design](skills/design/SKILL.md) | Hard-to-misuse interfaces, contract first, validate at boundaries |
 | | [ui-design](skills/ui-design/SKILL.md) | Design or review web and Flutter interfaces against product states and visual hierarchy |
 | **Build** | [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
-| | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, mock at boundaries |
+| | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, one test at a time |
+| | [test-writing](skills/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
 | | [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
 | | [simplify](skills/simplify/SKILL.md) | Reduce complexity, Chesterton's Fence, preserve behavior |
 | | [git](skills/git/SKILL.md) | Conventional commits, rebase to sync, squash to land |
@@ -136,8 +137,8 @@ Naming actual models here would be wrong within months, so this column gives the
 | YAGNI | Don't build for hypothetical requirements | architecture-review, design |
 | Stop the line | Something breaks — stop, don't push past it | debug |
 | Prove-It pattern | Failing test before fix | debug, tdd |
-| Mock at boundaries | Mock external systems, not internal functions | tdd, test-review |
-| DAMP over DRY | Descriptive tests over deduplicated tests | tdd |
+| Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
+| DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
 | Rule of 3 | Extract after three instances, not before — though a substantial block earns a name on its second | simplify, architecture-review |
 | Chesterton's Fence | Understand before removing | simplify |
 | Hyrum's Law | All observable behavior becomes a commitment | design, deprecation |
