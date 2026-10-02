@@ -42,6 +42,8 @@ I remove or simplify guidance when it:
 npx skills add cniska/skills
 ```
 
+To work on the skills themselves, `make link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist, and leaves any other file or folder of the same name alone, reporting it. `make link NAME=<skill>` links one.
+
 ### Claude Code on the web
 
 Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). It runs before the session starts, so the skills are in place when it does:

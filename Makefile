@@ -1,4 +1,4 @@
-.PHONY: help validate bootstrap new-skill eval rules test lint
+.PHONY: help validate bootstrap new-skill eval rules test lint link
 
 help: ## Show this help message
 	@echo "Available commands:"
@@ -29,3 +29,6 @@ new-skill: ## Create a new skill (usage: make new-skill NAME=my-skill DESC="Impl
 		exit 1; \
 	fi
 	./scripts/new-skill.sh "$(NAME)" "$(DESC)"
+
+link: ## Symlink skills into ~/.agents/skills (usage: make link [NAME=my-skill])
+	./scripts/link.sh $(NAME)
