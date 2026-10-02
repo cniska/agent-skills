@@ -42,7 +42,7 @@ I remove or simplify guidance when it:
 npx skills add cniska/skills
 ```
 
-To work on the skills themselves, `make link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist, and leaves any other file or folder of the same name alone, reporting it. `make link NAME=<skill>` links one.
+To work on the skills themselves, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist, and leaves any other file or folder of the same name alone, reporting it. `mise run link <skill>…` links only those.
 
 ### Claude Code on the web
 
@@ -56,13 +56,14 @@ npx -y skills add cniska/skills -g -a claude-code -s '*' -y --copy
 
 ## Local setup
 
-Use Make targets for setup and checks:
+Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck`:
 
 ```
-make bootstrap
+mise install
+mise run bootstrap
 ```
 
-`make bootstrap` configures Git hooks and runs validation.
+`mise run bootstrap` configures Git hooks and runs validation.
 
 Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 
@@ -115,7 +116,7 @@ Each skill is one self-contained file — `skills/<name>/SKILL.md`, with YAML fr
 - **Terse and imperative.** Intent, workflow, and a `## Red flags` section of failure modes. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models — see below.
 
-`make validate` enforces the mechanical parts (frontmatter, `## Red flags`, no cross-directory links).
+`mise run validate` enforces the mechanical parts (frontmatter, `## Red flags`, no cross-directory links).
 
 ## Model tiers
 
@@ -154,27 +155,25 @@ Naming actual models here would be wrong within months, so this column gives the
 Run the validator before publishing changes:
 
 ```
-make validate
+mise run validate
 ```
 
-`make validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `make test` runs the bash unit tests. `make lint` runs `shellcheck` if it's installed — an optional local dev tool (`brew install shellcheck`) that auto-skips when absent; CI always runs it.
+`mise run validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `mise run test` runs the bash unit tests; `mise run lint` runs the pinned `shellcheck`.
 
 CI runs all three — validate, lint, test — on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit messages are enforced locally by the pre-push hook (see Local setup).
 
 ## Create a new skill
 
-Use the Make target:
-
 ```
-make new-skill NAME=<kebab-case-name> DESC="<imperative description>"
+mise run new-skill <kebab-case-name> "<imperative description>"
 ```
 
-`make new-skill` is the supported command. It runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) under the hood.
+`mise run new-skill` is the supported command. It runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) under the hood.
 
 For all available commands:
 
 ```
-make help
+mise tasks
 ```
 
 Bootstrap script: [`./scripts/bootstrap.sh`](scripts/bootstrap.sh)

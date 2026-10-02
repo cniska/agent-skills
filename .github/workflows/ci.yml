@@ -13,13 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install tools
+        uses: jdx/mise-action@v2
+
       - name: Validate skills
-        run: ./scripts/validate.sh
+        run: mise run validate
 
       - name: Lint bash
-        run: |
-          shellcheck --version  # fail loudly if the runner ever drops shellcheck
-          make lint
+        run: mise run lint
 
       - name: Test bash
-        run: make test
+        run: mise run test

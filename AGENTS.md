@@ -14,8 +14,8 @@ Self-contained engineering skills for AI coding agents — one per file at `skil
 
 ## Workflow
 
-- New skill: `make new-skill NAME=<kebab-case> DESC="<imperative description>"` (or copy `SKILL_TEMPLATE.md`).
-- Validate: `make validate`. Test: `make test`.
+- New skill: `mise run new-skill <kebab-case> "<imperative description>"` (or copy `SKILL_TEMPLATE.md`).
+- Validate: `mise run validate`. Test: `mise run test`. Lint: `mise run lint`.
 
 ## Commits
 

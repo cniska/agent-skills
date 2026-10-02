@@ -7,12 +7,12 @@ Dev-only. It makes real `claude -p` calls, so it is **not** a per-commit hook �
 ## Run
 
 ```
-make eval                          # all scenarios, treatment arm, gate on regression
-make eval ARGS=--baseline          # also run the no-skill arm (discrimination check)
-make eval ARGS="--skill=correctness-review --k=3"
-make eval ARGS=--update-baseline   # rewrite baseline-results.json from this run
-make rules                         # which rules have an assertion behind them (free)
-make test                          # run the harness's own unit tests (offline, no API)
+mise run eval                      # all scenarios, treatment arm, gate on regression
+mise run eval --baseline           # also run the no-skill arm (discrimination check)
+mise run eval --skill=correctness-review --k=3
+mise run eval --update-baseline    # rewrite baseline-results.json from this run
+mise run rules                     # which rules have an assertion behind them (free)
+mise run test                      # run the harness's own unit tests (offline, no API)
 ```
 
 Before spending anything it prints the estimated number of `claude -p` calls and waits for a `y`. Pass `--yes`/`-y` to skip the prompt in CI; it refuses to run non-interactively without `--yes`, so it can't burn tokens by accident.
@@ -41,11 +41,11 @@ Transcripts are nondeterministic, so each scenario runs `k` times (default 5) an
 
 A skill's rules cost context on every load and narrow the model's own judgment, so each one has to be doing work. Two instruments answer that, one free and one not.
 
-**`make rules`** is the free one. It lists every rule-shaped line in every skill — body prose and list items, which is everything that instructs — and marks each `claimed` or `untested`. A rule is claimed when some scenario assertion names it, through the `det_rule`/`sem_rule` arrays that run parallel to `det_id`/`sem_id`. An address is a substring matching **exactly one** rule-shaped line; zero means the rule was reworded and the assertion now proves nothing, several means the assertion can't say which rule it proves, and both fail the run. `make rules ARGS=--skill=<name>` lists that skill's lines individually.
+**`mise run rules`** is the free one. It lists every rule-shaped line in every skill — body prose and list items, which is everything that instructs — and marks each `claimed` or `untested`. A rule is claimed when some scenario assertion names it, through the `det_rule`/`sem_rule` arrays that run parallel to `det_id`/`sem_id`. An address is a substring matching **exactly one** rule-shaped line; zero means the rule was reworded and the assertion now proves nothing, several means the assertion can't say which rule it proves, and both fail the run. `mise run rules --skill=<name>` lists that skill's lines individually.
 
 Untested is the honest default and most rules will sit there for a long time. The report's value is knowing which ones do not.
 
-**`make eval ARGS="--skill=<name> --ablate=<address>"`** is the one that spends tokens. It runs three arms that differ only in the skill text — full, full minus that one rule, and none — and prints each assertion's pass rate across them. All three disable the installed skill and inject the text through `--append-system-prompt-file`, so an arm cannot differ by *how* the skill was invoked. Harm needs no special machinery: an assertion the trimmed arm passes more often than the full arm says the rule made the output worse.
+**`mise run eval --skill=<name> --ablate=<address>`** is the one that spends tokens. It runs three arms that differ only in the skill text — full, full minus that one rule, and none — and prints each assertion's pass rate across them. All three disable the installed skill and inject the text through `--append-system-prompt-file`, so an arm cannot differ by *how* the skill was invoked. Harm needs no special machinery: an assertion the trimmed arm passes more often than the full arm says the rule made the output worse.
 
 A gap narrower than the threshold is two runs flipping, not a finding. Ablation never touches `baseline-results.json` — those numbers come from the installed skill, which is a different delivery path and not comparable.
 

@@ -10,7 +10,7 @@ After cloning, run bootstrap once:
 ./scripts/bootstrap.sh
 ```
 
-This configures the Git hooks path and runs full validation (`make validate`).
+This configures the Git hooks path and runs full validation (`mise run validate`).
 
 ## Development loop
 
@@ -21,7 +21,7 @@ Maintainers with push access commit directly to `main` (see `AGENTS.md`); outsid
 3. Run local validation while iterating:
 
 ```bash
-make validate
+mise run validate
 ```
 
 ## Submission expectations

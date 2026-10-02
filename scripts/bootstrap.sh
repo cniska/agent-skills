@@ -7,7 +7,7 @@ cd "$repo_root"
 
 git config core.hooksPath .githook
 
-make validate
+mise run validate
 
 echo "Bootstrap complete"
 echo "- Git hooks path: $(git config --get core.hooksPath)"

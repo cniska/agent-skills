@@ -1,0 +1,41 @@
+# Install mise with `brew install mise`, then `mise install`.
+
+[tools]
+shellcheck = "0.11.0"
+
+[tasks.validate]
+description = "Validate skill format and conventions"
+run = "./scripts/validate.sh"
+
+[tasks.test]
+description = "Run bash tests (offline, no API)"
+run = 'for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
+
+[tasks.lint]
+description = "Shellcheck shell scripts"
+run = 'shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*")'
+
+[tasks.bootstrap]
+description = "Configure local hooks and run validation"
+run = "./scripts/bootstrap.sh"
+
+[tasks.new-skill]
+description = "Create a new skill"
+usage = '''
+arg "<name>" help="kebab-case skill name"
+arg "<description>" help="imperative description starting with a verb"
+'''
+run = './scripts/new-skill.sh "$usage_name" "$usage_description"'
+
+[tasks.link]
+description = "Symlink skills into ~/.agents/skills (all, or the named ones)"
+usage = 'arg "[name]" var=#true help="skills to link; none links every skill"'
+run = "./scripts/link.sh $usage_name"
+
+[tasks.eval]
+description = "Run behavioral evals (calls claude -p; costs tokens)"
+run = "./evals/run.sh"
+
+[tasks.rules]
+description = "Report which skill rules have an assertion behind them (offline, free)"
+run = "./evals/rules.sh"
