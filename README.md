@@ -70,7 +70,6 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 |-------|-------|------------|
 | **Plan** | [spec](skills/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
 | | [plan](skills/plan/SKILL.md) | Design through dialogue, slice vertically |
-| | [design](skills/design/SKILL.md) | Hard-to-misuse interfaces, contract first, validate at boundaries |
 | | [ui-design](skills/ui-design/SKILL.md) | Design or review interfaces against product states and visual hierarchy |
 | **Build** | [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
 | | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, one test at a time |
@@ -132,16 +131,16 @@ Naming actual models here would be wrong within months, so this column gives the
 | Principle | In practice | Skills |
 |-----------|------------|--------|
 | Vertical slices | One complete path through the stack at a time | build, plan |
-| Contract first | Schema before implementation | design, build |
+| Contract first | Schema before implementation | build |
 | SRP | One responsibility per module, one change per commit | architecture-review, build, git |
-| YAGNI | Don't build for hypothetical requirements | architecture-review, design |
+| YAGNI | Don't build for hypothetical requirements | architecture-review |
 | Stop the line | Something breaks — stop, don't push past it | debug |
 | Prove-It pattern | Failing test before fix | debug, tdd |
 | Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
 | DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
 | Rule of 3 | Extract after three instances, not before — though a substantial block earns a name on its second | simplify, architecture-review |
 | Chesterton's Fence | Understand before removing | simplify |
-| Hyrum's Law | All observable behavior becomes a commitment | design, deprecation |
+| Hyrum's Law | All observable behavior becomes a commitment | deprecation |
 | Code as liability | Less code serving the same purpose is better | deprecation |
 | Source over memory | Verify framework behavior in primary docs before implementation | build |
 | Save-point pattern | Commit early when exploring uncertain changes | git |

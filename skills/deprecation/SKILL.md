@@ -19,7 +19,6 @@ Code is a liability: every line costs maintenance, so when equivalent functional
 
 ## See also
 
-- `design` — the replacement's contract, settled before the old system comes out
 - `build` — migrate consumers one verified slice at a time
 - `architecture-review` — find the coupling that makes a consumer hard to migrate
 

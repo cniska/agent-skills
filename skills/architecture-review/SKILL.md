@@ -72,7 +72,6 @@ Group as **Confirmed issues** | **Open questions** | **Optional refactors** (max
 ## See also
 
 - `simplify` for performing the moves this review identifies
-- `design` for the interface shape behind a boundary finding
 
 ## Red flags
 

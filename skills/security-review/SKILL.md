@@ -72,7 +72,6 @@ Group as **Confirmed findings** | **Open questions** | **Optional hardening** (m
 
 ## See also
 
-- `design` for boundary-first contracts
 - `review` for merge gating and severity framing
 
 ## Red flags
