@@ -1,6 +1,6 @@
 ---
 name: ui-design
-description: Design or review user interfaces for web or Dart/Flutter products when visual hierarchy, state communication, responsive behavior, and product polish matter.
+description: Design or review user interfaces. Use when visual hierarchy, state communication, responsive behavior, and product polish matter.
 ---
 
 # UI Design
@@ -34,7 +34,7 @@ Design the interface as a coherent product surface, not as a collection of techn
 
 - Check the interface at its real presentation sizes, including fullscreen desktop and narrow mobile or pane layouts where relevant. If the product has no established targets, choose them from how the surface is actually used.
 - Preserve the reading order when columns collapse. Do not solve narrow layouts by clipping, shrinking text below comfortable reading size, or letting headings and controls collide.
-- Respect browser text enlargement and Flutter text scaling. Verify long labels, localization growth and status messages in the same layout.
+- Respect the platform's text enlargement and scaling settings. Verify long labels, localization growth and status messages in the same layout.
 - Keep focus, contrast and non-color meaning perceivable without turning the surface into a high-contrast warning board.
 
 ## Review gate
