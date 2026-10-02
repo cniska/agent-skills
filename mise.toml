@@ -31,11 +31,3 @@ run = './scripts/new-skill.sh "$usage_name" "$usage_description"'
 description = "Symlink skills into ~/.agents/skills (all, or the named ones)"
 usage = 'arg "[name]" var=#true help="skills to link; none links every skill"'
 run = "./scripts/link.sh $usage_name"
-
-[tasks.eval]
-description = "Run behavioral evals (calls claude -p; costs tokens)"
-run = "./evals/run.sh"
-
-[tasks.rules]
-description = "Report which skill rules have an assertion behind them (offline, free)"
-run = "./evals/rules.sh"
