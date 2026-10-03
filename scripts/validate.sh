@@ -73,16 +73,23 @@ while IFS= read -r -d '' skill_dir; do
     status=1
   fi
 
-  if grep -q 'references/' "$skill_file"; then
-    echo "ERROR: stale 'references/' link in $skill_file (references were inlined and removed)"
-    status=1
-  fi
+  while IFS= read -r link; do
+    target="${link%%#*}"
+    [[ -z "$target" ]] && continue
+    resolved="$(cd "$skill_dir" && realpath -q "$target" 2>/dev/null || true)"
+    if [[ -z "$resolved" || "$resolved" != "$(realpath "$skill_dir")"/* ]]; then
+      echo "ERROR: link '$link' in $skill_name must name a file inside the skill's own directory"
+      status=1
+    fi
+  done < <(find "$skill_dir" -name '*.md' -exec grep -ohE '\]\([^)]+\)' {} + | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' || true)
 
-  if has_model_name "$skill_file"; then
-    echo "ERROR: named model in $skill_file (use a fast/balanced/powerful tier instead)"
-    grep -nwiE "$MODEL_NAMES" "$skill_file" | sed 's/^/  /'
-    status=1
-  fi
+  while IFS= read -r -d '' doc; do
+    if has_model_name "$doc"; then
+      echo "ERROR: named model in $doc (use a fast/balanced/powerful tier instead)"
+      grep -nwiE "$MODEL_NAMES" "$doc" | sed 's/^/  /'
+      status=1
+    fi
+  done < <(find "$skill_dir" -name '*.md' -print0)
 
 done < <(find "$ROOT_DIR/skills" -mindepth 1 -maxdepth 1 -type d -print0)
 

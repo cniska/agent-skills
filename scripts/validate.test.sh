@@ -134,7 +134,7 @@ runv "$d"
 assert "non-imperative: exit 1"  "$V_CODE" 1
 assert "non-imperative: message" "$(has 'imperative verb')" yes
 
-# 7. stale references/ link
+# 7. links resolve inside the skill's own directory
 d="$(harness)"
 cat > "$d/skills/demo/SKILL.md" <<'EOF'
 ---
@@ -144,15 +144,25 @@ description: Review a change. Use when reviewing.
 
 # Demo
 
-See references/security-checklist.md for more.
+See [the checklist](references/checklist.md).
 
 ## Red flags
 
 - x
 EOF
 runv "$d"
-assert "references link: exit 1"  "$V_CODE" 1
-assert "references link: message" "$(has "stale 'references/' link")" yes
+assert "missing reference: exit 1"  "$V_CODE" 1
+assert "missing reference: message" "$(has "link 'references/checklist.md' in demo must name a file inside the skill's own directory")" yes
+
+mkdir -p "$d/skills/demo/references"
+printf '# Checklist\n' > "$d/skills/demo/references/checklist.md"
+runv "$d"
+assert "present reference: exit 0" "$V_CODE" 0
+
+printf '# Checklist\n\nRun it on GPT-4.\n' > "$d/skills/demo/references/checklist.md"
+runv "$d"
+assert "model in reference: exit 1"  "$V_CODE" 1
+assert "model in reference: message" "$(has "named model in $d/skills/demo/references/checklist.md")" yes
 
 # 8. missing frontmatter
 d="$(harness)"
