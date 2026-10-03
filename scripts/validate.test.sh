@@ -164,6 +164,14 @@ runv "$d"
 assert "model in reference: exit 1"  "$V_CODE" 1
 assert "model in reference: message" "$(has "named model in $d/skills/demo/references/checklist.md")" yes
 
+printf '# Checklist\n\nSee [the rules](../SKILL.md#red-flags).\n' > "$d/skills/demo/references/checklist.md"
+runv "$d"
+assert "reference links up to SKILL.md: exit 0" "$V_CODE" 0
+
+printf '# Checklist\n\nSee [the checklist](references/checklist.md).\n' > "$d/skills/demo/references/checklist.md"
+runv "$d"
+assert "reference link resolved from the skill root: exit 1" "$V_CODE" 1
+
 # 8. missing frontmatter
 d="$(harness)"
 cat > "$d/skills/demo/SKILL.md" <<'EOF'

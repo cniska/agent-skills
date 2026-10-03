@@ -73,15 +73,17 @@ while IFS= read -r -d '' skill_dir; do
     status=1
   fi
 
-  while IFS= read -r link; do
-    target="${link%%#*}"
-    [[ -z "$target" ]] && continue
-    resolved="$(cd "$skill_dir" && realpath -q "$target" 2>/dev/null || true)"
-    if [[ -z "$resolved" || "$resolved" != "$(realpath "$skill_dir")"/* ]]; then
-      echo "ERROR: link '$link' in $skill_name must name a file inside the skill's own directory"
-      status=1
-    fi
-  done < <(find "$skill_dir" -name '*.md' -exec grep -ohE '\]\([^)]+\)' {} + | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' || true)
+  while IFS= read -r -d '' doc; do
+    while IFS= read -r link; do
+      target="${link%%#*}"
+      [[ -z "$target" ]] && continue
+      resolved="$(cd "$(dirname "$doc")" && realpath -q "$target" 2>/dev/null || true)"
+      if [[ -z "$resolved" || "$resolved" != "$(realpath "$skill_dir")"/* ]]; then
+        echo "ERROR: link '$link' in $skill_name must name a file inside the skill's own directory"
+        status=1
+      fi
+    done < <(grep -ohE '\]\([^)]+\)' "$doc" | sed -E 's/^\]\((.*)\)$/\1/' | grep -vE '^(https?:|mailto:|#)' || true)
+  done < <(find "$skill_dir" -name '*.md' -print0)
 
   while IFS= read -r -d '' doc; do
     if has_model_name "$doc"; then
