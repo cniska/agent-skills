@@ -18,7 +18,7 @@ When the source is an existing codebase rather than a design conversation, you a
 
 ## Labelled requirements
 
-Every requirement gets a stable ID: a two-letter family prefix and a number (`FR-12`, `NF-3`, `AC-9`). IDs are the spec's addressing system. Acceptance criteria cite the requirements they verify, tests cite the requirement they cover, and cross-references point by ID, not by prose.
+Every requirement gets a stable ID: a short family prefix and a number (`FR-12`, `NF-3`, `AC-9`). IDs are the spec's addressing system. Acceptance criteria cite the requirements they verify, acceptance tests cite the criteria they prove, and cross-references point by ID, not by prose. For a deliverable that can be run, set up the acceptance suite and the check that ties it to the spec as [`references/acceptance-tests.md`](references/acceptance-tests.md) describes.
 
 Core families. Add domain families as the project needs (`ST` styling, `AU` auth, `SEC` security):
 
@@ -30,10 +30,10 @@ Core families. Add domain families as the project needs (`ST` styling, `AU` auth
 
 Rules:
 
-- **Never renumber.** IDs are permanent addresses. Renumbering silently breaks every cross-reference and every test that cites one. Append new requirements with the next free number.
-- **Insert with a letter suffix** (`FR-21a`) only when a new item must sit beside a related one for reading order. Reordering for looks is not worth a broken reference.
+- **Without a citation check, never renumber and retire in place.** IDs are addresses; renumbering silently breaks every cross-reference and every test that cites one. Append a new requirement with the next free number, and mark a removed one retired — `**FR-9** — *Retired (superseded by FR-38).*` — so no citation dangles.
+- **With a check that ties every citation to the spec, the check wins.** A new item may sit beside a related one, and a removed one is deleted; the IDs after either are renumbered in the same change as every citation. A tombstone would fail the check, since no criterion cites it.
+- **No sub-numbered IDs** — never `FR-21a` or `FR-21.1`. Each ID is a family prefix and a whole number. An existing sub-numbered ID stays until a citation check lets the change renumber it away.
 - **One claim per ID.** A requirement with two independently-verifiable claims is two requirements.
-- **Retire in place.** Removing a requirement never deletes its ID or renumbers around it. Mark it retired — `**FR-9** — *Retired (superseded by FR-38).*` — so no citation ever dangles.
 - **Earn each family and each ID.** A dimension gets its own family only when it carries distinct, independently-verifiable claims, not just functional surface that could sit under FR. Aim for a spec you could reimplement from, not an exhaustive inventory; when two readers would land far apart on the requirement count, you are enumerating mechanism, not contract.
 
 ## Workflow
@@ -44,7 +44,7 @@ Rules:
 4. **Sort what from how.** Any sentence naming an algorithm, a request shape, or an offset is *how*. Move it to the architecture doc and leave the requirement stating only the observable outcome. A fixed decision stays under Constraints only if reversing it would force a rewrite or change what the deliverable *is* — language, runtime, distribution form, hard exclusions like "no telemetry". A decision a tool could re-apply mechanically with every AC still passing — formatter, lint rules, indent width — is a convention: it lives in AGENTS.md, not the spec. A user-observable default (a default port, a timeout) is a requirement; the internal tuning value behind the same behavior is an open decision.
 5. **Make edge cases requirements.** The constructs a naive build gets wrong are requirements, not nice-to-haves. Give each its own ID so it earns its own test.
 6. **Separate constraints from open decisions.** Close with two explicit lists: what is fixed, and what is deliberately left to the builder. The silence between them is where scope disputes grow.
-7. **Verify the traces close.** Each AC maps to the FRs it exercises; each edge-case requirement appears in the testing section. At scale one AC cannot cite every requirement — ACs then cover representative bundles and the per-requirement trace is carried by test citations. A requirement reached by neither an AC nor a cited test, or an AC that verifies nothing, is the gap. Fix it before the spec is done.
+7. **Verify the traces close.** Each AC cites the requirements it exercises, and every FR, NF and domain-family requirement is cited by at least one AC; deliverables and constraints are not cited. A requirement no AC reaches, or an AC that verifies nothing, is the gap. Fix it before the spec is done.
 
 ## Editing an existing spec
 
@@ -54,19 +54,21 @@ Before touching the living doc, think the change as a delta of IDs — what is *
 ADDED FR-38; MODIFIED FR-12 (narrowed); AC-4 now also cites FR-38; RETIRED FR-9
 ```
 
-Stable IDs and retire-in-place keep that delta legible in the git diff itself, so it needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A tombstone's brief reason, and a policy's `serves FR-x` pointer, are the exception: permitted guards against silently re-adding what you removed, not motivation.
+Stable IDs and retire-in-place keep that delta legible in the git diff itself; under a citation check, the delta also names the renumbering (`FR-10..FR-37 → FR-9..FR-36`). Either way it needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A tombstone's brief reason, and a policy's `serves FR-x` pointer, are the exception: permitted guards against silently re-adding what you removed, not motivation.
 
 ## See also
 
 - `plan` — design and decompose once the spec is stable
 - `architecture-review`, `doc-review` — where the *how* lives, and keeping the spec free of drift
 - [`template.md`](template.md) — the canonical section skeleton to copy from
+- [`references/acceptance-tests.md`](references/acceptance-tests.md) — the acceptance suite and the check tying it to the spec
 
 ## Red flags
 
 - Specifying *how* (an algorithm, a request shape, a data structure) where an outcome would do
 - Drifting into PRD territory (user stories, success metrics, motivation) instead of testable requirements
-- Renumbering existing IDs, or reusing a retired one
+- Renumbering IDs no check ties to their citations, or reusing a retired one
+- A sub-numbered ID such as `FR-21a`
 - Acceptance criteria that cite no requirement, or requirements no criterion verifies
 - Edge cases written as aspirations instead of labelled requirements
 - Fixed constraints and open decisions blended into the same prose
