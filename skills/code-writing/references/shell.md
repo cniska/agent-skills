@@ -39,7 +39,7 @@ A developer-machine script that wants more than 3.2 offers should be written in 
 ## Layout
 
 - Executables start `#!/usr/bin/env bash` and carry no extension; a library meant to be sourced ends in `.sh` and sets no shell options, so it does not change its caller's shell. `#!/bin/sh` only for a strictly POSIX script.
-- `--help` prints usage, prerequisites and exit statuses.
+- A script that takes arguments prints its usage, prerequisites and exit statuses on `--help` and on a usage error.
 - Code lives in functions, with `main "$@"` as the last line. A script a test sources guards its entry point: `(return 0 2>/dev/null) && return`, then strict mode, then `main "$@"`, so strict mode stays out of the test that sources it.
 - The script's own directory comes from `"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`, never `$0` or the working directory.
 - Long options are parsed with a `while (($#)); do case "$1" in … esac; done` loop; `getopts` has no long options.
