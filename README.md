@@ -76,6 +76,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [ui-design](skills/ui-design/SKILL.md) | Design or review interfaces against product states and visual hierarchy |
 | | [database-design](skills/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
 | **Build** | [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
+| | [code-writing](skills/code-writing/SKILL.md) | Shared code rules once, plus a toolchain and pitfalls reference per language |
 | | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, one test at a time |
 | | [test-writing](skills/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
 | | [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
