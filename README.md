@@ -10,7 +10,7 @@ These cover the software development lifecycle (SDLC) end to end. `spec` is the 
 
 I wrote these to work more efficiently with AI coding agents. They are opinionated, based on 15+ years of building production software, and encode the workflow I actually follow. They took shape while building [Acolyte](https://github.com/cniska/acolyte), where generic prompts did not hold up across sessions.
 
-Some ideas were refined after reviewing [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills).
+Some ideas were refined after reviewing [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills). `verification-setup` adapts pstack's [`create-verification-skill` and `maintain-verification-skill`](https://github.com/cursor/plugins/tree/main/pstack/skills) (MIT, Lauren Tan).
 
 ## Motivation
 
@@ -102,7 +102,7 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited |
 | | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
 | | [second-opinion](skills/second-opinion/SKILL.md) | Have a different model attack a consequential call or a document's facts |
-| | [verification-setup](skills/verification-setup/SKILL.md) | Set up agent-driven verification for one app interface |
+| | [verification-setup](skills/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
 | | [writing](skills/writing/SKILL.md) | Write clear, natural prose for different readers and media |
 | | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, validate, dry-run |
 | | [skill-test](skills/skill-test/SKILL.md) | Dry-run a changed skill on unlike real repos before publishing |
