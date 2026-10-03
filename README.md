@@ -10,7 +10,7 @@ These cover the software development lifecycle (SDLC) end to end. `spec` is the 
 
 I wrote these to work more efficiently with AI coding agents. They are opinionated, based on 15+ years of building production software, and encode the workflow I actually follow. They took shape while building [Acolyte](https://github.com/cniska/acolyte), where generic prompts did not hold up across sessions.
 
-Some ideas were refined after reviewing [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills). `verification-setup` adapts pstack's [`create-verification-skill` and `maintain-verification-skill`](https://github.com/cursor/plugins/tree/main/pstack/skills) (MIT, Lauren Tan).
+Some ideas were refined after reviewing [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills) and [pstack](https://github.com/cursor/plugins/tree/main/pstack).
 
 ## Motivation
 
