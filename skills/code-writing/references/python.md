@@ -27,7 +27,6 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 
 ## Modules
 
-- Module docstring at the top of every file: what the module is for, and any invariant a reader needs.
 - `__init__.py` re-exports the package's public surface and nothing else.
 - Underscore-prefix internal functions; it is the only access signal Python gives.
 - Import order is ruff's job (`I`), never hand-maintained.
@@ -38,12 +37,13 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 - `Protocol` for structural interfaces, especially a test double that satisfies a boundary without inheriting; `ABC` only when shared implementation lives in the base.
 - `StrEnum` when a value crosses a wire or lands in a file; `Literal` when it stays in-process.
 - `from __future__ import annotations` only in a module that needs a forward reference.
-- No `Any` without a comment saying why the type cannot be known.
+- No `Any` where a type can be written; parse the value into one instead.
 
 ## Errors
 
 - One hierarchy per package, rooted at `<Package>Error`; callers catch the base to mean "this package failed" and a subclass for something specific.
 - `raise ... from exc` whenever you re-raise.
+- `json.load` turns `null` into `None` and leaves an absent key absent, and `dict.get` makes the two look the same; read a key whose absence matters with an explicit `in`.
 - Lowercase messages, no trailing period, naming the value that broke it and never a credential.
 - `except Exception` only at a top-level boundary (a CLI `main`, a request handler, a Lambda entry), where it logs and converts. In a loop over many items, a per-item failure is recorded and skipped.
 
@@ -70,17 +70,17 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 
 ## Verification
 
-Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards and carries the same reason comment as any ignore.
+Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards and carries its reason on the directive, as any ignore does.
 
 ## Red flags
 
 - A hand-written ruff, mypy or pytest config in a repo that could have taken the template's
 - `pip install`, `poetry` or `requirements.txt` in a project that has `uv.lock`
 - `typing.List` / `Dict` / `Optional` / `Union` in new code
-- A public function with no annotations, or an `Any` with no comment
+- A public function with no annotations, or an `Any` where a type could be written
 - `except Exception: pass`, a bare `except:`, or `raise` inside an `except` without `from`
 - f-strings inside a `logger.*` call, or `logging.basicConfig` in a library
-- A `noqa`, `type: ignore` or ruff ignore with no reason comment
+- A `noqa`, `type: ignore` or ruff ignore with no reason on the directive
 - `datetime.now()` without a timezone
 - A mutable default argument
 

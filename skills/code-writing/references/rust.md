@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-Edition 2024 for new code. `rustfmt` and `clippy` from a pinned stable channel, `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. No `unsafe` without a `// SAFETY:` comment.
+Edition 2024 for new code. `rustfmt` and `clippy` from an exact pinned version in `rust-toolchain.toml` (`1.xx.y`; a bare `stable` resolves to whatever each machine has, so machines and CI drift), `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. No `unsafe` without a `// SAFETY:` comment.
 
 Modern means: native `async fn` in traits (stable since 1.75), `LazyLock` / `OnceLock` over `lazy_static` / `ctor`, `let-else` and `if let` chains where they clarify intent.
 
@@ -12,12 +12,14 @@ Modern means: native `async fn` in traits (stable since 1.75), `LazyLock` / `Onc
 |---|---|---|
 | Errors | `thiserror` 2 | `anyhow` only in a binary's top-of-stack code, never across a library boundary |
 | HTTP (inbound + outbound) | `hyper` 1 directly | `axum` 0.8 for typed routing on a complex REST surface; `reqwest` 0.12 when JSON/streaming ergonomics save real code |
+| CLI | `clap` 4 derive | — |
+| Serialization | `serde` 1 derive + `serde_json` 1, `#[serde(deny_unknown_fields)]` on shapes you own | — |
 | Date/time | `std::time` | `chrono` only for real date/timezone math |
 | Lazy static state | `std::sync::LazyLock` / `OnceLock` | — |
 | Async traits | native `async fn` in traits | `async-trait` 0.1 only when `dyn Trait` object safety is required |
 | Parameterized tests | `rstest` | — |
 
-`tokio` enables only the features used (`rt-multi-thread`, `net`, `time`, `macros`, `signal`), never `full` in a library crate. If `hyper` is in the tree, don't add `reqwest`; if `std::time` covers the work, don't add `chrono`.
+`tokio` enables only the features used (`rt-multi-thread`, `net`, `time`, `macros`, `signal`), never `full` in a library crate; `tracing-subscriber` likewise, since its defaults pull a large tree. serde reads a missing `Option<T>` field as `None`, so an absent key and `null` are one value unless the shape says otherwise; decide which the format means and pin it with a test. If `hyper` is in the tree, don't add `reqwest`; if `std::time` covers the work, don't add `chrono`.
 
 ## Module structure
 
@@ -53,7 +55,7 @@ Log through the workspace's shared logger crate; in a standalone repo, wrap `tra
 
 ## Documentation
 
-`///` on every public item, `//!` with a usage example at the top of `lib.rs` and module files. No TODO naming a person or a date; file a ticket.
+A crate published to crates.io carries `///` on every public item and `//!` with a usage example at the top of `lib.rs`. A suppression is `#[expect(lint, reason = "...")]`, which carries its reason without a comment and warns once the lint no longer fires.
 
 ## Verification
 
@@ -67,7 +69,7 @@ Log through the workspace's shared logger crate; in a standalone repo, wrap `tra
 - `Box<dyn Trait>` for a fixed in-tree set of implementations
 - `lazy_static`, `once_cell` or `async-trait` where std or native async traits cover it
 - `unwrap()` or `expect()` on a `Result` where the failure mode is reachable
-- `#[allow(...)]`, an advisory ignore in `deny.toml`, or `unsafe` without a reason comment
+- `#[allow(...)]` where `#[expect(..., reason = "...")]` fits, an advisory ignore in `deny.toml` without its reason, or `unsafe` without `// SAFETY:`
 
 ## Setup
 

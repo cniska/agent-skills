@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-`mise` pins the runtime. Bun is the runtime, package manager and test runner unless the host pins Node, as a serverless platform does; then Node with pnpm. `tsc --noEmit` typechecks; Biome 2 lints and formats, with no ESLint or Prettier beside it. A rule Biome cannot express is a test in the repo's suite. zod 4 validates boundaries.
+`mise` pins the runtime. Bun is the runtime, package manager and test runner unless the host pins Node, as a serverless platform does; then Node with pnpm. `tsc --noEmit` typechecks; Biome 2 lints and formats, with no ESLint or Prettier beside it. zod 4 validates boundaries.
 
 Drift a model's memory gets wrong:
 
@@ -37,10 +37,19 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 - **Schema first.** A string union or a shared type is a zod schema, and the type is inferred from it (`type Role = z.infer<typeof Role>`). `z.strictObject` for shapes you own, `z.looseObject` for shapes you don't.
 - **Variants** are a union discriminated on one field: `{ kind: "loading" } | { kind: "ready"; diff: Diff } | { kind: "error"; error: string }`.
 - **Non-empty** is `[T, ...T[]]`.
+- **Brand primitives that must not be mixed** (`type UserId = string & { readonly __brand: "UserId" }`), built only by the parser that validates them.
+- **`unknown`, never `any`**, for external data. `JSON.parse` and `response.json()` return `any`, which satisfies every type it is assigned to; take the result as `unknown` and parse it.
 - **No `as` to silence the compiler.** Narrow with a check, assert with `invariant(condition, message)`, or fix the type. `as const` and `satisfies` check rather than claim.
 - **A `switch` over a union** ends in `default: return unreachable(value)` with `value: never`. Find the repo's `invariant` / `unreachable` helpers, or add them, before reaching for `!` or `as`.
 - **`readonly`** on every field and array that crosses a module boundary.
 - **No barrel `index.ts`** and no `export * from`.
+
+## Errors and async
+
+- Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
+- A promise is awaited, returned, or detached with a handler.
+- `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
+- `@ts-expect-error` over `@ts-ignore`, so the suppression fails once the error is gone.
 
 ## React
 
