@@ -24,6 +24,17 @@ Design the schema as the domain's record, with the database holding its own inva
 - **Names use the business term and fit what the table will hold**, not its first caller.
 - **An inner join on a nullable column drops rows.** A row with no parent leaves a view by choice, never by accident.
 
+## Indexes
+
+- **A relation between tables is a declared foreign key**, not one the code keeps by hand. SQLite enforces foreign keys only on a connection that sets `PRAGMA foreign_keys = ON`.
+- **Every foreign key leads an index on its columns, in order.** Without one, deleting or dropping a referenced row scans the referencing table, once per row. A partial index covers it only if its predicate admits every row with a non-null reference. Where the repo has tests, a schema test enforces it.
+- **Every query's access path is an index**, confirmed by the engine's query plan (`EXPLAIN QUERY PLAN`, `EXPLAIN`) wherever a database can be run, not by reading the DDL. On a small table the planner scans anyway, so read plans on data at size, or with scans discouraged (Postgres `enable_seqscan = off`). A whole-table aggregate scans by nature; a query no index can serve, such as a sort over an aggregate, gets a different shape, such as a summary row, not another index.
+- **Design the index for the query, not the column.** Equality columns lead, then the range or sort column, so an `ORDER BY … LIMIT` reads the index in order instead of sorting.
+- **Every index has a query that uses it.** Each one slows every write, and an index that is the leading prefix of another is redundant.
+- **An invariant over a subset of rows is a partial unique index**, such as one active row per owner.
+- **A filtered or sorted column is compared bare.** A function (`lower(email)`, a JSON extraction) or a `COALESCE` around it skips a plain index; so does a per-row security predicate that is the query's only filter, and `(param is null or col = param)` under a generic plan. Index the expression, store the value as a column, or build the query per case.
+- **An index on a large live table is built without blocking writes**, such as Postgres's `CREATE INDEX CONCURRENTLY`, outside the transaction many migration tools wrap each migration in, and checked as valid afterwards, since a failed build leaves an invalid index behind.
+
 ## Access
 
 Where more than one kind of caller reaches the database:
@@ -40,7 +51,7 @@ Where more than one kind of caller reaches the database:
 
 ## Review gate
 
-Before calling a schema change done, apply it to an empty database and to one with representative rows, and, where callers are isolated, exercise access as another owner, as each other kind of caller, and anonymously. Report each finding with the table, column or policy, and the state it allows or forbids.
+Before calling a schema change done, apply it to an empty database and to one at the largest size its data plausibly reaches, running any rebuild or drop the change implies at that size, and, where callers are isolated, exercise access as another owner, as each other kind of caller, and anonymously. Report each finding with the table, column or policy, and the state it allows or forbids.
 
 ## See also
 
@@ -52,6 +63,8 @@ Before calling a schema change done, apply it to an empty database and to one wi
 
 - A flag column that restates a relation
 - A column with no reader
+- A foreign key with no index leading on its columns
+- An index no query uses, or one that is the leading prefix of another
 - An unconstrained JSON column
 - A table with security enabled and no policy that clients still read
 - A privileged function missing its authorization check, pinned search path, or revoked default grant
