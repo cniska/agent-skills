@@ -14,7 +14,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 - Keep it short — the fewest bullets that convey the change. Omit anything a reviewer would infer from the diff: mechanical steps, refactors in service of the main change, file moves, renames
 - Bullets: high-signal plain English only; describe reviewer-relevant *what* and *why* — no code blocks, no prose paragraphs, no implementation bookkeeping
 - Motivation: optional and brief (1-2 sentences); include only when the *why* isn't obvious from the summary
-- If an issue matches the branch work, add `Fixes #<number>` at the end of the body
+- Tracker link: when the branch's work belongs to an issue in the project's tracker (GitHub, Linear, Jira, …), end the body with it as a clickable link: `Fixes #23`, or `Fixes PROJ-23` with the key linked to the issue's URL. Use a closing word only when merging completes the issue; otherwise a non-closing one (`Part of`). The repo's own convention (its PR template, its tracker docs) wins
 
 ## Workflow
 
@@ -31,7 +31,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - run `git log main..HEAD --oneline` to see commits
    - run `git diff main...HEAD --stat` to see changed files
    - run `git diff main...HEAD` to read the full diff
-   - run `gh issue list` to check for an associated issue
+   - find the associated issue in the project's tracker: `gh issue list` for GitHub, the tracker's CLI or connector otherwise, and an issue key in the branch name or commits
 5. **Audit the commits** (`/pr` opens a PR; it does not clean up history for you — fix it here):
    - every commit follows the project's commit conventions (`AGENTS.md` / `CONTRIBUTING` / the `git`
      skill), including **one logical change per commit**
@@ -51,6 +51,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 
 ## See also
 
+- `writing` — voice and plain wording for the description
 - `git` for commit conventions and rewriting history before push
 - `review` for severity and gating decisions
 - `doc-review` for user-facing drift checks before merge
@@ -61,4 +62,5 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 - Skipping the review because it takes time
 - Opening a PR with commits that bundle unrelated changes (e.g. a refactor and a feature in one commit)
 - Pushing before checking if the branch already tracks a remote
-- Creating the PR without checking for associated issues
+- Creating the PR without checking the project's tracker for an associated issue
+- A closing word (`Fixes`, `Closes`) on an issue the merge does not complete
