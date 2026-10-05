@@ -12,18 +12,18 @@ Write naturally for the intended reader. Lead with the point, then give the deta
 - Use short to medium sentences and clear, direct language. Be concise without sounding clipped.
 - Name the real problem early. Explain tradeoffs, constraints, reliability, and verification when they matter.
 - Prefer concrete mechanisms to abstractions. Treat claims as things to justify, not decorate.
-- Use contrast when it clarifies a real distinction. Avoid repeating a formula such as "Not X. Y." for effect.
+- Use contrast when it clarifies a real distinction. Cut lines that only restate the prose for rhythm: a repeated "Not X. Y." formula, two-beat slogans ("A prompt asks. A sandbox decides."), and wordplay that reuses a word as the hinge.
 - Keep intensity controlled. Reduce the punchiness when a draft starts sounding like a manifesto.
 
 ## Edit
 
 Preserve the intended meaning and level of confidence. Remove words or structure that make the reader work harder without adding a fact.
 
-- Cut marketing language, vague enthusiasm, filler transitions, corporate padding, and generic conclusions.
+- Cut marketing language, vague enthusiasm, filler transitions, corporate padding, and summary lines that sound wise but state nothing a reader could check.
 - Name the source behind an attribution or remove the claim. Replace vague claims with a concrete mechanism, result, or example.
 - Prefer plain words and active actors. Split dense sentences; repeat the same term instead of cycling through synonyms.
-- Remove forced groups of three, false ranges, ornate metaphors, and stock framing phrases.
-- Expand shorthand that drops articles or verbs. A concise sentence should still read naturally.
+- Remove forced groups of three, false ranges, ornate metaphors, stock framing phrases, and human traits given to a tool, rule or document ("a sandbox does not skim", "confidently wrong"). Agents and models are real actors.
+- Expand shorthand that drops articles or verbs, and rewrite phrasing bent to stay short ("the test it is failing" for "a failing test"). A concise sentence should still read naturally.
 - Use emphasis, headings, and bullets when they help the reader scan. Avoid emphasis that adds no meaning.
 - Use punctuation that suits the sentence. Rewrite for clarity when punctuation is carrying emphasis the words could express.
 - Keep uncertainty when the evidence is uncertain. Cut hedging that adds no precision.
