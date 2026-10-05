@@ -39,7 +39,7 @@ I remove or simplify guidance when it:
 ## Install
 
 ```
-npx skills add cniska/skills
+npx skills add cniska/agent-skills
 ```
 
 To work on the skills themselves, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist, and leaves any other file or folder of the same name alone, reporting it. `mise run link <skill>…` links only those.
@@ -49,7 +49,7 @@ To work on the skills themselves, `mise run link` symlinks every skill from this
 Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). It runs before the session starts, so the skills are in place when it does:
 
 ```
-npx -y skills add cniska/skills -g -a claude-code -s '*' -y --copy
+npx -y skills add cniska/agent-skills -g -a claude-code -s '*' -y --copy
 ```
 
 `-g` installs user-level (`~/.claude/skills`), so every repo in the session gets the set; `-s '*'` takes every skill, and `-y` skips the prompts a setup script can't answer.
