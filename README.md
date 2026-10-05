@@ -80,12 +80,14 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [tdd](skills/tdd/SKILL.md) | Red-green-refactor, one test at a time |
 | | [test-writing](skills/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
 | | [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
+| | [refactor](skills/refactor/SKILL.md) | Refactor or rewrite so the new design copies nothing from the old |
 | | [simplify](skills/simplify/SKILL.md) | Reduce complexity, Chesterton's Fence, preserve behavior |
 | | [git](skills/git/SKILL.md) | Conventional commits, rebase to sync, squash to land |
 | | [deprecation](skills/deprecation/SKILL.md) | Build replacement first, migrate consumers, remove completely |
 | **Review** | [explain-diff](skills/explain-diff/SKILL.md) | Explain a diff's intent and risk in the session |
 | | [review](skills/review/SKILL.md) | All review dimensions on a diff — self or PR mode |
 | | [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
+| | [design-review](skills/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
 | | [correctness-review](skills/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
 | | [maintainability-review](skills/maintainability-review/SKILL.md) | Local conventions, naming, control flow, readability |
 | | [architecture-review](skills/architecture-review/SKILL.md) | Boundaries, indirection pressure, contract integrity |
@@ -110,14 +112,14 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 
 ## Design
 
-Each skill is one self-contained file — `skills/<name>/SKILL.md`, with YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body. A few conventions hold across the set:
+Each skill is one self-contained directory — `skills/<name>/SKILL.md`, with YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body, plus any `references/` files it loads only when a task needs them. A few conventions hold across the set:
 
-- **Self-contained.** A skill depends on nothing outside its own directory — `npx skills add` copies only that skill's directory, so shared or repo-root files never ship. Guidance is inlined, not linked out.
+- **Self-contained.** A skill depends on nothing outside its own directory — `npx skills add` copies only that skill's directory, so shared or repo-root files never ship. Every link resolves inside the skill.
 - **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path — no cross-directory links to break.
 - **Terse and imperative.** Intent, workflow, and a `## Red flags` section of failure modes. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models — see below.
 
-`mise run validate` enforces the mechanical parts (frontmatter, `## Red flags`, no cross-directory links).
+`mise run validate` enforces the mechanical parts (frontmatter, `## Red flags`, links that stay inside the skill).
 
 ## Model tiers
 
@@ -147,7 +149,12 @@ Naming actual models here would be wrong within months, so this column gives the
 | Chesterton's Fence | Understand before removing | simplify |
 | Hyrum's Law | All observable behavior becomes a commitment | deprecation |
 | Code as liability | Less code serving the same purpose is better | deprecation |
-| Source over memory | Verify framework behavior in primary docs before implementation | build |
+| Source over memory | Verify framework behavior in primary docs before implementation | build, code-writing |
+| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing |
+| Minimum dependencies | The standard library or a dependency already in the tree before a new one | code-writing |
+| Rules as checks | A mechanical rule is a type, lint or test, not a sentence | code-writing, agents-md |
+| No comments | A why goes into a name, a test or the doc that owns the subject | code-writing, agents-md |
+| Proven able to fail | Break a check once and watch it go red before trusting it | test-writing, code-writing |
 | Save-point pattern | Commit early when exploring uncertain changes | git |
 | Evidence threshold | Concrete references, not speculation | review skills |
 

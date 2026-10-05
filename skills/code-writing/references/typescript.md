@@ -46,6 +46,7 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 
 ## Errors and async
 
+- Errors share one base, `CodedError(code, message, { meta, cause })`, with each module's codes an `as const` map in its contract and a typed fact shape per code, thrown through one `fail(code, meta)` per module.
 - Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
 - A promise is awaited, returned, or detached with a handler.
 - `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
