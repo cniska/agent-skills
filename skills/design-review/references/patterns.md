@@ -140,7 +140,7 @@ Spot it:
 
 ## Shared fields plus typed details
 
-A record with variants keeps the fields every variant has, plus one details object whose shape the variant's kind decides (make illegal states unrepresentable): a tagged union, sealed class or enum with data, with each member's details required.
+A record with variants keeps the fields every variant has, plus one details object its kind decides. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -185,9 +185,7 @@ Spot it:
 
 ## Coded errors
 
-Before an error is added, the operation is defined so the case cannot arise, where that is honest: removing what is already gone succeeds, and a query with no matches returns an empty list. An error is kept for a case the caller must handle differently.
-
-Every thrown error carries a code: one error type per module whose variants or codes carry the facts. The message is written for the person who reads it; every fact a caller may branch on or display is a field, never only inside the message. One constructor per module keeps every throw in the module the same shape. Where the boundary prints guidance per code, it is a table keyed by every code, so a new code does not compile until it says how it prints. Errors are distinguished by their code, never by their message.
+Every error carries a code and its facts as fields, and an operation is defined so an error cannot arise where that is honest, such as removing what is already gone. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -198,7 +196,7 @@ Spot it:
 
 ## Writes return the record
 
-A write returns the typed record it wrote (`INSERT … RETURNING *`). An update that matched nothing returns no row, and the caller throws a coded error. A failed write throws; it never returns `false`.
+A write returns the record it wrote (`INSERT … RETURNING *` in SQL). `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -272,7 +270,7 @@ Spot it:
 
 ## Flat control flow
 
-A function reads top to bottom: guards return early, no `else` follows a return, and the main path sits at the lowest indentation. A nested expression is broken into named values or a helper, and a nested ternary becomes a lookup or a function. A function does one thing and stays short; one that fetches, decides, writes and formats is split at those seams. A fragment whose purpose takes effort to see is extracted and named for what it does, even with one caller. A comparison tests exactly the condition meant: against the empty value the type declares, never a truthy test where `0`, empty or `false` is a legal value.
+A function reads top to bottom and does one thing. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -285,7 +283,7 @@ Spot it:
 
 ## Named constants
 
-A literal with a meaning is a module-level `const`, named for what it means and grouped with its kin: key codes in one map, colors in one palette, a module's limits in one policy object. Nothing that could be built once, such as a `Set`, a `RegExp` or a lookup, is built inside a function that runs per call. A constant is defined once in the codebase, and its value comes from a measurement or an external contract, never a guess.
+A literal with a meaning is a named constant, defined once, grouped with its kin, and taken from a measurement or an external contract rather than guessed; a value's own domain, such as the digits of a puzzle, is not a magic number. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -296,9 +294,7 @@ Spot it:
 
 ## An invalid value never exists
 
-Input is parsed once, at the boundary, by a schema (parse, don't validate), and its type is inferred from that schema; a hand-written type beside a schema of the same shape is a second source of truth. One schema serves producer and consumer. A schema states shape and range and nothing else. It is strict: an unknown kind, value or version is rejected, never mapped to a guess, because a tolerated input becomes a format every reader must then accept. Past the boundary the types state exactly what holds (branded ids, ISO datetimes), and nothing silences the checker to get past it. A shape used twice, or longer than one line, is a named type. An internal assumption is asserted, not tolerated.
-
-A default exists only where one value is right for everyone, such as a port. A default that chooses for the user, such as a model or a vendor, is no default: the value is required. A missing required value fails where it is first used, and names what is missing.
+Input is parsed once, at the boundary, into a type that states exactly what holds (parse, don't validate), and a default exists only where one value is right for everyone. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -312,7 +308,7 @@ Spot it:
 
 ## Immutable by default
 
-Data does not change in place. Fields and collections are read-only, and a change produces a new value. Concepts defined by their value, such as an id, a sha, a time, a money amount or a range, are value objects: immutable, validated when they are created, and compared by value. Mutation is confined to a store and to an aggregate's commands, where it is recorded.
+Data does not change in place, and a concept defined by its value is a value object. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -323,7 +319,7 @@ Spot it:
 
 ## Absent is null; the caller that needs it throws
 
-A read that may find nothing returns the language's one empty value (`null`, `None`, `Option`, `T?`), never a stand-in. The code that knows the thing must exist turns that null into a coded error, through a `…OrThrow` or `load…` twin.
+A read that may find nothing returns the language's one empty value, and the caller that knows the thing must exist raises. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -333,9 +329,7 @@ Spot it:
 
 ## Catch only at the edge
 
-Below the boundary that shows an error, a catch does exactly one of two things: it undoes a side effect and rethrows the same error, or a store, the only place that knows which constraint fired, translates it into its module's code. Nothing swallows an error, returns a default instead, or rewraps a coded error as a generic one. An error is never used for control flow.
-
-Work off the success path, such as a trace write or a background commit, and a part loaded beside its siblings, such as a plugin, is an edge of its own. Its failure is contained to the smallest part that failed, logged and counted where status shows it, and the rest goes on. That is degradation chosen on purpose, not a fallback.
+An error is caught only at the edge that shows it, or to undo a side effect and rethrow, and never used for control flow. `code-writing` states the rule; these are its symptoms.
 
 Spot it:
 
@@ -345,7 +339,7 @@ Spot it:
 
 ## Exhaustive over closed sets
 
-A closed union is handled exhaustively, so the compiler flags every match a new member misses: a match the language checks for exhaustiveness, or a lookup keyed by the union, instead of an if-chain. An exhaustive `switch` is not the "switch statements" smell, and it is not replaced by polymorphism.
+A closed union is handled exhaustively, so the compiler flags every match a new member misses. `code-writing` states the rule; these are its symptoms. An exhaustive match is not the "switch statements" smell, and it is not replaced by polymorphism.
 
 Spot it:
 
