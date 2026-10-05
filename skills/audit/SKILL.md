@@ -17,7 +17,7 @@ Size the area so each reader can read its relevant paths in full. Divide a large
 ## Workflow
 
 1. **Scope** the area as above and record the revision.
-2. **Spawn one read-only agent per dimension** — `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` — on a **balanced-tier** model. Give each the same area and revision, the project rules, and its skill to load, with "the diff" read as the full files in scope and each diff-only limit lifted: pre-existing doc drift, every reachable entry point, weakened checks traced through history rather than a branch point, and coupling as it stands rather than what a change added. Withhold your own read — hand over a conclusion and what comes back is agreement with it. Run performance only where stated behavior or observed use names a sensitive path. When subagents are unavailable, or the area is small enough to hold in one read, run the passes separately in this session and keep their findings distinct until merging — on a small area, one agent per dimension repeats the same full read for each pass.
+2. **Spawn one read-only agent per dimension** — `design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` — on a **balanced-tier** model. Give each the same area and revision, the project rules, and its skill to load, with "the diff" read as the full files in scope and each diff-only limit lifted: pre-existing doc drift, every reachable entry point, weakened checks traced through history rather than a branch point, and coupling as it stands rather than what a change added. Withhold your own read — hand over a conclusion and what comes back is agreement with it. Run performance only where stated behavior or observed use names a sensitive path. When subagents are unavailable, or the area is small enough to hold in one read, run the passes separately in this session and keep their findings distinct until merging — on a small area, one agent per dimension repeats the same full read for each pass.
 3. **Search to locate, read to judge.** A reader may grep for candidates but inspects the implementation, callers, tests, and contracts before calling one a finding.
 4. **Hold proposed test deletions to a higher bar.** Name the failure the test detects, the code it guards, overlapping tests, and the stronger proof that remains. A test that must change for a behavior-preserving refactor is suspect; keep independent guards for wire values, security, storage, and other contracts.
 5. **Verify and merge.** Recheck every candidate at its source, resolve duplicates and contradictions, and keep the strongest framing per root issue.
@@ -30,6 +30,7 @@ End with one row per dimension:
 
 | Dimension | Status | Findings | Reason |
 |-----------|--------|----------|--------|
+| Design | findings / clear / not_applicable / incomplete | 0 | |
 | Correctness | findings / clear / not_applicable / incomplete | 0 | |
 
 `clear` requires reading the relevant paths in full, not a search. `not_applicable` and `incomplete` each need a reason. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
@@ -37,7 +38,7 @@ End with one row per dimension:
 ## See also
 
 - `review` for judging a diff or PR
-- `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
+- `design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
 - `simplify` for acting on structural findings once the user requests the work
 
 ## Red flags

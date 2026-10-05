@@ -31,7 +31,7 @@ Review test adequacy for changed code. For large changes spanning many files or 
 - real data in tests — production records, personal data, real credentials, or live accounts and services; fixtures are synthetic
 - a fake secret shaped like a real one (a provider's key prefix and length) — it trips secret scanning and cannot be told apart from a leak; use an obviously fake value such as `test-api-key`
 - mocks that supply the asserted result, or mock internals instead of testing through the real contract — mock at boundaries only
-- tests that require exports, flags, or wrappers with no production caller
+- tests that require exports, flags, or wrappers with no production caller (`design-review`'s Code shaped for its tests)
 - negative tests that pass because a different guard refuses the input first
 - test names that don't read as specifications
 - tests with more than one reason to fail — assert one behavior each

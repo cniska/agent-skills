@@ -49,7 +49,7 @@ Rank the violations in three tiers:
 2. A design that misleads the next writer.
 3. Local mess.
 
-A violation that fits two tiers goes in the higher one.
+A violation that fits two tiers goes in the higher one. When run as `review`'s or `audit`'s Design dimension, tiers 1 and 2 are **Fix** and tier 3 is **Consider**; the label changes, the wording stays direct.
 
 ## Report
 

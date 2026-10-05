@@ -89,8 +89,8 @@ Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 | | [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
 | | [design-review](skills/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
 | | [correctness-review](skills/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
-| | [maintainability-review](skills/maintainability-review/SKILL.md) | Local conventions, naming, control flow, readability |
-| | [architecture-review](skills/architecture-review/SKILL.md) | Boundaries, indirection pressure, contract integrity |
+| | [maintainability-review](skills/maintainability-review/SKILL.md) | Conformance to local conventions, naming and readability |
+| | [architecture-review](skills/architecture-review/SKILL.md) | Conformance to the project's stated boundaries, dependency direction and contracts |
 | | [security-review](skills/security-review/SKILL.md) | Trust boundaries, execution safety, concrete attack paths only |
 | | [performance-review](skills/performance-review/SKILL.md) | Repeated work, unbounded operations, and resource use |
 | | [test-review](skills/test-review/SKILL.md) | Coverage gaps, edge cases, test quality |
@@ -139,14 +139,14 @@ Naming actual models here would be wrong within months, so this column gives the
 |-----------|------------|--------|
 | Vertical slices | One complete path through the stack at a time | build, plan |
 | Contract first | Schema before implementation | build |
-| SRP | One responsibility per module, one change per commit | architecture-review, build, git |
-| YAGNI | Don't build for hypothetical requirements | architecture-review |
+| SRP | One responsibility per module, one change per commit | design-review, build, git |
+| YAGNI | Don't build for hypothetical requirements | design-review |
 | Stop the line | Something breaks — stop, don't push past it | debug |
 | Prove-It pattern | Failing test before fix | debug, tdd |
 | Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
 | DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
-| Rule of 3 | Extract after three instances, not before — though a substantial block earns a name on its second | simplify, architecture-review |
-| Chesterton's Fence | Understand before removing | simplify |
+| Rule of 3 | Extract after three instances, not before — though a substantial block earns a name on its second | simplify, design-review |
+| Chesterton's Fence | Understand before removing | simplify, design-review |
 | Hyrum's Law | All observable behavior becomes a commitment | deprecation |
 | Code as liability | Less code serving the same purpose is better | deprecation |
 | Source over memory | Verify framework behavior in primary docs before implementation | build, code-writing |

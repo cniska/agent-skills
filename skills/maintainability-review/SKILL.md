@@ -5,7 +5,7 @@ description: Review code maintainability, naming, patterns, and consistency. Use
 
 # Maintainability Review
 
-Review whether the code is easy to understand, change, and extend against the codebase's existing conventions.
+Review whether the code is easy to understand, change, and extend against the codebase's existing conventions. Rules that hold regardless of local convention — control flow, constants, indirection, comments — are `code-writing`'s and `design-review`'s.
 
 ## Scope
 
@@ -20,10 +20,7 @@ Review whether the code is easy to understand, change, and extend against the co
 
 ### 2. Control flow and state modeling
 
-- exhaustive handling of state variants where applicable
 - consistent assertion and error patterns
-- prefer explicit status/state fields over boolean flags for state transitions
-- prefer guard clauses and early returns when they make the control flow easier to follow
 - prefer data-driven lookups over long control-flow chains; likewise for one predicate re-tested throughout a body, and for a dispatch whose arms share an implementation. Not an exhaustive match over a closed type — a lookup table there trades a compile-time guarantee for a runtime one
 - one error boundary per failure mode: nested or back-to-back `try` blocks mean the boundary hasn't been decided — extract each fallible step into a function that handles or propagates
 
@@ -34,16 +31,14 @@ Check where the codebase already has a clear local pattern:
 - structural patterns (table-driven, rule-driven) where nearby code uses them
 - error classification follows the project's established convention
 - repeated argument groups that want one named type
-- raw strings or magic values that should become typed constants
 - sibling concepts with different intent should not collapse into one ambiguous shape or name
 
 ### 4. Readability and changeability
 
-- comments must earn their keep: flag any that restate *what* the code does, and banner/separator comments — a comment justifies itself only by a *why* a name, type, or test can't carry
+- a comment the project's comment rule does not allow
 - no unused params, dead branches, or ad-hoc fallbacks
-- a new inline comment silencing a type, lint, or security check, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag it unless the diff says why
+- a new suppression of a type, lint, or security check, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag it unless the diff says why
 - keep structure and terminology aligned with nearby code
-- abstractions must earn their complexity — if a wrapper adds no value, inline it, judged against the language's own idiom rather than a general one: a newtype, or a constructor delegating to a default, is conventional and not an empty wrapper
 - prefer clear, idiomatic code over cleverness
 
 ## Evidence threshold
@@ -70,11 +65,12 @@ Order Critical → Fix → Consider → Nit. If nothing clears the threshold, re
 
 ## See also
 
+- `design-review` and `code-writing` for the rules that hold regardless of local convention
 - `simplify` for performing the cleanups this review identifies
 
 ## Red flags
 
 - Enforcing generic style dogma over local conventions
 - Broad rewrites instead of minimal fixes
-- Speculative abstractions
+- Restating a `design-review` finding under Maintainability
 - Nitpicking formatting not tied to repo conventions

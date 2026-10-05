@@ -1,50 +1,33 @@
 ---
 name: architecture-review
-description: Review architecture, boundaries, and design consistency. Use when reviewing module boundaries, extension seams, or contract drift.
+description: Review whether code keeps the architecture the project states — boundaries, dependency direction, seams and contracts. Use when reviewing module boundaries, extension seams, or contract drift.
 ---
 
 # Architecture Review
 
-Review architecture quality, design consistency, extension seams, and pattern adherence.
+Review whether the code keeps the architecture the project itself states: its documented boundaries, dependency direction, seams and contracts. Design rules that hold regardless of a repo's own choices — indirection, YAGNI, cohesion, duplication — are `design-review`'s.
 
 ## Scope
 
-### 1. Indirection pressure (primary focus)
-
-Flag layers that add no architectural value:
+### 1. Dependency structure
 
 - runtime import cycles across split modules
-- pass-through facades that only rename or re-export
-- alias/wrapper layers without independent policy or invariants
-- DI bags exceeding practical seam or testing needs
+- dependency direction that breaks the direction the project's docs state
+- DI bags exceeding the seams the project declares
 - singleton imports in library modules that should accept injected params — an application reading its own central store is idiomatic and not this finding
-- facade-for-facade chains
 
-Default: if a layer carries no policy, invariants, or boundary isolation, remove it.
-
-### 2. Extension blockers
+### 2. Extension points
 
 - hard-coded behavior where project docs or an existing sibling seam establish a policy/config point
-- new features requiring edits across many unrelated modules
-- private coupling preventing additive providers or plugins
-- extension seams with no current use adding maintenance cost
+- private coupling preventing the additive providers or plugins the project declares
+- an extension seam built differently from its siblings
 
 ### 3. Boundary and contract integrity
 
-- contracts and schemas as source of truth
 - renamed contract terms stay aligned across the boundary; partial renames count as drift
-- dependency direction consistency
-- design-pattern consistency for extension seams
+- a contract or schema the project names as source of truth, contradicted by an implementation
 - logic that reads another module's state more than its own; judge one function body at a time — how much of it traverses that module — not by whether the reference was injected or passed in
-- chained access (`a.getB().getC()`) reaching past a stated contract into internals the caller doesn't own
 - modules reaching into each other's internals instead of through a stated contract
-
-### 4. Cohesion and responsibility
-
-- oversized or multi-responsibility files — for a *file*, size alone isn't the finding, so name the second responsibility or don't report it
-- SRP violations: mixing unrelated concerns
-- at *function* scale length is a finding on its own: a body past ~50 lines, one needing section comments to navigate, or one that computes a result and then formats it for presentation. An exhaustive match or switch whose length is entirely its arms is not this — there is no substructure to lift out
-- duplication wants a name once it is a substantial block repeated twice or a small one repeated three times, in one file or across modules — size and copy count trade off against each other, so a two-line body appearing seven times counts. Leave what is duplicated on purpose: boundary-local copies keeping two modules independent, and conditionally-compiled twins that merging would defeat
 
 ## Evidence threshold
 
@@ -56,7 +39,7 @@ An evidenced pattern is not automatically a defect. Reads through an injected co
 
 1. Build expected architecture map from project docs.
 2. Compare implementation against that map. For large diffs or audits spanning many modules, fan out **fast-tier** readers — one per module or boundary — to collect raw evidence. Verify findings in this session before reporting.
-3. Run cycle and indirection pass on core entrypoints.
+3. Run a cycle and dependency-direction pass on core entrypoints.
 4. Check whether the change increases coupling or creates contract drift.
 5. Report findings ordered by severity.
 
@@ -71,12 +54,12 @@ Group as **Confirmed issues** | **Open questions** | **Optional refactors** (max
 
 ## See also
 
+- `design-review` for indirection, YAGNI, cohesion and duplication, judged against the owner's rules rather than the repo's
 - `simplify` for performing the moves this review identifies
 
 ## Red flags
 
-- Suggesting speculative frameworks or plugin systems
+- A finding no project doc, contract or sibling seam supports
 - Broad rewrites instead of minimal structural fixes
 - Treating taste-level preferences as defects
-- Recommending abstractions with no current product use
-- Over-indexing on DRY when duplication is boundary-local
+- Restating a `design-review` finding under Architecture

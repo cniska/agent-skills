@@ -14,7 +14,7 @@ Two modes: **Self** (no argument) — current branch diff against `main`; **PR**
 
 Review only the diff, but read enough surrounding code and docs to understand conventions and boundaries.
 
-Do not duplicate the same issue across categories.
+Do not duplicate the same issue across categories. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
 
 ## Change sizing
 
@@ -35,7 +35,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 3. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
 4. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
 5. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
-6. Run every dimension pass in this session — load each skill (`correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. If a skill fails to load, say so in that category's output rather than improvising.
+6. Run every dimension pass in this session — load each skill (`design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. Run Design first; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so in that category's output rather than improvising.
 7. Fold in the second opinion's findings. Verify each; discard false positives.
 8. Merge findings: deduplicate, keep strongest framing per root issue.
 9. Label every finding by severity (see below). Fix all findings by default — commit each fix as its own subject-scoped commit.
@@ -77,8 +77,6 @@ If the change adds a dependency, check:
 - What's the size impact?
 - Any known vulnerabilities?
 
-Every dependency is a liability.
-
 ## Migration review
 
 If the change includes database migrations, load `database-design` and check the migration against its rules, filing findings under the dimensions above — a schema defect is a correctness or security finding, not a category of its own. Trace every view and function that joins a changed table.
@@ -90,10 +88,11 @@ If the change includes database migrations, load `database-design` and check the
 
 ## Output
 
-One section per review dimension (Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Optional):
+One section per review dimension (Design, Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Optional):
 
 | Category | Critical | Fix | Optional |
 |----------|----------|-----|----------|
+| Design | 0 | 0 | 0 |
 | Correctness | 0 | 0 | 0 |
 | Maintainability | 0 | 0 | 0 |
 | Architecture | 0 | 0 | 0 |
@@ -104,7 +103,7 @@ One section per review dimension (Correctness, Maintainability, Architecture, Do
 
 ## See also
 
-- `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
+- `design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
 - `audit` for a read-only sweep of code already on `main`
 - `database-design` for the schema rules a migration is checked against
 - `simplify` for acting on structural findings

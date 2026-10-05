@@ -16,7 +16,7 @@ State in one sentence what the module is for, taken from the doc that owns the s
 
 ## What reaches it
 
-For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search with `rg -n '\b<name>\b'`, counting imports and calls only. A piece nothing reaches is a cut candidate. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
+For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search with `rg -n '\b<name>\b'`, counting imports and calls only. A piece nothing reaches is a cut candidate; one that other code or a deployed caller still reaches is removed through `deprecation`. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
 
 ## Damage
 
