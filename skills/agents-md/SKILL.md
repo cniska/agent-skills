@@ -16,9 +16,9 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 
 ## Conventions this file must follow (and enforce)
 
+- Apply `writing`'s rules for documents that last: a rule, not its history; each fact in one place.
 - One logical rule per bullet.
 - Never hard-wrap markdown — one line per bullet or paragraph, let it soft-wrap.
-- State the rule, not its history — "no X" beats "we used to allow X but now".
 - Reuse the existing file's vocabulary — don't coin a synonym for a concept already named.
 - Keep it lean — prefer trimming to growing. A new rule shouldn't grow the file if an existing bullet can absorb it.
 - Decide placement by cost, not by recipe. AGENTS.md is loaded on every task, so every line pays a recurring token cost. Whether a fact belongs inline here or behind a one-line pointer to a doc or executable is a judgment: weigh how often it's needed against that per-task cost, and decide for this project. The right split differs across projects and shifts as models improve — apply the principle rather than a fixed line count or section recipe. When the file must come down, cut what is cheapest to re-derive — an enumeration the agent could read off a manifest — before anything a reader could not reconstruct from the repo at all.
@@ -80,6 +80,7 @@ Concrete target behavior: adding a "naming" rule should absorb a pre-existing "n
 
 AGENTS.md is the hub that gives the other skills their project-specific grounding. Each skill reads it to understand what the project considers non-negotiable.
 
+- `writing` — the prose rules this file shares with every lasting doc: rules not history, one place per fact
 - `code-writing` — the code rules the comment ban comes from; the Code section carries the ones every contributor must keep.
 - `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants cite spec IDs; code does not.
 - `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.

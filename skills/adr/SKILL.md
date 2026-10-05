@@ -15,12 +15,13 @@ Three modes, inferred from the request:
 
 ## Conventions this skill enforces
 
+- **Apply `writing`'s rules for documents that last:** link the doc that owns a detail rather than restating it, and leave out volatile numbers such as counts, ports and sizes.
 - **Technical and important only** — expensive to reverse, or relied on by more than one part of the system, and surprising without context: a reader of the code would wonder why, or a constraint the code cannot show forced it. A deliberate departure from the obvious path qualifies; the obvious choice made for the obvious reason does not. Product scope belongs to the spec, a convention to the agent rules; a record may hold the why behind a convention, while the rule itself stays where agents read it.
 - **One decision per record.** A detail of a recorded decision, such as how one function implements it, belongs in that record or its owning doc, not a record of its own.
 - **The title names the problem, never the technology** — "Backend platform", not "Use Postgres". The chosen technology goes in the Decision.
 - **Sections:** Context, Decision, Alternatives (only when known), Consequences. A rejection that is not obvious is the most valuable line, since it is the one that would otherwise be suggested again.
 - **A record states the decision that holds today.** When the decision changes, edit its record; when it stops holding, delete it. Git keeps the history, so no status, date, or supersede chain.
-- **Short.** The why and the cost; link the doc that owns the detail rather than restating it, and leave out volatile numbers. Where the owning doc already states the decision, its alternatives, and its reasons, the record is a link to it, or no record at all.
+- **Short.** The why and the cost. Where the owning doc already states the decision, its alternatives, and its reasons, the record is a link to it, or no record at all.
 - **Facts are verified at their source** — the code, migration, config, or owning doc — and a fact that cannot be verified is deleted.
 - **Reasons and alternatives come from the owner** — their own words, or an argument they explicitly accepted, about this decision. Cite who said it; an assistant's proposal or summary is not the owner's reason. A reason that is a consequence of the decision, or that would equally reject something the system does elsewhere, is not the reason.
 - **Never invent an alternative or a reason.** Search past sessions first (the `search-sessions` skill), then ask the owner. When the owner is not available, draft only what the sources support and list the open questions with the draft.
@@ -54,6 +55,7 @@ Three modes, inferred from the request:
 
 ## See also
 
+- `writing` — the prose rules a record shares with every lasting doc: link the owner, no volatile numbers
 - `docs` — the owning doc a record links to
 - `spec` — product requirements, which are not records
 - `agents-md` — conventions, which are not records

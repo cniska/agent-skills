@@ -5,7 +5,7 @@ description: Create and maintain a specification that states what to build, not 
 
 # Spec
 
-A spec states what must be true, never how to achieve it. Algorithms, specific API calls, data structures, byte offsets: those live in code or an architecture doc. The spec must be complete enough to reimplement from and precise enough to verify against. Every requirement is a claim someone can later prove or disprove.
+A spec states what must be true, never how to achieve it. Algorithms, specific API calls, data structures, byte offsets: those live in code or an architecture doc. The spec must be complete enough to reimplement from and precise enough to verify against. Every requirement is a claim someone can later prove or disprove. The prose follows `writing`'s rules for documents that last.
 
 Two modes, inferred from the request:
 
@@ -58,6 +58,7 @@ Stable IDs and retire-in-place keep that delta legible in the git diff itself; u
 
 ## See also
 
+- `writing` — the prose rules a spec shares with every lasting doc
 - `plan` — design and decompose once the spec is stable
 - `architecture-review`, `doc-review` — where the *how* lives, and keeping the spec free of drift
 - [`template.md`](template.md) — the canonical section skeleton to copy from

@@ -14,9 +14,9 @@ Two modes, inferred from the request:
 
 ## Conventions this skill enforces
 
+- Apply `writing`'s rules for documents that last: each fact in one place, within the page as across docs; current state only; no volatile numbers.
 - One H1 per doc. H1 is the topic in title case. H2+ are sentence case.
 - First sentence is the summary. One line. The reader knows what this doc covers without scrolling.
-- Cross-reference, don't repeat. If another doc owns the detail, link to it. Repeating detail is how docs drift.
 - Flow diagrams use ```text blocks with `→` arrows and `|` branches.
 - Tables are for structured data — column definitions, severity matrices, index lists, test tiers. Not prose.
 - Bullets start with a bold label or a capital letter.
@@ -75,6 +75,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 
 ## See also
 
+- `writing` — the prose rules every lasting doc follows: one place per fact, current state only, no volatile numbers
 - `doc-review` — check existing docs for drift after code changes
 - `spec` — requirements that docs reference
 - `agents-md` — project rules that docs must follow

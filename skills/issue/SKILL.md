@@ -29,6 +29,7 @@ Create a GitHub issue from a short description.
 
 ## See also
 
+- `writing` — voice and plain wording for the issue body
 - `plan` — design the work once the issue is accepted; the issue states what and why, not how
 - `pr` — the pull request that closes it
 

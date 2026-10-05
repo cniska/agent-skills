@@ -40,6 +40,18 @@ Preserve the intended meaning and level of confidence. Remove words or structure
 For technical readers, assume shared context. For external readers, reduce jargon and explain consequences alongside mechanisms.
 Keep the writer's point of view when it serves the purpose and audience.
 
+## Documents that last
+
+A README, a spec, an architecture doc, a decision record or an agent rules file is read long after it is written, so it holds only what stays true.
+
+- It changes in the same commit as the behavior it describes.
+- It states what holds now, never how it got there; history lives in version control.
+- Each fact lives in one place; link to its owner rather than restating it.
+- No volatile numbers (sizes, line counts, latency), and no counting a collection that can grow.
+- Say what is, not what isn't. Plain words over metaphor such as spine, rail, seam, blast radius, theater or posture. Cut any sentence whose deletion loses nothing.
+- A page takes the structure, depth and voice of the pages beside it.
+- US spelling, unless the repo already uses another.
+
 ## Final pass
 
 Check that the draft starts with the point, supports strong claims, removes repeated framing, and sounds like clear judgment rather than generated polish. Preserve the user's intent over stylistic performance.
@@ -51,3 +63,4 @@ Check that the draft starts with the point, supports strong claims, removes repe
 - Replacing precise language with a simpler but less accurate word
 - Compressing prose until a reader must decode it
 - Letting cleanup erase the writer's useful emphasis
+- A lasting document that narrates its history, restates a fact another page owns, or carries a number that will go stale

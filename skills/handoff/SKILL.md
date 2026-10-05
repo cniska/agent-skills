@@ -48,6 +48,7 @@ A decision goes in as its rule, not its history:
 
 ## See also
 
+- `writing` — voice and plain wording for the handoff
 - `search-sessions` — recover what an earlier session decided when no handoff carried it forward
 - `git` — commit the unfinished work this document points at
 
