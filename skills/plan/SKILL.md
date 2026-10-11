@@ -58,6 +58,7 @@ Tag every fenced block with its language so it renders highlighted where the hos
 ## See also
 
 - `build` for execution discipline per slice
+- `search-sessions` for what earlier sessions already designed or ruled out for this change
 
 ## Red flags
 

@@ -31,6 +31,7 @@ If root cause turns out to be "this whole approach is wrong" — stop debugging 
 - `tdd` — the Prove-It pattern here is red-green-refactor applied to a bug fix rather than new behavior
 - `correctness-review` and `explain-diff` — reach for this skill when either surfaces a bug that needs root-causing rather than just flagging
 - `plan` — when the root cause is design-level, stop debugging and invoke this instead
+- `search-sessions` — whether this failure came up before, and what was tried
 
 ## Red flags
 

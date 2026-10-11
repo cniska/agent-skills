@@ -12,7 +12,7 @@ Source and tests do not change during the review. A finding outside the module g
 
 ## Purpose
 
-State in one sentence what the module is for, taken from the doc that owns the subject, not from the code. List the owner's decisions that bind it, from the repo's rules, spec, decision records or design docs and backlog. A piece those decisions keep stays.
+State in one sentence what the module is for, taken from the doc that owns the subject, not from the code. List the owner's decisions that bind it, from the repo's rules, spec, decision records or design docs and backlog, and earlier returns on the module, found with `search-sessions`. A piece those decisions keep stays.
 
 ## What reaches it
 

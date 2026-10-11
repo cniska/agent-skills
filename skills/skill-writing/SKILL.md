@@ -26,6 +26,7 @@ Two modes, inferred from the request:
 ## See also
 
 - `principles` — no drift, for the description, index and siblings a change leaves stale
+- `search-sessions` — evidence that a friction repeats across sessions before adding guidance for it
 
 ## Red flags
 
