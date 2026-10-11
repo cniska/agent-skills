@@ -8,7 +8,7 @@ source "$HERE/review-state.sh"
 readonly GIT_COMMIT_PATTERN='(^|[;&|(]|[[:space:]])([^[:space:];&|()]*/)?git([[:space:]]+-[Cc][[:space:]]+[^[:space:]]+)*[[:space:]]+commit([[:space:]]|$)'
 readonly GIT_DIR_PATTERN='git[[:space:]]+-C[[:space:]]+([^[:space:]]+)[[:space:]]+commit'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*&&'
-readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer and commit once it ends with 'Verdict: accept', with no edits since."
+readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
 
 commit_dir() {
   local command="$1" cwd="$2" target=""

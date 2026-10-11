@@ -39,9 +39,9 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
 This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill with the hooks and the reviewer agent that keep the routes in force when nobody is watching the session. In Claude Code its skills carry the plugin's prefix, so a task starts with `/cniska-skills:coordinate <task>`.
 
 - **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate`, and every resumed, forked or compacted session to take its Resume route.
-- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write, and ends each report with `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
+- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write, and ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
 - **A context check** runs on each prompt and, once the session's context passes 200k tokens, tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, it warns on stderr and says nothing to the agent.
-- **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
+- **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept goes to the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
 
 Install it:
 

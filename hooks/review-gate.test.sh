@@ -27,8 +27,9 @@ repo="$scratch/repo"
 mkdir -p "$repo"
 (cd "$repo" && git init -q -b main && printf 'print(1)\n' >app.py && printf '# readme\n' >README.md && git add -A && git commit -q -m base)
 
-readonly DENIED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer and commit once it ends with '"'"'Verdict: accept'"'"', with no edits since."}}'
+readonly DENIED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with '"'"'Verdict: accept'"'"', with no edits since."}}'
 readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Verdict: accept'"'"' or '"'"'Verdict: return'"'"'."}'
+readonly NO_REPO='{"decision":"block","reason":"Put '"'"'Repo: <absolute path of the repository under review>'"'"' on the line above the verdict."}'
 
 gate() {
   jq -cn --arg command "$1" --arg cwd "$repo" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
@@ -46,6 +47,7 @@ record_last_message() {
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message, stop_hook_active: false}' | "$RECORD" 2>/dev/null
 }
 
+report() { printf 'Fine.\nRepo: %s\nVerdict: %s' "$1" "$2"; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
 land() { (cd "$repo" && git add -A && git commit -q -m land); }
 
@@ -57,24 +59,31 @@ assert "a commit word in another git command passes" "$(gate 'git log --grep com
 assert "a commit through an absolute git path is gated" "$(gate '/usr/bin/git -C . commit -m x')" "$DENIED"
 assert "a commit after cd and && is gated" "$(gate "cd $repo && git commit -m x")" "$DENIED"
 
-assert "an accepting verdict records nothing to say" "$(record_handback $'All good.\nVerdict: accept')" ""
+assert "a verdict with no Repo line keeps the reviewer running" "$(record_handback $'All good.\nVerdict: accept')" "$NO_REPO"
+assert "an accept with no Repo line approves nothing" "$(gate 'git commit -am x')" "$DENIED"
+assert "a Repo line that is not a repository keeps the reviewer running" "$(record_handback "$(report "$scratch/nowhere" accept)")" "{\"decision\":\"block\",\"reason\":\"'$scratch/nowhere' is not a repository. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
+assert "a relative Repo path keeps the reviewer running" "$(record_handback "$(report repo accept)")" "{\"decision\":\"block\",\"reason\":\"'repo' is not an absolute path. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
+assert "a missing Repo line on the second stop lets the reviewer stop" "$(record_handback $'All good.\nVerdict: accept' true)" ""
+assert "a reviewer stopped without a Repo line approved nothing" "$(gate 'git commit -am x')" "$DENIED"
+
+assert "an accepting verdict records nothing to say" "$(record_handback "$(report "$repo" accept)")" ""
 assert "an accepted diff commits" "$(gate 'git commit -am x')" ""
 edit app.py 'print(3)'
 assert "an edit after the accept blocks the commit" "$(gate 'git commit -am x')" "$DENIED"
 
-record_handback $'Fine.\nVerdict: accept' >/dev/null
+record_handback "$(report "$repo" accept)" >/dev/null
 (cd "$repo" && printf 'x = 1\n' >new.py)
 assert "a new untracked file after the accept blocks the commit" "$(gate 'git commit -am x')" "$DENIED"
 
-record_handback $'Fine.\nVerdict: accept' >/dev/null
-record_handback $'Problems below.\nVerdict: return' >/dev/null
+record_handback "$(report "$repo" accept)" >/dev/null
+record_handback "$(report "$repo" return)" >/dev/null
 assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$DENIED"
 
 assert "a report with no verdict keeps the reviewer running" "$(record_handback 'Looks fine to me.')" "$MISSING"
 assert "a verdict not on its own line does not count" "$(record_handback 'My Verdict: accept')" "$MISSING"
 assert "a missing verdict on the second stop lets the reviewer stop" "$(record_handback 'Still no verdict.' true)" ""
 
-assert "a verdict in the last message counts when there is no handback" "$(record_last_message $'Ok.\nVerdict: accept')" ""
+assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
 land
@@ -85,21 +94,9 @@ land
 worktree="$scratch/topic"
 (cd "$repo" && git worktree add -q -b topic "$worktree")
 other="$scratch/other"
-mkdir -p "$other"
+mkdir -p "$other/sub"
 (cd "$other" && git init -q -b main && printf 'z = 1\n' >lib.py && git add -A && git commit -q -m base && printf 'z = 2\n' >>lib.py)
 
-record_reads() {
-  local transcript="$scratch/reads.jsonl" message="$1"
-  shift
-  : >"$transcript"
-  local path
-  for path in "$@"; do
-    jq -cn --arg p "$path" '{type: "assistant", message: {content: [{type: "tool_use", name: "Read", input: {file_path: $p}}]}}' >>"$transcript"
-  done
-  jq -cn --arg message "$message" '{type: "assistant", message: {content: [{type: "tool_use", name: "SubagentHandback", input: {message: $message}}]}}' >>"$transcript"
-  jq -cn --arg cwd "$repo" --arg transcript "$transcript" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: "", stop_hook_active: false}' | "$RECORD" 2>/dev/null
-}
 gate_from() {
   jq -cn --arg command "$1" --arg cwd "$2" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
 }
@@ -107,9 +104,13 @@ gate_from() {
 (cd "$worktree" && printf 'print(9)\n' >>app.py)
 assert "a commit after cd into a worktree is gated against that worktree" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
 assert "a commit through git -C on a worktree is gated against that worktree" "$(gate_from "git -C $worktree commit -am x" "$repo")" "$DENIED"
-record_reads $'Fine.\nVerdict: accept' "$worktree/app.py" "$other/lib.py" >/dev/null
-assert "an accept for files the reviewer read in a worktree lets that worktree commit" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" ""
-assert "a reviewer reading a file in an unrelated repo approves nothing there" "$(gate_from 'git commit -am x' "$other")" "$DENIED"
+record_handback "$(report "$worktree" accept)" >/dev/null
+assert "an accept naming a worktree lets that worktree commit" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" ""
+assert "an accept naming a worktree approves nothing in another repo" "$(gate_from 'git commit -am x' "$other")" "$DENIED"
+(cd "$worktree" && printf 'print(11)\n' >>app.py)
+record_handback "$(report "$other/sub" accept)" >/dev/null
+assert "an accept naming a path outside the session's repo lets that repo commit" "$(gate_from 'git commit -am x' "$other")" ""
+assert "an accept naming one repo approves nothing in another" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
 edit app.py 'print(10)'
 assert "an accept for a worktree does not approve the main checkout" "$(gate 'git commit -am x')" "$DENIED"
 
