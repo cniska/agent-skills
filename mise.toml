@@ -9,11 +9,11 @@ run = "./scripts/validate.sh"
 
 [tasks.test]
 description = "Run bash tests (offline, no API)"
-run = 'for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
+run = 'for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" -not -path "./.claude/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
 
 [tasks.lint]
 description = "Shellcheck shell scripts"
-run = 'shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*")'
+run = 'shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
 
 [tasks.bootstrap]
 description = "Configure local hooks and run validation"

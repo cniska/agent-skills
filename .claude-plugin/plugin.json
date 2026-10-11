@@ -1,0 +1,10 @@
+{
+  "name": "cniska-skills",
+  "description": "The agent-skills set, with hooks that start every task on the coordinate routes and gate each commit on a design review.",
+  "author": {
+    "name": "Christoffer Niska"
+  },
+  "homepage": "https://github.com/cniska/agent-skills",
+  "repository": "https://github.com/cniska/agent-skills",
+  "license": "MIT"
+}

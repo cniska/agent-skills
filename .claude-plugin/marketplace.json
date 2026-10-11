@@ -1,0 +1,14 @@
+{
+  "name": "cniska",
+  "description": "Claude Code plugins for the agent-skills set.",
+  "owner": {
+    "name": "Christoffer Niska"
+  },
+  "plugins": [
+    {
+      "name": "cniska-skills",
+      "source": ".",
+      "description": "The agent-skills set, with hooks that start every task on the coordinate routes and gate each commit on a design review."
+    }
+  ]
+}
