@@ -24,15 +24,15 @@ Offer a handoff in one line at a clean break, and let the user decide; never han
 3. Admit each further line by one test: **could the cold agent execute Next without this?** If yes, cut it — however much work it represents. "Important context" and "we decided this" don't count; a decision is recorded only if Next would otherwise violate it, and then as the rule, not its history. The code, `git log`, and standing docs (AGENTS.md, SPEC, TODO) already hold the past — link, don't recount, and never paste file contents, diffs, or command output.
 4. If this conversation opened with a prior handoff, merge: carry what still constrains Next, drop the rest. Never append verbatim.
 5. Budget check: the whole handoff fits on one screen. Longer means you drifted into reporting — cut, don't reorganize.
-6. Write it to `date -u +/tmp/handoff-%Y%m%dT%H%M%SZ.md` and copy it in the same step (`pbcopy < <path>` / `xclip -selection clipboard < <path>`) — no confirmation gate.
+6. Write it to a timestamped `handoff-*.md` in the system's temp directory and copy it to the clipboard in the same step, with no confirmation gate. Copy it as UTF-8: a clipboard tool that reads the file in the shell's locale turns every non-ASCII character into junk when the locale is unset.
 7. **Print the whole handoff verbatim in your reply.** The write and the copy are both silent and tool output is truncated, so this is the only place the user sees it — print the body as prose, never a `cat`. Once, then stop.
-8. Tell the user to `/clear` and paste as the first message — clearing is client-side, their one manual step. On requested edits: rewrite, re-copy, reprint in full.
+8. Tell the user to clear the session and paste the handoff as the first message — clearing is theirs to do, their one manual step. On requested edits: rewrite, re-copy, reprint in full.
 
 ## Format
 
 Exactly these three sections, in order — no others. If you're reaching for a heading like Status, Progress, Decisions, Done, Evidence, Dead ends, or Parked, that's the report shape: the content either earns one line under a section below or dies. Drop a section with nothing in it.
 
-    # Handoff — <topic or ticket>
+    # Handoff: <topic or ticket>
 
     ## Next
     <one concrete action, specific enough to start cold. One sentence.>
@@ -50,9 +50,9 @@ The closing line is load-bearing: without a closing imperative the fresh session
 
 A decision goes in as its rule, not its history:
 
-    Report shape: "We chose pbcopy over osascript because osascript triggered
-    permission prompts on Sonoma and we lost 40 minutes to it..."
-    Rule:         "- Clipboard via pbcopy, not osascript (permission prompts). Settled."
+    Report shape: "We tried caching the parsed config, but it went stale when
+    the file changed mid-run and we lost 40 minutes to it..."
+    Rule:         "- Parse the config on each read; never cache it (stale mid-run). Settled."
 
 ## See also
 
