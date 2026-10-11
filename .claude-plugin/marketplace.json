@@ -9,6 +9,14 @@
       "name": "cniska-skills",
       "source": ".",
       "description": "The agent-skills set, with hooks that start every task on the coordinate routes and gate each commit on a design review."
+    },
+    {
+      "name": "cniska-record",
+      "source": {
+        "source": "github",
+        "repo": "cniska/agent-record"
+      },
+      "description": "Keeps the agent-record index of sessions and the commits they led to in sync, for search-sessions to query."
     }
   ]
 }
