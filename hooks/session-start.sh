@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly START_CONTEXT="Start each task with the cniska-skills:coordinate skill. A commit that changes code waits until cniska-skills:reviewer has accepted the diff as it stands."
+readonly START_CONTEXT="Start each task with the cniska-skills:coordinate skill and load other skills only as it, or a skill it loads, directs. A commit that changes code waits until cniska-skills:reviewer has accepted the diff as it stands."
 readonly RESUME_CONTEXT="This session continues earlier work. Load the cniska-skills:coordinate skill again and take its Resume route before the next step."
 
 usage() {

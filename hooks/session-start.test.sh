@@ -19,7 +19,9 @@ run() { "$HOOK" "$@" 2>/dev/null; }
 code() { "$HOOK" "$@" >/dev/null 2>&1; echo "$?"; }
 
 assert "start tells the session to load coordinate first" \
-  "$(run start | grep -c 'Start each task with the cniska-skills:coordinate skill.')" 1
+  "$(run start | grep -c 'Start each task with the cniska-skills:coordinate skill and')" 1
+assert "start leaves the other skills to coordinate" \
+  "$(run start | grep -c 'load other skills only as it, or a skill it loads, directs.')" 1
 assert "start says commits wait on the reviewer" \
   "$(run start | grep -c 'waits until cniska-skills:reviewer has accepted the diff')" 1
 assert "resume sends the session to the Resume route" \
