@@ -23,7 +23,7 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 - Keep it lean — prefer trimming to growing. A new rule shouldn't grow the file if an existing bullet can absorb it.
 - Decide placement by cost, not by recipe. AGENTS.md is loaded on every task, so every line pays a recurring token cost. Whether a fact belongs inline here or behind a one-line pointer to a doc or executable is a judgment: weigh how often it's needed against that per-task cost, and decide for this project. The right split differs across projects and shifts as models improve — apply the principle rather than a fixed line count or section recipe. When the file must come down, cut what is cheapest to re-derive — an enumeration the agent could read off a manifest — before anything a reader could not reconstruct from the repo at all.
 - Put a rule in the lowest layer that still reaches the work: machine-wide guidance, this repo, a skill, a doc, or an executable gate. Keep judgment in prose; make mechanical invariants executable where the project can enforce them.
-- Always carry a comment ban — one bullet: code carries no comments, and a why goes into a name, a test, or the doc that owns the subject. A tool directive (a lint or type suppression, `// SAFETY:`) carries its reason on the directive's own line; doc comments stay only on the public API of a package published to a registry; config files may carry a reason comment. Scope it to new and changed code, so it states the convention going forward rather than a claim about the tree. Where the project can run one, a check that scans the lines a diff adds holds it; a whole-tree scan would fail on every existing comment. Put it where code rules already live.
+- Always carry a comment ban — one bullet stating no comments from `principles`. Scope it to new and changed code, so it states the convention going forward rather than a claim about the tree. Where the project can run one, a check that scans the lines a diff adds holds it; a whole-tree scan would fail on every existing comment. Put it where code rules already live.
 - If a `SPEC.md` exists, the opening line must reference it as the source of truth for requirements and require keeping it current in the same change that changes behavior — the spec never lags the code. Invariants may cite spec IDs (e.g. `FR-15`) to make them traceable, but code and test names must not — describe behavior in plain terms; the spec is the reference for why.
 
 ## Sections to consider
@@ -70,7 +70,7 @@ Often no specific rule comes with the request — "bring this file up to standar
    - if an existing bullet overlaps, rewrite that one bullet to cover both — don't add a second.
    - if the rule generalizes several existing bullets, replace them with the one general rule.
    - if the same rule is stated in two sections, dedupe to the single correct home.
-4. Trim collateral duplication the change exposes, even outside the target section.
+4. Trim collateral duplication the change exposes, and apply no drift from `principles` to what it made stale, even outside the target section.
 5. Re-check the file still follows every convention above (no hard wraps, one rule per bullet), and that a bridge exists for each agent tool the repo uses.
 6. Report **added / merged / trimmed** explicitly — which bullets changed and why.
 
@@ -81,7 +81,8 @@ Concrete target behavior: adding a "naming" rule should absorb a pre-existing "n
 AGENTS.md is the hub that gives the other skills their project-specific grounding. Each skill reads it to understand what the project considers non-negotiable.
 
 - `writing` — the prose rules this file shares with every lasting doc: rules not history, one place per fact
-- `code-writing` — the code rules the comment ban comes from; the Code section carries the ones every contributor must keep.
+- `principles` — the comment ban, rules as checks for deciding what becomes executable, and no drift
+- `code-writing` — the code rules; the Code section carries the ones every contributor must keep.
 - `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants cite spec IDs; code does not.
 - `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.
 - `build` — the Workflow section names the verify command the `build` skill runs after every slice.
@@ -102,4 +103,4 @@ AGENTS.md is the hub that gives the other skills their project-specific groundin
 - Growing the file when an existing bullet could have absorbed the rule.
 - Putting Claude-Code-specific memory or `settings.json` config into AGENTS.md.
 - A mechanical rule stated only in prose where the project could run a check for it.
-- A finished file carrying no comment ban, or one that allows comments beyond tool directives and a published package's public docs.
+- A finished file carrying no comment ban, or one looser than no comments in `principles`.

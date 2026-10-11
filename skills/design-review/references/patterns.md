@@ -6,7 +6,7 @@ The rules `design-review` holds all code to. A violation is a finding, and in a 
 
 ## Size everything to the need
 
-Build what the job needs now (YAGNI). YAGNI covers capabilities, not the code's health: a refactor that makes the code easier to change is never speculation. A feature, command, table, option or extension point with no current use goes, however much work went into it; when the need arrives, it is built then. Anything beyond the need is speculation, and speculation is usually the wrong design, because the need that should shape it has not arrived yet. A fix is sized to its problem: small when the problem is small, a redesign when the design is the cause. Before removing something, find out why it exists (Chesterton's fence); if the reason no longer holds, it goes.
+Build what the job needs now (YAGNI). YAGNI covers capabilities, not the code's health: a refactor that makes the code easier to change is never speculation. A feature, command, table, option or extension point with no current use goes, however much work went into it; when the need arrives, it is built then. Anything beyond the need is speculation, and speculation is usually the wrong design, because the need that should shape it has not arrived yet. A fix is sized to its problem: small when the problem is small, a redesign when the design is the cause. Before removing something, apply Chesterton's Fence from `principles`.
 
 Spot it:
 

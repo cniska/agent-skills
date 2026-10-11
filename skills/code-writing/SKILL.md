@@ -76,31 +76,15 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
 - **Crucial logic is test-first.** Parsers, auth, signing and fail-closed paths get their failing test before the code.
 - **Wire values as literals.** Pin header names, record fields, codes and printed output as literals; asserting against the imported production constant lets a wrong constant pass.
-- **A test that cannot fail is worse than none.** Remove the check it claims to prove and watch it go red.
-- **A helper that loops or retries fails at its limit**, with the last state it saw. One that returns quietly turns a stuck run into a pass.
 - **A test that accepts several outcomes proves the main one happens.** "Shipped or reported" passes vacuously if nothing ever ships.
 - **Unit tests stay offline.** Stub the network and third-party APIs at the boundary; a real end-to-end run against a live service is a separate, opt-in step. Assert the outcome, not that a stub was called.
 - **A refusal test proves the side effect did not happen.** Assert the upstream saw no request, the file was not written, the row was not inserted, and pair it with a positive control showing the admitted case does happen.
 - **A test seam is switched on at build time, never by a runtime variable.** Code that exists only for a test is compiled in by a build flag, cargo feature or bundler define, absent from what ships. An environment variable the shipped code reads to enable a test path is a back door; a harness pointing `HOME` or a tool's config path elsewhere is ordinary isolation.
 - **Fixtures copy a format, never real values.**
 
-## Rules as checks
+## Principles
 
-A rule the code must keep is a check, not a sentence. A sentence is read differently by each agent and contributor, and only a reviewer catches a breach; a check fails the same way for everyone, on every commit.
-
-- Take the strongest form that can hold the rule: a type that cannot represent the wrong state, then a rule the configured linter already has, then a test in the suite that scans the source, then a hook or CI step. A rule that covers only new and changed code scans the lines a diff adds, not the whole tree.
-- Break the rule once and watch the check go red before wiring it in.
-- When a review catches a breach of a mechanical rule, the fix adds the check that would have caught it.
-- Prose in `AGENTS.md` or a skill keeps what needs judgment: naming, scope, design.
-
-## Comments
-
-Code carries no comments. A why goes into a name, a test, or the doc that owns the subject. A ban is a rule a check can hold, where "only the why" is one more sentence to judge.
-
-- A tool directive is not a comment: a lint or type suppression, or Rust's `// SAFETY:`. It carries its reason on the directive's own line.
-- Doc comments stay only on the public API of a package published to a registry, where the doc tool renders them as the package's documentation. Elsewhere a doc comment explains what a better name, type or test should say; fix that instead.
-- The ban covers source code. A config file (TOML, YAML, a CI workflow) may carry a reason comment, since it has no name or test to hold one.
-- A comment on a line the change touches goes with it, its why moved first. Comments elsewhere are left for a change of their own.
+Load `principles` and apply five of them to every change: no comments, rules as checks, proven able to fail, fix the cause, and no drift.
 
 ## Verification loop
 
@@ -108,6 +92,7 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 
 ## See also
 
+- `principles` for the five principles every change applies
 - `tdd` for crucial logic driven test-first
 - `test-writing` for tests that are proven able to fail
 - `database-design` for schemas the types are parsed from

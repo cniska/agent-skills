@@ -52,7 +52,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 3. **Determine the doc type.** Architecture, design, security, runtime, reference, or comparison — different types emphasize different sections.
 4. **Fill the template** under the conventions above, cross-referencing docs that own adjacent context.
 5. **Add to the docs index.** (e.g. `docs/README.md`)
-6. **Verify.** Read the doc against the code. Every claim should be provable from the source.
+6. **Verify.** Read the doc against the code, and apply verify at the source from `principles`.
 
 ### Edit mode
 
@@ -60,9 +60,9 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 2. **Read the code that changed.** The doc must reflect what the code does now.
 3. **Find the section.** Match the doc's existing vocabulary and structure.
 4. **Merge, don't append.** If an existing bullet overlaps, rewrite it. If a new concept is introduced, give it its own subsection.
-5. **Update cross-references.** If the change affects them.
+5. **Sweep for drift.** Apply no drift from `principles`: cross-references and any other doc the change made stale.
 6. **Update the docs index.** If the doc's scope changed.
-7. **Verify.** Read the doc against the code. If the code and doc disagree, the code wins.
+7. **Verify.** Read the doc against the code, and apply verify at the source from `principles`. If the code and doc disagree, the code wins.
 
 ## Doc types
 
@@ -76,6 +76,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 ## See also
 
 - `writing` — the prose rules every lasting doc follows: one place per fact, current state only, no volatile numbers
+- `principles` — verify at the source, for every claim a doc makes, and no drift
 - `doc-review` — check existing docs for drift after code changes
 - `spec` — requirements that docs reference
 - `agents-md` — project rules that docs must follow

@@ -13,7 +13,7 @@ Do not simplify code you don't understand yet, code that is already clean, or co
 
 ### 1. Understand before touching (Chesterton's Fence)
 
-Before changing or removing anything, understand why it exists. Check git blame, read the context, understand the reason. Then decide if the reason still applies. A stated reason that still holds — hot path, compat shim — ends the matter; leave the smell alone.
+Before changing or removing anything, apply Chesterton's Fence from `principles`.
 
 ### 2. Identify opportunities
 
@@ -30,7 +30,7 @@ Each smell maps to one named move — name it in the commit subject to keep one 
 - **Generic names** (`data`, `result`, `temp`) — rename to describe content
 - **Duplicated logic** — extract to shared function; three small copies or two substantial ones, and don't touch copies kept deliberately apart (boundary-local, conditionally compiled)
 - **Dead code** — remove after confirming truly unreachable
-- **Comments** — remove them, moving any *why* into a name, a test, or the doc that owns the subject; a tool directive stays
+- **Comments** — remove them, as no comments in `principles` says
 - **Wrappers that add no policy** — inline function, judged against the language's own idiom: a newtype, a constructor delegating to a default, or accessors over private fields are conventional, not empty wrappers
 
 ### 3. Apply incrementally
@@ -43,6 +43,7 @@ All existing tests must pass without modification — if tests needed updating, 
 
 ## See also
 
+- `principles` for Chesterton's Fence and no comments
 - `review` for the loop that surfaces these findings
 - `architecture-review` for finding misplaced logic and indirection
 - `maintainability-review` for finding naming and hygiene drift

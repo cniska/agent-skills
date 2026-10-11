@@ -44,7 +44,7 @@ Keep the writer's point of view when it serves the purpose and audience.
 
 A README, a spec, an architecture doc, a decision record or an agent rules file is read long after it is written, so it holds only what stays true.
 
-- It changes in the same commit as the behavior it describes.
+- It changes in the same commit as the behavior it describes, as no drift in `principles` says.
 - It states what holds now, never how it got there; history lives in version control.
 - Each fact lives in one place; link to its owner rather than restating it.
 - No volatile numbers (sizes, line counts, latency), and no counting a collection that can grow.
@@ -55,6 +55,10 @@ A README, a spec, an architecture doc, a decision record or an agent rules file 
 ## Final pass
 
 Check that the draft starts with the point, supports strong claims, removes repeated framing, and sounds like clear judgment rather than generated polish. Preserve the user's intent over stylistic performance.
+
+## See also
+
+- `principles` — no drift, for what a change leaves stale
 
 ## Red flags
 

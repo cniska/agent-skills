@@ -5,7 +5,7 @@ description: Deprecate and remove code safely. Use when replacing systems, remov
 
 # Deprecation
 
-Code is a liability: every line costs maintenance, so when equivalent functionality needs less code or a better abstraction, retire the old version. Hyrum's Law makes that hard — every observable behavior, bugs included, has a dependent — so deprecation is active migration, not an announcement. No transitional architecture: land the replacement, migrate consumers, remove the old system rather than running two in parallel.
+Code is a liability: every line costs maintenance, so when equivalent functionality needs less code or a better abstraction, retire the old version. Hyrum's Law makes that hard — every observable behavior, bugs included, has a dependent — so deprecation is active migration, not an announcement. Apply no transitional architecture from `principles`.
 
 **Whether you can reach every consumer decides the path.** Inside a codebase you own, grep is exhaustive and removal is one change. Across a boundary you don't — a published package, a shared schema, an API other teams call — removal is gated on a major version: annotate it deprecated, ship the migration note, delete on the next major. There the announcement *is* the work product, and a deprecation sitting unremoved for months is correct rather than stalled.
 
@@ -19,6 +19,7 @@ Code is a liability: every line costs maintenance, so when equivalent functional
 
 ## See also
 
+- `principles` — no transitional architecture
 - `build` — migrate consumers one verified slice at a time
 - `architecture-review` — find the coupling that makes a consumer hard to migrate
 
