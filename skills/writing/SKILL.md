@@ -51,6 +51,7 @@ A README, a spec, an architecture doc, a decision record or an agent rules file 
 - Say what is, not what isn't. Plain words over metaphor such as spine, rail, seam, blast radius, theater or posture. Cut any sentence whose deletion loses nothing.
 - A page takes the structure, depth and voice of the pages beside it.
 - US spelling, unless the repo already uses another.
+- `AGENTS.md` changes through `agents-md`, and `SPEC.md` through `spec`.
 
 ## Final pass
 

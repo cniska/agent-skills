@@ -31,6 +31,8 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 - **Match the repo's config and pins, not its weak spots.** Code nearby that breaks a rule here is flagged, never copied into new code and never rewritten as a side effect.
 - **Minimum dependencies.** Every dependency is supply-chain surface. Check whether the standard library or a dependency already in the tree covers the job before adding one, and say why next to a heavier one when it earns its place. A test-only dependency is a dev dependency.
 - **Size the structure to the program.** A small tool stays in a few files and takes no dependency for what a few lines of its own cover; split a file or add a library when a concern actually grows, not in anticipation. Build what was asked: no unrequested flags, output modes or storage layouts.
+- **`mise` manages toolchains.** A runtime it manages is never installed through `brew`, `nvm`, `pyenv` or `fnm`.
+- **Read and edit files with the harness's own file tools, never through the shell.** Hooks that check or record edits fire on those tools, and a shell write skips them; the shell also keeps no record of what a file looked like, so a concurrent write is silently overwritten.
 - **Check the installed version, not memory.** A model's memory of a toolchain lags it. Read the installed version's types, changelog or bundled docs before writing an API you recall; each reference lists the drift that already bit.
 
 ## Types

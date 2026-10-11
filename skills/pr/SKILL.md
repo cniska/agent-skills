@@ -12,7 +12,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 - Title: Conventional Commit format (`type(scope): description`), under 60 chars, no trailing period
 - Body: follow `.github/pull_request_template.md` if it exists — fill in each section, do not add or remove sections
 - Keep it short — the fewest bullets that convey the change. Omit anything a reviewer would infer from the diff: mechanical steps, refactors in service of the main change, file moves, renames
-- Bullets: high-signal plain English only; describe reviewer-relevant *what* and *why* — no code blocks, no prose paragraphs, no implementation bookkeeping
+- Bullets: high-signal plain English only; say what changed and why it is safe, never how the work unfolded — no code blocks, no prose paragraphs, no implementation bookkeeping
 - Motivation: optional and brief (1-2 sentences); include only when the *why* isn't obvious from the summary
 - Tracker link: when the branch's work belongs to an issue in the project's tracker (GitHub, Linear, Jira, …), end the body with it as a clickable link: `Fixes #23`, or `Fixes PROJ-23` with the key linked to the issue's URL. Use a closing word only when merging completes the issue; otherwise a non-closing one (`Part of`). The repo's own convention (its PR template, its tracker docs) wins
 

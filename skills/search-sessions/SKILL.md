@@ -10,6 +10,10 @@ Recover what a subject was actually said to be, out of the session transcripts o
 
 Transcripts sit one JSON object per line at `~/.claude/projects/<slug>/<session-id>.jsonl`, with a subagent's own lines under `<session-id>/subagents/*.jsonl`. The slug is the working directory path with `/` replaced by `-`.
 
+Search before deciding something that may already be settled.
+
+Where `dim` is installed, ask it first: it indexes every session and the commits they led to. `dim query search "<words>"` finds a message, `dim query thread <ref>` reads the exchange around a hit, `dim query prior-art "<path fragment>"` finds where a shape already exists on disk, and `dim sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
+
 ## Workflow
 
 1. **List every slug for the repo, not just this one.** A worktree or a sibling checkout gets a slug of its own, so one project spreads over several — `-Users-me-code-apps`, `-Users-me-code-apps--claude-worktrees-puzzles`, and so on. Glob for the repo's name and take them all: searching only the current directory's slug is how a conversation held in another checkout goes missing.

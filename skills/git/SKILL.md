@@ -11,13 +11,12 @@ The project's own conventions override everything below, and that includes caden
 
 ## Commit messages
 
-[Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): subject`. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`. Single-line subject, aim under 50 characters and never over 72. Do not hand-write issue references in the subject (`(#123)`, `Fixes #123`) — those belong in the PR body. A `(#N)` suffix a squash merge appends is the forge's and stays.
+[Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): subject`. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`. Single-line subject, aim under 50 characters and never over 72. The subject names what changed in the plainest words; the why goes in the PR body, where a reviewer reads it beside the diff. Do not hand-write issue references in the subject (`(#123)`, `Fixes #123`) — those belong in the PR body. A `(#N)` suffix a squash merge appends is the forge's and stays.
 
 ## Commit discipline
 
 - **Commit after each successful slice (the save-point pattern).** A commit is a point you can return to; when exploring an uncertain change, commit early so a dead end reverts cleanly instead of being lost.
 - **One logical change per commit.** A commit that refactors and adds a feature is two commits.
-- **Explain intent, not mechanics.** Describe why the change matters, not what files were touched.
 
 ## Change sizing
 
@@ -31,10 +30,11 @@ Separate refactoring from feature work. Separate formatting from behavior change
 
 - Branch when the change needs review or outlives a sitting. Where the project states nothing either way, its log answers: a history of squash-merged pull requests means branch; a history of direct commits to the integration branch means a small fix can go straight there.
 - Start task branches from the current integration base; `git symbolic-ref refs/remotes/origin/HEAD` names it, and on a project with release lines it is often not `main`. Fetch first rather than updating a shared primary checkout.
-- Use short topic branch names without type prefixes, e.g. `signal-toolkit`, not `feat/signal-toolkit`.
+- Name a topic branch for the work, with dashes and no type or ticket prefix, e.g. `signal-toolkit`, not `feat/signal-toolkit` or `PROJ-12-signal-toolkit`.
 - Keep branches short-lived — merge within days, not weeks.
-- Rewrite local history before pushing — amend, rebase, squash to keep history clean. Commit noise should never become permanent.
-- Never amend commits already pushed to remote.
+- Rebase to sync with the base, never merge it in.
+- Rewrite local history before pushing — amend, rebase, squash to keep history clean. Commit noise should never become permanent. Drop an unpushed commit by resetting it out, never by reverting.
+- Never amend commits already pushed to remote, and never push a shared branch without the owner's sign-off.
 - Use `--force-with-lease` over `--force`.
 - Never use `git -C <path>` — always `cd` into the target first. It hides the real working directory and risks operating on the wrong repo.
 - Land PRs with the repo's configured merge method. When none is set, default to squash — keeps history linear, one merge commit per PR.
