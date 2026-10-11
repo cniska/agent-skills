@@ -109,7 +109,7 @@ Grouped by where the routes use them.
 |-------|------------|
 | [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, offered at a clean break |
 | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
-| [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited |
+| [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited; asks [agent-record](https://github.com/cniska/agent-record) first where it is installed |
 | [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
 | [issue](skills/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
 | [agents-md](skills/agents-md/SKILL.md) | Create or update AGENTS.md project rules |

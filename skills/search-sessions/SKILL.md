@@ -12,7 +12,7 @@ Transcripts sit one JSON object per line at `~/.claude/projects/<slug>/<session-
 
 Search before deciding something that may already be settled.
 
-Where `dim` is installed, ask it first: it indexes every session and the commits they led to. `dim query search "<words>"` finds a message, `dim query thread <ref>` reads the exchange around a hit, `dim query prior-art "<path fragment>"` finds where a shape already exists on disk, and `dim sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
+Where `agent-record` (github.com/cniska/agent-record) is installed, ask it first: it indexes every session and the commits they led to. `agent-record query search "<words>"` finds a message, `agent-record query thread <ref>` reads the exchange around a hit, `agent-record query prior-art "<path fragment>"` finds where a shape already exists on disk, and `agent-record sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
 
 ## Workflow
 
