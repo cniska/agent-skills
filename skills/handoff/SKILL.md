@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Write forward-looking startup instructions for the next session, then reset context to save costs. Use when the context is getting long or before switching focus.
+description: Write the next session's startup brief so the work continues in a fresh context, and offer one at a clean break. Use after a task reports and a different one follows, when the context is large, or before a review, pr or ship gate on work built in the same session.
 ---
 
 # Handoff
@@ -8,6 +8,14 @@ description: Write forward-looking startup instructions for the next session, th
 Write the opening instructions your next session needs to pick up the work. The next session is a cold agent: same tools and checkout, zero memory of this one — its only input is this document. Every handoff is a briefing for a stranger, so it's a work order, not a report: it says what to do next, not what happened. There is no "we," nothing "we decided," no "where we left off" — if a line only makes sense to someone who was here, cut it. Size it to the next move, not to the session — a one-file fix earns a ten-line handoff, however long the session was.
 
 One variable: does the reader already share this project? If yes, pointers can be bare paths and ticket IDs. If not (a teammate, a different context), strip originating-project assumptions and spell out where things live.
+
+## When to offer one
+
+Offer a handoff in one line at a clean break, and let the user decide; never hand off unasked.
+
+- After a task reports, when the next request is a different task.
+- When the session is told its context is large: at the next step boundary, never mid-step.
+- Before a gate such as `review`, `pr` or `ship` on work built in this same long session, so the gate reads from a fresh context.
 
 ## Workflow
 
@@ -51,6 +59,7 @@ A decision goes in as its rule, not its history:
 - `writing` — voice and plain wording for the handoff
 - `search-sessions` — recover what an earlier session decided when no handoff carried it forward
 - `git` — commit the unfinished work this document points at
+- `coordinate`, `review`, `pr`, `ship` — offer a handoff at the breaks named above
 
 ## Red flags
 
@@ -62,3 +71,4 @@ A decision goes in as its rule, not its history:
 - Prior handoff appended instead of merged.
 - Handoff never printed in the reply — writing the file or copying it doesn't count; the user sees neither.
 - Printing the handoff more than once.
+- A handoff started unasked, or offered mid-step instead of at a break.

@@ -30,7 +30,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ### Self (no argument)
 
-1. If the branch was built in a long session, suggest the user run `handoff` and re-run `/review` in a fresh session for a cleaner read. Otherwise proceed here.
+1. If the branch was built in this long session, offer `handoff` as it says for a gate, then re-run `/review` in the fresh session. Otherwise proceed here.
 2. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`. If no commits ahead of `main`, report and stop.
 3. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
 4. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.

@@ -1,0 +1,47 @@
+---
+name: coordinate
+description: Run a task along the route its kind needs — feature, bug fix, refactor or review — loading each step's skill in order. Use at the start of any task that changes code or reviews a change, and again to resume one after context compaction.
+argument-hint: "<task>"
+---
+
+# Coordinate
+
+A skill runs only when something loads it. Pick the task's route and work through its steps, loading each step's skill when the step starts. A route names skills; each skill owns how its step is done.
+
+## Pick the route
+
+1. **Read the request and the repo's `AGENTS.md` or `CLAUDE.md`.** The repo's rules win over any step: how it branches, checks and lands. A repo skill that covers the task or a step takes its place.
+2. **Match the route by what the task changes**, read from the code it names, not by its wording. A code change always has a route; a task that changes no code, such as a question or a doc edit, goes straight to its own skill.
+3. **Load each step's skill with the Skill tool when the step starts.** Skip a step whose work does not arise, and name it in the report.
+4. **`design-review` runs in a fresh agent that did not write the work.** A re-review after a fix judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement goes to the owner.
+5. **Re-route when the task changes kind**, and say so.
+6. **Fix a finding in reach rather than filing it.**
+7. **Offer `handoff` at the breaks it names**, such as a route's report followed by a different task.
+
+## Report
+
+- Outcome first, then what needs the owner's decision; the rest in short bullets.
+- Several asks in one request: answer each by name, so none is dropped.
+- After changes, name every choice the owner did not ask for.
+
+## Routes
+
+| Route | When | File |
+|---|---|---|
+| Feature | New or changed behavior | [references/feature.md](references/feature.md) |
+| Bug fix | Behavior that differs from what it should be | [references/bug-fix.md](references/bug-fix.md) |
+| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [references/refactor.md](references/refactor.md) |
+| Review | Someone else's change, or a change that already landed | [references/review.md](references/review.md) |
+| Resume | After context compaction, or when a session picks up earlier work | [references/resume.md](references/resume.md) |
+
+## See also
+
+- `design-review` — the judgment every route's commits wait on
+- `handoff` — carry the route and step into a fresh session at a clean break
+
+## Red flags
+
+- A code edit made outside a route
+- The session that wrote a change running its `design-review`
+- Landing past a repo rule that asks the owner first
+- Starting a second task's route in the same long session without offering a handoff

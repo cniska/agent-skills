@@ -21,7 +21,7 @@ Check the entire project against the preconditions below. Never push; the last h
    - commits exist since the last release tag — a tag over no new commits releases nothing
    - the project's verification passes (its verify command per `AGENTS.md`)
    - no secrets in tracked files — grep tracked, non-`.env` files for common key shapes (`sk-`, `Bearer `, `-----BEGIN`, provider API-key env names)
-2. **Prepare context**: if the release follows a long implementation or review session, suggest running `handoff` and re-running in a fresh session, so the gate starts from a compact summary rather than a saturated context.
+2. **Prepare context**: if the release follows a long implementation or review session, offer `handoff` as it says for a gate, then re-run in the fresh session.
 3. **Run quality checks** (warn, don't block):
    - no `TODO` / `FIXME` left in non-test source
    - user-facing docs and changelog reflect the user-visible features since the last tag — cross-reference `feat` subjects; defer drift detail to `doc-review`

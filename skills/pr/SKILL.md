@@ -23,7 +23,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - branch has commits ahead of `main` (`git log main..HEAD --oneline`)
    - project verification passes (run the project's test/lint/typecheck command)
 2. **Prepare review context**:
-   - if the implementation happened in a long session, suggest the user run `handoff` and re-run `/pr` in a fresh session for a cleaner review; otherwise proceed
+   - if the implementation happened in this long session, offer `handoff` as it says for a gate, then re-run `/pr` in the fresh session; skip it once the owner has approved the draft
 3. **Run the review skill** (if available):
    - if there are must-fix findings, stop and report them — do not create the PR
 4. **Gather context**:
