@@ -18,7 +18,7 @@ One model agreeing with itself is not verification. Have a different model attac
 
 ## See also
 
-- `skill-test` — test the artifact instead of debating it
+- `skill-writing` — dry-run a changed skill instead of debating it
 - `review` — structured review of a diff
 
 ## Red flags

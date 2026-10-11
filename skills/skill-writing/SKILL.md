@@ -1,11 +1,11 @@
 ---
 name: skill-writing
-description: Create or update a skill in this repo, matching its conventions. Use when authoring a new skill or amending an existing one.
+description: Create or update a skill, matching the conventions of the set it belongs to, and dry-run it on unlike real repos. Use when authoring a new skill, amending an existing one, or testing a changed skill before pushing it.
 ---
 
 # Skill writing
 
-A skill is a self-contained instruction to a model — one per file at `skills/<name>/SKILL.md`. This skill carries the *how* of writing one here; `AGENTS.md` is the source of truth for the mechanical rules the validator enforces (frontmatter, `## Red flags`, no cross-directory links, tier vocabulary). Read it first; don't restate it here.
+A skill is a self-contained instruction to a model — a directory holding a `SKILL.md` and any references it loads on demand. This skill carries the *how* of writing one; the repo that holds the set owns its mechanical rules (frontmatter, required sections, links, its scaffold and validator), usually in its `AGENTS.md`. Read those first; don't restate them in the skill.
 
 Two modes, inferred from the request:
 
@@ -14,25 +14,32 @@ Two modes, inferred from the request:
 
 ## Workflow
 
-1. **Pick the mode** and read `AGENTS.md` (`## Authoring a skill`) for the rules in force.
-2. **Find the closest sibling** and match its shape — don't invent a new one. A "create/update a GitHub thing" clones `issue`; a two-modes artifact skill clones `docs` or `agents-md`; a review dimension clones a `*-review` skill.
-3. **Scaffold (Create only)**: `mise run new-skill <kebab-case> "<imperative description>"`, or copy `SKILL_TEMPLATE.md`.
-4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name in `## See also`; end with `## Red flags`. Match wording to the sibling — same section order, same lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method.
-5. **Validate**: `mise run validate`.
-6. **Dry-run before commit**: run `skill-test` on unlike real repos for any material change, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
-7. **Commit** direct to `main` with a Conventional Commit subject — only once the user gives the go.
+1. **Pick the mode** and read the repo's rules for authoring skills.
+2. **Find the closest sibling** and match its shape — don't invent a new one. A skill that files something clones the nearest skill that files something; a review dimension clones another review dimension.
+3. **Scaffold (Create only)** with the repo's scaffold command or template, where it has one.
+4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name, never by path; match the sibling's section order and lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method. Keep project specifics out: a skill states what holds in any repo and defers the rest to the repo's own rules.
+5. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed.
+6. **Validate** with the repo's validator.
+7. **Dry-run before commit**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
+8. **Commit** the way the repo's rules say, only once the user gives the go.
 
 ## See also
 
-- `skill-test` — dry-run a changed skill on real repos before pushing
+- `principles` — no drift, for the description, index and siblings a change leaves stale
 
 ## Red flags
 
-- Restating AGENTS.md's mechanical rules in the skill body, so the two drift
+- Restating the repo's mechanical rules in the skill body, so the two drift
+- A project's commands, paths, branches or names written into a skill
 - Inventing a new structure instead of cloning the closest sibling
 - Blind-appending a rule on update instead of merging and trimming duplicates
-- Committing a materially changed skill without the `skill-test` dry-run
+- Committing a materially changed skill without the dry run, or because it reads well
 - Treating a small diff as automatically non-material — a single new bullet can change what a skill flags
-- Growing a skill with rules for one-off friction instead of trimming
+- Dry-run repos that rhyme — same stack, same shape, same conventions
+- A dry-run prompt that says it is a test or names the skill to load
+- Grading a run from what the runner reports rather than from the files its log shows it opened
+- Judging the new version with no baseline, or under labels that say which version is new
+- A dry run that commits, pushes, or installs the version under test where other sessions read skills
+- Growing a skill with rules for one-off friction instead of trimming, or leaving friction that converged across repos unfixed
 - Restating what the model already knows, such as a smell catalog or a well-known method, where it would act the same without it
 - Referencing another skill by path instead of bare name

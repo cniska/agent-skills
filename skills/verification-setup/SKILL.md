@@ -53,7 +53,7 @@ Name the mode, the skill and files added or changed, the behavior driven, the ev
 ## See also
 
 - `build` for verifying each slice
-- `skill-test` for testing a changed skill across unlike projects
+- `skill-writing` for dry-running a changed skill across unlike projects
 
 ## Red flags
 
