@@ -1,8 +1,8 @@
 # Agent Skills
 
-Engineering skills for AI coding agents, run by the coordinate skill: it routes each task through the skills it needs and has a reviewer judge every commit. Compatible with [agentskills.io](https://agentskills.io).
+Engineering skills for AI coding agents, run by the [coordinate](skills/coordinate/SKILL.md) skill: it routes each task through the skills it needs and has a reviewer judge every commit. Compatible with [agentskills.io](https://agentskills.io).
 
-I wrote these to work more efficiently with AI coding agents. They are opinionated, based on 15+ years of building production software, and encode the workflow I actually follow. They took shape while building [Acolyte](https://github.com/cniska/acolyte), where generic prompts did not hold up across sessions.
+I wrote these to work more efficiently with AI coding agents. They are opinionated, based on 15+ years of building production software, and encode the workflow I actually follow. They took shape through real work with agents, where generic prompts did not hold up across sessions.
 
 The project started from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), took its routes from [pstack](https://github.com/cursor/plugins/tree/main/pstack), and its plugin from [superpowers](https://github.com/obra/superpowers), each adapted to the way I work.
 
@@ -32,14 +32,14 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
 
 ## The reviewer
 
-[`design-review`](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells. It states what is wrong and what it should be instead. The routes run it in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
+[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells. I distilled them from the code I wrote and reviewed before agents, principles I have followed for over a decade. The reviewer judges a change the way I would in review, and its findings steer the work toward the shape I would have given it myself: it states what is wrong and what it should be instead. The routes run it in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
 
 ## The plugin
 
 This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill with the hooks and the reviewer agent that keep the routes in force when nobody is watching the session. In Claude Code its skills carry the plugin's prefix, so a task starts with `/cniska-skills:coordinate <task>`.
 
 - **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate`, and every resumed, forked or compacted session to take its Resume route.
-- **`cniska-skills:reviewer`** runs `design-review` as a read-only agent that judges a design or a change it did not write, and ends each report with `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
+- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write, and ends each report with `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
 - **A context check** runs on each prompt and, once the session's context passes 200k tokens, tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, it warns on stderr and says nothing to the agent.
 - **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
 
@@ -141,7 +141,7 @@ npx -y skills add cniska/agent-skills -g -a claude-code -s '*' -y --copy
 
 ## How I maintain these
 
-These are built for my own use, in my own tone and decision style; the goal is consistent execution quality across sessions, not generic prompt patterns. I run the whole set with an `AGENTS.md` in every repo. That file is the grounding hub: skills defer to it for project-specific facts (verify and release commands, invariants, conventions) rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [`agents-md`](skills/agents-md/SKILL.md) skill to create that hub first.
+These are built for my own use, in my own tone and decision style; the goal is consistent execution quality across sessions, not generic prompt patterns. I run the whole set with an `AGENTS.md` in every repo. That file is the grounding hub: skills defer to it for project-specific facts (verify and release commands, invariants, conventions) rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that hub first.
 
 Maintenance inputs: daily use in my own projects, gaps observed in real sessions, selective upstream review as a signal, and external feedback when it aligns with these principles.
 
@@ -188,7 +188,7 @@ Naming actual models here would be wrong within months, so this column gives the
 
 ### Principles
 
-Each principle lives in one place. A principle more than one skill applies lives in [`principles`](skills/principles/SKILL.md), one file each; the rest live in the skill that applies them. The reviewer cites the rule behind each finding.
+Each principle lives in one place. A principle more than one skill applies lives in [principles](skills/principles/SKILL.md), one file each; the rest live in the skill that applies them. The reviewer cites the rule behind each finding.
 
 | Principle | In practice | Lives in |
 |-----------|------------|--------|
