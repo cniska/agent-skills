@@ -47,5 +47,13 @@
       "no-non-null": "fail",
       "no-hand-written-type": "fail"
     }
+  },
+  "brace-non-null.jsonl": {
+    "workspace": "brace-non-null",
+    "expect": {
+      "parses-with-schema": "pass",
+      "no-cast": "pass",
+      "no-non-null": "fail"
+    }
   }
 }
