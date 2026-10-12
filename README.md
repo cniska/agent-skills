@@ -18,6 +18,18 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
   → the repo's checks → review → land as the repo's rule says
 ```
 
+`<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a handoff from an earlier session. The route reads the code the task names and works out the rest; a task whose shape is unclear starts with `plan`, which asks before it builds.
+
+```text
+/coordinate fix issue #25                          → Bug fix
+/coordinate add a --json flag to the sync command  → Feature
+/coordinate split the config module by concern     → Refactor
+/coordinate review PR #41                          → Review
+/coordinate <a handoff pasted from the last session> → Resume
+```
+
+With [the plugin](#the-plugin) installed you can skip the command: a hook tells every session to start each task with `coordinate`, so a plain prompt takes the same route.
+
 - **The repo's rules win.** A route reads the repo's `AGENTS.md` first and defers to it on how to branch, check and land; a repo skill that covers the task or a step takes its place.
 - **A route names skills, and each skill owns its step.** A step whose work does not come up is skipped and named in the report.
 - **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
