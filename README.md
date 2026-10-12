@@ -113,6 +113,8 @@ claude plugin install cniska-skills@cniska
 
 `cniska-worktrees` is optional, and requires the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI, so install the CLI first. It adds a note whenever a session starts, resumes, clears or compacts, telling the agent to create and remove task worktrees with the CLI, and sends Claude Code's own worktrees through the CLI with `WorktreeCreate` and `WorktreeRemove` hooks. Install it with `claude plugin install cniska-worktrees@cniska`; `cniska-skills` works without it.
 
+[agent-gates](https://github.com/cniska/agent-gates) has no plugin on purpose: `agent-gates install` writes git hooks and CI workflows that each repo commits, so they gate every contributor, agents included, with no session hook.
+
 An installed plugin is a copy of the commit it was installed from; `claude plugin update cniska-skills@cniska` brings it up to the marketplace's latest. Try it for one session from a checkout with `claude --plugin-dir .`. Skills also installed through `npx skills add` show up a second time without the prefix, so use one or the other.
 
 ## Skills
