@@ -39,7 +39,7 @@ Calibrate a new case against the set with the skill removed: five or more runs p
 - A failure that is the agent's is signal; one that is the grader's is a grader defect — fix it and rerun.
 - A case where the skill's side passes every run and the removed side fails every run is one the suite can rely on.
 - To score a change: run its skill's cases with the committed skill as the champion and your edit as the challenger, at the same run count. Keep it when the challenger holds or beats the champion past the run-to-run spread; revert it when it drops. A cut that holds the score is a win, since a shorter skill costs less context.
-- Pin the model and record the Claude Code version whenever a score is reported or compared with an earlier run: the default model and the CLI change on their own. A champion and challenger run together share both; a score from another day does not.
+- Pin the model and the judge model, and record the Claude Code version whenever a score is reported or compared with an earlier run: the default model and the CLI change on their own. A champion and challenger run together share both; a score from another day does not.
 
 ## Red flags
 

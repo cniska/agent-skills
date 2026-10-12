@@ -277,7 +277,7 @@ Each principle lives in one place. A principle more than one skill applies lives
 
 ### Development
 
-Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck`:
+Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck` and [Bun](https://bun.sh) for the TypeScript eval tooling in `evals/lib/`:
 
 ```
 mise install
@@ -286,7 +286,7 @@ mise run bootstrap
 
 `mise run bootstrap` configures Git hooks and runs validation. Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
 
-`mise run validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `mise run test` runs the bash unit tests; `mise run lint` runs the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit messages are enforced locally by the pre-push hook.
+`mise run validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `mise run test` runs the bash and TypeScript tests; `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit messages are enforced locally by the pre-push hook.
 
 Create a new skill with `mise run new-skill <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
 

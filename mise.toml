@@ -2,19 +2,22 @@
 
 [tools]
 shellcheck = "0.11.0"
-node = "24.21.0"
+bun = "1.4.2"
+
+[hooks]
+postinstall = "bun install --frozen-lockfile >&2"
 
 [tasks.validate]
 description = "Validate skill format and conventions"
 run = "./scripts/validate.sh"
 
 [tasks.test]
-description = "Run bash tests (offline, no API)"
-run = 'for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" -not -path "./.claude/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
+description = "Run the bash and TypeScript tests (offline, no API)"
+run = 'bun run test && for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" -not -path "./.claude/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
 
 [tasks.lint]
-description = "Shellcheck shell scripts"
-run = 'shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
+description = "Shellcheck shell scripts, then lint and typecheck the TypeScript"
+run = 'bun run lint && bun run typecheck && shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
 
 [tasks.bootstrap]
 description = "Configure local hooks and run validation"
@@ -39,20 +42,20 @@ run = "evals/lib/run.sh"
 
 [tasks."eval:prove"]
 description = "Grade saved eval traces with a case's graders, without calling the model"
-run = "node evals/lib/prove.mjs"
+run = "bun evals/lib/prove.ts"
 
 [tasks."eval:summary"]
 description = "Summarize an eval run: scores per case and arm, and the graders that failed"
-run = "node evals/lib/summary.mjs"
+run = "bun evals/lib/summary.ts"
 
 [tasks."eval:keep"]
 description = "Copy a kept run's trace into the case's traces/ folder"
-run = "node evals/lib/keep-trace.mjs"
+run = "bun evals/lib/keep-trace.ts"
 
 [tasks."test:evals"]
 description = "Check every eval case's graders against its saved traces (no model)"
-run = "node evals/lib/test-graders.mjs"
+run = "bun evals/lib/test-graders.ts"
 
 [tasks."test:triggers"]
 description = "Check each skill's description ranks first for the prompts that should load it (no model)"
-run = "node evals/lib/triggers.mjs"
+run = "bun evals/lib/triggers.ts"

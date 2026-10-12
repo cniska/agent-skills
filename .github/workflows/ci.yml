@@ -19,10 +19,10 @@ jobs:
       - name: Validate skills
         run: mise run validate
 
-      - name: Lint bash
+      - name: Lint
         run: mise run lint
 
-      - name: Test bash
+      - name: Test
         run: mise run test
 
       - name: Check eval graders against saved traces

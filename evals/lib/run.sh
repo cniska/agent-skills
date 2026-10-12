@@ -58,13 +58,13 @@ run_side() {
 main() {
   parse_args "$@"
   root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-  node --version >/dev/null 2>&1 || die "node is required; run mise install"
+  bun --version >/dev/null 2>&1 || die "bun is required; run mise install"
   claude --version >/dev/null 2>&1 || die "claude is required to run evals"
   [ "$against" != none ] || [ -n "$skill" ] || die "--against none needs --skill" 2
   [ -z "$skill" ] || [ -d "$root/skills/$skill" ] || die "no skill $skill under skills/" 2
 
   local cases
-  cases="$(node "$root/evals/lib/cases.mjs" "$skill" | tr '\n' ' ')"
+  cases="$(bun "$root/evals/lib/list-cases.ts" "$skill" | tr '\n' ' ')"
   [ -n "$cases" ] || die "no case is tagged ${skill:-at all}"
 
   local work out
@@ -96,9 +96,9 @@ main() {
 
   if [ -n "$against" ]; then
     printf '%s on %s(base: %s, head: this tree)\n' "${skill:-all skills}" "$cases" "$against"
-    node "$root/evals/lib/summary.mjs" "$out/base.json" "$out/head.json"
+    bun "$root/evals/lib/summary.ts" "$out/base.json" "$out/head.json"
   else
-    node "$root/evals/lib/summary.mjs" "$out/head.json"
+    bun "$root/evals/lib/summary.ts" "$out/head.json"
   fi
   printf 'results: %s\n' "$out"
 }
