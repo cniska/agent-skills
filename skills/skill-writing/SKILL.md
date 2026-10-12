@@ -21,7 +21,8 @@ Two modes, inferred from the request:
 5. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed.
 6. **Validate** with the repo's validator.
 7. **Dry-run before commit**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
-8. **Commit** the way the repo's rules say, only once the user gives the go.
+8. **Score on evals**, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md).
+9. **Commit** the way the repo's rules say, only once the user gives the go.
 
 ## See also
 
