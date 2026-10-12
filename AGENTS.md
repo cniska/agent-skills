@@ -13,6 +13,11 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 - Add guidance only for friction that repeats in real use; prefer trimming to growing.
 - After a material change to a skill, dry-run it on unlike real repos (the `skill-writing` skill) before pushing.
 
+## Code
+
+- The plugin's `hooks/` run in other people's sessions, in whatever project is open, so they stay bash that needs only `jq` beyond git and the base system, never Bun or Node; repo scripts that parse or check are TypeScript on Bun, and scripts that orchestrate other tools stay shell.
+- No comments in new or changed code; the agent-gates no-comments hook and workflow check every file a commit changes.
+
 ## Workflow
 
 - New skill: `mise run new-skill <kebab-case> "<imperative description>"` (or copy `SKILL_TEMPLATE.md`).
