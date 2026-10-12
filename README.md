@@ -43,6 +43,50 @@ This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill
 - **A context check** runs on each prompt and, once the session's context passes 200k tokens, tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, it warns on stderr and says nothing to the agent.
 - **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept goes to the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
 
+How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
+
+```mermaid
+flowchart LR
+  rec[("agent-record<br/>session record")]
+  agent(["Agent"])
+  subgraph S["cniska-skills plugin"]
+    hook["Session start hook"]
+    skills["Skills: coordinate + routes"]
+    rev["Reviewer agent"]
+    gate["Commit gate"]
+  end
+  subgraph G["agent-gates"]
+    hooks["Git hooks"]
+    ci["CI checks"]
+  end
+  hook --> agent
+  rec -- "past decisions" --> agent
+  agent --> skills
+  skills --> rev
+  rev -- "accept" --> gate
+  gate --> hooks
+  hooks -- "push" --> ci
+```
+
+One commit, start to finish:
+
+```mermaid
+sequenceDiagram
+  participant A as Agent
+  participant V as Reviewer
+  participant P as Commit gate
+  participant G as Git hooks
+  participant C as CI
+  A->>A: coordinate picks a route, steps load skills
+  A->>V: here is the diff
+  V-->>P: Verdict: accept
+  A->>P: git commit
+  P->>G: allowed (diff unchanged since accept)
+  G-->>A: the project's commit checks pass
+  A->>C: push
+  C-->>A: same checks again
+```
+
 Install it:
 
 ```
