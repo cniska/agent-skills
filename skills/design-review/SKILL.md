@@ -50,7 +50,7 @@ Rank the violations in three tiers:
 2. A design that misleads the next writer.
 3. Local mess.
 
-A violation that fits two tiers goes in the higher one. Tiers 1 and 2 are **Fix** and tier 3 is **Consider**, wherever the review runs; the label changes, the wording stays direct.
+A violation that fits two tiers goes in the higher one. Tiers 1 and 2 are **Fix** and tier 3 is **Consider**, wherever the review runs; a Consider finding is still worded directly.
 
 ## Report
 
