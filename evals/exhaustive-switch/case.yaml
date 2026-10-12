@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: exhaustive-switch
+context:
+  scaffold_script: scaffold.sh

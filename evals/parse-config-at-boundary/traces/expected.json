@@ -1,0 +1,51 @@
+{
+  "good.jsonl": {
+    "workspace": "good",
+    "expect": {
+      "parses-with-schema": "pass",
+      "rejects-unknown-fields": "pass",
+      "no-hand-written-type": "pass",
+      "no-cast": "pass",
+      "no-non-null": "pass",
+      "skill-fired": "pass"
+    }
+  },
+  "bad.jsonl": {
+    "workspace": "bad",
+    "expect": {
+      "parses-with-schema": "fail",
+      "rejects-unknown-fields": "fail",
+      "no-hand-written-type": "fail",
+      "no-cast": "fail",
+      "skill-fired": "fail"
+    }
+  },
+  "near-miss.jsonl": {
+    "workspace": "near-miss",
+    "expect": {
+      "parses-with-schema": "pass",
+      "rejects-unknown-fields": "fail",
+      "no-hand-written-type": "pass",
+      "no-cast": "fail"
+    }
+  },
+  "unparsed.jsonl": {
+    "workspace": "unparsed",
+    "expect": {
+      "parses-with-schema": "fail",
+      "rejects-unknown-fields": "pass",
+      "no-hand-written-type": "pass",
+      "no-cast": "pass",
+      "no-non-null": "pass"
+    }
+  },
+  "loose-casts.jsonl": {
+    "workspace": "loose-casts",
+    "expect": {
+      "parses-with-schema": "pass",
+      "no-cast": "fail",
+      "no-non-null": "fail",
+      "no-hand-written-type": "fail"
+    }
+  }
+}

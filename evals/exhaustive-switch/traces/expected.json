@@ -1,0 +1,34 @@
+{
+  "good.jsonl": {
+    "workspace": "good",
+    "expect": {
+      "exhaustive": "pass",
+      "skill-fired": "pass"
+    }
+  },
+  "bad.jsonl": {
+    "workspace": "bad",
+    "expect": {
+      "exhaustive": "fail",
+      "skill-fired": "fail"
+    }
+  },
+  "near-miss.jsonl": {
+    "workspace": "near-miss",
+    "expect": {
+      "exhaustive": "fail"
+    }
+  },
+  "helper-elsewhere.jsonl": {
+    "workspace": "helper-elsewhere",
+    "expect": {
+      "exhaustive": "pass"
+    }
+  },
+  "property-arg.jsonl": {
+    "workspace": "property-arg",
+    "expect": {
+      "exhaustive": "pass"
+    }
+  }
+}
