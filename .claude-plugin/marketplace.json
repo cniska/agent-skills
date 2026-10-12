@@ -13,8 +13,9 @@
     {
       "name": "cniska-record",
       "source": {
-        "source": "github",
-        "repo": "cniska/agent-record"
+        "source": "git-subdir",
+        "url": "cniska/agent-record",
+        "path": "plugin"
       },
       "description": "Keeps the agent-record index of sessions and the commits they led to in sync, for search-sessions to query."
     }
