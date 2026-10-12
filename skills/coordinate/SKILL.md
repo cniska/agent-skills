@@ -13,9 +13,9 @@ A skill runs only when something loads it. Pick the task's route and work throug
 1. **Read the request and the repo's `AGENTS.md` or `CLAUDE.md`.** The repo's rules win over any step: how it branches, checks and lands. A repo skill that covers the task or a step takes its place.
 2. **Match the route by what the task changes**, read from the code it names, not by its wording. A code change always has a route; a task that changes no code, such as a question or a doc edit, goes straight to its own skill.
 3. **Load each step's skill with the Skill tool when the step starts.** Skip a step whose work does not arise, and name it in the report.
-4. **`design-review` runs in a fresh agent that did not write the work.** A re-review after a fix judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement goes to the owner.
+4. **`design-review` runs in a fresh agent that did not write the work.** A return's Fix findings are all fixed and re-reviewed until accept; the re-review judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement goes to the owner.
 5. **Re-route when the task changes kind**, and say so.
-6. **Fix a finding in reach rather than filing it.**
+6. **Fix a finding in reach rather than filing it; an accept's Consider findings go to the report for the owner, not back into the accepted diff.**
 7. **Offer `handoff` at the breaks it names**, such as a route's report followed by a different task.
 
 ## Report
@@ -44,4 +44,5 @@ A skill runs only when something loads it. Pick the task's route and work throug
 - A code edit made outside a route
 - The session that wrote a change running its `design-review`
 - Landing past a repo rule that asks the owner first
+- A return left partly fixed, or review stopped before an accept
 - Starting a second task's route in the same long session without offering a handoff

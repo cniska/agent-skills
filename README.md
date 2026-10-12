@@ -44,7 +44,7 @@ With [the plugin](#the-plugin) installed you can skip the command: a hook tells 
 
 ## The reviewer
 
-[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells. I distilled them from the code I wrote and reviewed before agents, principles I have followed for over a decade. The reviewer judges a change the way I would in review, and its findings steer the work toward the shape I would have given it myself: it states what is wrong and what it should be instead. The routes run it in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
+[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells. I distilled them from the code I wrote and reviewed before agents, principles I have followed for over a decade. The reviewer judges a change the way I would in review, and its findings steer the work toward the shape I would have given it myself: it states what is wrong and what it should be instead. It returns a change while a design the next case would copy, or one that misleads the next writer, stands, and accepts one whose only remaining findings are local mess, listed for me to weigh. The routes run it in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
 
 ## The plugin
 

@@ -50,11 +50,11 @@ Rank the violations in three tiers:
 2. A design that misleads the next writer.
 3. Local mess.
 
-A violation that fits two tiers goes in the higher one. When run as `review`'s or `audit`'s Design dimension, tiers 1 and 2 are **Fix** and tier 3 is **Consider**; the label changes, the wording stays direct.
+A violation that fits two tiers goes in the higher one. Tiers 1 and 2 are **Fix** and tier 3 is **Consider**, wherever the review runs; the label changes, the wording stays direct.
 
 ## Report
 
-One heading per tier, with each violation's four fields under it. Then list the rules checked and found clean, with the places each was checked in. A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
+One heading per tier, marked Fix or Consider, with each violation's four fields under it. Then list the rules checked and found clean, with the places each was checked in. A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
 
 ## See also
 
