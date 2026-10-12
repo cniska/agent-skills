@@ -1,11 +1,11 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
+import { reportProblems, runMain } from "../../lib/cli";
+import { CodedError } from "../../lib/coded-error";
+import { readFrontmatter } from "../../lib/frontmatter";
+import { readJson } from "../../lib/read-file";
 import { EVALS_DIR } from "./cases";
-import { reportProblems, runMain } from "./cli";
-import { CodedError } from "./coded-error";
-import { readFrontmatter } from "./frontmatter";
-import { readJson } from "./read-file";
 
 const SKILLS_DIR = join(EVALS_DIR, "..", "skills");
 const TRIGGERS_DIR = join(EVALS_DIR, "triggers");

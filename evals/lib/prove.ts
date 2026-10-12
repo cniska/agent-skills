@@ -1,7 +1,7 @@
-import { runMain } from "./cli";
-import { CodedError } from "./coded-error";
+import { runMain } from "../../lib/cli";
+import { CodedError } from "../../lib/coded-error";
+import { readText } from "../../lib/read-file";
 import { grade, loadGraders } from "./grader";
-import { readText } from "./read-file";
 import { parseTrace } from "./trace";
 
 const USAGE = "usage: mise run eval:prove <case-dir> [--workspace <dir>] <trace.jsonl>...";

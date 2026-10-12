@@ -23,7 +23,7 @@ type Facts = {
 export type ErrorCode = keyof Facts;
 
 export const BUG =
-  "stop and hand this error to the owner as a bug in the eval tooling; no command you run resolves it";
+  "stop and hand this error to the owner as a bug in the repo tooling; no command you run resolves it";
 
 const KEEP_A_TRACE =
   "rerun with mise run eval --skill <a tag in the case's prompt.md> --keep-temp, then run mise run eval:keep on the new head.json before its temporary directory is cleaned";

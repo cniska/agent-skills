@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CodedError } from "./coded-error";
+import { CodedError } from "../../lib/coded-error";
 
 export type ToolCall = { readonly name: string; readonly input: string };
 

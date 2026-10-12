@@ -12,5 +12,5 @@
     "noEmit": true,
     "types": ["bun"]
   },
-  "include": ["evals/lib/**/*.ts"]
+  "include": ["lib/**/*.ts", "evals/lib/**/*.ts"]
 }

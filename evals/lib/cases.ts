@@ -1,8 +1,8 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
-import { CodedError } from "./coded-error";
-import { readFrontmatter } from "./frontmatter";
+import { CodedError } from "../../lib/coded-error";
+import { readFrontmatter } from "../../lib/frontmatter";
 
 export const EVALS_DIR = join(import.meta.dir, "..");
 

@@ -1,5 +1,5 @@
-import { runMain } from "./cli";
-import { CodedError } from "./coded-error";
+import { runMain } from "../../lib/cli";
+import { CodedError } from "../../lib/coded-error";
 import { loadResult, newestRun, RESULTS_DIR, type Run, type RunPaths } from "./results";
 
 const USAGE =

@@ -1,8 +1,8 @@
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
+import { runMain } from "../../lib/cli";
+import { CodedError } from "../../lib/coded-error";
 import { cases } from "./cases";
-import { runMain } from "./cli";
-import { CodedError } from "./coded-error";
 import { loadResult } from "./results";
 
 const USAGE = "usage: mise run eval:keep <head.json|base.json> <case> <run-index> <label>";

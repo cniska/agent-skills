@@ -280,7 +280,7 @@ Each principle lives in one place. A principle more than one skill applies lives
 
 ### Development
 
-Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck` and [Bun](https://bun.sh) for the TypeScript eval tooling in `evals/lib/`:
+Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck` and [Bun](https://bun.sh) for the TypeScript tooling: the eval tooling in `evals/lib/`, and the code it shares with the repo scripts in `lib/`:
 
 ```
 mise install

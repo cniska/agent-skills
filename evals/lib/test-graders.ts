@@ -1,10 +1,10 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
+import { reportProblems, runMain } from "../../lib/cli";
+import { readJson, readText } from "../../lib/read-file";
 import { cases, type EvalCase } from "./cases";
-import { reportProblems, runMain } from "./cli";
 import { grade, loadGraders } from "./grader";
-import { readJson, readText } from "./read-file";
 import { parseTrace } from "./trace";
 
 const Verdict = z.enum(["pass", "fail"]);

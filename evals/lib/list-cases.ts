@@ -1,6 +1,6 @@
+import { runMain } from "../../lib/cli";
+import { CodedError } from "../../lib/coded-error";
 import { cases } from "./cases";
-import { runMain } from "./cli";
-import { CodedError } from "./coded-error";
 
 runMain((args) => {
   if (args.length > 1)
