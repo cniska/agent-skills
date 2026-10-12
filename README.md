@@ -91,6 +91,9 @@ sequenceDiagram
   participant C as CI
   A->>A: coordinate picks a route, steps load skills
   A->>V: here is the diff
+  V-->>A: Verdict: return, with findings
+  A->>V: the fix
+  Note over V: judges only the fix, not the whole diff again
   V-->>P: Verdict: accept
   A->>P: git commit
   P->>G: allowed (diff unchanged since accept)
