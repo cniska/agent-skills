@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Unit tests for link.sh against a throwaway skills directory.
-# Run: ./link.test.sh  (exit 0 = all pass, 1 = failures)
 set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -9,7 +7,7 @@ REPO_SKILLS="$(cd "$HERE/../skills" && pwd)"
 
 pass=0
 fail=0
-assert() { # desc got want
+assert() {
   if [ "$2" = "$3" ]; then
     pass=$((pass + 1))
   else

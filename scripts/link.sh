@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Symlink this repo's skills into the agents' skill directory, so an edit here is live everywhere.
-# Usage: link.sh [name...]   (no names: link every skill and remove links to skills that no longer exist)
 set -euo pipefail
 
 repo_skills="$(cd "$(dirname "${BASH_SOURCE[0]}")/../skills" && pwd)"
