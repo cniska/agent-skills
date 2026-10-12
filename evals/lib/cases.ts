@@ -19,7 +19,7 @@ function caseTags(dir: string): readonly string[] {
   if (!existsSync(prompt)) return [];
   const parsed = PromptFrontmatter.safeParse(readFrontmatter(prompt));
   if (!parsed.success) {
-    throw new CodedError("input-invalid", {
+    throw new CodedError("input_invalid", {
       path: prompt,
       problem: "tags must be an inline list, such as tags: [git]",
     });

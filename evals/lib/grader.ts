@@ -1,11 +1,11 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { z } from "zod";
+import { unreachable } from "./assert";
 import { CodedError } from "./coded-error";
 import { type Frontmatter, readFrontmatter } from "./frontmatter";
 import { isMissingFile } from "./read-file";
 import type { ToolCall, Trace } from "./trace";
-import { unreachable } from "./unreachable";
 
 const COUNT_MATCH = /^count:(\d+)$/;
 
@@ -82,7 +82,7 @@ function compile(path: string, pattern: string, flags: string): RegExp {
     return new RegExp(pattern, flags);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
-    throw new CodedError("grader-invalid", {
+    throw new CodedError("grader_invalid", {
       path,
       problem: `pattern ${JSON.stringify(pattern)}: ${error.message}`,
     });
@@ -113,7 +113,7 @@ export function parseGrader(path: string, frontmatterSpec: Frontmatter): Grader 
   const name = basename(path, ".md");
   const parsed = GraderSpec.safeParse(frontmatterSpec);
   if (!parsed.success)
-    throw new CodedError("grader-invalid", { path, problem: z.prettifyError(parsed.error) });
+    throw new CodedError("grader_invalid", { path, problem: z.prettifyError(parsed.error) });
   const spec = parsed.data;
   switch (spec.type) {
     case "regex":
@@ -149,7 +149,7 @@ export function parseGrader(path: string, frontmatterSpec: Frontmatter): Grader 
 
 export function loadGraders(caseDir: string): Grader[] {
   const graderDir = join(caseDir, "graders");
-  if (!existsSync(graderDir)) throw new CodedError("graders-missing", { dir: caseDir });
+  if (!existsSync(graderDir)) throw new CodedError("graders_missing", { dir: caseDir });
   return readdirSync(graderDir)
     .filter((file) => file.endsWith(".md"))
     .sort()

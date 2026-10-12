@@ -44,7 +44,7 @@ function runPaths(args: readonly string[]): RunPaths {
   if (args.length > 2) throw new CodedError("usage", { usage: USAGE, problem: null });
   if (first === undefined) {
     const newest = newestRun();
-    if (newest === null) throw new CodedError("results-missing", { dir: RESULTS_DIR });
+    if (newest === null) throw new CodedError("results_missing", { dir: RESULTS_DIR });
     return newest;
   }
   return second === undefined ? [first] : [first, second];

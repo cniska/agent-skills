@@ -44,7 +44,7 @@ describe("graders checked only by a model run", () => {
   test("an unknown type is refused at load with the grader named", () => {
     const error = refusal({ type: "judge" });
     expect(error).toBeInstanceOf(CodedError);
-    expect(error instanceof CodedError && error.code).toBe("grader-invalid");
+    expect(error instanceof CodedError && error.code).toBe("grader_invalid");
     expect(error instanceof CodedError && error.message).toStartWith("graders/g.md:");
   });
 });

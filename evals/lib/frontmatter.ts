@@ -29,7 +29,7 @@ function unquote(value: string): string {
 function plainItem(item: string, at: Line): string {
   const value = item.trim();
   if (!PLAIN_ITEM.test(value)) {
-    throw new CodedError("frontmatter-unsupported", {
+    throw new CodedError("frontmatter_unsupported", {
       ...at,
       detail: `unsupported inline item ${JSON.stringify(value)}`,
     });
@@ -40,7 +40,7 @@ function plainItem(item: string, at: Line): string {
 function inlineMapEntry(pair: string, at: Line): [string, string] {
   const parts = pair.split(":");
   if (parts.length !== 2) {
-    throw new CodedError("frontmatter-unsupported", {
+    throw new CodedError("frontmatter_unsupported", {
       ...at,
       detail: `unsupported inline map entry ${JSON.stringify(pair.trim())}`,
     });
@@ -87,7 +87,7 @@ export function frontmatter(text: string, path: string): Frontmatter {
     }
     const keyValue = line.match(KEY_VALUE);
     if (!keyValue)
-      throw new CodedError("frontmatter-unsupported", { path, line, detail: "unsupported line" });
+      throw new CodedError("frontmatter_unsupported", { path, line, detail: "unsupported line" });
     const key = keyValue[1] ?? "";
     const value = (keyValue[2] ?? "").trim();
     const joiner = blockJoiner(value);

@@ -25,14 +25,14 @@ function parseLine(line: string, source: string, index: number): Message {
     raw = JSON.parse(line);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
-    throw new CodedError("input-invalid", {
+    throw new CodedError("input_invalid", {
       path: source,
       problem: `line ${index + 1} is not JSON: ${error.message}`,
     });
   }
   const parsed = Line.safeParse(raw);
   if (!parsed.success) {
-    throw new CodedError("input-invalid", {
+    throw new CodedError("input_invalid", {
       path: source,
       problem: `line ${index + 1}: ${z.prettifyError(parsed.error)}`,
     });

@@ -21,17 +21,17 @@ runMain((args) => {
   const index = Number(indexText);
 
   const target = cases().find((c) => c.name === caseName);
-  if (!target) throw new CodedError("case-missing", { name: caseName });
+  if (!target) throw new CodedError("case_missing", { name: caseName });
   const result = loadResult(resultPath).find((c) => c.name === caseName);
-  if (!result) throw new CodedError("result-case-missing", { name: caseName, path: resultPath });
+  if (!result) throw new CodedError("result_case_missing", { name: caseName, path: resultPath });
   const [arm] = result.arms;
   if (arm === undefined || result.arms.length !== 1) {
-    throw new CodedError("arm-count", { name: caseName, arms: result.arms.length });
+    throw new CodedError("arm_count", { name: caseName, arms: result.arms.length });
   }
   const run = arm[1][index];
-  if (!run) throw new CodedError("run-missing", { name: caseName, index });
-  if (run.tracePath === null) throw new CodedError("trace-unrecorded", { name: caseName, index });
-  if (!existsSync(run.tracePath)) throw new CodedError("trace-gone", { path: run.tracePath });
+  if (!run) throw new CodedError("run_missing", { name: caseName, index });
+  if (run.tracePath === null) throw new CodedError("trace_unrecorded", { name: caseName, index });
+  if (!existsSync(run.tracePath)) throw new CodedError("trace_gone", { path: run.tracePath });
 
   mkdirSync(join(target.dir, "traces"), { recursive: true });
   copyFileSync(run.tracePath, join(target.dir, "traces", `${label}.jsonl`));

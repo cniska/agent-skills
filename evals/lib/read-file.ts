@@ -10,7 +10,7 @@ export function readText(path: string): string {
   try {
     return readFileSync(path, "utf8");
   } catch (error) {
-    if (isMissingFile(error)) throw new CodedError("input-missing", { path });
+    if (isMissingFile(error)) throw new CodedError("input_missing", { path });
     throw error;
   }
 }
@@ -21,10 +21,10 @@ export function readJson<Schema extends z.ZodType>(path: string, schema: Schema)
     raw = JSON.parse(readText(path));
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
-    throw new CodedError("input-invalid", { path, problem: `not JSON: ${error.message}` });
+    throw new CodedError("input_invalid", { path, problem: `not JSON: ${error.message}` });
   }
   const parsed = schema.safeParse(raw);
   if (!parsed.success)
-    throw new CodedError("input-invalid", { path, problem: z.prettifyError(parsed.error) });
+    throw new CodedError("input_invalid", { path, problem: z.prettifyError(parsed.error) });
   return parsed.data;
 }

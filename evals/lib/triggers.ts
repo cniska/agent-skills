@@ -45,7 +45,7 @@ function terms(text: string): string[] {
 function description(path: string): string {
   const value = readFrontmatter(path).description;
   if (typeof value !== "string" || !value) {
-    throw new CodedError("input-invalid", { path, problem: "frontmatter has no description to rank" });
+    throw new CodedError("input_invalid", { path, problem: "frontmatter has no description to rank" });
   }
   return value;
 }
