@@ -1,0 +1,29 @@
+{
+  "good.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "accepted": "pass",
+      "never-returned": "pass"
+    }
+  },
+  "invented-finding.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "accepted": "fail",
+      "never-returned": "fail"
+    }
+  },
+  "wrong-agent.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "fail",
+      "accepted": "fail",
+      "never-returned": "pass"
+    }
+  },
+  "nudged-accept.jsonl": {
+    "expect": {
+      "accepted": "pass",
+      "never-returned": "pass"
+    }
+  }
+}

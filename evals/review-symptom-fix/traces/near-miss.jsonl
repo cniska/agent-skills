@@ -1,0 +1,4 @@
+{"type":"user","message":{"content":"the profile tests kept timing out, i put a fix in the working tree. review it"}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Agent","input":{"subagent_type":"cniska-skills:reviewer","description":"Review the profile test fix","prompt":"Review the uncommitted change in /work."}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"a1","content":[{"type":"text","text":"## Tier 1\n- feed.test.ts shares the floor.\n\nRepo: /work\nVerdict: return"}]}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Returned: the feed tests have the same slow floor, so the mock belongs in one place."}]}}

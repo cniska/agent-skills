@@ -1,0 +1,52 @@
+{
+  "good.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "returned": "pass",
+      "names-siblings": "pass",
+      "names-raised-timeout": "pass"
+    }
+  },
+  "bad.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "returned": "fail",
+      "names-siblings": "fail",
+      "names-raised-timeout": "fail"
+    }
+  },
+  "near-miss.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-siblings": "fail",
+      "names-raised-timeout": "fail"
+    }
+  },
+  "wrong-agent.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "fail",
+      "returned": "fail"
+    }
+  },
+  "natural-wording.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-siblings": "pass",
+      "names-raised-timeout": "pass"
+    }
+  },
+  "parent-only.jsonl": {
+    "expect": {
+      "returned": "fail",
+      "names-siblings": "fail",
+      "names-raised-timeout": "fail"
+    }
+  },
+  "timings-only.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-siblings": "fail",
+      "names-raised-timeout": "fail"
+    }
+  }
+}
