@@ -287,9 +287,9 @@ mise install
 mise run bootstrap
 ```
 
-`mise run bootstrap` configures Git hooks and runs validation. Active pre-push hook: [`.githook/pre-push`](.githook/pre-push).
+`mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/commit-msg), the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject` gate.
 
-`mise run validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `mise run test` runs the bash and TypeScript tests; `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit messages are enforced locally by the pre-push hook.
+`mise run validate` runs [`./scripts/validate.sh`](scripts/validate.sh); `mise run test` runs the bash and TypeScript tests; `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit subjects are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
 
 Create a new skill with `mise run new-skill <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
 

@@ -20,7 +20,7 @@ description = "Shellcheck shell scripts, then lint and typecheck the TypeScript"
 run = 'bun run lint && bun run typecheck && shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
 
 [tasks.bootstrap]
-description = "Configure local hooks and run validation"
+description = "Install dependencies, which wire the commit hooks, and run validation"
 run = "./scripts/bootstrap.sh"
 
 [tasks.new-skill]

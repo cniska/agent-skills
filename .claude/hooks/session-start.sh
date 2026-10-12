@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cloud sessions only: install mise and shellcheck, enable the pre-push hook, and load this checkout's skills.
+# Cloud sessions only: install mise and shellcheck, enable the commit-msg gate, and load this checkout's skills.
 set -euo pipefail
 
 if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ]; then
@@ -22,6 +22,6 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ] && ! grep -qx 'export MISE_DISABLE_TOOLS=shellc
   echo 'export MISE_DISABLE_TOOLS=shellcheck' >> "$CLAUDE_ENV_FILE"
 fi
 
-git config core.hooksPath .githook
+npm run --silent prepare
 
 SKILLS_DIR="$HOME/.claude/skills" ./scripts/link.sh || echo "warn: some skills were not linked (see above)" >&2

@@ -8,7 +8,8 @@
     "format": "bunx biome check --write evals/lib",
     "lint": "bunx biome check --error-on-warnings evals/lib",
     "typecheck": "bunx tsc --noEmit",
-    "test": "bun test evals/lib"
+    "test": "bun test evals/lib",
+    "prepare": "! git rev-parse --git-dir >/dev/null 2>&1 || git config core.hooksPath .githooks"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
