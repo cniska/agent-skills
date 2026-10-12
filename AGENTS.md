@@ -17,6 +17,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 
 - New skill: `mise run new-skill <kebab-case> "<imperative description>"` (or copy `SKILL_TEMPLATE.md`).
 - Validate: `mise run validate`. Test: `mise run test`. Lint: `mise run lint`.
+- Eval checks without a model, run in CI: `mise run test:evals` and `mise run test:triggers`. Model runs are local only; `evals/README.md` has them.
 
 ## Commits
 

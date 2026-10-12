@@ -24,3 +24,9 @@ jobs:
 
       - name: Test bash
         run: mise run test
+
+      - name: Check eval graders against saved traces
+        run: mise run test:evals
+
+      - name: Check skill descriptions against trigger prompts
+        run: mise run test:triggers

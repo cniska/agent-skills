@@ -2,6 +2,7 @@
 
 [tools]
 shellcheck = "0.11.0"
+node = "24.21.0"
 
 [tasks.validate]
 description = "Validate skill format and conventions"
@@ -31,3 +32,27 @@ run = './scripts/new-skill.sh "$usage_name" "$usage_description"'
 description = "Symlink skills into ~/.agents/skills (all, or the named ones)"
 usage = 'arg "[name]" var=#true help="skills to link; none links every skill"'
 run = "./scripts/link.sh $usage_name"
+
+[tasks.eval]
+description = "Run the skill evals, optionally against a base ref or none, then summarize (uses your login; local only, never CI)"
+run = "evals/lib/run.sh"
+
+[tasks."eval:prove"]
+description = "Grade saved eval traces with a case's graders, without calling the model"
+run = "node evals/lib/prove.mjs"
+
+[tasks."eval:summary"]
+description = "Summarize an eval run: scores per case and arm, and the graders that failed"
+run = "node evals/lib/summary.mjs"
+
+[tasks."eval:keep"]
+description = "Copy a kept run's trace into the case's traces/ folder"
+run = "node evals/lib/keep-trace.mjs"
+
+[tasks."test:evals"]
+description = "Check every eval case's graders against its saved traces (no model)"
+run = "node evals/lib/test-graders.mjs"
+
+[tasks."test:triggers"]
+description = "Check each skill's description ranks first for the prompts that should load it (no model)"
+run = "node evals/lib/triggers.mjs"
