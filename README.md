@@ -111,6 +111,8 @@ claude plugin install cniska-skills@cniska
 
 `cniska-record` is optional. Where the [agent-record](https://github.com/cniska/agent-record) CLI is on PATH, it starts `agent-record sync` in the background whenever a session starts, resumes, clears or compacts, and adds a note to search the record before acting on a handoff, plan or memory; `search-sessions` asks that record first. Install it with `claude plugin install cniska-record@cniska`; `cniska-skills` works without it.
 
+`cniska-worktrees` is optional. Where the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI is on PATH and the project has an executable `scripts/worktree-setup.sh`, it adds a note whenever a session starts, resumes, clears or compacts, telling the agent to open and remove task worktrees with the CLI. Install it with `claude plugin install cniska-worktrees@cniska`; `cniska-skills` works without it.
+
 An installed plugin is a copy of the commit it was installed from; `claude plugin update cniska-skills@cniska` brings it up to the marketplace's latest. Try it for one session from a checkout with `claude --plugin-dir .`. Skills also installed through `npx skills add` show up a second time without the prefix, so use one or the other.
 
 ## Skills
