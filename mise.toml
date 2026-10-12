@@ -9,7 +9,7 @@ postinstall = "bun install --frozen-lockfile >&2"
 
 [tasks.validate]
 description = "Validate skill format and conventions"
-run = "./scripts/validate.sh"
+run = "bun scripts/validate.ts"
 
 [tasks.test]
 description = "Run the bash and TypeScript tests (offline, no API)"

@@ -7,6 +7,7 @@ type Facts = {
   };
   readonly grader_invalid: { readonly path: string; readonly problem: string };
   readonly input_missing: { readonly path: string };
+  readonly skills_missing: { readonly dir: string };
   readonly input_invalid: { readonly path: string; readonly problem: string };
   readonly graders_missing: { readonly dir: string };
   readonly case_missing: { readonly name: string };
@@ -63,6 +64,12 @@ const ERRORS: { readonly [Code in ErrorCode]: Entry<Code> } = {
     message: ({ path, problem }) => `${path}: ${problem}`,
     resolve: ({ path }) =>
       `fix what the message names in ${path}; evals/README.md describes each file's shape`,
+  },
+  skills_missing: {
+    exit: 1,
+    message: ({ dir }) => `no skills/ directory in ${dir}`,
+    resolve: () =>
+      "pass the repo root, the directory that holds skills/, or no argument to validate this repo",
   },
   graders_missing: {
     exit: 1,

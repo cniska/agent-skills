@@ -67,4 +67,4 @@ State the intent in one short paragraph. Keep it direct and specific.
 EOF_SKILL
 
 echo "Created $skill_file"
-echo "Next: edit the content, then run ./scripts/validate.sh"
+echo "Next: edit the content, then run mise run validate"
