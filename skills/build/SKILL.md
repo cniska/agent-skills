@@ -9,7 +9,7 @@ Build in thin vertical slices. Implement one piece, verify it, commit it, then m
 
 ## Workflow
 
-Before the first slice, if not already on a dedicated branch, create one. Consider an isolated worktree (`git worktree add -b <topic> .claude/worktrees/<topic>`) so the main session stays an orchestrator.
+Before the first slice, branch or open a worktree only where `git` says the project does.
 
 1. **Pick the smallest slice** that delivers a complete, testable path through the change.
 2. **Read before writing.** Load the relevant files, understand existing patterns, check for utilities you can reuse. For external libraries and version-sensitive APIs, confirm behavior against the docs or upstream source for the version pinned in this repo — not memory, not blog posts.
@@ -42,6 +42,7 @@ Say what stopped it and which slices landed. The per-slice commits are the recor
 ## See also
 
 - `plan` for scope and phase boundaries
+- `git` for whether the work branches or uses a worktree
 - `tdd` for red-green-refactor within each slice
 - `simplify` for the behavior-preserving cleanup pass
 
