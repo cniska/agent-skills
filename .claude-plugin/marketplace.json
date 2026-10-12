@@ -26,7 +26,7 @@
         "url": "cniska/agent-worktrees",
         "path": "plugin"
       },
-      "description": "Tells each session in a project with a worktree setup script to create and remove task worktrees with agent-worktrees."
+      "description": "Sends every session's task worktrees through agent-worktrees."
     }
   ]
 }
