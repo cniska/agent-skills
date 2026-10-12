@@ -24,12 +24,12 @@ const TRACE = parseTrace(
 );
 
 function verdict(spec: Frontmatter): boolean | null {
-  return grade(parseGrader("g", spec), TRACE, null);
+  return grade(parseGrader("graders/g.md", spec), TRACE, null);
 }
 
 function refusal(spec: Frontmatter): unknown {
   try {
-    parseGrader("g", spec);
+    parseGrader("graders/g.md", spec);
   } catch (error) {
     return error;
   }
@@ -45,7 +45,7 @@ describe("graders checked only by a model run", () => {
     const error = refusal({ type: "judge" });
     expect(error).toBeInstanceOf(CodedError);
     expect(error instanceof CodedError && error.code).toBe("grader-invalid");
-    expect(error instanceof CodedError && error.message).toStartWith("grader g:");
+    expect(error instanceof CodedError && error.message).toStartWith("graders/g.md:");
   });
 });
 
@@ -71,7 +71,7 @@ describe("regex", () => {
   });
 
   test("a g flag does not carry state from one check to the next", () => {
-    const grader = parseGrader("g", { type: "regex", pattern: "Rebased", flags: "g" });
+    const grader = parseGrader("graders/g.md", { type: "regex", pattern: "Rebased", flags: "g" });
     expect(grade(grader, TRACE, null)).toBe(true);
     expect(grade(grader, TRACE, null)).toBe(true);
   });

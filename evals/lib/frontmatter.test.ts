@@ -15,7 +15,7 @@ describe("frontmatter", () => {
       "  path: out.md",
       "---",
     ].join("\n");
-    expect(frontmatter(text)).toEqual({
+    expect(frontmatter(text, "f.md")).toEqual({
       type: "regex",
       pattern: "it's",
       tags: ["git", "review"],
@@ -25,21 +25,21 @@ describe("frontmatter", () => {
   });
 
   test("joins folded and literal blocks", () => {
-    expect(frontmatter("---\na: >\n  one\n  two\nb: |\n  one\n  two\n---")).toEqual({
+    expect(frontmatter("---\na: >\n  one\n  two\nb: |\n  one\n  two\n---", "f.md")).toEqual({
       a: "one two",
       b: "one\ntwo",
     });
   });
 
   test("refuses a block list, so tags stay inline", () => {
-    expect(() => frontmatter("---\ntags:\n  - git\n---")).toThrow(CodedError);
+    expect(() => frontmatter("---\ntags:\n  - git\n---", "f.md")).toThrow(CodedError);
   });
 
   test("refuses an inline item it cannot read plainly", () => {
-    expect(() => frontmatter('---\ntags: [git, "a,b"]\n---')).toThrow(CodedError);
+    expect(() => frontmatter('---\ntags: [git, "a,b"]\n---', "f.md")).toThrow(CodedError);
   });
 
   test("reads text with no frontmatter as empty", () => {
-    expect(frontmatter("just a prompt")).toEqual({});
+    expect(frontmatter("just a prompt", "f.md")).toEqual({});
   });
 });

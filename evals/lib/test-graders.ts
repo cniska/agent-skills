@@ -1,10 +1,10 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { cases, type EvalCase } from "./cases";
 import { reportProblems, runMain } from "./cli";
 import { grade, loadGraders } from "./grader";
-import { readJson } from "./json-file";
+import { readJson, readText } from "./read-file";
 import { parseTrace } from "./trace";
 
 const Verdict = z.enum(["pass", "fail"]);
@@ -24,7 +24,7 @@ function checkCase({ name, dir }: EvalCase): string[] {
   const seen = new Map(graders.map((g) => [g.name, new Set<z.infer<typeof Verdict>>()]));
   for (const [file, entry] of Object.entries(readJson(expectedPath, Expected))) {
     const path = join(dir, "traces", file);
-    const trace = parseTrace(readFileSync(path, "utf8"), path);
+    const trace = parseTrace(readText(path), path);
     const workspace = entry.workspace === null ? null : join(dir, "traces", entry.workspace);
     const verdicts = new Map(graders.map((g) => [g.name, grade(g, trace, workspace)]));
     for (const [grader, verdict] of verdicts) {
@@ -57,6 +57,9 @@ function checkCase({ name, dir }: EvalCase): string[] {
 runMain(() => {
   const all = cases();
   const problems = all.flatMap(checkCase);
-  reportProblems(problems);
+  reportProblems(
+    problems,
+    "add traces/expected.json with traces saved by mise run eval:keep; drop or rename an expectation that names no grader or one a trace cannot check; otherwise fix the grader or its expected verdict until each grader is seen passing and failing",
+  );
   if (problems.length === 0) console.log(`graders hold on saved traces for ${all.length} cases`);
 });

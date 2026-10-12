@@ -3,7 +3,7 @@ import { CodedError } from "./coded-error";
 import { loadResult, newestRun, RESULTS_DIR, type Run, type RunPaths } from "./results";
 
 const USAGE =
-  "usage: summary.ts [<head.json> | <base.json> <head.json>]; with none, reads the newest run under evals/results/";
+  "usage: mise run eval:summary [<head.json> | <base.json> <head.json>]; with none, reads the newest run under evals/results/";
 
 type Row = { readonly side: string; readonly text: string };
 
@@ -41,7 +41,7 @@ function rowsByCase(path: string, side: string | null): Map<string, Row[]> {
 
 function runPaths(args: readonly string[]): RunPaths {
   const [first, second] = args;
-  if (args.length > 2) throw new CodedError("usage", { problem: USAGE });
+  if (args.length > 2) throw new CodedError("usage", { usage: USAGE, problem: null });
   if (first === undefined) {
     const newest = newestRun();
     if (newest === null) throw new CodedError("results-missing", { dir: RESULTS_DIR });

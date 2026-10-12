@@ -2,7 +2,7 @@ import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { EVALS_DIR } from "./cases";
-import { readJson } from "./json-file";
+import { readJson } from "./read-file";
 
 export const RESULTS_DIR = join(EVALS_DIR, "results");
 

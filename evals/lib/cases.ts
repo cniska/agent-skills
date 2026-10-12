@@ -1,8 +1,8 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { CodedError } from "./coded-error";
-import { frontmatter } from "./frontmatter";
+import { readFrontmatter } from "./frontmatter";
 
 export const EVALS_DIR = join(import.meta.dir, "..");
 
@@ -17,7 +17,7 @@ function isCase(dir: string): boolean {
 function caseTags(dir: string): readonly string[] {
   const prompt = join(dir, "prompt.md");
   if (!existsSync(prompt)) return [];
-  const parsed = PromptFrontmatter.safeParse(frontmatter(readFileSync(prompt, "utf8")));
+  const parsed = PromptFrontmatter.safeParse(readFrontmatter(prompt));
   if (!parsed.success) {
     throw new CodedError("input-invalid", {
       path: prompt,

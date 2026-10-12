@@ -1,11 +1,11 @@
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
 import { EVALS_DIR } from "./cases";
 import { reportProblems, runMain } from "./cli";
 import { CodedError } from "./coded-error";
-import { frontmatter } from "./frontmatter";
-import { readJson } from "./json-file";
+import { readFrontmatter } from "./frontmatter";
+import { readJson } from "./read-file";
 
 const SKILLS_DIR = join(EVALS_DIR, "..", "skills");
 const TRIGGERS_DIR = join(EVALS_DIR, "triggers");
@@ -43,7 +43,7 @@ function terms(text: string): string[] {
 }
 
 function description(path: string): string {
-  const value = frontmatter(readFileSync(path, "utf8")).description;
+  const value = readFrontmatter(path).description;
   if (typeof value !== "string" || !value) {
     throw new CodedError("input-invalid", { path, problem: "frontmatter has no description to rank" });
   }
@@ -136,6 +136,8 @@ runMain(() => {
   const rate = positives ? Math.round((firsts / positives) * 100) : 100;
   console.log(`\nfirst-place rate: ${rate}% (${firsts}/${positives}) across ${files.length} skills`);
   problems.push(...collisions(skills));
-  if (problems.length) process.stderr.write("\n");
-  reportProblems(problems);
+  reportProblems(
+    problems,
+    "reword the description of the skill a prompt loads wrongly, or of two descriptions that collide; fix a trigger file named for no skill",
+  );
 });

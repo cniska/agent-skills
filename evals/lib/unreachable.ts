@@ -1,3 +1,5 @@
+import { CodedError } from "./coded-error";
+
 export function unreachable(value: never): never {
-  throw new Error(`unreachable: ${JSON.stringify(value)}`);
+  throw new CodedError("unreachable", { value: JSON.stringify(value) });
 }

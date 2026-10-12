@@ -2,7 +2,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { z } from "zod";
 import { CodedError } from "./coded-error";
-import { type Frontmatter, frontmatter } from "./frontmatter";
+import { type Frontmatter, readFrontmatter } from "./frontmatter";
+import { isMissingFile } from "./read-file";
 import type { ToolCall, Trace } from "./trace";
 import { unreachable } from "./unreachable";
 
@@ -76,42 +77,43 @@ export type Grader = { readonly name: string } & (
   | { readonly type: "file_exists" | "llm" | "baseline" }
 );
 
-function compile(grader: string, pattern: string, flags: string): RegExp {
+function compile(path: string, pattern: string, flags: string): RegExp {
   try {
     return new RegExp(pattern, flags);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
     throw new CodedError("grader-invalid", {
-      grader,
+      path,
       problem: `pattern ${JSON.stringify(pattern)}: ${error.message}`,
     });
   }
 }
 
-function toolMatcher(grader: string, tool: string, inputMatch: string | null): ToolMatcher {
-  return { tool, input: inputMatch === null ? null : compile(grader, inputMatch, "") };
+function toolMatcher(path: string, tool: string, inputMatch: string | null): ToolMatcher {
+  return { tool, input: inputMatch === null ? null : compile(path, inputMatch, "") };
 }
 
-function regexMatch(name: string, pattern: string, flags: string, spec: z.infer<typeof MatchSpec>): Match {
+function regexMatch(path: string, pattern: string, flags: string, spec: z.infer<typeof MatchSpec>): Match {
   switch (spec.kind) {
     case "contains":
     case "absent":
-      return { kind: spec.kind, regex: compile(name, pattern, flags.replace("g", "")) };
+      return { kind: spec.kind, regex: compile(path, pattern, flags.replace("g", "")) };
     case "count":
       return {
         kind: "count",
         count: spec.count,
-        regex: compile(name, pattern, flags.includes("g") ? flags : `${flags}g`),
+        regex: compile(path, pattern, flags.includes("g") ? flags : `${flags}g`),
       };
     default:
       return unreachable(spec);
   }
 }
 
-export function parseGrader(name: string, frontmatterSpec: Frontmatter): Grader {
+export function parseGrader(path: string, frontmatterSpec: Frontmatter): Grader {
+  const name = basename(path, ".md");
   const parsed = GraderSpec.safeParse(frontmatterSpec);
   if (!parsed.success)
-    throw new CodedError("grader-invalid", { grader: name, problem: z.prettifyError(parsed.error) });
+    throw new CodedError("grader-invalid", { path, problem: z.prettifyError(parsed.error) });
   const spec = parsed.data;
   switch (spec.type) {
     case "regex":
@@ -119,13 +121,13 @@ export function parseGrader(name: string, frontmatterSpec: Frontmatter): Grader 
         name,
         type: "regex",
         target: spec.target,
-        match: regexMatch(name, spec.pattern, spec.flags, spec.match),
+        match: regexMatch(path, spec.pattern, spec.flags, spec.match),
       };
     case "tool_used":
       return {
         name,
         type: "tool_used",
-        call: toolMatcher(name, spec.tool, spec.input_match),
+        call: toolMatcher(path, spec.tool, spec.input_match),
         min: spec.min,
         max: spec.max,
       };
@@ -133,8 +135,8 @@ export function parseGrader(name: string, frontmatterSpec: Frontmatter): Grader 
       return {
         name,
         type: "tool_order",
-        before: toolMatcher(name, spec.before.tool, spec.before.input_match),
-        after: toolMatcher(name, spec.after.tool, spec.after.input_match),
+        before: toolMatcher(path, spec.before.tool, spec.before.input_match),
+        after: toolMatcher(path, spec.after.tool, spec.after.input_match),
       };
     case "file_exists":
     case "llm":
@@ -151,9 +153,8 @@ export function loadGraders(caseDir: string): Grader[] {
   return readdirSync(graderDir)
     .filter((file) => file.endsWith(".md"))
     .sort()
-    .map((file) =>
-      parseGrader(basename(file, ".md"), frontmatter(readFileSync(join(graderDir, file), "utf8"))),
-    );
+    .map((file) => join(graderDir, file))
+    .map((path) => parseGrader(path, readFrontmatter(path)));
 }
 
 function fileText(workspace: string | null, path: string): string | null {
@@ -161,7 +162,7 @@ function fileText(workspace: string | null, path: string): string | null {
   try {
     return readFileSync(join(workspace, path), "utf8");
   } catch (error) {
-    if (error instanceof Error && "code" in error && error.code === "ENOENT") return null;
+    if (isMissingFile(error)) return null;
     throw error;
   }
 }

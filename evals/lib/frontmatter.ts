@@ -1,4 +1,5 @@
 import { CodedError } from "./coded-error";
+import { readText } from "./read-file";
 
 export type FrontmatterValue = string | readonly string[] | Readonly<Record<string, string>>;
 export type Frontmatter = Readonly<Record<string, FrontmatterValue>>;
@@ -6,6 +7,8 @@ export type Frontmatter = Readonly<Record<string, FrontmatterValue>>;
 type Open =
   | { readonly kind: "block"; readonly key: string; readonly joiner: string; text: string }
   | { readonly kind: "map"; readonly map: Record<string, string> };
+
+type Line = { readonly path: string; readonly line: string };
 
 const FRONTMATTER = /^---\n([\s\S]*?)\n---/;
 const KEY_VALUE = /^([\w-]+):\s*(.*)$/;
@@ -23,38 +26,38 @@ function unquote(value: string): string {
   return value;
 }
 
-function plainItem(item: string, line: string): string {
+function plainItem(item: string, at: Line): string {
   const value = item.trim();
   if (!PLAIN_ITEM.test(value)) {
     throw new CodedError("frontmatter-unsupported", {
-      line,
+      ...at,
       detail: `unsupported inline item ${JSON.stringify(value)}`,
     });
   }
   return value;
 }
 
-function inlineMapEntry(pair: string, line: string): [string, string] {
+function inlineMapEntry(pair: string, at: Line): [string, string] {
   const parts = pair.split(":");
   if (parts.length !== 2) {
     throw new CodedError("frontmatter-unsupported", {
-      line,
+      ...at,
       detail: `unsupported inline map entry ${JSON.stringify(pair.trim())}`,
     });
   }
   const [key = "", value = ""] = parts;
-  return [plainItem(key, line), plainItem(value, line)];
+  return [plainItem(key, at), plainItem(value, at)];
 }
 
-function inlineValue(value: string, line: string): FrontmatterValue {
+function inlineValue(value: string, at: Line): FrontmatterValue {
   const list = value.match(INLINE_LIST);
   if (list) {
     const items = list[1] ?? "";
-    return items.trim() ? items.split(",").map((item) => plainItem(item, line)) : [];
+    return items.trim() ? items.split(",").map((item) => plainItem(item, at)) : [];
   }
   const map = value.match(INLINE_MAP);
   if (!map) return unquote(value);
-  return Object.fromEntries((map[1] ?? "").split(",").map((pair) => inlineMapEntry(pair, line)));
+  return Object.fromEntries((map[1] ?? "").split(",").map((pair) => inlineMapEntry(pair, at)));
 }
 
 function blockJoiner(value: string): string | null {
@@ -63,7 +66,7 @@ function blockJoiner(value: string): string | null {
   return null;
 }
 
-export function frontmatter(text: string): Frontmatter {
+export function frontmatter(text: string, path: string): Frontmatter {
   const body = text.match(FRONTMATTER);
   if (!body) return {};
   const keys: Record<string, FrontmatterValue> = {};
@@ -83,7 +86,8 @@ export function frontmatter(text: string): Frontmatter {
       continue;
     }
     const keyValue = line.match(KEY_VALUE);
-    if (!keyValue) throw new CodedError("frontmatter-unsupported", { line, detail: "unsupported line" });
+    if (!keyValue)
+      throw new CodedError("frontmatter-unsupported", { path, line, detail: "unsupported line" });
     const key = keyValue[1] ?? "";
     const value = (keyValue[2] ?? "").trim();
     const joiner = blockJoiner(value);
@@ -99,7 +103,11 @@ export function frontmatter(text: string): Frontmatter {
       keys[key] = map;
       continue;
     }
-    keys[key] = inlineValue(value, line);
+    keys[key] = inlineValue(value, { path, line });
   }
   return keys;
+}
+
+export function readFrontmatter(path: string): Frontmatter {
+  return frontmatter(readText(path), path);
 }
