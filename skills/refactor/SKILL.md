@@ -32,7 +32,7 @@ The repo's own rules hold throughout: its commit gate, its docs-with-behavior ru
 1. **Requirements first.** Settle the spec with the owner before any design. The spec says what holds, never how the old code did it.
 2. **Acceptance tests from the requirements.** Write each criterion as a test through the public surface only: the CLI, the API, the UI. No internal imports. Confirm they fail.
 3. **Delete the old code before designing.** On the rewrite's branch, remove the modules the requirements define anew, the files only they use, their tests, and the docs that describe how they work, a design written for the old code included. A shared file that kept code also uses stays. In each kept file, cut the import and the capability that needed it, never the file, so the branch still passes its gate; the rewrite brings each capability back. Do not read any of it, not even to learn how a hard piece works; find that from the external contract instead, such as the tool's documentation or the protocol. Old code in reach biases the new design toward it. What outlives the code is not deleted: stored data, applied migrations and a contract another deployed app calls. The new design reads them as they are and changes them through `deprecation`, unless the owner has declared that data disposable, in which case the new design owns its shape.
-4. **Design from the requirements and the patterns.** Write the design document from the spec and `design-review`'s rules. Have a different model challenge it, framed to disprove it, and have the owner approve it before code is written.
+4. **Design from the requirements and the patterns.** Write the design document from the spec and `design-review`'s rules. Have `second-opinion` challenge it, and have the owner approve it before code is written.
 5. **Do not rebuild the old feature set.** The spec decides what exists. An old behavior the spec does not require is not rebuilt; list it for the owner. Resist the second-system effect: a capability deferred in the old system stays deferred unless the spec asks for it.
 6. **Build to the tests, part by part,** refactoring as you go by the steps above, with `design-review` on each finished part.
 7. **Land in one change.** The replacement passes its acceptance tests, then lands with the old code gone, so no commit on the default branch runs two designs. Nothing runs old and new side by side.
@@ -43,6 +43,7 @@ The repo's own rules hold throughout: its commit gate, its docs-with-behavior ru
 - `simplify` — behavior-preserving local moves inside a slice
 - `deprecation` — removing an interface other code still depends on
 - `spec` — writing the requirements a rewrite starts from
+- `second-opinion` — the challenge a rewrite's design must survive
 
 ## Red flags
 
