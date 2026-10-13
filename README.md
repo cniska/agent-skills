@@ -321,7 +321,7 @@ mise run bootstrap
 
 A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktrees](https://github.com/cniska/agent-worktrees) to install dependencies; it needs no teardown.
 
-In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads, so [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, and installs dependencies. [`.claude/settings.json`](.claude/settings.json) enables the `cniska-skills` plugin from this repo's marketplace.
+In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads, so [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, installs dependencies, and installs the `cniska-skills` plugin that [`.claude/settings.json`](.claude/settings.json) enables, since a cloud session does not install it from the settings alone.
 
 The checks:
 

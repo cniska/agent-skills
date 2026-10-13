@@ -20,3 +20,5 @@ if [ -n "${CLAUDE_ENV_FILE:-}" ] && ! grep -qx 'export MISE_DISABLE_TOOLS=shellc
 fi
 
 bun install --frozen-lockfile >&2
+claude plugin marketplace add cniska/agent-skills >&2
+claude plugin install cniska-skills@cniska >&2
