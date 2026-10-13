@@ -7,6 +7,10 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/session-start.sh start"
+          },
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coach-due.sh"
           }
         ]
       },
@@ -37,6 +41,15 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/review-record.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "^cniska-skills:coach$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coach-record.sh"
           }
         ]
       }

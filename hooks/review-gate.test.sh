@@ -157,6 +157,11 @@ assert "a commit after cloning in the same command is refused" "$(gate_from 'git
 printf 'not json' | "$GATE" >/dev/null 2>&1
 assert "a gate that fails refuses the commit rather than allowing it" "$?" 2
 
+assert "recording a verdict without plugin data fails" \
+  "$(printf '{"last_assistant_message":""}' | env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null 2>&1; echo "$?")" 1
+assert "recording a verdict without plugin data names the script and the variable" \
+  "$(printf '{"last_assistant_message":""}' | { env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null; } 2>&1)" "review-record.sh: CLAUDE_PLUGIN_DATA is required"
+
 assert "the verdict recorder listens to the reviewer agent" "$(grep -c '"matcher": "^cniska-skills:reviewer$"' "$HERE/hooks.json")" 1
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
