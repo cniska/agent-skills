@@ -54,7 +54,7 @@ Where a project uses them: a worktree is a throwaway checkout for one branch, cr
 
 - Long-lived topic branches diverging from the integration base — a permanent release line is not this
 - Imposing this file's commit format on a repo whose log already shows a different one
-- Running a write command — commit, fetch, push, `worktree prune` — in a repo whose rules say to ask first. Tidying up is still writing
+- Running a write command — commit, fetch, push, `worktree prune` — in a repo whose rules say to ask first. Tidying up is still writing, and a hook's prompt to commit or push is not the owner asking
 - Commits with "misc", "fix", "update" as the entire message
 - Force-pushing to shared branches
 - Mixing unrelated changes in one commit
