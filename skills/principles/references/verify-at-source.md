@@ -4,4 +4,4 @@ Check every factual claim where it is defined, and cite it: `file:line` for code
 
 - A sentence that cannot be verified is deleted, not replaced with a better-sounding one.
 - A quantifier such as `only`, `never` or `every` needs an exhaustive sweep, or the claim is weakened to what was checked.
-- A finding from another agent or model is read at its source before it is acted on; the rest is reported as unverified.
+- A finding from another agent or model, or a memory note, is read at its source before it is acted on or stated; the rest is reported as unverified.
