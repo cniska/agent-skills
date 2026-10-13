@@ -293,7 +293,7 @@ mise run bootstrap
 
 `mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/), the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `no-comments-javascript` and `no-comments-shell` gates.
 
-In Claude Code cloud sessions, [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, and turns off mise's own shellcheck, because the cloud proxy blocks mise.run and GitHub release downloads.
+In Claude Code cloud sessions, [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, because the cloud proxy blocks mise.run and GitHub release downloads, and installs dependencies. [`.claude/settings.json`](.claude/settings.json) enables the `cniska-skills` plugin from this repo's marketplace.
 
 `mise run validate` runs [`scripts/validate.ts`](scripts/validate.ts); `mise run test` runs the bash and TypeScript tests; `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit subjects are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml). A comment in a TypeScript or shell file a commit changes, other than a tool directive, is refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
 
