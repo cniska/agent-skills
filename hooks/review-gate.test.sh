@@ -29,6 +29,7 @@ mkdir -p "$repo"
 
 readonly DENIED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with '"'"'Verdict: accept'"'"', with no edits since."}}'
 readonly UNRESOLVED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: ~/nowhere is not a repository, so the reviewer verdict for this commit cannot be checked. Name the repository by an absolute path in cd or git -C."}}'
+readonly MULTIPLE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."}}'
 readonly AMBIGUOUS='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with '"'"'cd <absolute path> && git commit ...'"'"' or '"'"'git -C <absolute path> commit ...'"'"'."}}'
 readonly CREATE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."}}'
 readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Verdict: accept'"'"' or '"'"'Verdict: return'"'"'."}'
@@ -139,11 +140,15 @@ for command in \
   'GIT_DIR=~/project/.git git commit -am x' \
   'GIT_WORK_TREE=~/project git commit -am x' \
   'git --git-dir=~/project/.git commit -am x' \
-  'git -C ~/project commit -am x && git -C ~/other commit -am y' \
-  'cd ~/project && git commit -am x && cd ~/other && git commit -am y' \
   "bash -c 'cd ~/project && git commit -am x'" \
   '(cd ~/project && git commit)'; do
   assert "a commit reaching its repo as [$command] is refused" "$(gate_from "$command" "$scratch")" "$AMBIGUOUS"
+done
+for command in \
+  'git -C ~/project commit -am x && git -C ~/other commit -am y' \
+  'cd ~/project && git commit -am x && cd ~/other && git commit -am y' \
+  'cd ~/project && git commit -m x && git add -A && git commit -m y'; do
+  assert "a command with two commits [$command] is refused" "$(gate_from "$command" "$scratch")" "$MULTIPLE"
 done
 assert "a commit quoted inside bash -c is gated" "$(gate_from "bash -c 'git commit -am x'" "$home_repo")" "$DENIED"
 assert "a commit that creates its repo in the same command is refused" "$(gate_from 'git init -q && git add -A && git commit -m x' "$scratch")" "$CREATE"

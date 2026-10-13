@@ -17,6 +17,7 @@ readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[
 readonly REPO_CREATE_PATTERN="${GIT_WORD}([[:space:]]+-[^[:space:]]+)*[[:space:]]+(init|clone)${WORD_END}"
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
+readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...' or 'git -C <absolute path> commit ...'."
 readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."
 
@@ -92,7 +93,7 @@ main() {
   local head named changes repo
   head="$(commit_head "$command")"
   if grep -Eq "$GIT_COMMIT_PATTERN" <<<"${command#"$head"}"; then
-    deny "$AMBIGUOUS_REASON"
+    deny "$MULTIPLE_REASON"
     return
   fi
   if grep -Eq "$REPO_CREATE_PATTERN" <<<"$head"; then
