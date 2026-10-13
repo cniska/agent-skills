@@ -48,10 +48,11 @@ With [the plugin](#the-plugin) installed you can skip the command: a hook tells 
 
 ## The plugin
 
-This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill with the hooks and the reviewer agent that keep the routes in force when nobody is watching the session. In Claude Code its skills carry the plugin's prefix, so a task starts with `/cniska-skills:coordinate <task>`.
+This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill with the hooks and the agents that keep the routes in force when nobody is watching the session. In Claude Code its skills carry the plugin's prefix, so a task starts with `/cniska-skills:coordinate <task>`.
 
 - **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate` and to load other skills only as it, or a skill it loads, directs, and every resumed, forked or compacted session to take its Resume route.
 - **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write, and ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
+- **`cniska-skills:coach`** runs [workflow-review](skills/workflow-review/SKILL.md) as a read-only agent over past sessions, apart from syncing the record. It finds where the workflow failed me, through my corrections, the questions I had to ask and the friction sessions reported, proposes the changes that repeat across sessions, and ends each report with `Proposals: <n>`.
 - **A context check** runs on each prompt and, once the session's context passes 300k tokens, tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, it warns on stderr and says nothing to the agent.
 - **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept goes to the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
 
@@ -182,6 +183,7 @@ Grouped by where the routes use them.
 | [adr](skills/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
 | [writing](skills/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
 | [verification-setup](skills/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
+| [workflow-review](skills/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence |
 | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, dry-run blind against a baseline on unlike real repos, score on eval cases where the repo has them |
 
 ## Install

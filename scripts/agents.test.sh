@@ -37,9 +37,11 @@ frontmatter_value() {
 PLUGIN="$(cd "$HERE/../.claude-plugin" && pwd)"
 assert "the plugin is named cniska-skills" "$(grep -c '^  "name": "cniska-skills",$' "$PLUGIN/plugin.json")" 1
 assert "the marketplace is cniska and lists cniska-skills" "$(grep -c -e '^  "name": "cniska",$' -e '^      "name": "cniska-skills",$' "$PLUGIN/marketplace.json")" 2
-assert "the only agent is reviewer" "$(find "$AGENTS" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort | tr '\n' ' ')" "reviewer.md "
+assert "the agents are coach and reviewer" "$(find "$AGENTS" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort | tr '\n' ' ')" "coach.md reviewer.md "
 assert "reviewer preloads design-review and principles" "$(frontmatter_list "$AGENTS/reviewer.md" skills | tr '\n' ' ')" "cniska-skills:design-review cniska-skills:principles "
 assert "reviewer has only read-only tools" "$(frontmatter_value "$AGENTS/reviewer.md" tools)" "Read, Grep, Glob"
+assert "coach preloads workflow-review, search-sessions and principles" "$(frontmatter_list "$AGENTS/coach.md" skills | tr '\n' ' ')" "cniska-skills:workflow-review cniska-skills:search-sessions cniska-skills:principles "
+assert "coach reads files and runs the record queries" "$(frontmatter_value "$AGENTS/coach.md" tools)" "Read, Grep, Glob, Bash"
 
 for agent in "$AGENTS"/*.md; do
   name="$(basename "$agent" .md)"
