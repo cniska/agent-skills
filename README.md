@@ -1,14 +1,58 @@
 # Agent Skills
 
-Engineering skills for AI coding agents, run by the [coordinate](skills/coordinate/SKILL.md) skill: it routes each task through the skills it needs and has a reviewer judge every commit. Compatible with [agentskills.io](https://agentskills.io).
+Engineering skills for AI coding agents, compatible with [agentskills.io](https://agentskills.io).
 
-I wrote these to work more efficiently with AI coding agents. They are opinionated, based on 15+ years of building production software, and encode the workflow I actually follow. They took shape through real work with agents, where generic prompts did not hold up across sessions.
+I do all my engineering with coding agents, and these skills encode the workflow I follow. They are opinionated, based on 15+ years of building production software.
 
-The project started from [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), took its routes from [pstack](https://github.com/cursor/plugins/tree/main/pstack), and its plugin from [superpowers](https://github.com/obra/superpowers), each adapted to the way I work.
+Two parts carry the workflow:
+
+- **[coordinate](skills/coordinate/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
+- **A separate reviewer agent judges every commit.** It holds the change to my design rules in [design-review](skills/design-review/SKILL.md), and it never wrote the code it judges.
+
+Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
+
+## Install
+
+### Claude Code
+
+Install the `cniska-skills` plugin, which bundles every skill with the hooks and the agents described in [the plugin](#the-plugin):
+
+```
+claude plugin marketplace add cniska/agent-skills
+claude plugin install cniska-skills@cniska
+```
+
+- An installed plugin is a copy of the commit it was installed from. `claude plugin update cniska-skills@cniska` brings it up to the marketplace's latest.
+- To try it for one session from a checkout, run `claude --plugin-dir .`.
+- Skills also installed through `npx skills add` show up a second time without the prefix, so use one or the other.
+
+### Other agents
+
+```
+npx skills add cniska/agent-skills
+```
+
+### Claude Code on the web
+
+Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). The script runs before the session starts, so the skills are in place when it does:
+
+```
+npx -y skills add cniska/agent-skills -g -a claude-code -s '*' -y --copy
+```
+
+- `-g` installs at user level (`~/.claude/skills`), so every repo in the session gets the set.
+- `-s '*'` takes every skill.
+- `-y` skips the prompts a setup script can't answer.
+
+### Working on the skills themselves
+
+In Claude Code, add this checkout as the marketplace (`claude plugin marketplace add <path>`) and run `claude plugin update cniska-skills@cniska` after each commit.
+
+For other agents, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist. It leaves any other file or folder of the same name alone and reports it. `mise run link <skill>…` links only the skills you name.
 
 ## How a task runs
 
-A skill only helps when something loads it. Start a task with `/coordinate <task>`, and the route for that kind of task loads each skill as its step starts:
+A skill only helps when something loads it. Start a task with `/coordinate <task>`, and the route for that kind of task loads each skill as its step starts. With the plugin, the command is `/cniska-skills:coordinate <task>`.
 
 ```text
 /coordinate <task>
@@ -18,7 +62,7 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
   → the repo's checks → review → land as the repo's rule says
 ```
 
-`<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a handoff from an earlier session. The route reads the code the task names and works out the rest; a task whose shape is unclear starts with `plan`, which asks before it builds.
+`<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a handoff from an earlier session. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
 ```text
 /coordinate fix issue #25                          → Bug fix
@@ -28,10 +72,12 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
 /coordinate <a handoff pasted from the last session> → Resume
 ```
 
-With [the plugin](#the-plugin) installed you can skip the command: a hook tells every session to start each task with `coordinate`, so a plain prompt takes the same route.
+With [the plugin](#the-plugin) installed, a session-start hook sends every task through `coordinate`, so a plain prompt takes the same route.
 
-- **The repo's rules win.** A route reads the repo's `AGENTS.md` first and defers to it on how to branch, check and land; a repo skill that covers the task or a step takes its place.
-- **A route names skills, and each skill owns its step.** A step whose work does not come up is skipped and named in the report.
+Three rules shape every route:
+
+- **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
+- **A route only names the skills; each skill decides how its step is done.** A step whose work does not come up is skipped and named in the report.
 - **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
 
 | Route | When | Steps |
@@ -44,17 +90,26 @@ With [the plugin](#the-plugin) installed you can skip the command: a hook tells 
 
 ## The reviewer
 
-[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells. I distilled them from the code I wrote and reviewed before agents, principles I have followed for over a decade. The reviewer judges a change the way I would in review, and its findings steer the work toward the shape I would have given it myself: it states what is wrong and what it should be instead. It returns a change while a design the next case would copy, or one that misleads the next writer, stands, and accepts one whose only remaining findings are local mess, listed for me to weigh. The routes run it in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
+[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells.
+
+The reviewer judges a change the way I would in review. For each problem it states what is wrong and what it should be instead, so its findings steer the work toward the shape I would have given it myself.
+
+It ranks each finding Fix or Consider:
+
+- **Fix** is a design the next case would copy, or one that misleads the next writer. While a Fix finding stands, the reviewer returns the change. Every Fix finding is fixed, and the re-review judges only the fix.
+- **Consider** is local mess. When only Consider findings remain, the reviewer accepts. They are fixed in their own follow-up commit after the accepted one, for one round only. Findings raised after that round, or about neighboring code, go into the task's report, unless the fix is a check that would have caught them. Only a finding whose fix is a tradeoff comes to me.
+
+The routes run the reviewer in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
 
 ## The plugin
 
-This repo is also `cniska-skills`, a Claude Code plugin that bundles every skill with the hooks and the agents that keep the routes in force when nobody is watching the session. In Claude Code its skills carry the plugin's prefix, so a task starts with `/cniska-skills:coordinate <task>`.
+This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill with the hooks and agents below. In Claude Code its skills carry the plugin's prefix.
 
-- **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate` and to load other skills only as it, or a skill it loads, directs, and every resumed, forked or compacted session to take its Resume route.
-- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write, and ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
-- **`cniska-skills:coach`** runs [workflow-review](skills/workflow-review/SKILL.md) as a read-only agent over past sessions, apart from syncing the record. It finds where the workflow failed me, through my corrections, the questions I had to ask and the friction sessions reported, proposes the changes that repeat across sessions, and ends each report with `Proposals: <n>`.
-- **A context check** runs on each prompt and, once the session's context passes 300k tokens, tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, it warns on stderr and says nothing to the agent.
-- **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept goes to the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks it again. The gate needs `jq`.
+- **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate`, and to load other skills only as it, or a skill it loads, directs. It tells every resumed, forked or compacted session to take the Resume route.
+- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write. It ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
+- **`cniska-skills:coach`** runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions; it changes nothing and runs only read commands and `agent-record sync`. It finds where the workflow failed me, through my corrections, the questions I had to ask and the friction sessions reported, proposes the changes that repeat across sessions, and ends each report with `Proposals: <n>`.
+- **A context check** runs on each prompt. Once the session's context grows large, past the threshold set in [`hooks/context-size.sh`](hooks/context-size.sh), it tells the agent to offer a handoff at the next step boundary, once per session. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, the check warns on stderr and says nothing to the agent.
+- **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept is recorded for the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks the commit again. The gate needs `jq`.
 
 How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
 
@@ -103,20 +158,14 @@ sequenceDiagram
   C-->>A: same checks again
 ```
 
-Install it:
+### Optional companions
 
-```
-claude plugin marketplace add cniska/agent-skills
-claude plugin install cniska-skills@cniska
-```
+- **`cniska-record`** works where the [agent-record](https://github.com/cniska/agent-record) CLI is on PATH. It starts `agent-record sync` in the background whenever a session starts, resumes, clears or compacts, and adds a note to search the record before acting on a handoff, plan or memory. `search-sessions` asks that record first. Install it with `claude plugin install cniska-record@cniska`.
+- **`cniska-worktrees`** requires the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI, so install the CLI first. Whenever a session starts, resumes, clears or compacts, it adds a note telling the agent to create and remove task worktrees with the CLI. It also sends Claude Code's own worktrees through the CLI with `WorktreeCreate` and `WorktreeRemove` hooks. Install it with `claude plugin install cniska-worktrees@cniska`.
 
-`cniska-record` is optional. Where the [agent-record](https://github.com/cniska/agent-record) CLI is on PATH, it starts `agent-record sync` in the background whenever a session starts, resumes, clears or compacts, and adds a note to search the record before acting on a handoff, plan or memory; `search-sessions` asks that record first. Install it with `claude plugin install cniska-record@cniska`; `cniska-skills` works without it.
+`cniska-skills` works without either.
 
-`cniska-worktrees` is optional, and requires the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI, so install the CLI first. It adds a note whenever a session starts, resumes, clears or compacts, telling the agent to create and remove task worktrees with the CLI, and sends Claude Code's own worktrees through the CLI with `WorktreeCreate` and `WorktreeRemove` hooks. Install it with `claude plugin install cniska-worktrees@cniska`; `cniska-skills` works without it.
-
-[agent-gates](https://github.com/cniska/agent-gates) has no plugin on purpose: `agent-gates install` writes git hooks and CI workflows that each repo commits, so they gate every contributor, agents included, with no session hook.
-
-An installed plugin is a copy of the commit it was installed from; `claude plugin update cniska-skills@cniska` brings it up to the marketplace's latest. Try it for one session from a checkout with `claude --plugin-dir .`. Skills also installed through `npx skills add` show up a second time without the prefix, so use one or the other.
+[agent-gates](https://github.com/cniska/agent-gates) has no plugin on purpose. `agent-gates install` writes git hooks and CI workflows that each repo commits, so they gate every contributor, agents included, with no session hook.
 
 ## Skills
 
@@ -186,31 +235,13 @@ Grouped by where the routes use them.
 | [workflow-review](skills/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence |
 | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, dry-run blind against a baseline on unlike real repos, score on eval cases where the repo has them |
 
-## Install
-
-In Claude Code, install [the plugin](#the-plugin). For other agents:
-
-```
-npx skills add cniska/agent-skills
-```
-
-To work on the skills themselves in Claude Code, add this checkout as the marketplace (`claude plugin marketplace add <path>`) and run `claude plugin update cniska-skills@cniska` after each commit. For other agents, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist, and leaves any other file or folder of the same name alone, reporting it. `mise run link <skill>…` links only those.
-
-### Claude Code on the web
-
-Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). It runs before the session starts, so the skills are in place when it does:
-
-```
-npx -y skills add cniska/agent-skills -g -a claude-code -s '*' -y --copy
-```
-
-`-g` installs user-level (`~/.claude/skills`), so every repo in the session gets the set; `-s '*'` takes every skill, and `-y` skips the prompts a setup script can't answer.
-
 ## How I maintain these
 
-These are built for my own use, in my own tone and decision style; the goal is consistent execution quality across sessions, not generic prompt patterns. I run the whole set with an `AGENTS.md` in every repo. That file is the grounding hub: skills defer to it for project-specific facts (verify and release commands, invariants, conventions) rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that hub first.
+These are built for my own use, in my own tone and decision style. The goal is consistent execution quality across sessions, not generic prompt patterns.
 
-Maintenance inputs: daily use in my own projects, gaps observed in real sessions, selective upstream review as a signal, and external feedback when it aligns with these principles.
+I run the whole set with an `AGENTS.md` in every repo. That file is the grounding hub: skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that hub first.
+
+What feeds the maintenance: daily use in my own projects, gaps observed in real sessions, selective upstream review as a signal, and external feedback when it aligns with these principles.
 
 I add guidance when it:
 
@@ -232,14 +263,14 @@ Where a rule must hold, I enforce the outcome rather than every step: the review
 
 ### Skill conventions
 
-Each skill is one self-contained directory — `skills/<name>/SKILL.md`, with YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body, plus any `references/` files it loads only when a task needs them.
+Each skill is one self-contained directory: `skills/<name>/SKILL.md`, plus any `references/` files it loads only when a task needs them. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
 
-- **Self-contained.** A skill depends on nothing outside its own directory — `npx skills add` copies only that skill's directory, so shared or repo-root files never ship. Every link resolves inside the skill.
-- **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path — no cross-directory links to break.
-- **Terse and imperative.** Intent, workflow, and a `## Red flags` section of failure modes. No filler.
+- **Self-contained.** A skill depends on nothing outside its own directory, because `npx skills add` copies only that directory, so shared or repo-root files never ship. Every link resolves inside the skill.
+- **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path, so there are no cross-directory links to break.
+- **Terse and imperative.** Each skill states its intent and workflow, and ends with a `## Red flags` section of failure modes. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models.
 
-`mise run validate` enforces the mechanical parts (frontmatter, `## Red flags`, links that stay inside the skill).
+`mise run validate` enforces the mechanical parts: frontmatter, `## Red flags`, and links that stay inside the skill.
 
 ### Model tiers
 
@@ -251,22 +282,14 @@ Skills reference three capability tiers instead of provider-specific model names
 | `balanced` | Default session model | Whatever you already code with day to day |
 | `powerful` | Synthesis, high-stakes analysis, high reasoning effort | The strongest reasoning model you have access to, run at high effort |
 
-Naming actual models here would be wrong within months, so this column gives the rule for choosing rather than the answer. The validator rejects provider model names anywhere in the repo.
+Naming actual models here would be wrong within months, so this column gives the rule for choosing rather than the answer. The validator rejects provider model names in the skills and in this README.
 
 ### Principles
 
-Each principle lives in one place. A principle more than one skill applies lives in [principles](skills/principles/SKILL.md), one file each; the rest live in the skill that applies them. The reviewer cites the rule behind each finding.
+Each principle lives in one place. A principle more than one skill applies lives in [principles](skills/principles/SKILL.md), one file each, with its rule: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source. The rest live in the skill that applies them. The reviewer cites the rule behind each finding.
 
 | Principle | In practice | Lives in |
 |-----------|------------|--------|
-| No comments | A why goes into a name, a test or the doc that owns the subject | principles |
-| Chesterton's Fence | Understand before removing | principles |
-| Proven able to fail | Break a check once and watch it go red before trusting it | principles |
-| Fix the cause | Remove the state that causes a failure, never guard in front of it | principles |
-| No transitional architecture | Replace, migrate and remove; never keep the old path alive | principles |
-| Rules as checks | A mechanical rule is a type, lint or test, not a sentence | principles |
-| No drift | A change updates everything that describes, repeats, names or depends on what it changed | principles |
-| Verify at the source | Check every factual claim where it is defined and cite it | principles |
 | Vertical slices | One complete path through the stack at a time | build, plan |
 | Contract first | Schema before implementation | build |
 | SRP | One responsibility per module, one change per commit | design-review, build, git |
@@ -286,20 +309,29 @@ Each principle lives in one place. A principle more than one skill applies lives
 
 ### Development
 
-Tasks run through [mise](https://mise.jdx.dev), which also pins `shellcheck`, `jq` for the hook tests, and [Bun](https://bun.sh) for the TypeScript tooling: the eval tooling in `evals/lib/`, and the code it shares with the repo scripts in `lib/`:
+Tasks run through [mise](https://mise.jdx.dev). It also pins `shellcheck`, `jq` for the hook tests, and [Bun](https://bun.sh) for the TypeScript tooling: the eval tooling in `evals/lib/`, and the code it shares with the repo scripts in `lib/`.
 
 ```
 mise install
 mise run bootstrap
 ```
 
-`mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/), the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `no-comments-javascript` and `no-comments-shell` gates.
+`mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/): the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `no-comments-javascript` and `no-comments-shell` gates.
 
 A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktrees](https://github.com/cniska/agent-worktrees) to install dependencies; it needs no teardown.
 
-In Claude Code cloud sessions, [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, because the cloud proxy blocks mise.run and GitHub release downloads, and installs dependencies. [`.claude/settings.json`](.claude/settings.json) enables the `cniska-skills` plugin from this repo's marketplace.
+In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads, so [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, and installs dependencies. [`.claude/settings.json`](.claude/settings.json) enables the `cniska-skills` plugin from this repo's marketplace.
 
-`mise run validate` runs [`scripts/validate.ts`](scripts/validate.ts); `mise run test` runs the bash and TypeScript tests; `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`. CI runs all three on pull requests and pushes to `main` via [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Commit subjects are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml). A comment in a TypeScript or shell file a commit changes, other than a tool directive, is refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
+The checks:
+
+- `mise run validate` runs [`scripts/validate.ts`](scripts/validate.ts).
+- `mise run test` runs the bash and TypeScript tests.
+- `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`.
+
+On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `validate`, `lint` and `test`, plus the eval checks that need no model, `test:evals` and `test:triggers`; [`evals/README.md`](evals/README.md) describes them.
+
+- **Commit subjects** are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
+- **Comments** in a TypeScript or shell file a commit changes, other than a tool directive, are refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
 
 Create a new skill with `mise run new-skill <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
 
