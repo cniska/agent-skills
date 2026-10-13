@@ -15,7 +15,7 @@ A skill runs only when something loads it. Pick the task's route and work throug
 3. **Load each step's skill with the Skill tool when the step starts.** Skip a step whose work does not arise, and name it in the report.
 4. **`design-review` runs in a fresh agent that did not write the work.** A return's Fix findings are all fixed and re-reviewed until accept; the re-review judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement goes to the owner.
 5. **Re-route when the task changes kind**, and say so.
-6. **Fix a finding in reach rather than filing it; an accept's Consider findings go to the report for the owner, not back into the accepted diff.**
+6. **Fix a finding in reach rather than filing it.** An accept's Consider findings land in their own commit after the accepted one, through the same commit steps; only one whose fix is a tradeoff goes to the owner.
 7. **Offer `handoff` at the breaks it names**, such as a route's report followed by a different task.
 
 ## Report
