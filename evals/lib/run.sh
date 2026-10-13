@@ -7,6 +7,7 @@ skill=""
 against=""
 eval_args=()
 root=""
+work=""
 
 die() {
   printf 'run.sh: %s\n' "$1" >&2
@@ -67,7 +68,7 @@ main() {
   cases="$(bun "$root/evals/lib/list-cases.ts" "$skill" | tr '\n' ' ')"
   [ -n "$cases" ] || die "no case is tagged ${skill:-at all}"
 
-  local work out
+  local out
   work="$(mktemp -d "${TMPDIR:-/tmp}/eval.XXXXXX")"
   trap 'rm -rf "$work"' EXIT
   out="$root/evals/results/$(date -u +%Y-%m-%dT%H-%M-%SZ)${skill:+-$skill}"
