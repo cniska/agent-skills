@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-readonly SUGGEST_HANDOFF_AT_TOKENS=200000
+readonly SUGGEST_HANDOFF_AT_TOKENS=300000
 readonly TRANSCRIPT_TAIL_LINES=400
 
 warn() {

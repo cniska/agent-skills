@@ -19,7 +19,7 @@ scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 export CLAUDE_PLUGIN_DATA="$scratch/data"
 
-readonly NOTE_250K="This session's context holds about 250k tokens. Offer a handoff at the next step boundary, as the handoff skill says."
+readonly NOTE_350K="This session's context holds about 350k tokens. Offer a handoff at the next step boundary, as the handoff skill says."
 
 assistant_entry() {
   jq -cn --argjson input "$1" --argjson read "$2" --argjson write "$3" --argjson side "${4:-false}" \
@@ -54,22 +54,22 @@ user_entry='{"type":"user","message":{"role":"user","content":"hi"}}'
 fresh="$(transcript_with fresh "$user_entry")"
 assert "a session with no reply yet says nothing" "$(prompt "$fresh" s-fresh)" ""
 
-small="$(transcript_with small "$user_entry" "$(assistant_entry 2 150000 1000)")"
+small="$(transcript_with small "$user_entry" "$(assistant_entry 2 250000 1000)")"
 assert "a context under the threshold says nothing" "$(prompt "$small" s-small)" ""
 
-large="$(transcript_with large "$user_entry" "$(assistant_entry 2 240000 9998)")"
-assert "a context over the threshold suggests a handoff" "$(prompt "$large" s-large)" "$NOTE_250K"
+large="$(transcript_with large "$user_entry" "$(assistant_entry 2 340000 9998)")"
+assert "a context over the threshold suggests a handoff" "$(prompt "$large" s-large)" "$NOTE_350K"
 assert "the suggestion comes once per session" "$(prompt "$large" s-large)" ""
-assert "another session gets its own suggestion" "$(prompt "$large" s-other)" "$NOTE_250K"
+assert "another session gets its own suggestion" "$(prompt "$large" s-other)" "$NOTE_350K"
 
 shrunk="$(transcript_with shrunk "$user_entry" "$(assistant_entry 2 60000 0)")"
 assert "a context that shrank below the threshold says nothing" "$(prompt "$shrunk" s-large)" ""
-assert "growing past the threshold again suggests again" "$(prompt "$large" s-large)" "$NOTE_250K"
+assert "growing past the threshold again suggests again" "$(prompt "$large" s-large)" "$NOTE_350K"
 
-below="$(transcript_with below "$(assistant_entry 0 199999 0)")"
-at="$(transcript_with at "$(assistant_entry 0 200000 0)")"
-assert "199999 tokens is under the threshold" "$(prompt "$below" s-below)" ""
-assert "200000 tokens reaches the threshold" "$(prompt "$at" s-at)" "This session's context holds about 200k tokens. Offer a handoff at the next step boundary, as the handoff skill says."
+below="$(transcript_with below "$(assistant_entry 0 299999 0)")"
+at="$(transcript_with at "$(assistant_entry 0 300000 0)")"
+assert "299999 tokens is under the threshold" "$(prompt "$below" s-below)" ""
+assert "300000 tokens reaches the threshold" "$(prompt "$at" s-at)" "This session's context holds about 300k tokens. Offer a handoff at the next step boundary, as the handoff skill says."
 
 side="$(transcript_with side "$(assistant_entry 2 10000 0)" "$(assistant_entry 2 900000 0 true)")"
 assert "a subagent's entry does not count toward the session's context" "$(prompt "$side" s-side)" ""
@@ -77,8 +77,8 @@ assert "a subagent's entry does not count toward the session's context" "$(promp
 latest="$(transcript_with latest "$(assistant_entry 2 900000 0)" "$user_entry" "$(assistant_entry 2 10000 0)")"
 assert "only the latest reply's usage counts" "$(prompt "$latest" s-latest)" ""
 
-broken="$(transcript_with broken "$(assistant_entry 2 240000 9998)" 'not json {')"
-assert "a malformed line is skipped" "$(prompt "$broken" s-broken)" "$NOTE_250K"
+broken="$(transcript_with broken "$(assistant_entry 2 340000 9998)" 'not json {')"
+assert "a malformed line is skipped" "$(prompt "$broken" s-broken)" "$NOTE_350K"
 
 renamed="$(transcript_with renamed '{"type":"assistant","isSidechain":false,"message":{"role":"assistant","usage":{"prompt_tokens":250000}}}')"
 assert "usage in an unknown shape says nothing to the model" "$(prompt "$renamed" s-renamed)" ""
