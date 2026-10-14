@@ -20,13 +20,13 @@
       "description": "Keeps the agent-record session record current and tells each session to search it before acting on a handoff or plan."
     },
     {
-      "name": "cniska-worktrees",
+      "name": "cniska-worktree",
       "source": {
         "source": "git-subdir",
-        "url": "cniska/agent-worktrees",
+        "url": "cniska/agent-worktree",
         "path": "plugin"
       },
-      "description": "Sends every session's task worktrees through agent-worktrees."
+      "description": "Sends every session's task worktrees through agent-worktree."
     }
   ]
 }

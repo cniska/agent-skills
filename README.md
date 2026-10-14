@@ -155,12 +155,12 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 
 The hooks need `jq`.
 
-How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record), [agent-worktrees](https://github.com/cniska/agent-worktrees) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
+How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record), [agent-worktree](https://github.com/cniska/agent-worktree) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
 
 ```mermaid
 flowchart LR
   rec[("agent-record<br/>session record")]
-  wt["agent-worktrees<br/>a checkout per task"]
+  wt["agent-worktree<br/>a checkout per task"]
   ledger[("Ledger<br/>a local file, or a repo you choose")]
   agent(["Agent"])
   subgraph S["cniska-skills plugin"]
@@ -217,10 +217,10 @@ sequenceDiagram
   - Whenever a session starts, resumes, clears or compacts, it runs `agent-record sync` in the background and adds a note to search the record before acting on a handoff, plan or memory.
   - `search-sessions` asks that record first.
   - It does nothing unless the agent-record CLI is on PATH. Install it with `claude plugin install cniska-record@cniska`.
-- **`cniska-worktrees`** gives each task its own checkout through the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI.
+- **`cniska-worktree`** gives each task its own checkout through the [agent-worktree](https://github.com/cniska/agent-worktree) CLI.
   - Whenever a session starts, resumes, clears or compacts, it adds a note telling the agent to create and remove task worktrees with the CLI.
   - Its `WorktreeCreate` and `WorktreeRemove` hooks send Claude Code's own worktrees through the CLI too.
-  - Install the CLI first, then `claude plugin install cniska-worktrees@cniska`.
+  - Install the CLI first, then `claude plugin install cniska-worktree@cniska`.
 
 `cniska-skills` works without either.
 
@@ -380,7 +380,7 @@ mise run bootstrap
 
 `mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/): the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `no-comments-javascript` and `no-comments-shell` gates.
 
-A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktrees](https://github.com/cniska/agent-worktrees) to install dependencies; it needs no teardown.
+A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktree](https://github.com/cniska/agent-worktree) to install dependencies; it needs no teardown.
 
 In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads. [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) works around that:
 
