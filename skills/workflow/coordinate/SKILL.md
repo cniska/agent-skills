@@ -17,7 +17,7 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 5. **Keep every plan in the ledger's repo or the work's repo**, never only in a message or a temp path another machine cannot reach. Each worker works in its own worktree, never a primary checkout, so what it leaves is findable and its own.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
 7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing or slicing, and name each in the report. When unsure, or when an owner idea or design question takes more than a line or two to settle, get a `powerful`-tier read through `second-opinion` first, from a `researcher` agent where the host can start one, and file what it returns as a proposal, an idea in the ledger, or a drop with its reason. Ask the owner only about product tradeoffs and what you cannot answer.
-8. **Coach each task a worker hands back.** Apply the workflow review its hand-back carries, or where it carries none, run `workflow-review` over that worker's task in a fresh agent; apply each proposal except conflicts, which go to the owner, as an [experiment](references/experiments.md).
+8. **Coach each task a worker hands back.** Apply the workflow review its hand-back carries, or where it carries none, run `workflow-review` over that worker's task in a fresh agent; apply each proposal except conflicts, which go to the owner, and open an [experiment](references/experiments.md) for each change where that file calls for one.
 
 ## Resume
 
@@ -50,4 +50,4 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - A report built from memory rather than the ledger and git
 - Owner questions placed below status
 - Work called pushed without checking the remote
-- A workflow change applied without an `open` line in the experiment record, or an experiment left open past its check date
+- A workflow change applied without an `open` line in the experiment record or a reason in the report that no signal can read it, or an experiment left open past its check date

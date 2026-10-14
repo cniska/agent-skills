@@ -42,7 +42,7 @@ The coordinator runs all the work in one long session on autocompaction; the [RE
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date.
+The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
 
 ```mermaid
 flowchart LR
@@ -84,7 +84,7 @@ The loop changes skills, agents, hooks and checks on its own; anything else come
 
 It follows lean practice, in plain terms first:
 
-- The skills are the standard way of working, and every change the coordinator makes to them is an experiment (kaizen).
+- The skills are the standard way of working, and every change the coordinator makes to them that a signal can measure is tried as an experiment (kaizen).
 - Each finding names what it cost and is traced back to a skill line, a repo rule, a check or a missing tool (waste, 5 whys).
 - Rules become checks, as [principles](conventions.md#principles) says, and a gate that stops correct work counts against the gate (jidoka, false stops).
 - An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [debug](../skills/workflow/debug/SKILL.md) (andon).

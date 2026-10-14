@@ -54,7 +54,7 @@ stop_worker() {
 reason() { stop_worker "$@" | jq -r '.reason // empty'; }
 decision() { stop_worker | jq -r '.decision // empty'; }
 
-readonly ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a1 of session s1, with its transcript at $worker, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change as cniska-skills:coordinate says."
+readonly ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a1 of session s1, with its transcript at $worker, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
 
 tool_use Skill '{"skill": "cniska-skills:task"}' >"$worker"
 assert "a worker that ran a task is asked to run the coach over it before handing back" "$(reason)" "$ASK"

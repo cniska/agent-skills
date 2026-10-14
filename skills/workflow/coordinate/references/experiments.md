@@ -1,6 +1,6 @@
 # Experiments
 
-A workflow change stays only if it moves what it was meant to move. Every change the coordinator applies to skills, agents, hooks or checks, proposed by a workflow review or not, is an experiment until it is checked.
+A workflow change stays only if it moves what it was meant to move. Every change the coordinator applies to skills, agents, hooks or checks, proposed by a workflow review or not, is an experiment until it is checked, unless no signal can read it.
 
 ## The record
 
@@ -18,15 +18,18 @@ A workflow change stays only if it moves what it was meant to move. Every change
 | `check` | a date by which enough work has run for the signal to show, typically one to two weeks out |
 | `outcome` | on `close` only: `keep`, `revert` or `trim` |
 | `by_sha` | on a `revert` or `trim` close: the commit that made it, or records it, as for `sha` |
+| `read` | optional, where another open experiment's change aims at the same signal: how that signal tells this change apart, such as the one event kind it counts, or the other `sha` it is judged together with |
 | `eval` | optional, when the owner approved an eval run for the change: `{case, champion, challenger}`, the case and each side's score |
 
-An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date or `from`, append another `open` line for that `sha`, repeating its other fields; the latest one counts.
+An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date or `from`, or add a `read`, append another `open` line for that `sha`, repeating its other fields; the latest one counts.
 
 ## Open
 
 When the change lands, append an `open` line. Scores from an eval the owner approves later go on a new `open` line with the same `check`.
 
-A second change aimed at the same signal while one is open muddies both checks: wait for the first check, or let the two checks overlap knowingly and say so in the report.
+A second change aimed at the same signal while one is open muddies both checks: wait for the first check, or give each overlapping `open` line a `read` and name the overlap in the report.
+
+A change no signal can read opens no experiment, and the report says why.
 
 ## Check
 

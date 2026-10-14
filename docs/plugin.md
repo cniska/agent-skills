@@ -109,7 +109,7 @@ A subagent stop hook runs the coach at the end of every delegated task.
 - When a subagent that loaded `task` stops, the hook keeps it running once and asks it to run the coach over its own task before it hands back, naming its agent, session and transcript.
 - It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits beside the ledger.
 - It skips a subagent that already ran the coach.
-- The worker hands back the coach's report with its own, and its caller applies the proposals, opening an experiment for each change, and brings me only conflicts.
+- The worker hands back the coach's report with its own, and its caller applies the proposals, opening an experiment for each change a signal can read, and brings me only conflicts.
 - No hook sees a task end in the main session, so `task` runs the coach there as its last step.
 
 ## Event log

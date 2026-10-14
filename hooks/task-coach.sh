@@ -55,7 +55,7 @@ main() {
   ran_coach "$transcript" && return
 
   local reason
-  reason="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change as cniska-skills:coordinate says."
+  reason="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
   jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
 }
 
