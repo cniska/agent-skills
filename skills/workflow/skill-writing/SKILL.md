@@ -5,24 +5,23 @@ description: Create, fix or update a skill, matching the conventions of the set 
 
 # Skill writing
 
-A skill is a self-contained instruction to a model — a directory holding a `SKILL.md` and any references it loads on demand. This skill carries the *how* of writing one; the repo that holds the set owns its mechanical rules (frontmatter, required sections, links, its scaffold and validator), usually in its `AGENTS.md`. Read those first; don't restate them in the skill.
+A skill is a self-contained instruction to a model — a directory holding a `SKILL.md` and any references it loads on demand. This skill carries the *how* of writing one; the repo that holds the set owns its mechanical rules (frontmatter, required sections, links, its validator), usually in its `AGENTS.md`. Read those first; don't restate them in the skill.
 
 Two modes, inferred from the request:
 
-- **Create** — a capability has no skill yet. Start from scaffolding, then clone the shape of the closest existing skill.
+- **Create** — a capability has no skill yet. Clone the shape of the closest existing skill; the repo's validator catches what is missing.
 - **Update** — a skill exists and a rule needs adding or sharpening. Merge into the right section and trim what it duplicates; never blind-append. Updating is the harder half.
 
 ## Workflow
 
 1. **Pick the mode** and read the repo's rules for authoring skills.
 2. **Find the closest sibling** and match its shape — don't invent a new one. A skill that files something clones the nearest skill that files something; a review dimension clones another review dimension.
-3. **Scaffold (Create only)** with the repo's scaffold command or template, where it has one.
-4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name, never by path; match the sibling's section order and lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method. Keep project specifics out: a skill states what holds in any repo and defers the rest to the repo's own rules.
-5. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed, and, where the repo has a trigger check, that skill's trigger prompts ([evals](references/evals.md)).
-6. **Validate** with the repo's validator.
-7. **Dry-run before pushing**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
-8. **Score on evals**, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md).
-9. **Commit** the way the repo's rules say, only once the user gives the go.
+3. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name, never by path; match the sibling's section order and lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method. Keep project specifics out: a skill states what holds in any repo and defers the rest to the repo's own rules.
+4. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed, and, where the repo has a trigger check, that skill's trigger prompts ([evals](references/evals.md)).
+5. **Validate** with the repo's validator.
+6. **Dry-run before pushing**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
+7. **Score on evals**, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md).
+8. **Commit** the way the repo's rules say, only once the user gives the go.
 
 ## See also
 

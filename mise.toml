@@ -24,15 +24,6 @@ run = 'bun run lint && bun run typecheck && shellcheck $(find . -name "*.sh" -no
 description = "Install dependencies, which wire the commit hooks, and run validation"
 run = "./scripts/bootstrap.sh"
 
-[tasks.new-skill]
-description = "Create a new skill"
-usage = '''
-arg "<kind>" help="workflow (steps that produce an output) or expertise (rules for what good looks like)"
-arg "<name>" help="kebab-case skill name"
-arg "<description>" help="imperative description starting with a verb"
-'''
-run = './scripts/new-skill.sh "$usage_kind" "$usage_name" "$usage_description"'
-
 [tasks.link]
 description = "Symlink skills into ~/.agents/skills (all, or the named ones)"
 usage = 'arg "[name]" var=#true help="skills to link; none links every skill"'

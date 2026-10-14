@@ -21,7 +21,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 
 ## Workflow
 
-- New skill: `mise run new-skill <workflow|expertise> <kebab-case> "<imperative description>"` (or copy `SKILL_TEMPLATE.md` into `skills/<kind>/<name>/SKILL.md`).
+- New or changed skill: the `skill-writing` skill.
 - Validate: `mise run validate`. Test: `mise run test`. Lint: `mise run lint`.
 - Eval checks without a model, run in CI: `mise run test:evals` and `mise run test:triggers`. Model runs are local only; `evals/README.md` has them.
 

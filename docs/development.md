@@ -26,8 +26,6 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 - It leaves any other file or folder of the same name alone and reports it.
 - `mise run link <skill>…` links only the skills you name.
 
-Create a new skill with `mise run new-skill <workflow|expertise> <kebab-case-name> "<imperative description>"`, which runs [`scripts/new-skill.sh`](../scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](../SKILL_TEMPLATE.md).
-
 ## Checks
 
 - `mise run validate` runs [`scripts/validate.ts`](../scripts/validate.ts).

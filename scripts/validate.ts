@@ -49,7 +49,7 @@ const KIND_FOLDERS = SKILL_KINDS.map((kind) => `skills/${kind}/`).join(" and ");
 const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL_KIND_RULES[kind]}`).join(
   ", or ",
 );
-const NEW_SKILL = `mise run new-skill <${SKILL_KINDS.join("|")}> <name> "<description>"`;
+const NEW_SKILL = "the skill-writing skill";
 
 const PluginManifest = z.looseObject({ skills: z.array(z.string()).optional() });
 
