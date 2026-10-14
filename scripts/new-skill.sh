@@ -45,35 +45,14 @@ skill_file="$skill_dir/SKILL.md"
 
 title="$(echo "$skill_name" | tr '-' ' ' | awk '{for (i=1;i<=NF;i++) { $i=toupper(substr($i,1,1)) substr($i,2) }}1')"
 
+shopt -u patsub_replacement 2>/dev/null || true
+template="$(cat "$ROOT_DIR/SKILL_TEMPLATE.md")"
+template="${template//<skill-name>/$skill_name}"
+template="${template//<imperative sentence describing when to use this skill>/$skill_description}"
+template="${template//<Skill title>/$title}"
+
 mkdir -p "$skill_dir"
-cat > "$skill_file" <<EOF_SKILL
----
-name: $skill_name
-description: $skill_description
----
-
-# $title
-
-State the intent in one short paragraph. Keep it direct and specific.
-
-## Workflow
-
-1. Define scope and success criteria.
-2. Read the relevant code and conventions before editing.
-3. Execute one focused change at a time.
-4. Verify with concrete evidence (tests, checks, or output).
-5. Summarize what changed and what is intentionally out of scope.
-
-## See also
-
-- \`<related-skill>\`
-
-## Red flags
-
-- Skipping verification
-- Expanding scope mid-task
-- Advice without concrete evidence
-EOF_SKILL
+printf '%s\n' "$template" >"$skill_file"
 
 echo "Created $skill_file"
 echo "Next: edit the content, then run mise run validate"
