@@ -1,6 +1,6 @@
 # Hook events
 
-The plugin's hooks append one JSON object per line to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly. [agent-record](https://github.com/cniska/agent-record) archives the file as a source of its own; the hooks never read it back.
+The plugin's hooks append one JSON object per line to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly. [agent-record](https://github.com/cniska/agent-record) archives the file as a source of its own, and [its spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines the signals counted from these lines and how a stop is judged; the hooks never read it back.
 
 - The file is only appended to, one line per decision, and never rewritten.
 - A write fails open: a hook that cannot write the line says so on stderr and decides exactly as it would have.
@@ -84,10 +84,6 @@ Auto mode refused a tool call (`PermissionDenied`).
 | `tool_use` | the tool call's id, which the transcript also holds |
 | `reason` | `rule` (a classifier rule), `unevaluated` (auto mode could not judge the call), `classifier_unavailable` or `other` |
 | `rule` | the classifier rule's name for `rule`, otherwise `null` |
-
-## Signals
-
-This file describes the events only. Which signal each line serves, and how a stop is judged, is defined by the session record: agent-record's spec.
 
 ## Left out
 
