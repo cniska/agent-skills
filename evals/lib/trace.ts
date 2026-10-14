@@ -11,8 +11,9 @@ export type Trace = {
 
 const Line = z.looseObject({
   type: z.string().optional(),
-  message: z.looseObject({ content: z.unknown() }).optional(),
+  message: z.unknown().optional(),
 });
+const Content = z.looseObject({ content: z.unknown() });
 const Blocks = z.array(z.looseObject({ type: z.string() }));
 const TextBlock = z.looseObject({ type: z.literal("text"), text: z.string() });
 const ToolUseBlock = z.looseObject({ type: z.literal("tool_use"), name: z.string(), input: z.unknown() });
@@ -37,7 +38,8 @@ function parseLine(line: string, source: string, index: number): Message {
       problem: `line ${index + 1}: ${z.prettifyError(parsed.error)}`,
     });
   }
-  const blocks = Blocks.safeParse(parsed.data.message?.content);
+  const message = Content.safeParse(parsed.data.message);
+  const blocks = Blocks.safeParse(message.success ? message.data.content : undefined);
   return { type: parsed.data.type ?? null, blocks: blocks.success ? blocks.data : [] };
 }
 
