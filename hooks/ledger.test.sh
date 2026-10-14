@@ -146,7 +146,8 @@ runs_ledger() {
   jq -r --arg event "$1" '[.hooks[$event][] | any(.hooks[]; .command | endswith("/hooks/ledger.sh"))] | all' "$hooks"
 }
 assert "every SessionStart group runs the ledger hook" "$(runs_ledger SessionStart)" true
-assert "compaction prints the ledger once, with no PostCompact hook" "$(jq -r '.hooks | has("PostCompact")' "$hooks")" false
+assert "no PostCompact hook runs the ledger" \
+  "$(jq -r '[.hooks.PostCompact[]?.hooks[] | .command | endswith("/hooks/ledger.sh")] | any' "$hooks")" false
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
