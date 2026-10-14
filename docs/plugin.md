@@ -32,16 +32,17 @@ One commit, start to finish, through the plugin's reviewer and commit gate and a
 sequenceDiagram
   participant A as Agent
   participant V as Reviewer
+  participant R as Fresh reviewer
   participant P as Commit gate
   participant G as Git hooks
   participant C as CI
   A->>A: task picks a route, steps load skills
   A->>V: here is the diff
   V-->>A: Verdict: return, with findings
-  A->>V: the fix
-  Note over V: judges only the fix, not the whole diff again
-  V-->>A: Verdict: accept
-  Note over V: the accept is recorded for this diff
+  A->>R: the fix's diff, in a new file
+  Note over R: judges only the fix, not the whole diff again
+  R-->>A: Verdict: accept
+  Note over R: the accept is recorded for this diff
   A->>P: git commit
   P->>G: allowed (diff unchanged since accept)
   G-->>A: the project's commit checks pass
