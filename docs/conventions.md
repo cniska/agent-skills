@@ -31,21 +31,4 @@ Each principle lives in one place, and the reviewer cites the rule behind each f
 
 - **A principle more than one skill applies** lives in [principles](../skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
 - **The design rules** live in [design-review's patterns](../skills/expertise/design-review/references/patterns.md), in two parts: Architecture, such as one reason to change per module, building only what the job needs (YAGNI), and parsing what crosses a boundary; and Code, such as no abstraction before the third copy (rule of three).
-- **The rest** live in the skill that applies them:
-
-| Principle | In practice | Lives in |
-|-----------|------------|--------|
-| Vertical slices | One complete path through the stack at a time | build, plan |
-| Contract first | Schema before implementation | build |
-| One change per commit | One logical change per commit | build, git |
-| Stop the line | Something breaks — stop, don't push past it | debug |
-| Prove-It pattern | Failing test before fix | debug, tdd |
-| Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
-| DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
-| Hyrum's Law | All observable behavior becomes a commitment | deprecation |
-| Code as liability | Less code serving the same purpose is better | deprecation |
-| Source over memory | Check the installed version's docs, types or source, not memory | build, code-writing |
-| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing |
-| Minimum dependencies | The standard library or a dependency already in the tree before a new one | code-writing |
-| Save-point pattern | Commit early when exploring uncertain changes | git |
-| Evidence threshold | Concrete references, not speculation | review skills |
+- **The rest** live in the skill that applies them.

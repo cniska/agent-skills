@@ -104,6 +104,6 @@ It follows lean practice, in plain terms first:
 - The skills are the standard way of working, and every change the coordinator makes to them is an experiment (kaizen).
 - Each finding names what it cost and is traced back to a skill line, a repo rule, a check or a missing tool (waste, 5 whys).
 - Rules become checks, as [principles](conventions.md#principles) says, and a gate that refuses correct work is a defect of the gate (jidoka, false stops).
-- An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [principles](conventions.md#principles) (andon).
+- An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [debug](../skills/workflow/debug/SKILL.md) (andon).
 
 [waste-and-cause.md](../skills/workflow/workflow-review/references/waste-and-cause.md) has the detail.
