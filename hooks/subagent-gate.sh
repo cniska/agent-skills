@@ -89,6 +89,15 @@ denials_file() {
   printf '%s/denials/%s\n' "$CLAUDE_PLUGIN_DATA" "$(printf '%s' "$1" | shasum -a 256 | cut -d ' ' -f 1)"
 }
 
+was_denied() {
+  local input="$1" code="$2"
+  local agent denials
+  agent="$(jq -r '.agent_id // empty' <<<"$input")"
+  [ -n "${CLAUDE_PLUGIN_DATA:-}" ] && [ -n "$agent" ] || return 1
+  denials="$(denials_file "$agent")"
+  [ -f "$denials" ] && grep -qxF "$code" "$denials"
+}
+
 deny_once() {
   local input="$1" code="$2" reason="$3"
   local agent denials
@@ -97,10 +106,10 @@ deny_once() {
     printf '%s: allowed %s unchecked: the bound on denials needs CLAUDE_PLUGIN_DATA and agent_id\n' "${0##*/}" "$code" >&2
     return 1
   fi
-  denials="$(denials_file "$agent")"
-  if [ -f "$denials" ] && grep -qxF "$code" "$denials"; then
+  if was_denied "$input" "$code"; then
     return 1
   fi
+  denials="$(denials_file "$agent")"
   if ! { mkdir -p "$(dirname "$denials")" && printf '%s\n' "$code" >>"$denials"; } 2>/dev/null; then
     printf '%s: allowed %s unchecked: %s cannot be appended to\n' "${0##*/}" "$code" "$denials" >&2
     return 1

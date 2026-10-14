@@ -57,7 +57,12 @@ main() {
 
   local reason
   reason="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
-  deny_once "$input" coach_not_run "$reason" || return 0
+  if at_handback "$input"; then
+    deny_once "$input" coach_not_run "$reason" || return 0
+    return
+  fi
+  ! was_denied "$input" coach_not_run || return 0
+  deny_once "$input" coach_reminder "$reason" || return 0
 }
 
 main "$@"

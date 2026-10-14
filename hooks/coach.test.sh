@@ -132,6 +132,20 @@ assert "the worker's second hand-back goes through" "$(hand_back again)" ""
 done_line >>"$handback_transcript"
 assert "the stop after that hand-back is let through by the same bound" \
   "$(jq -cn --arg transcript "$handback_transcript" '{hook_event_name: "SubagentStop", agent_id: "a2", agent_transcript_path: $transcript, last_assistant_message: "Done."}' | "$TASK_COACH" 2>/dev/null)" ""
+waiter="$scratch/waiter.jsonl"
+{ tool_use Skill '{"skill": "cniska-skills:task"}' && done_line; } >"$waiter"
+waiter_event() {
+  jq -cn --arg event "$1" --arg transcript "$waiter" \
+    '{hook_event_name: $event, tool_name: "SubagentHandback", tool_input: {message: "Done."}, session_id: "s3", agent_id: "a3", agent_type: "general-purpose", agent_transcript_path: $transcript, last_assistant_message: "Waiting."}' | "$TASK_COACH" 2>/dev/null
+}
+WAITER_ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a3 of session s3, with its transcript at $waiter, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
+fresh_bound
+assert "a stop before any coach run reminds the worker once" "$(waiter_event SubagentStop)" "$(jq -cn --arg reason "$WAITER_ASK" '{decision: "block", reason: $reason}')"
+assert "a second stop is let through by the reminder's bound" "$(waiter_event SubagentStop)" ""
+assert "the hand-back after those stops is still refused with the ask" \
+  "$(waiter_event PreToolUse)" "$(jq -cn --arg reason "$WAITER_ASK" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}')"
+assert "the hand-back after its refusal goes through" "$(waiter_event PreToolUse)" ""
+
 { tool_use Skill '{"skill": "cniska-skills:task"}' && tool_use SubagentHandback '{"message": "Done."}'; } >"$worker"
 assert "a stop whose run ended in a hand-back is left to the hand-back hook" "$(reason)" ""
 
