@@ -179,7 +179,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 
 - **Session-start hook:** sends every task through `task`, so a plain prompt takes the same route as `/task`.
   - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
-  - A resumed, forked or compacted session is told to reload `task` and re-enter its route, or to load `coordinate` again when it coordinates other agents.
+  - A resumed, forked or compacted session is told to load `coordinate` again and resume its ledger and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - **Reviewer agent (`cniska-skills:reviewer`):** judges a design or a change it did not write, as the [reviewer](#the-reviewer).
   - It runs [design-review](skills/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
   - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
