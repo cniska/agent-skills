@@ -52,7 +52,7 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `verdict` | `deny` or `allow` | `repo_relative` | the `Repo:` path is not absolute |
 | `verdict` | `deny` or `allow` | `repo_not_found` | the `Repo:` path is not a repository |
 
-A `verdict` gate denies the first stop and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict.
+A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict.
 
 ### `verdict`
 
