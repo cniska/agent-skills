@@ -58,7 +58,8 @@ flowchart LR
   lead -- "batched questions" --> you
   lead -- "reads and rewrites" --> ledger[("Ledger")]
   lead -- "delegates a task" --> inner["Inner loop"]
-  lead -- "experiment record, via the due note" --> coach["Coach"]
+  inner -- "each task, once it lands" --> coach["Coach"]
+  coach -- "proposals" --> lead
 ```
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop and keeps the agents moving.
@@ -68,7 +69,7 @@ flowchart LR
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. The coach runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date.
+The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date.
 
 ```mermaid
 flowchart LR

@@ -90,5 +90,5 @@ Auto mode refused a tool call (`PermissionDenied`).
 - **Pushes.** Git already records each one, from any shell: every push moves the remote-tracking ref and appends `update by push` with its time to that ref's reflog (`git reflog show --date=iso refs/remotes/origin/<branch>`), shared by every worktree of the clone. agent-record reads it there; a hook would have to parse each command for a push and would miss pushes made outside a session.
 - **Token use per agent.** agent-record's `usage` table already holds tokens per session, from the transcripts.
 - **Fix and Consider counts and the rules a review cites.** They are in the reviewer's report, which the transcript holds whole.
-- **The coach's report check.** It runs about once a day and only asks for its count line; the transcript shows the block.
+- **The coach's report check and the task coach hook.** They only ask for a count line or a coach run; the transcript shows the block.
 - **The answer to a permission prompt.** No hook fires on it, and the transcript holds it.

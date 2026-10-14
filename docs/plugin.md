@@ -84,23 +84,26 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 
 ## Coach agent
 
-`cniska-skills:coach` finds where the workflow failed me and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
+`cniska-skills:coach` is a task coach: once a task lands, it finds where the workflow failed me in that task and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
 
-- It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
-- It proposes only the changes that repeat across sessions.
-- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, passed on by the due note), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
+- It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over the task's sessions, the worker's and its subagents': my corrections, the questions I had to ask, gate stops, review returns, retries and the friction the sessions reported.
+- It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
+- It proposes changes only to what I commit to; friction with a skill installed from elsewhere becomes a rule in the repo's `AGENTS.md`.
+- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
 - It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
+- Signals and the experiment checks that need agent-record say so and are skipped without it.
 - It changes nothing itself and runs only read commands and `agent-record sync`.
-- It ends each report with `Proposals: <n>`.
+- It ends each report with `Proposals: <n>`; a stop hook keeps it running once until it does.
 
-## Coach schedule
+## Task coach hook
 
-A session-start hook tells the agent when the coach is due.
+A subagent stop hook runs the coach at the end of every delegated task.
 
-- The coach is due when a session starts or is cleared more than a day after the last run, or with no run recorded.
-- A run counts once its report ends with `Proposals: <n>`.
-- When the coach is due and `experiments.jsonl` sits beside the ledger, it also says how many experiments are open, how many of them are past their check date, and where the record is.
-- The agent applies the proposals at the next break, opening an experiment for each change, and brings me only conflicts.
+- When a subagent that loaded `task` stops, the hook keeps it running once and asks it to run the coach over its own task before it hands back, naming its agent, session and transcript.
+- It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits beside the ledger.
+- It skips a subagent that already ran the coach.
+- The worker hands back the coach's report with its own, and its caller applies the proposals, opening an experiment for each change, and brings me only conflicts.
+- No hook sees a task end in the main session, so `task` runs the coach there as its last step.
 
 ## Event log
 

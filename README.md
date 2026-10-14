@@ -15,7 +15,7 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed commit, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** the coach reads how past work went, and the coordinator applies each change it proposes as an experiment that the signals keep or revert.
+- **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment that the signals keep or revert.
 
 ```mermaid
 flowchart LR
@@ -62,8 +62,8 @@ npx skills add cniska/agent-skills
 | Reviewer agent | Judges each change it did not write against the design rules, and ends with accept or return. |
 | Commit gate | Blocks a commit until the reviewer has accepted that exact diff. |
 | Ledger hook | Prints the coordinator's ledger into each session, so coordinating work survives restarts and compaction. |
-| Coach agent | Reads past sessions and proposes the workflow changes that repeat. |
-| Coach schedule | Tells the agent when the coach is due. |
+| Coach agent | Coaches each task once it lands, proposing the workflow changes that repeat. |
+| Task coach hook | Runs the coach when a delegated task ends. |
 | Event log | Records gate decisions, verdicts and permission prompts for [agent-record](https://github.com/cniska/agent-record) to archive. |
 
 ## Skills

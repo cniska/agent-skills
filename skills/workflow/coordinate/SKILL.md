@@ -17,6 +17,7 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 5. **Keep every plan in the ledger's repo or the work's repo**, never only in a message or a temp path another machine cannot reach. Each worker works in its own worktree, never a primary checkout, so what it leaves is findable and its own.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
 7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing or slicing, and name each in the report. When unsure, get a `powerful`-tier read through `second-opinion` first. Ask the owner only about product tradeoffs and what you cannot answer.
+8. **Coach each task a worker hands back.** Apply the workflow review its hand-back carries, or where it carries none, run `workflow-review` over that worker's task in a fresh agent; apply each proposal except conflicts, which go to the owner, as an [experiment](references/experiments.md).
 
 ## Resume
 
@@ -31,7 +32,7 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - `task` — the route each delegated task runs
 - `design-review` — what the reviewers judge
 - `second-opinion` — the read to get before asking the owner
-- `workflow-review` — checks each due experiment and proposes its outcome
+- `workflow-review` — coaches each task, and checks each due experiment and proposes its outcome
 
 ## Red flags
 

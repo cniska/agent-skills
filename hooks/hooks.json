@@ -10,10 +10,6 @@
           },
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coach-due.sh"
-          },
-          {
-            "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/ledger.sh"
           }
         ]
@@ -57,7 +53,15 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coach-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coach-report.sh"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/task-coach.sh"
           }
         ]
       }

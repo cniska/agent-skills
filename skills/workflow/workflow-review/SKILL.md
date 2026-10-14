@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use after a stretch of work, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task ends, after a stretch of work, or when asked what should change in the workflow.
 ---
 
 # Workflow review
@@ -14,19 +14,21 @@ Find where the workflow failed the owner, and say what should change so it does 
 - **The owner's correction is the evidence.** When the agent followed a skill and the owner corrected it, the skill is in question, not the owner.
 - **Cut before adding.** A step that routinely finds nothing, or a rule models now follow unprompted, is a proposal to remove it.
 - **A mechanical rule becomes a check**, as rules as checks in `principles` says, not another sentence.
+- **Propose changes only to what the user commits to:** the rules of their repos and the skills whose source sits in a checkout of theirs. Friction with a skill installed from elsewhere becomes a rule in the repo's `AGENTS.md`, where skills defer everything project-specific; never an edit to the installed copy, and nothing sent to its author.
 
 ## Read
 
-1. **Scope** to the window or projects the brief names; without one, ask for it.
-2. **Find the evidence** through `search-sessions`:
+1. **Scope** to the task, window or projects the brief names; without one, ask for it. A task's sessions are the run that did it and the subagents that run started, which its agent tool calls name.
+2. **Find the evidence** through `search-sessions`, in the scope:
    - the owner correcting an agent;
    - a question the owner had to ask mid-task that a skill should have answered;
-   - friction a session reported about the workflow itself;
+   - friction a session reported about the workflow itself, or a gate stop, a review return or a retry;
    - an eval case that regressed, where the repo has evals.
+   When the scope is one task, search every earlier session for each piece of friction it shows; one with no earlier sighting is a one-off.
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
-5. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says.
+5. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says. A check that needs the signals of a session record the host lacks is reported as skipped, never guessed.
 6. **Check the repo's evals and checks**, as its rules name them, from their cases and the results already recorded, running none: a case that measures nothing, both sides passing or both failing; a trigger prompt that loads the wrong skill; a check the repo has that no route runs. Each is a finding.
 
 ## Judge
@@ -71,6 +73,7 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 - A proposal whose cause is the symptom, such as "the agent forgot"
 - Paraphrasing what the owner said instead of quoting it
 - Proposing a rule the current version already states
+- Proposing an edit to an installed skill, or a change for its author, instead of a rule in the repo's `AGENTS.md`
 - Siding with a skill over the owner's correction instead of naming the conflict
 - Growing a skill where a cut or a check would do
 - Applying a conflict without the owner's call
