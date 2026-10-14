@@ -77,6 +77,7 @@ It blocks a commit until the reviewer has accepted that exact diff, in the workt
 - An accept from a reviewer that returned the same repo earlier is discarded, so a re-review is always a fresh reviewer.
 - A diff that changes only Markdown needs no accept; untracked files count only when the commit command adds them.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
+- A command that creates its repo with `git init` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else, or by `git clone`, blocks the commit.
 
 ## Ledger hook
 

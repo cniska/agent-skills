@@ -39,11 +39,12 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 |---|---|---|---|
 | `commit` | `allow` | `accepted` | the diff is the one the reviewer accepted |
 | `commit` | `allow` | `no_code_change` | the diff changes only Markdown, or nothing |
+| `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |
 | `commit` | `deny` | `changed_since_accept` | an accept is recorded, for another diff |
 | `commit` | `deny` | `multiple_commits` | the command runs more than one commit |
-| `commit` | `deny` | `repo_created` | the command creates the repository it commits to |
+| `commit` | `deny` | `repo_created` | the command creates the repository it commits to, by `git clone`, or by `git init` with a commit that may land outside a temp directory |
 | `commit` | `deny` | `repo_unclear` | the command reaches its repository in a way the gate cannot follow |
 | `commit` | `deny` | `repo_not_found` | the directory the command names is not a repository |
 | `commit` | `deny` | `gate_error` | the gate itself failed, so it refused |

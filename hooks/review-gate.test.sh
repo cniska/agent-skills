@@ -316,7 +316,28 @@ for command in \
 done
 assert "two commits on separate lines are refused" "$(gate_from $'git -C ~/project commit -am x\ngit -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
 assert "a commit after a closed heredoc is still counted" "$(gate_from $'cat <<EOF\nx\nEOF\ngit -C ~/project commit -am x && git -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
-assert "a commit that creates its repo in the same command is refused" "$(gate_from 'git init -q && git add -A && git commit -m x' "$scratch")" "$CREATE"
+assert "a commit that creates its repo outside a temp directory is refused" "$(gate_from 'git init -q && git commit -m x' /)" "$CREATE"
+assert "a scratch repo created and committed to under a temp directory passes" \
+  "$(gate_from 'git init -q -b main r && cd r && git commit -q --allow-empty -m i && git init -q --bare ../o.git' "$scratch")" ""
+assert "a scratch repo created, added and committed in a temp directory passes" "$(gate_from 'git init -q && git add -A && git commit -qm start' "$scratch")" ""
+assert "a scratch repo named by an absolute temp path passes" "$(gate_from "git init -q $scratch/s && cd $scratch/s && git commit -m x" "$scratch")" ""
+assert "a scratch repo named by an absolute temp path from a cwd outside the temp directories is refused" "$(gate_from "git init -q $scratch/s && cd $scratch/s && git commit -m x" /)" "$CREATE"
+for command in \
+  "git init -q && git -C $scratch status && git commit -m x" \
+  "(cd $scratch) && git init -q && git commit -m x"; do
+  assert "a temp target that may not move the commit [$command] from outside the temp directories is refused" "$(gate_from "$command" /)" "$CREATE"
+done
+for command in \
+  'git init -q /usr/r && cd /usr/r && git commit -m x' \
+  'git init -q ../r && cd .. && git commit -m x' \
+  'git init -q && cd && git commit -m x' \
+  'git init -q && cd - && git commit -m x' \
+  "git init -q && cd \"\$X\" && git commit -m x" \
+  'git init -q && GIT_DIR=/usr/r/.git git commit -m x'; do
+  assert "a repo created in a temp directory whose commit may land elsewhere [$command] is refused" "$(gate_from "$command" "$scratch")" "$CREATE"
+done
+assert "a scratch repo under a home outside the temp directories is refused" "$(HOME=/usr gate_from 'git init -q ~/r && cd ~/r && git commit -m x' "$scratch")" "$CREATE"
+assert "a repo created from a cwd outside the temp directories with a relative cd is refused" "$(gate_from 'git init -q r && cd r && git commit -m x' /)" "$CREATE"
 assert "a commit after cloning in the same command is refused" "$(gate_from 'git clone -q ~/project copy && git -C copy commit -m x' "$scratch")" "$CREATE"
 
 printf 'not json' | "$GATE" >/dev/null 2>&1
@@ -400,7 +421,8 @@ assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git c
 assert "a Markdown-only commit logs an allow" "$(decided gate_logged 'git commit -am x' | jq -c '[.decision, .reason, .fingerprint]')" '["allow","no_code_change",null]'
 assert "a commit outside any repository logs an allow" "$(decided gate_logged 'git commit -am x' "$scratch" | jq -c '[.decision, .reason, .repo]')" '["allow","outside_repo",null]'
 assert "two commits in one command log multiple_commits" "$(decided gate_logged 'git commit -m x && git commit -m y' | jq -r .reason)" multiple_commits
-assert "a commit that creates its repo logs repo_created" "$(decided gate_logged 'git init -q && git commit -m x' | jq -r .reason)" repo_created
+assert "a commit that creates its repo logs repo_created" "$(decided gate_logged 'git init -q && git commit -m x' / | jq -r .reason)" repo_created
+assert "a commit to a scratch repo logs an allow" "$(decided gate_logged 'git init -q && git commit -m x' | jq -c '[.decision, .reason, .repo]')" '["allow","scratch_repo",null]'
 assert "a commit reaching its repo unclearly logs repo_unclear" "$(decided gate_logged '(cd ~/project && git commit -am x)' | jq -r .reason)" repo_unclear
 assert "a commit naming no repository logs repo_not_found" "$(decided gate_logged 'cd ~/nowhere && git commit -am x' | jq -r .reason)" repo_not_found
 assert "a gate that fails logs gate_error" "$(decided sh -c "printf 'not json' | '$GATE' 2>/dev/null" | jq -r '[.decision, .reason] | @tsv')" "deny	gate_error"

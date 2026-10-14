@@ -18,8 +18,15 @@ readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WOR
 readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
 readonly GIT_DIR_PATTERN='git[[:space:]]+-C[[:space:]]+([^[:space:]]+)[[:space:]]+commit'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
-readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
-readonly REPO_CREATE_PATTERN="${GIT_COMMAND}([[:space:]]+-[^[:space:]]+)*[[:space:]]+(init|clone)${WORD_END}"
+readonly REPO_OVERRIDE_PATTERN="--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
+readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|${REPO_OVERRIDE_PATTERN}"
+readonly GIT_SUBCOMMAND="${GIT_COMMAND}([[:space:]]+-[^[:space:]]+)*[[:space:]]+"
+readonly REPO_INIT_PATTERN="${GIT_SUBCOMMAND}init${WORD_END}"
+readonly REPO_CLONE_PATTERN="${GIT_SUBCOMMAND}clone${WORD_END}"
+readonly REPO_TARGET_PATTERN="${WORD_START}(cd|pushd)[[:space:]]+[^[:space:];&|)]+|[[:space:]]-C[[:space:]]+[^[:space:];&|)]+"
+readonly PLAIN_PATH_PATTERN='^/[A-Za-z0-9_./@+:-]*$'
+readonly PARENT_STEP_PATTERN='(^|/)(\.\.|-)(/|$)'
+readonly TEMP_ROOTS=(/tmp /private/tmp /var/folders /private/var/folders)
 readonly HEREDOC_PATTERN="(^|[^<])<<-?[[:space:]]*[${QUOTES}]?([A-Za-z0-9_.-]+)[${QUOTES}]?(.*)\$"
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
@@ -99,6 +106,50 @@ expanded_dir() {
   esac
 }
 
+repo_targets() {
+  { grep -oE "$REPO_TARGET_PATTERN" <<<"$1" || true; } | sed -E 's/^.*(cd|pushd|-C)[[:space:]]+//'
+}
+
+temp_roots() {
+  local root
+  for root in ${TMPDIR:+"$TMPDIR"} "${TEMP_ROOTS[@]}"; do
+    if [ -d "$root" ]; then
+      (cd "$root" && pwd -P)
+    fi
+  done
+}
+
+under_temp() {
+  local path="$1" dir root
+  [[ $path =~ $PLAIN_PATH_PATTERN ]] || return 1
+  ! [[ $path =~ $PARENT_STEP_PATTERN ]] || return 1
+  dir="$path"
+  while [ ! -d "$dir" ]; do
+    dir="$(dirname "$dir")"
+  done
+  dir="$(cd "$dir" && pwd -P)" || return 1
+  while IFS= read -r root; do
+    [ -n "$root" ] || continue
+    if [ "$dir" = "$root" ] || [[ $dir == "$root"/* ]]; then
+      return 0
+    fi
+  done < <(temp_roots)
+  return 1
+}
+
+creates_scratch_repo() {
+  local prefix="$1" cwd="$2" targets target count=0
+  ! grep -qE -- "$REPO_OVERRIDE_PATTERN" <<<"$prefix" || return 1
+  under_temp "$cwd" || return 1
+  targets="$(repo_targets "$prefix")"
+  while IFS= read -r target; do
+    [ -n "$target" ] || continue
+    count=$((count + 1))
+    under_temp "$(expanded_dir "$target" "$cwd")" || return 1
+  done <<<"$targets"
+  [ "$count" -eq "$(repo_changes "$prefix")" ]
+}
+
 unresolved_reason() {
   printf 'Commit blocked: %s is not a repository, so the reviewer verdict for this commit cannot be checked. Name the repository by an absolute path in cd.' "$1"
 }
@@ -146,8 +197,16 @@ main() {
     deny "$MULTIPLE_REASON" multiple_commits
     return
   fi
-  if [[ $prefix =~ $REPO_CREATE_PATTERN ]]; then
+  if [[ $prefix =~ $REPO_CLONE_PATTERN ]]; then
     deny "$CREATE_REASON" repo_created
+    return
+  fi
+  if [[ $prefix =~ $REPO_INIT_PATTERN ]]; then
+    if creates_scratch_repo "$prefix" "$cwd"; then
+      record allow scratch_repo
+    else
+      deny "$CREATE_REASON" repo_created
+    fi
     return
   fi
   named="$(named_dir "$prefix")"
