@@ -282,7 +282,7 @@ sequenceDiagram
   - Whenever a session starts, resumes, clears or compacts, it adds a note telling the agent to create and remove task worktrees with the CLI.
   - Its `WorktreeCreate` and `WorktreeRemove` hooks send Claude Code's own worktrees through the CLI too.
   - Install the CLI first, then `claude plugin install cniska-worktree@cniska`.
-- **`cniska-gates`** reports the comments each edit adds, in the words of the [agent-gates](https://github.com/cniska/agent-gates) no-comments gate, before the commit hook refuses them; the committed git hooks still gate every contributor. Install it with `claude plugin install cniska-gates@cniska`.
+- **`cniska-gates`** reports the comments each edit adds, in the words of the [agent-gates](https://github.com/cniska/agent-gates) no-comments gate, before the commit hook refuses them; the committed git hooks still gate every contributor. It does nothing in a repo without the gate. Install it with `claude plugin install cniska-gates@cniska`.
 
 `cniska-skills` works without any of them.
 
