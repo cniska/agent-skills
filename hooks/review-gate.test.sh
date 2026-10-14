@@ -45,9 +45,27 @@ readonly REPO_REASON="Put 'Repo: <absolute path of the repository under review>'
 NO_REPO="$(refused "$REPO_REASON")"
 readonly NO_SECTIONS WITH_FINDINGS NO_REPO
 
-gate() {
-  jq -cn --arg command "$1" --arg cwd "$repo" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
+readonly LOOK_ALIKE='echo "notes: cd /nowhere && git -C /nowhere commit -m y; git commit -m z"'
+readonly QUOTE="'"
+twins="$scratch/twins.jsonl"
+
+decide() {
+  jq -cn --arg command "$1" --arg cwd "$2" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
 }
+
+gate_from() {
+  local decision twin
+  decision="$(decide "$1" "$2")"
+  if [ -z "$decision" ]; then
+    twin="$1"$'\n'"$LOOK_ALIKE"
+  else
+    twin="echo $QUOTE${1//$QUOTE/$QUOTE\\$QUOTE$QUOTE}$QUOTE"
+  fi
+  jq -cn --arg command "$twin" --arg got "$(decide "$twin" "$2")" '{command: $command, got: $got}' >>"$twins"
+  printf '%s\n' "$decision"
+}
+
+gate() { gate_from "$1" "$repo"; }
 
 assistant_line() { jq -cn --argjson block "$1" '{type: "assistant", message: {content: [$block]}}'; }
 handback_line() { assistant_line "$(jq -cn --arg message "$1" '{type: "tool_use", name: "SubagentHandback", input: {message: $message}}')"; }
@@ -225,10 +243,6 @@ other="$scratch/other"
 mkdir -p "$other/sub"
 (cd "$other" && git init -q -b main && printf 'z = 1\n' >lib.py && git add -A && git commit -q -m base && printf 'z = 2\n' >>lib.py)
 
-gate_from() {
-  jq -cn --arg command "$1" --arg cwd "$2" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
-}
-
 (cd "$worktree" && printf 'print(9)\n' >>app.py)
 assert "a commit after cd into a worktree is gated against that worktree" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
 assert "a commit through git -C on a worktree is gated against that worktree" "$(gate_from "git -C $worktree commit -am x" "$repo")" "$DENIED"
@@ -332,6 +346,16 @@ for command in \
   "jq -r 'select(.command | contains(\"git commit\"))' log.jsonl"; do
   assert "commit text with no commit in [$command] passes" "$(gate_from "$command" "$home_repo")" ""
 done
+for command in \
+  "echo \"\$(git -C ~/project commit -am x)\"" \
+  "echo \"\`git -C ~/project commit -am x\`\"" \
+  "echo \`git -C ~/project commit -am x\`" \
+  "echo \"unbalanced && git -C ~/project commit -am x" \
+  "echo \"a && git -C ~/project commit -am x\" 'unbalanced" \
+  "bash -lc 'git status && git -C ~/project commit -am x'" \
+  "cd '$home_repo' && git commit -am x"; do
+  assert "a commit in quotes that still run, or after an unbalanced quote, [$command] is gated" "$(gate_from "$command" "$scratch")" "$DENIED"
+done
 assert "two commits on separate lines are refused" "$(gate_from $'git -C ~/project commit -am x\ngit -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
 assert "a commit after a closed heredoc is still counted" "$(gate_from $'cat <<EOF\nx\nEOF\ngit -C ~/project commit -am x && git -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
 assert "a commit that creates its repo outside a temp directory is refused" "$(gate_from 'git init -q && git commit -m x' /)" "$CREATE"
@@ -378,7 +402,10 @@ for command in \
   "(cd $scratch/z) && git init -q && git commit -m x"; do
   assert "a repo created from a checkout whose commit may land outside the temp directories [$command] is refused" "$(gate_from "$command" "$checkout")" "$CREATE"
 done
-assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$scratch")" "$AMBIGUOUS"
+record_handback "$(report "$repo" accept)" >/dev/null
+assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$home_repo")" "$DENIED"
+assert "a look-alike in a heredoc leaves a commit gated" "$(gate_from $'cat >notes.txt <<EOF\n'"$LOOK_ALIKE"$'\nEOF\ngit -C ~/project commit -am x' "$scratch")" "$DENIED"
+assert "a look-alike in a heredoc adds no commit" "$(gate_from $'cat >notes.txt <<\'EOF\'\n'"$LOOK_ALIKE"$'\nEOF\ngit status' "$scratch")" ""
 
 printf 'not json' | "$GATE" >/dev/null 2>&1
 assert "a gate that fails refuses the commit rather than allowing it" "$?" 2
@@ -505,6 +532,10 @@ rmdir "$log"
 mv "$log.kept" "$log"
 assert "every logged line is one JSON object" "$(jq -s 'all(type == "object")' "$log")" true
 assert "every line of a kind has the same fields" "$(jq -s 'group_by(.event) | all(map(keys) | unique | length == 1)' "$log")" true
+
+while IFS=$'\t' read -r command got; do
+  assert "the quoted twin [$command] passes" "$got" ""
+done < <(jq -r '[.command, .got] | @tsv' "$twins")
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

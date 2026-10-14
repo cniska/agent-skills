@@ -78,6 +78,7 @@ It blocks a commit until the reviewer has accepted that exact diff, in the workt
 - A diff that changes only Markdown needs no accept; untracked files count only when the commit command adds them.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 - A command that creates its repo with `git init` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else, or by `git clone`, blocks the commit.
+- Quoted strings and heredoc bodies are read as text, so commit text in an `echo` or a message neither opens nor blocks the gate; a quoted path after `cd`, `pushd` or `-C` still names the repo, and a quoted string that runs as code, after `sh -c` or `eval` or holding a command substitution, is still read.
 
 ## Ledger hook
 

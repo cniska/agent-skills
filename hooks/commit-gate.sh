@@ -13,7 +13,7 @@ COMMIT_CALLS=()
 readonly QUOTES="'\""
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
 readonly WORD_END="([[:space:];&|)${QUOTES}]|\$)"
-readonly COMMAND_START="(^|[;&|(]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
+readonly COMMAND_START="(^|[;&|(\`]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
 readonly GIT_COMMAND="${COMMAND_START}([^[:space:];&|()${QUOTES}]*/)?git"
 readonly GIT_OPTIONS="([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*"
 readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WORD_END}"
@@ -26,11 +26,18 @@ readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[
 readonly GIT_SUBCOMMAND="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+"
 readonly REPO_INIT_PATTERN="${GIT_SUBCOMMAND}init${WORD_END}"
 readonly REPO_CLONE_PATTERN="${GIT_SUBCOMMAND}clone${WORD_END}"
-readonly REPO_TARGET_PATTERN="${WORD_START}(cd|pushd)[[:space:]]+[^[:space:];&|)]+|[[:space:]]-C[[:space:]]+[^[:space:];&|)]+"
+readonly REPO_DIR_ARG="${WORD_START}(cd|pushd)[[:space:]]+|[[:space:]]-C[[:space:]]+"
+readonly REPO_TARGET_PATTERN="(${REPO_DIR_ARG})[^[:space:];&|)]+"
 readonly PLAIN_PATH_PATTERN='^/[A-Za-z0-9_./@+:-]*$'
 readonly PARENT_STEP_PATTERN='(^|/)(\.\.|-)(/|$)'
 readonly TEMP_ROOTS=(/tmp /private/tmp /var/folders /private/var/folders)
-readonly HEREDOC_PATTERN="(^|[^<])<<-?[[:space:]]*[${QUOTES}]?([A-Za-z0-9_.-]+)[${QUOTES}]?(.*)\$"
+readonly HEREDOC_OPEN="(^|[^<])<<-?[[:space:]]*"
+readonly HEREDOC_PATTERN="${HEREDOC_OPEN}[${QUOTES}]?([A-Za-z0-9_.-]+)[${QUOTES}]?(.*)\$"
+readonly BACKSLASH="\\"
+readonly QUOTE_STARTS="${QUOTES}${BACKSLASH}"
+readonly SHELL_CODE="(ba|da|k|z)?sh([[:space:]]+-[A-Za-z]+)*[[:space:]]+-[A-Za-z]*c|eval"
+readonly KEPT_QUOTE_PATTERN="(${REPO_DIR_ARG}|${HEREDOC_OPEN}|${WORD_START}(${SHELL_CODE})[[:space:]]+)\$"
+readonly SUBSTITUTION_PATTERN='\$\(|`'
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
 readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
@@ -45,21 +52,84 @@ heredoc_delimiters() {
   done
 }
 
-without_heredocs() {
-  local line delimiter
+quote_kept() {
+  local before="$1" quote="$2" body="$3"
+  if [[ $before =~ $KEPT_QUOTE_PATTERN ]]; then
+    return 0
+  fi
+  [ "$quote" = '"' ] && [[ $body =~ $SUBSTITUTION_PATTERN ]]
+}
+
+masked_command() {
+  local line delimiter rest plain char stops raw="" out="" quote="" escapes="" body="" line_start=0
   local -a pending=()
   while IFS= read -r line || [ -n "$line" ]; do
-    if [ "${#pending[@]}" -gt 0 ]; then
+    if [ -z "$quote" ] && [ "${#pending[@]}" -gt 0 ]; then
       if [ "${line#"${line%%[!$'\t']*}"}" = "${pending[0]}" ]; then
         pending=("${pending[@]:1}")
       fi
       continue
     fi
-    printf '%s\n' "$line"
+    raw+="$line"$'\n'
+    rest="$line"
+    while [ -n "$rest" ]; do
+      if [ -z "$quote" ]; then
+        plain="${rest%%["$QUOTE_STARTS"]*}"
+        out+="$plain"
+        rest="${rest:${#plain}}"
+        [ -n "$rest" ] || break
+        char="${rest:0:1}"
+        rest="${rest:1}"
+        if [ "$char" = "$BACKSLASH" ]; then
+          out+="$char${rest:0:1}"
+          rest="${rest:1}"
+          continue
+        fi
+        quote="$char"
+        body=""
+        escapes=""
+        if [ "$char" = '"' ] || [ "${out: -1}" = '$' ]; then
+          escapes=yes
+        fi
+        continue
+      fi
+      stops="$quote"
+      if [ -n "$escapes" ]; then
+        stops="$quote$BACKSLASH"
+      fi
+      plain="${rest%%["$stops"]*}"
+      body+="$plain"
+      rest="${rest:${#plain}}"
+      [ -n "$rest" ] || break
+      char="${rest:0:1}"
+      rest="${rest:1}"
+      if [ "$char" = "$BACKSLASH" ]; then
+        body+="$char${rest:0:1}"
+        rest="${rest:1}"
+        continue
+      fi
+      if quote_kept "$out" "$quote" "$body"; then
+        out+="$quote$body$quote"
+      else
+        out+="$quote$quote"
+      fi
+      quote=""
+    done
+    if [ -n "$quote" ]; then
+      body+=$'\n'
+      continue
+    fi
     while IFS= read -r delimiter; do
       pending+=("$delimiter")
-    done < <(heredoc_delimiters "$line")
+    done < <(heredoc_delimiters "${out:$line_start}")
+    out+=$'\n'
+    line_start="${#out}"
   done <<<"$1"
+  if [ -n "$quote" ]; then
+    printf '%s' "$raw"
+    return
+  fi
+  printf '%s\n' "$out"
 }
 
 walk_commits() {
@@ -116,7 +186,7 @@ expanded_dir() {
 }
 
 repo_targets() {
-  { grep -oE "$REPO_TARGET_PATTERN" <<<"$1" || true; } | sed -E 's/^.*(cd|pushd|-C)[[:space:]]+//'
+  { grep -oE "$REPO_TARGET_PATTERN" <<<"$1" || true; } | sed -E "s/^(${REPO_DIR_ARG})//"
 }
 
 temp_roots() {
@@ -227,7 +297,7 @@ main() {
   : "${CLAUDE_PLUGIN_DATA:?CLAUDE_PLUGIN_DATA is required}"
   local command cwd
   INPUT="$(cat)"
-  command="$(without_heredocs "$(jq -r '.tool_input.command // empty' <<<"$INPUT")")"
+  command="$(masked_command "$(jq -r '.tool_input.command // empty' <<<"$INPUT")")"
   cwd="$(jq -r '.cwd // empty' <<<"$INPUT")"
   if ! [[ $command =~ $GIT_COMMIT_PATTERN ]]; then
     return
