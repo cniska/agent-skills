@@ -1,0 +1,14 @@
+{
+  "positive": [
+    { "prompt": "create the daily brief cloud routine" },
+    { "prompt": "we should store the routines in md format in the repo" },
+    { "prompt": "set up a nightly routine that runs the release check" },
+    { "prompt": "move the triage task to a scheduled run in the cloud" },
+    { "prompt": "the scheduled task stalled overnight, make it safe to run unattended" }
+  ],
+  "negative": [
+    { "prompt": "create a skill for our release process", "owner": "skill-writing" },
+    { "prompt": "add a rule to AGENTS.md about where scripts live", "owner": "agents-md" },
+    { "prompt": "release a new version and cut the tag", "owner": "ship" }
+  ]
+}

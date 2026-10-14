@@ -345,6 +345,7 @@ Grouped by where the routes use them.
 | [docs](skills/docs/SKILL.md) | Create or update project documentation |
 | [adr](skills/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
 | [writing](skills/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
+| [routine-writing](skills/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
 | [verification-setup](skills/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
 | [workflow-review](skills/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence and named by the waste it cost and its cause |
 | [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, dry-run blind against a baseline on unlike real repos, score on eval cases where the repo has them |
