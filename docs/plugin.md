@@ -74,6 +74,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 It blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
 
 - An edit after the accept, or a `Verdict: return`, blocks it again.
+- An accept from a reviewer that returned the same repo earlier is discarded, so a re-review is always a fresh reviewer.
 - A diff that changes only Markdown needs no accept; untracked files count only when the commit command adds them.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 

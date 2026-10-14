@@ -53,10 +53,11 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `verdict` | `deny` or `allow` | `repo_not_found` | the `Repo:` path is not a repository |
 | `verdict` | `deny` or `allow` | `repo_repeated` | two `Repo:` lines name the same repository |
 | `verdict` | `deny` or `allow` | `worktree_mismatch` | the report cites files in another worktree of the `Repo:` repository and none in the one it names |
+| `verdict` | `deny` or `allow` | `same_reviewer` | the report accepts a repository its reviewer returned earlier, so the accept is discarded and a fresh reviewer must judge the fix |
 | `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 
-A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict, though a return naming its repository still clears that repository's accept.
+A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict, though a return naming its repository still clears that repository's accept, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
 
 ### `verdict`
 

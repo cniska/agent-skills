@@ -12,6 +12,7 @@ readonly WORKTREE_MISMATCH_REASON="Put the path of the worktree the change is in
 readonly REPO_REPEATED_REASON="Give each repository one verdict: name it in one 'Repo:' line only."
 readonly REPORT_SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
+readonly SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff; this one returned it.' above your verdict."
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
 
 die() {
@@ -58,6 +59,23 @@ cited_worktrees() {
   done | sort -u
 }
 
+returns_file() {
+  printf '%s.returns\n' "$(review_state_file "$1")"
+}
+
+record_return() {
+  local repo="$1" agent="$2" returns
+  returns="$(returns_file "$repo")"
+  mkdir -p "$(dirname "$returns")"
+  printf '%s\n' "$agent" >>"$returns"
+}
+
+returned_before() {
+  local repo="$1" agent="$2" returns
+  returns="$(returns_file "$repo")"
+  [ -f "$returns" ] && grep -qxF "$agent" "$returns"
+}
+
 named_before() {
   local repo="$1" seen
   shift
@@ -72,9 +90,11 @@ main() {
     die "CLAUDE_PLUGIN_DATA is required"
   fi
   jq --version >/dev/null 2>&1 || die "jq is required to read the reviewer's verdict"
-  local input stop_hook_active
+  local input stop_hook_active agent
   input="$(cat)"
   stop_hook_active="$(jq -r '.stop_hook_active // false' <<<"$input")"
+  agent="$(jq -r '.agent_id // empty' <<<"$input")"
+  [ -n "$agent" ] || die "agent_id is required to tell reviewers apart"
 
   local report pairs
   report="$(subagent_report "$input")"
@@ -94,12 +114,17 @@ main() {
     elif ! repo="$(repo_root "$named")" || [ -z "$repo" ]; then
       pair_code=repo_not_found pair_why="'$named' is not a repository. $MISSING_REPO_REASON"
     else
-      [ "$verdict" = accept ] || rm -f "$(review_state_file "$repo")"
+      if [ "$verdict" = return ]; then
+        rm -f "$(review_state_file "$repo")"
+        record_return "$repo" "$agent"
+      fi
       cited="$(cited_worktrees "$repo" <<<"$report")"
       if named_before "$repo" ${repos[@]+"${repos[@]}"}; then
         pair_code=repo_repeated pair_why="'$named' has more than one verdict. $REPO_REPEATED_REASON"
       elif [ -n "$cited" ] && ! grep -qxF "$repo" <<<"$cited"; then
         pair_code=worktree_mismatch pair_why="The report cites files in '$(head -n 1 <<<"$cited")', another worktree of '$named', and none in '$named'. $WORKTREE_MISMATCH_REASON"
+      elif [ "$verdict" = accept ] && returned_before "$repo" "$agent"; then
+        pair_code=same_reviewer pair_why="$SAME_REVIEWER_REASON"
       fi
     fi
     if [ -n "$pair_code" ]; then
