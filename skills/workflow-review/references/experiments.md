@@ -20,7 +20,7 @@ For each open experiment whose check date has passed:
 |---|---|
 | The signal moved as named, and nothing weightier got worse | Keep |
 | Flat, or the wrong way | Revert, or trim the part that did not pay off; prefer trimming to adding |
-| Too little work since the change to tell | A later check date, unless an earlier `open` line for that `sha` already moved its check date; then judge on what there is |
+| Too little work since the change to tell | A later check date, unless the `open` lines for that `sha` already carry more than one `check`; then judge on what there is |
 
 The before and after are the evidence, so a verdict needs no second session.
 
