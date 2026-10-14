@@ -8,7 +8,7 @@ The experiment record the brief names is a JSON-lines file, one line per event. 
 
 ## Thresholds
 
-Count the tasks Check step 1 picks on each side before comparing, so noise is not read as a result:
+Before comparing, apply these to the tasks Check step 2 counts on each side, so noise is not read as a result:
 
 - **Fewer than 10 on a side:** not enough data.
 - **10 to 29:** report the direction, and judge only if owner interrupts move the same way, or, where owner interrupts is the signal, time to land does not get worse; otherwise it is not enough data, until the Verdict's bound on later check dates is reached.
@@ -18,10 +18,11 @@ Count the tasks Check step 1 picks on each side before comparing, so noise is no
 
 For each open experiment whose check date has passed:
 
-1. **Confirm the new version ran** in the after window, since an installed copy can lag the repo: the version the session record shows for those sessions, or the changed skill among their loads. Where the record cannot show which version ran, say so and go on. Then pick the tasks to compare: for a skill change, only the tasks that loaded that skill, with the same skill and the same route on both sides. Never pool tasks across a change to a route, a hook or the model.
-2. **Compare the signal before and after** the change took effect, over windows of the same length, from the session record where it counts signals, or else by counting the events in the sessions. Compare rates per task, not raw counts: the two windows hold different amounts of work.
-3. **Read a few of the counted events** on each side, so a number that moved for another reason, such as a quiet week or a change in what gets recorded, is not taken for the change working.
-4. **Check the other signals** over the same windows. Owner interrupts and time to land outweigh review counts, which a change can improve by making reviews easier rather than the work better.
+1. **Confirm the new version ran** in the after window, since an installed copy can lag the repo: the version the session record shows for those sessions, or the changed skill among their loads. Where it did not run in all of the after window, the verdict is not installed yet; stop. Where the record cannot show which version ran, say so and go on.
+2. **Pick and count the tasks** on each side: for a skill change, only the tasks that loaded that skill, on the same route on both sides. Never pool tasks across a change to a route, a hook or the model. Apply the Thresholds to the count.
+3. **Compare the signal before and after** the change took effect, over windows of the same length, from the session record where it counts signals, or else by counting the events in the sessions. Compare rates per task, not raw counts: the two windows hold different amounts of work.
+4. **Read a few of the counted events** on each side, so a number that moved for another reason, such as a quiet week or a change in what gets recorded, is not taken for the change working.
+5. **Check the other signals** over the same windows. Owner interrupts and time to land outweigh review counts, which a change can improve by making reviews easier rather than the work better.
 
 ## Verdict
 
