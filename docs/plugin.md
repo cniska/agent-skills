@@ -97,6 +97,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - It proposes changes only to what I commit to; friction with a skill installed from elsewhere becomes a rule in the repo's `AGENTS.md`.
 - It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
 - It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
+- It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
 - Signals and the experiment checks that need agent-record say so and are skipped without it.
 - It changes nothing itself and runs only read commands and `agent-record sync`.
 - It ends each report with `Proposals: <n>`; a stop hook keeps it running once until it does.

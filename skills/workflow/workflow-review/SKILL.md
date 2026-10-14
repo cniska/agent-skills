@@ -29,7 +29,8 @@ Find where the workflow failed the owner, and say what should change so it does 
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
 5. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says. A check that needs the signals of a session record the host lacks is reported as skipped, never guessed.
-6. **Check the repo's evals and checks**, as its rules name them, from their cases and the results already recorded, running none: a case that measures nothing, both sides passing or both failing; a trigger prompt that loads the wrong skill; a check the repo has that no route runs. Each is a finding.
+6. **Check skill usage** where the session record counts skill loads by version, as agent-record's `skill-usage` signal does: a skill a route names that does not load in that route's tasks, or that loads and changes nothing, its tasks doing no step it asks for more often than the route's tasks without it. Count and compare the tasks under the Thresholds and Check steps 2 to 4 of [references/experiments.md](references/experiments.md). Each is Dead weight. Where the record counts no loads, say so and skip this step.
+7. **Check the repo's evals and checks**, as its rules name them, from their cases and the results already recorded, running none: a case that measures nothing, both sides passing or both failing; a trigger prompt that loads the wrong skill; a check the repo has that no route runs. Each is a finding.
 
 ## Judge
 
@@ -39,7 +40,7 @@ Tag each finding with the waste it cost, as [references/waste-and-cause.md](refe
 |---|---|---|
 | Conflict | The agent followed a skill and the owner corrected it, or the change crosses the owner's boundary | The change; the owner decides whether it stands |
 | Unstated rule | The owner enforces it and nothing states it | Add it to the skill that owns that step, or make it a check |
-| Dead weight | A step routinely finds nothing, or repeats another | Cut it, or scale it to the work |
+| Dead weight | A step routinely finds nothing or repeats another, or a skill a route names does not load or changes nothing | Cut it, scale it to the work, or fix what keeps it from loading |
 | False stop | A gate refused correct work | Fix the gate, not the work |
 | One-off | One session | None; list it |
 
@@ -79,4 +80,5 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 - Applying a conflict without the owner's call
 - Running an eval, or proposing one the change's risk does not justify
 - A finding whose fix is a tool, written as a skill line
+- A skill a route names judged by its text alone, where the record shows whether it loads
 - Keeping an experiment past its check date without comparing its signal before and after
