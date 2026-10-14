@@ -36,8 +36,16 @@ assert "unknown argument is a usage error" "$(code compact)" 2
 assert "usage error prints nothing on stdout" "$(run bogus)" ""
 
 hooks="$HERE/hooks.json"
-assert "startup and clear run the start context" "$(grep -c '"matcher": "startup|clear"' "$hooks")" 1
-assert "resume, compact and fork run the resume context" "$(grep -c '"matcher": "resume|compact|fork"' "$hooks")" 1
+matcher_commands() {
+  jq -r --arg matcher "$1" '[.hooks.SessionStart[] | select(.matcher == $matcher) | .hooks[].command | sub("^.*/hooks/"; "")] | join(", ")' "$hooks"
+}
+assert "SessionStart matches startup|clear, resume|fork and compact" \
+  "$(jq -r '[.hooks.SessionStart[].matcher] | join(" ")' "$hooks")" "startup|clear resume|fork compact"
+assert "startup and clear run the start context and the ledger" "$(matcher_commands 'startup|clear')" \
+  "session-start.sh start, ledger.sh"
+assert "resume and fork run the resume context and the ledger" "$(matcher_commands 'resume|fork')" \
+  "session-start.sh resume, ledger.sh"
+assert "compact runs only the ledger, with no reload line" "$(matcher_commands compact)" "ledger.sh"
 assert "hooks call the script with start" "$(grep -c 'hooks/session-start.sh start"' "$hooks")" 1
 assert "hooks call the script with resume" "$(grep -c 'hooks/session-start.sh resume"' "$hooks")" 1
 

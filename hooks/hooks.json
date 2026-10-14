@@ -15,7 +15,7 @@
         ]
       },
       {
-        "matcher": "resume|compact|fork",
+        "matcher": "resume|fork",
         "hooks": [
           {
             "type": "command",
@@ -26,10 +26,9 @@
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/ledger.sh"
           }
         ]
-      }
-    ],
-    "PostCompact": [
+      },
       {
+        "matcher": "compact",
         "hooks": [
           {
             "type": "command",
