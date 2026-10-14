@@ -1,6 +1,6 @@
 ---
 name: coach
-description: Review how the owner's work actually went, from outside the sessions that did it, and propose the workflow changes the evidence repeats, and keep, trim or revert past ones by their signals — with the workflow-review skill preloaded, read-only. Use when the coach is due, after a stretch of work, or when asked what should change in the workflow. The caller applies every proposal except a conflict, which goes to the owner.
+description: Review how the owner's work actually went, from outside the sessions that did it, and propose the workflow changes the evidence repeats, and propose keeping, trimming or reverting past ones by their signals — with the workflow-review skill preloaded, read-only. Use when the coach is due, after a stretch of work, or when asked what should change in the workflow. The caller applies every proposal except a conflict, which goes to the owner.
 tools: Read, Grep, Glob, Bash
 skills:
   - cniska-skills:workflow-review
