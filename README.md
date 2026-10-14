@@ -125,16 +125,18 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 - **Session-start hook:** sends every task through `task`, so a plain prompt takes the same route as `/task`.
   - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
   - A resumed, forked or compacted session is told to take the Resume route, or to load `coordinate` again when it coordinates other agents.
-- **Reviewer agent (`cniska-skills:reviewer`):** the [reviewer](#the-reviewer). It runs [design-review](skills/design-review/SKILL.md) read-only and ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
-- **Commit gate:** blocks a commit until the reviewer has accepted that exact diff.
+- **Reviewer agent (`cniska-skills:reviewer`):** judges a design or a change it did not write, as the [reviewer](#the-reviewer).
+  - It runs [design-review](skills/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
+  - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
+- **Commit gate:** blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
   - An edit after the accept, or a `Verdict: return`, blocks it again.
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 - **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, so the [outer loop](#two-loops) loses nothing when one long session compacts.
   - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
-  - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set).
+  - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
-- **Context check:** once the session's context passes the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), tells the agent to offer a handoff at the next step boundary, once per session.
+- **Context check:** runs on each prompt and, once the session's context passes the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), tells the agent to offer a handoff at the next step boundary, once per session.
   - Where a ledger exists, it stays quiet and lets autocompaction run instead. Set Claude Code's `autoCompactWindow` to the same threshold, so compaction starts where the handoff would have been offered.
   - It reads the size from Claude Code's session transcript. If that format changes, the check warns on stderr and stays silent.
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes. It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions, looking at my corrections, the questions I had to ask and the friction sessions reported, and proposes only the changes that repeat. It changes nothing itself, runs only read commands and `agent-record sync`, and ends each report with `Proposals: <n>`.
