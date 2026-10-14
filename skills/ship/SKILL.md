@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Run pre-release checks, pick the version bump, and cut the release. Use when ready to tag and release.
+description: Run pre-release checks, choose the version bump, and cut the release. Use when a new version is ready to tag and publish.
 ---
 
 # Ship

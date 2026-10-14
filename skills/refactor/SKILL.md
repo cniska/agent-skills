@@ -1,6 +1,6 @@
 ---
 name: refactor
-description: Run a refactor or a rewrite the owner's way — choose which the problem needs, then carry it out so the new design copies nothing from the old. Use when a module's design is wrong, after a design review proposes a redesign, or before a feature the current structure makes hard.
+description: Run a refactor or a rewrite the owner's way — choose which the problem needs and carry it out so the new design copies nothing from the old. Use when a module's design is wrong, after a design review proposes a redesign, or before a feature the current structure makes hard.
 argument-hint: "<module, files, or the redesign to carry out>"
 ---
 

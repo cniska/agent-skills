@@ -3,6 +3,7 @@
     { "prompt": "ask fable to validate the design then build this" }
   ],
   "negative": [
-    { "prompt": "how are we with inflight work?", "owner": "coordinate" }
+    { "prompt": "how are we with inflight work?", "owner": "coordinate" },
+    { "prompt": "can you fix the build skill here_", "owner": "skill-writing" }
   ]
 }

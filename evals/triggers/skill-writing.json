@@ -6,6 +6,7 @@
     { "prompt": "i was thinking we could add a sitrep (situation report) skill that lays out whats inflight for me" }
   ],
   "negative": [
-    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "agents-md" }
+    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "agents-md" },
+    { "prompt": "we should also document the coach and we should optimize the readme for humans using /cniska-skills:writing", "owner": "writing" }
   ]
 }

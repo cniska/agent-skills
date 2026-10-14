@@ -1,6 +1,6 @@
 ---
 name: writing
-description: Write or edit natural prose for emails, docs, proposals, PR descriptions, reviews, and messages. Remove generic AI phrasing while preserving meaning and audience fit.
+description: Write or edit natural prose for emails, docs, a README, proposals, PR descriptions, reviews, and messages, removing generic AI phrasing while preserving meaning and audience fit. Use when writing or editing prose that humans read.
 ---
 
 # Writing

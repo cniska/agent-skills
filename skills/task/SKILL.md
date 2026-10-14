@@ -1,6 +1,6 @@
 ---
 name: task
-description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order. Use at the start of any task that changes code or reviews a change, and again to re-enter its route after context compaction. A skill, loaded with the Skill tool; not a host's Task tool.
+description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order, such as plan the design, validate it, then build. Use at the start of any task that changes code or reviews a change, and again to re-enter its route after context compaction. A skill, loaded with the Skill tool; not a host's Task tool.
 argument-hint: "<task>"
 ---
 

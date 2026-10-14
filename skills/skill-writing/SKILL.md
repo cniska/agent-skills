@@ -1,6 +1,6 @@
 ---
 name: skill-writing
-description: Create or update a skill, matching the conventions of the set it belongs to, and dry-run it on unlike real repos. Use when authoring a new skill, amending an existing one, or testing a changed skill before pushing it.
+description: Create, fix or update a skill, matching the conventions of the set it belongs to, and dry-run it on unlike real repos. Use when authoring a new skill, amending an existing one, or testing a changed skill before pushing it.
 ---
 
 # Skill writing

@@ -1,6 +1,6 @@
 ---
 name: routine-writing
-description: Write or change a routine, a scheduled agent run, nightly or daily, in the cloud or on a local machine, that starts with no one present to ask. Use when creating, storing, moving or reviewing routines or scheduled tasks, or before trusting one to run unattended.
+description: Write or change a routine, a scheduled agent run, nightly or daily, in the cloud or on a local machine, that starts with no one present to ask, such as a daily brief, a release or a watch on upstream repos. Use when you create, store, move or review routines or scheduled tasks, or before trusting one to run unattended.
 ---
 
 # Routine writing
