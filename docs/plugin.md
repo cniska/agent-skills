@@ -67,7 +67,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 ## Researcher agent
 
-`cniska-skills:researcher` answers [second-opinion](../skills/workflow/second-opinion/SKILL.md) read-only: it checks each claim against the session record, the repos and their upstreams, and ends with `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`.
+`cniska-skills:researcher` answers [second-opinion](../skills/workflow/second-opinion/SKILL.md) read-only, as [its agent file](../agents/researcher.md) says, and ends with `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`.
 
 ## Commit gate
 
@@ -81,7 +81,7 @@ It blocks a commit until the reviewer has accepted that exact diff, in the workt
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds open work, owner decisions, questions waiting on the owner, ideas kept for later, open obstacles (defects in a tool, hook or gate a worker stopped at), and a running line per worker naming its brief, filed beside it.
+- The ledger holds what coordinate's ledger step lists, its briefs filed beside it.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
 - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
@@ -94,7 +94,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 
 - It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over the task's sessions, the worker's and its subagents': my corrections, the questions I had to ask, gate stops, review returns, retries and the friction the sessions reported.
 - It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
-- It proposes changes only to what I commit to; friction with a skill installed from elsewhere becomes a rule in the repo's `AGENTS.md`.
+- It proposes changes only to what I commit to, as workflow-review says.
 - It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
 - It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
 - It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.

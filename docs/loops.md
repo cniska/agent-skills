@@ -19,9 +19,7 @@ flowchart LR
 
 Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plugin](plugin.md).
 
-- The task gets a route, chosen by what it changes, and the route loads each skill as its step starts, since a skill only helps when something loads it.
-- Each commit waits on a design review by a fresh agent, the [reviewer](reviewer.md).
-- The repo's checks run, then a review of the whole change, then the change lands as the repo's rule says.
+[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md).
 
 `<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a brief from a coordinating agent. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
@@ -33,26 +31,11 @@ Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plug
 /task review PR #41                          → Review
 ```
 
-Four rules shape every route:
-
-- **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
-- **A route only names the skills; each skill decides how its step is done.** A step whose work does not come up is skipped and named in the report.
-- **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
-- **A skill or agent change takes `skill-writing`**, then the per-commit step, `design-review` by a fresh agent.
-
-| Route | When | Steps |
-|---|---|---|
-| Feature | New or changed behavior | [feature.md](../skills/workflow/task/references/feature.md) |
-| Bug fix | Behavior that differs from what it should be | [bug-fix.md](../skills/workflow/task/references/bug-fix.md) |
-| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](../skills/workflow/task/references/refactor.md) |
-| Test | A change only to tests, or to the spec wording they prove | [test.md](../skills/workflow/task/references/test.md) |
-| Review | Someone else's change, or a change that already landed | [review.md](../skills/workflow/task/references/review.md) |
-
 ## The outer loop
 
 The coordinator runs all the work in one long session on autocompaction; the [README chart](../README.md#three-loops) shows its handoffs.
 
-- [coordinate](../skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop and keeps the agents moving.
+- [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
 - It [reports](../skills/workflow/coordinate/references/report.md) what is in flight.
 - It keeps its state in a [ledger](plugin.md#ledger-hook), so a session that dies, or moves to another machine or account, resumes from it.
@@ -95,7 +78,7 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 
 ### What the loop changes
 
-The loop changes skills, agents, hooks and checks on its own. Anything else comes to me as a conflict: a change to a repo's `AGENTS.md`, to permissions, to my settled decisions or to how much autonomy the agents have, adding, running or changing an eval, and a new tool.
+The loop changes skills, agents, hooks and checks on its own; anything else comes to me as a conflict, as [workflow-review](../skills/workflow/workflow-review/SKILL.md) lists.
 
 ### Lean practice
 
@@ -103,7 +86,7 @@ It follows lean practice, in plain terms first:
 
 - The skills are the standard way of working, and every change the coordinator makes to them is an experiment (kaizen).
 - Each finding names what it cost and is traced back to a skill line, a repo rule, a check or a missing tool (waste, 5 whys).
-- Rules become checks, as [principles](conventions.md#principles) says, and a gate that refuses correct work is a defect of the gate (jidoka, false stops).
+- Rules become checks, as [principles](conventions.md#principles) says, and a gate that stops correct work counts against the gate (jidoka, false stops).
 - An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [debug](../skills/workflow/debug/SKILL.md) (andon).
 
 [waste-and-cause.md](../skills/workflow/workflow-review/references/waste-and-cause.md) has the detail.

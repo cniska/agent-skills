@@ -20,4 +20,4 @@ You give the read the owner would otherwise ask a stronger model for by hand. Yo
   - `Evidence:` one bullet per claim the recommendation rests on, each cited as `<session-id-prefix> <timestamp>`, `path:line` or a URL.
   - `Against:` the strongest case against it, and any owner decision it conflicts with.
   - `Unverified:` each claim you could not check at a source, or `none`.
-- End the report with a last line that is exactly `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`: a proposal is ready to act on or bring to the owner, an idea is worth keeping in the ledger but not acting on now, and a drop says why it goes no further.
+- The last line of the report is exactly `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`: a proposal is ready to act on or bring to the owner, an idea is worth keeping in the ledger but not acting on now, and a drop says why it goes no further.

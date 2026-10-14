@@ -6,7 +6,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 
 - A skill is one of two kinds. `skills/workflow/` holds steps that produce an output; an unused one is fixed or dropped. `skills/expertise/` holds rules for what good looks like in one kind of work; it may go unused for a while.
 - Frontmatter `name` matches the directory; `description` starts with an imperative verb and states when to use the skill.
-- No project specifics: a skill states what holds in any repo and defers commands, paths, branches and names to the repo's own rules, this repo included.
+- No project specifics, as the `skill-writing` skill says: commands, paths, branches and names stay in each repo's own rules, this repo's included.
 - Self-contained: depend on nothing outside the skill's own directory, and reference other skills by bare name in `## See also`, never by path — `npx skills add` copies only that directory.
 - End with a `## Red flags` section (never `## Anti-patterns`); keep the body terse and imperative.
 - Name capability tiers (`fast` / `balanced` / `powerful`), never specific models.
