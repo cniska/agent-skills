@@ -41,7 +41,7 @@ Two modes, inferred from the request:
 - A dry-run prompt that says it is a test or names the skill to load
 - Grading a run from what the runner reports rather than from the files its log shows it opened
 - Judging the new version with no baseline, or under labels that say which version is new
-- A dry run that commits, pushes, or installs the version under test where other sessions read skills
+- A dry run in a checkout that can push, an output landed from it, or the version under test installed where other sessions read skills
 - Growing a skill with rules for one-off friction instead of trimming, or leaving friction that converged across repos unfixed
 - Restating what the model already knows, such as a smell catalog or a well-known method, where it would act the same without it
 - Referencing another skill by path instead of bare name

@@ -14,8 +14,9 @@ Reading a changed skill shows how it reads; running it on real projects shows wh
 A runner that knows its work is a trial reads the skill more closely and follows it more literally than real work would, so the run hides that it is one.
 
 - Give each runner the task as the user would type it. Nothing it sees, in the prompt, directory, branch or file names, mentions a test, a trial, a comparison or a skill under review, and it does not learn that other runs exist.
-- Do not name the skill to load. Install the version under test where the runner's agent discovers skills, inside a scratch worktree of the target repo, never in the shared skill directory other sessions read.
-- Run both versions on each repo in parallel. Output stays uncommitted in the scratch worktree; a run never commits or pushes.
+- Run each version in its own clone of the target repo with no push remote, such as one with its remote removed. A runner follows the repo's own push rule, and limits on its commands do not stop it; only nowhere to push does.
+- Do not name the skill to load. Install the version under test where the runner's agent discovers skills, inside that clone, never in the shared skill directory other sessions read.
+- Run both versions on each repo in parallel. A run's output is read, never landed.
 - A headless runner (`claude -p`) ends at its first question, and a background subagent it starts dies when `-p` exits. Resume a stopped run in its own session with the answer a user would give, and judge only finished runs.
 
 ## Judge
@@ -30,4 +31,4 @@ A runner that knows its work is a trial reads the skill more closely and follows
 - The same failed check or the same friction from independent repos is a defect in the skill: fix it. Friction from a single run is usually that repo's judgment call: leave it.
 - Fold the fixes in, then re-run the worst-affected repo when a fix changed behavior.
 - Report the change, the checks, each repo's verdict for both versions, the fixes folded in, and whether the new version should ship.
-- Remove the scratch worktrees, or hand an output to the user when it beats what the repo has.
+- Delete the clones; an output that beats what the repo has goes to the user as a finding.
