@@ -33,6 +33,10 @@ readonly MULTIPLE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissi
 readonly AMBIGUOUS='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with '"'"'cd <absolute path> && git commit ...'"'"'."}}'
 readonly CREATE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."}}'
 readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Verdict: accept'"'"' or '"'"'Verdict: return'"'"'."}'
+readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then 'Repo: <absolute path>' and 'Verdict: accept' or 'Verdict: return' as the last two lines."
+NO_SECTIONS="$(jq -cn --arg reason "The report lacks a section. $SHAPE" '{decision: "block", reason: $reason}')"
+WITH_FINDINGS="$(jq -cn --arg reason "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE" '{decision: "block", reason: $reason}')"
+readonly NO_SECTIONS WITH_FINDINGS
 readonly NO_REPO='{"decision":"block","reason":"Put '"'"'Repo: <absolute path of the repository under review>'"'"' on the line above the verdict."}'
 
 gate() {
@@ -56,7 +60,9 @@ record_last_message() {
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message, stop_hook_active: false}' | "$RECORD" 2>/dev/null
 }
 
-report() { printf 'Fine.\nRepo: %s\nVerdict: %s' "$1" "$2"; }
+sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\nnone\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}"; }
+report() { printf '%s\nRepo: %s\nVerdict: %s' "$(sections)" "$1" "$2"; }
+finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Why:** unused.\n- **Instead:** delete it.'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
 land() { (cd "$repo" && git add -A && git commit -q -m land); }
 
@@ -105,6 +111,21 @@ assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$DE
 assert "a report with no verdict keeps the reviewer running" "$(record_handback 'Looks fine to me.')" "$MISSING"
 assert "a verdict not on its own line does not count" "$(record_handback 'My Verdict: accept')" "$MISSING"
 assert "a missing verdict on the second stop lets the reviewer stop" "$(record_handback 'Still no verdict.' true)" ""
+
+assert "a report without the three sections keeps the reviewer running" "$(record_handback $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
+assert "a report missing one section keeps the reviewer running" "$(record_handback "$(sections | grep -v '^## Clean$')"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
+assert "an accept without the sections approves nothing" "$(gate 'git commit -am x')" "$DENIED"
+assert "an accept with a finding keeps the reviewer running" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
+assert "an accept with 'none' and a finding keeps the reviewer running" "$(record_handback "$(sections "none"$'\n'"$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
+assert "an accept with a finding on the second stop lets the reviewer stop" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept' true)" ""
+assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$DENIED"
+assert "an accept whose Findings says 'None.' counts" "$(record_handback "$(sections 'None.')"$'\nRepo: '"$repo"$'\nVerdict: accept')" ""
+assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
+assert "a return with a finding records nothing to say" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: return')" ""
+assert "that return clears the accept" "$(gate 'git commit -am x')" "$DENIED"
+record_handback "$(report "$repo" accept)" >/dev/null
+assert "a return without the sections on the second stop still clears the accept" \
+  "$(record_handback $'Bad.\nRepo: '"$repo"$'\nVerdict: return' true; gate 'git commit -am x')" "$DENIED"
 
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
@@ -266,7 +287,7 @@ assert "an unreviewed commit logs a deny with the diff it judged" \
 
 assert "an accepting verdict logs the verdict and the diff it accepted" \
   "$(decided record_logged "$(report "$logged" accept)")" \
-  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp}')"
+  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null}')"
 assert "the verdict line names the reviewer's agent id" "$(tail -n 1 "$log" | jq -r .agent)" r1
 assert "the accepted commit logs an allow with the same fingerprint" \
   "$(decided gate_logged 'git commit -am x')" \
@@ -289,6 +310,10 @@ assert "a report with no verdict logs a deny" "$(decided record_logged 'No verdi
 assert "the second stop without a verdict logs an allow" "$(decided record_logged 'No verdict.' true | jq -r '[.decision, .reason] | @tsv')" "allow	missing_verdict"
 assert "a report with no Repo line logs missing_repo" "$(decided record_logged $'Fine.\nVerdict: accept' | jq -r .reason)" missing_repo
 assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(report logged accept)" | jq -r .reason)" repo_relative
+assert "a report without the sections logs missing_findings" "$(decided record_logged $'Fine.\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_findings"
+assert "an accept with a finding logs accept_with_findings" "$(decided record_logged "$(sections "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" accept_with_findings
+assert "a return for a brief with no diff logs reason no_diff" "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.verdict, .reason] | @tsv')" "return	no_diff"
+assert "a verdict with no Reason line logs a null reason" "$(decided record_logged "$(report "$logged" return)" | jq -c .reason)" null
 assert "a Repo path that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
 (cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)

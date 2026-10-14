@@ -25,7 +25,7 @@ The repo's own rules hold throughout: its commit gate, its docs-with-behavior ru
 4. **Fix each pattern once, cleanly, in one place first.** Pick the module agents will copy from, give it the right shape in full, and let the rest follow it. Take the shape from `design-review`'s rules, never from the code beside it.
 5. **Delete what the new design supersedes in the same change.** Leftover behavior, a second path, a shim or a flag keeping the old way alive is not carried forward. A refactor that removes more than it adds is the good kind; one that adds more is questioned.
 6. **Use a codemod for a rule-based change.** A rename, a signature change or a moved import across many files goes through a deterministic tool (the language server, an AST transform), not a model editing file by file.
-7. **Review when a part is done, not per slice.** When a module or a pattern is complete, run `design-review` on it as a whole and fix every Fix finding before moving on.
+7. **Review when a part is done, not per slice.** When a module or a pattern is complete, run `design-review` on it as a whole and fix every finding before moving on.
 
 ## Rewrite
 

@@ -8,15 +8,13 @@ A fresh agent that did not write the work runs [design-review](../skills/experti
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts.
 
-## Fix and Consider
+## Findings
 
-It ranks each finding Fix or Consider.
+Its report has three sections: Findings, Conflicts with a decision I settled, and the rules it checked and found Clean.
 
-- **Fix** is a design the next case would copy, or one that misleads the next writer.
-- While a Fix finding stands, the reviewer returns the change.
-- Every Fix finding is fixed, and the re-review judges only the fix.
-- **Consider** is local mess, and when only Consider findings remain, the reviewer accepts.
-- Consider findings are fixed in their own follow-up commit after the accepted one, as is neighboring code the review turns up, never left in a backlog.
-- A finding a re-review raises about other code starts its own fix rather than blocking the accept.
+- Every finding is fixed, so any finding returns the change; it accepts only when Findings is empty.
+- The re-review judges only the fix.
+- A finding about neighboring code also returns the change, so it is fixed in that change, never left in a backlog.
+- A brief that gives it no diff to read is returned as `no_diff`, never accepted on a read of something else.
 
 Only a finding that needs my decision, or sits in a change another person owns, goes into the task's report.

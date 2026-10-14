@@ -1,6 +1,6 @@
 ---
-description: The owner asks for a review of a small, sound bug fix inside existing code. The rule is that the reviewer accepts when no Fix finding stands, instead of inventing findings to return.
-expected_outcome: The reviewer accepts the fix, with at most Consider items.
+description: The owner asks for a review of a small, sound bug fix inside existing code. The rule is that the reviewer accepts when no finding stands, instead of inventing findings to return.
+expected_outcome: The reviewer accepts the fix, with no findings.
 tags: [design-review]
 max_turns: 40
 timeout_seconds: 900

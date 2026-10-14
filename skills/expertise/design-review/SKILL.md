@@ -27,7 +27,7 @@ Where no rule decides a case, choose what a sensible engineer would choose for t
 
 ## Read
 
-Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation. For each new helper or type in scope, search the repo for the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised. A finding that clashes with a decision the owner settled in the brief is a conflict for the owner, never a Fix.
+Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation. For each new helper or type in scope, search the repo for the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised. A finding that clashes with a decision the owner settled in the brief is a conflict for the owner, never a finding.
 
 ## Judge
 
@@ -35,7 +35,7 @@ For each violation, give:
 
 - **Where:** `file:line`, and every other place with the same violation.
 - **Rule:** the rule's heading.
-- **Why it is wrong here:** one sentence about this code, not a restatement of the rule.
+- **Why:** why it is wrong here, in one sentence about this code, not a restatement of the rule.
 - **Instead:** the shape the code should take, concrete enough to build from. When the answer is to delete the code, say delete.
 
 When the fix can be a structure, it is one, preferred in this order: a type that cannot hold the bad state, a check that fails the build, one shared helper, a runtime assertion. Agents copy what the surrounding code does, so a weaker guard becomes the next template.
@@ -44,17 +44,30 @@ For a fix, name the cause it removes. A change that adds a condition in front of
 
 Write short and direct. No "consider", no "might", no praise. When a case is truly unclear, say what would settle it.
 
-Rank the violations in three tiers:
-
-1. A design every new case of the same kind, such as a new technique, page or command, would have to copy.
-2. A design that misleads the next writer.
-3. Local mess.
-
-A violation that fits two tiers goes in the higher one. Tiers 1 and 2 are **Fix** and tier 3 is **Consider**, wherever the review runs; a Consider finding is still worded directly.
+Order the findings by reach: first a design every new case of the same kind, such as a new technique, page or command, would have to copy; then one that misleads the next writer; then local mess. Every finding is fixed, whatever its place.
 
 ## Report
 
-One heading per tier, marked Fix or Consider, with each violation's four fields under it, and a Conflicts heading for the owner where a finding clashes with a settled decision. Then list the rules checked and found clean, with the places each was checked in. A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
+These three sections, in this order, each saying `none` when it is empty, and after them only the closing lines the caller asks for, such as `Repo:` and `Verdict:`:
+
+```
+## Findings
+
+- **Where:** `file:line`, and every other place with the same violation
+- **Rule:** the rule's heading
+- **Why:** one sentence
+- **Instead:** the shape to build
+
+## Conflicts
+
+Findings that clash with a decision the owner settled, in the same four bullets.
+
+## Clean
+
+- **<the rule's heading>:** the places it was checked in
+```
+
+A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
 
 ## See also
 

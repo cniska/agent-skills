@@ -51,8 +51,10 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `verdict` | `deny` or `allow` | `missing_repo` | the report has no `Repo:` line |
 | `verdict` | `deny` or `allow` | `repo_relative` | the `Repo:` path is not absolute |
 | `verdict` | `deny` or `allow` | `repo_not_found` | the `Repo:` path is not a repository |
+| `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
+| `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 
-A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict.
+A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict, though a return naming its repository still clears that repository's accept.
 
 ### `verdict`
 
@@ -63,6 +65,7 @@ The reviewer ended with a well-formed verdict, and the commit gate now holds it.
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
 | `fingerprint` | the fingerprint of the diff as it stood when the verdict was recorded |
+| `reason` | `no_diff` when a return says the brief gave no diff to read, otherwise `null` |
 
 ### `permission_prompt`
 
@@ -89,6 +92,6 @@ Auto mode refused a tool call (`PermissionDenied`).
 
 - **Pushes.** Git already records each one, from any shell: every push moves the remote-tracking ref and appends `update by push` with its time to that ref's reflog (`git reflog show --date=iso refs/remotes/origin/<branch>`), shared by every worktree of the clone. agent-record reads it there; a hook would have to parse each command for a push and would miss pushes made outside a session.
 - **Token use per agent.** agent-record's `usage` table already holds tokens per session, from the transcripts.
-- **Fix and Consider counts and the rules a review cites.** They are in the reviewer's report, which the transcript holds whole.
+- **Finding counts and the rules a review cites.** They are in the reviewer's report, which the transcript holds whole.
 - **The coach's report check and the task coach hook.** They only ask for a count line or a coach run; the transcript shows the block.
 - **The answer to a permission prompt.** No hook fires on it, and the transcript holds it.

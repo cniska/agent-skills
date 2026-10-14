@@ -1,4 +1,4 @@
 {"type":"user","message":{"content":"slugs ended with a dash when the title ended in punctuation, fixed it in the working tree. review it"}}
 {"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Agent","input":{"subagent_type":"cniska-skills:reviewer","description":"Review the slug fix","prompt":"Review the uncommitted change in /work."}}]}}
-{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"a1","content":[{"type":"text","text":"No Fix findings.\n\n## Tier 3 (Consider)\n- None.\n\nRepo: /work\nVerdict: accept"}]}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"a1","content":[{"type":"text","text":"## Findings\n\nnone\n\n## Conflicts\n\nnone\n\n## Clean\n\n- **Fix the cause:** src/slug.ts\n\nRepo: /work\nVerdict: accept"}]}]}}
 {"type":"assistant","message":{"content":[{"type":"text","text":"Accepted: the edge-dash trim is the fix, and the new test pins both ends."}]}}
