@@ -16,6 +16,29 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 - **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step.
 - **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what needs me. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
 
+```mermaid
+flowchart TB
+  you(["You"])
+  subgraph outer["Outer loop: coordinate, one long session on autocompaction"]
+    lead["Coordinator"]
+    ledger[("Ledger")]
+    subgraph inner["Inner loop: task, one agent per task"]
+      route["Route"]
+      steps["Steps load their skills"]
+      rev["Fresh reviewer"]
+      commit["Commit"]
+    end
+  end
+  you -- "the work" --> lead
+  lead -- "batched questions" --> you
+  lead -- "reads and rewrites" --> ledger
+  lead -- "delegates a task" --> route
+  route --> steps
+  steps --> rev
+  rev --> commit
+  commit -- "report" --> lead
+```
+
 ## Install
 
 ### Claude Code
@@ -119,29 +142,37 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill 
 - **A context check** runs on each prompt. Once the session's context grows large, past the threshold set in [`hooks/context-size.sh`](hooks/context-size.sh), it tells the agent to offer a handoff at the next step boundary, once per session. Where a ledger exists, it stays quiet and lets autocompaction run. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, the check warns on stderr and says nothing to the agent.
 - **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept is recorded for the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks the commit again. The gate needs `jq`.
 
-How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
+How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record), [agent-worktrees](https://github.com/cniska/agent-worktrees) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
 
 ```mermaid
 flowchart LR
   rec[("agent-record<br/>session record")]
+  wt["agent-worktrees<br/>a checkout per task"]
+  ledger[("Ledger<br/>a local file, or a repo you choose")]
   agent(["Agent"])
   subgraph S["cniska-skills plugin"]
-    hook["Session start hook"]
-    skills["Skills: task + routes"]
+    hook["Session hooks<br/>start, context size, ledger"]
+    skills["Skills<br/>coordinate, task and its routes"]
     rev["Reviewer agent"]
     gate["Commit gate"]
+    coach["Coach agent"]
   end
   subgraph G["agent-gates"]
     hooks["Git hooks"]
     ci["CI checks"]
   end
+  ledger --> hook
   hook --> agent
   rec -- "past decisions" --> agent
+  wt -- "own checkout" --> agent
   agent --> skills
+  skills -- "coordinate rewrites" --> ledger
   skills --> rev
   rev -- "accept" --> gate
   gate --> hooks
   hooks -- "push" --> ci
+  rec -- "past sessions" --> coach
+  coach -- "proposals" --> agent
 ```
 
 One commit, start to finish:
@@ -153,16 +184,17 @@ sequenceDiagram
   participant P as Commit gate
   participant G as Git hooks
   participant C as CI
-  A->>A: task picks a route, steps load skills
+  A->>A: task picks a route, steps load skills, then simplify
   A->>V: here is the diff
   V-->>A: Verdict: return, with findings
   A->>V: the fix
   Note over V: judges only the fix, not the whole diff again
-  V-->>P: Verdict: accept
+  V-->>A: Verdict: accept
+  Note over P: records the accept for this diff
   A->>P: git commit
   P->>G: allowed (diff unchanged since accept)
   G-->>A: the project's commit checks pass
-  A->>C: push
+  A->>C: push, as the repo's rule says
   C-->>A: same checks again
 ```
 
