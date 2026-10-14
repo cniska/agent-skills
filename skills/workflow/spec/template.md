@@ -39,7 +39,7 @@ This document specifies what the tool must do, not how. Implementation choices a
 
 ### 2.5 Edge cases requiring special handling
 
-<The constructs a naive build gets wrong. Each is a requirement, not a nice-to-have. Give each its own ID so it earns its own test.>
+<The constructs a naive build gets wrong. Each is a requirement with an ID of its own.>
 
 - **FR-n** — <edge case, stated as the observable outcome that must hold.>
 

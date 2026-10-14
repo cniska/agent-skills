@@ -71,8 +71,6 @@ Without declared tasks: `bunx biome check --write .`, `bunx tsc --noEmit`, `bun 
 
 ## Setup
 
-Match an existing repo's pins rather than upgrading as a side effect.
-
 `tsconfig.json`:
 
 ```jsonc

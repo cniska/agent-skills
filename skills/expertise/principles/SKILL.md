@@ -9,14 +9,14 @@ A principle that more than one skill needs lives here once, so every skill that 
 
 | Principle | The rule in one line | File |
 |---|---|---|
-| No comments | Code carries no comments; a why goes into a name, a test, the tool's config or the doc that owns the subject | [no-comments.md](references/no-comments.md) |
+| No comments | The why lives in names, tests, tool config or the owning doc, never in a comment | [no-comments.md](references/no-comments.md) |
 | Chesterton's Fence | Find out why something exists before removing or changing it | [chestertons-fence.md](references/chestertons-fence.md) |
 | Proven able to fail | Break a check once and watch it go red before trusting it | [proven-able-to-fail.md](references/proven-able-to-fail.md) |
 | Fix the cause | Remove the state that causes a failure, never guard in front of it | [fix-the-cause.md](references/fix-the-cause.md) |
 | No transitional architecture | Replace, migrate and remove; never keep the old path alive beside the new | [no-transitional-architecture.md](references/no-transitional-architecture.md) |
 | Rules as checks | A mechanical rule is a type, lint, test or hook, not a sentence | [rules-as-checks.md](references/rules-as-checks.md) |
-| No drift | A change updates everything that describes, repeats, names or depends on what it changed | [no-drift.md](references/no-drift.md) |
-| Verify at the source | Check every factual claim where it is defined and cite it | [verify-at-source.md](references/verify-at-source.md) |
+| No drift | A change updates what describes, repeats, names or depends on it | [no-drift.md](references/no-drift.md) |
+| Verify at the source | Settle each factual claim where it is defined, and cite that place | [verify-at-source.md](references/verify-at-source.md) |
 
 A principle only one skill uses stays in that skill. It moves here when a second skill needs it.
 

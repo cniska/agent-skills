@@ -1,6 +1,6 @@
 # API rules
 
-Load these when the scope defines an interface other code or a user calls: a public module surface, a CLI command, a tool, an endpoint or a schema.
+Load these when the scope defines an interface other code or a user calls.
 
 ## One operation, one API
 

@@ -44,7 +44,7 @@ Read the module's docs against its code. The doc states the intent, so where the
 ## Redesign
 
 1. **Cuts.** Every file, function, flag, table, column, test and doc line that goes, each with its damage clause, and the doc and spec text each cut touches.
-2. **Cause changes.** Each names the state, copy or path it deletes, since that deletion is what removes the symptom. A change that puts a new condition in front of state it leaves in place is a symptom fix: list it as one, with the cause it leaves, and do not propose it. A move counts as no new code, and a change that moves code without removing a concept the reader must hold, such as a branch, a mode, a type or a layer, relocates the cause instead of removing it and is not proposed. A slice that adds more than about a hundred lines of new logic, or more code than it removes, means the redesign is wrong at that point.
+2. **Cause changes.** Each names the state, copy or path it deletes, since that deletion is what removes the symptom. A symptom fix, as fix the cause in `principles` defines it, is listed as one, with the cause it leaves, and not proposed. A move counts as no new code, and a change that moves code without removing a concept the reader must hold, such as a branch, a mode, a type or a layer, relocates the cause instead of removing it and is not proposed. A slice that adds more than about a hundred lines of new logic, or more code than it removes, means the redesign is wrong at that point.
 3. **Schema.** Every schema change goes into one slice.
 4. **Backlog.** Every entry that names one of the module's files is cut with the code, closed by a cause change, kept with its reason, or left for the owner.
 

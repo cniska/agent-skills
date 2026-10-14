@@ -15,7 +15,7 @@ Three modes, inferred from the request:
 
 ## Conventions this skill enforces
 
-- **Apply `writing`'s rules for documents that last:** link the doc that owns a detail rather than restating it, and leave out volatile numbers such as counts, ports and sizes.
+- **`writing`'s rules for documents that last hold:** link the doc that owns a detail rather than restating it, and leave out volatile numbers such as counts, ports and sizes.
 - **Technical and important only** — expensive to reverse, or relied on by more than one part of the system, and surprising without context: a reader of the code would wonder why, or a constraint the code cannot show forced it. A deliberate departure from the obvious path qualifies; the obvious choice made for the obvious reason does not. Product scope belongs to the spec, a convention to the agent rules; a record may hold the why behind a convention, while the rule itself stays where agents read it.
 - **One decision per record.** A detail of a recorded decision, such as how one function implements it, belongs in that record or its owning doc, not a record of its own.
 - **The title names the problem, never the technology** — "Backend platform", not "Use Postgres". The chosen technology goes in the Decision.

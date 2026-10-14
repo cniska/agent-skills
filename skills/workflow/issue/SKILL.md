@@ -10,7 +10,7 @@ Create a GitHub issue from a short description.
 ## Conventions
 
 - The repo's own issue template, labels and commit subject rules win over the defaults below
-- Title: Conventional Commit format (`type(scope): description`), under 60 chars, no trailing period
+- Title: `type(scope): description`, under 60 characters, no closing period
 - Label: `enhancement` for features, `bug` for bugs
 - Body sections (in order): **What would you like?**, **Motivation**, **Proposed approach**, **Scope**
 - Each section is a `##` heading followed by 1-3 short paragraphs; a single sentence is fine
@@ -30,7 +30,7 @@ Create a GitHub issue from a short description.
 
 ## See also
 
-- `writing` — voice and plain wording for the issue body
+- `writing` — how the issue body reads
 - `plan` — design the work once the issue is accepted; the issue states what and why, not how
 - `pr` — the pull request that closes it
 

@@ -86,7 +86,7 @@ Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exis
 
 ## Setup
 
-Copy the template's config rather than writing an equivalent; match an existing project's pins rather than upgrading as a side effect.
+Copy the template's config rather than writing an equivalent.
 
 ```toml
 [project]

@@ -28,4 +28,4 @@ A test in the project's suite reads the spec and the acceptance test files, and 
 
 Before relying on it, break the spec once for each condition above and watch the check fail.
 
-With the check in place, a new requirement may sit beside a related one and a removed one is deleted rather than retired; the IDs after either are renumbered in the same change as every citation.
+With the check in place, IDs follow SKILL.md's rule for a spec that has one.

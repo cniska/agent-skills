@@ -27,7 +27,7 @@ Review test adequacy for changed code. For large changes spanning many files or 
 - tests asserting implementation details instead of behavior (method call sequences break on refactor)
 - tests repeating behavior another test already proves, without a failure mode unique to each layer
 - tests that wait on the wall clock — a sleep, a real timeout left to elapse, a per-test timeout raised to fit one
-- tests that are not hermetic — reading the network, the real home directory, a tool's own data, or another test's leftovers
+- tests that are not hermetic — touching the network, the user's real home, a tool's own state, or what another test left
 - state shared between tests — a mutable global, fixed port, fixed path, or assumed order — that breaks under concurrent or parallel runs
 - missing cleanup (temp files, cache state)
 - real data in tests — production records, personal data, real credentials, or live accounts and services; fixtures are synthetic

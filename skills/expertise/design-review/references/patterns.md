@@ -249,7 +249,7 @@ Spot it:
 
 ## No tech debt
 
-Nothing lands that someone has to come back to: no TODO, no stub, no shim, no compatibility layer, no dual path, and no comment excusing a workaround. Leaving a feature unbuilt is fine; building half of it is not. Debt that is found is removed now, and a known bug is fixed, not filed. The fix removes the cause; a change that adds a condition in front of state it leaves in place is a symptom fix. With agents writing the code, the right fix costs about what the shortcut costs, so nothing justifies debt.
+Nothing lands that someone has to come back to: no TODO, no stub, no shim, no compatibility layer, no dual path, and no comment excusing a workaround. Leaving a feature unbuilt is fine; building half of it is not. Debt that is found is removed now, and a known bug is fixed, not filed. The fix removes the cause, as fix the cause in `principles` says. With agents writing the code, the right fix costs about what the shortcut costs, so nothing justifies debt.
 
 Spot it:
 
@@ -294,7 +294,7 @@ Spot it:
 
 ## An invalid value never exists
 
-Input is parsed once, at the boundary, into a type that states exactly what holds (parse, don't validate), and a default exists only where one value is right for everyone. `code-writing` states the rule; these are its symptoms.
+Input is parsed once, at the boundary, into a type that states exactly what holds (parse, don't validate), with no invented defaults. `code-writing` states both rules; these are their symptoms.
 
 Spot it:
 

@@ -24,7 +24,7 @@ Each smell maps to one named move — name it in the commit subject to keep one 
 - **Compute and format in the same function** — split phase
 - **Repeated branching on the same value** — replace conditional with polymorphism, or a lookup table
 - **Complex expression stored in a temp** — replace temp with query
-- **Logic that reads another module's state more than its own** — move function to the data
+- **A function that reads another module's data more than its own** — move function to the data
 - **Repeated argument groups** — introduce parameter object
 - **Nested ternaries** — replace with if/else or lookups
 - **Generic names** (`data`, `result`, `temp`) — rename to describe content

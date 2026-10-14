@@ -68,7 +68,7 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 
 ## Setup
 
-Config bodies for a new package. Match an existing repo's pins rather than upgrading as a side effect.
+Config bodies for a new package.
 
 ### `analysis_options.yaml`
 

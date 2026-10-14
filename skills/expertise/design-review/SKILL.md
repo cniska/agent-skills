@@ -40,7 +40,7 @@ For each violation, give:
 
 When the fix can be a structure, it is one, preferred in this order: a type that cannot hold the bad state, a check that fails the build, one shared helper, a runtime assertion. Agents copy what the surrounding code does, so a weaker guard becomes the next template.
 
-For a fix, name the cause it removes. A change that adds a condition in front of state it leaves in place is a symptom fix, and the finding names that state.
+For a fix, name the cause it removes, as fix the cause in `principles` says; a symptom fix's finding names the state it leaves in place.
 
 Write short and direct. No "consider", no "might", no praise. When a case is truly unclear, say what would settle it.
 
