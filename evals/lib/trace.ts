@@ -17,10 +17,10 @@ const ToolUseBlock = z.looseObject({ type: z.literal("tool_use"), name: z.string
 
 type LineBlocks = Readonly<z.infer<typeof Blocks>>;
 
-function parseLine(line: string, source: string, index: number): LineBlocks {
+function parseLine(json: string, source: string, index: number): LineBlocks {
   let raw: unknown;
   try {
-    raw = JSON.parse(line);
+    raw = JSON.parse(json);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
     throw new CodedError("input_invalid", {
@@ -64,7 +64,7 @@ function toolCalls(lines: readonly LineBlocks[]): ToolCall[] {
 export function parseTrace(text: string, source: string): Trace {
   const lines = text
     .split("\n")
-    .flatMap((line, index) => (line.trim() ? [parseLine(line, source, index)] : []));
+    .flatMap((json, index) => (json.trim() ? [parseLine(json, source, index)] : []));
   const replies = lines.map(messageText).filter(Boolean);
   return { text, lastMessage: replies.at(-1) ?? "", toolCalls: toolCalls(lines) };
 }
