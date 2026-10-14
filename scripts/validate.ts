@@ -173,12 +173,16 @@ function routeProblems({ kind, docs }: Skill, workflow: ReadonlySet<string>): st
   });
 }
 
-function modelProblems({ docs }: Skill): string[] {
+function namedModelProblems(docs: readonly Doc[]): string[] {
   return docs.flatMap((doc) => {
     const lines = modelLines(doc.text);
     if (lines.length === 0) return [];
-    return [withDetail(`named model in ${doc.shown} (use a fast/balanced/powerful tier instead)`, lines)];
+    return [withDetail(`named model in ${doc.shown}`, lines)];
   });
+}
+
+function modelProblems({ docs }: Skill): string[] {
+  return namedModelProblems(docs);
 }
 
 const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Skill) => string[] }[] = [
@@ -254,31 +258,21 @@ function skillProblems(skill: Skill, workflow: ReadonlySet<string>): Problem[] {
   ];
 }
 
-function proseDocs(root: string): string[] {
+function proseDocs(root: string): Doc[] {
+  const readme = join(root, "README.md");
   const docsDir = join(root, "docs");
-  const docs = existsSync(docsDir)
-    ? readdirSync(docsDir)
-        .filter((name) => name.endsWith(".md"))
-        .sort()
-        .map((name) => `docs/${name}`)
-    : [];
-  return ["README.md", ...docs].filter((shown) => existsSync(join(root, shown)));
+  const files = [
+    ...(existsSync(readme) ? [readme] : []),
+    ...(existsSync(docsDir) ? markdownFiles(docsDir) : []),
+  ];
+  return files.map((file) => readDoc(root, file));
 }
 
 function proseProblems(root: string): Problem[] {
-  return proseDocs(root).flatMap((shown) => {
-    const lines = modelLines(readText(join(root, shown)));
-    if (lines.length === 0) return [];
-    return [
-      {
-        message: withDetail(
-          `named model in ${shown} (describe how to pick a tier, not today's models)`,
-          lines,
-        ),
-        resolve: "describe how to pick a fast, balanced or powerful tier instead of naming a model",
-      },
-    ];
-  });
+  return namedModelProblems(proseDocs(root)).map((message) => ({
+    message,
+    resolve: "describe how to pick a fast, balanced or powerful tier instead of naming a model",
+  }));
 }
 
 function strayProblems(skillsDir: string): Problem[] {
