@@ -81,7 +81,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [coordinate](skills/workflow/coordinate/SKILL.md) | Run work across agents and repos from a ledger, asking the owner only what it cannot answer |
 | [plan](skills/workflow/plan/SKILL.md) | Design through dialogue, slice vertically |
 | [spec](skills/workflow/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
-| [build](skills/workflow/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
+| [build](skills/workflow/build/SKILL.md) | Cut work into slices, take a brief's slices in order, and stop where the plan runs out |
 | [tdd](skills/workflow/tdd/SKILL.md) | Red-green-refactor, one test at a time |
 | [debug](skills/workflow/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
 | [refactor](skills/workflow/refactor/SKILL.md) | Refactor or rewrite so the new design copies nothing from the old |

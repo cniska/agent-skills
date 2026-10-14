@@ -85,7 +85,7 @@ AGENTS.md is the hub that gives the other skills their project-specific groundin
 - `code-writing` — the code rules; the Code section carries the ones every contributor must keep.
 - `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants cite spec IDs; code does not.
 - `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.
-- `build` — the Workflow section names the verify command the `build` skill runs after every slice.
+- `task` — the Workflow section names the checks a task's Close step runs on every commit.
 - `tdd` — the Testing section describes the surface the `tdd` skill drives against: test layout, run command, boundary mocking policy.
 - `pr` — the Pull requests section states the review gate and title/body rules the `pr` skill fills in.
 - `review` — the Invariants section is the checklist this skill verifies. An invariant with no test and no review coverage is incomplete.

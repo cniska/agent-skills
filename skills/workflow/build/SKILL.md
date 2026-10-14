@@ -1,60 +1,48 @@
 ---
 name: build
-description: Implement features incrementally through vertical slices. Use when building features, adding functionality, implementing tasks that touch multiple files, or running slices unattended and needing to know when to stop.
+description: Implement a feature slice by slice, deciding how the work is cut and ordered and when a run of slices stops and hands back. Use when implementing a feature that takes more than one commit, when picking up work a brief or plan has already sliced, or when slices run unattended.
 ---
 
 # Build
 
-Build in thin vertical slices. Implement one piece, verify it, commit it, then move on.
+This skill makes two calls: how the work is cut into slices, and when a run of them stops. Everything else a slice goes through belongs to the route the task runs or to the repo's own rules: each slice is written and verified as `code-writing` says, gets its `simplify` pass, and is accepted by `design-review` and committed as `git` says before the next one starts.
 
-## Workflow
+## Cut the slices
 
-Before the first slice, branch or open a worktree only where `git` says the project does.
+A brief or a plan that already slices the work is the input, not a reason to skip this skill: take its slices in the order given, and keep the stop rules below. Otherwise cut the work yourself:
 
-1. **Pick the smallest slice** that delivers a complete, testable path through the change.
-2. **Read before writing.** Load the relevant files, understand existing patterns, check for utilities you can reuse. For external libraries and version-sensitive APIs, confirm behavior against the docs or upstream source for the version pinned in this repo — not memory, not blog posts.
-3. **Implement the slice.** Stay within its boundary — don't fix adjacent issues or refactor unrelated code. Write no comments, as no comments in `principles` says. Don't hedge: a default or `catch`-and-continue written because you don't know the correct behavior turns uncertainty into silent runtime behavior — ask or fail loudly instead, as fix the cause in `principles` says.
-4. **Verify the slice.** Run the targeted tests; they must pass before the next slice starts. Green reached by skipping a test, deleting an assertion, silencing a check, or lowering a threshold is not verification — restore the check and fix the code under it. Run the project's full verification once before pushing or opening a PR.
-5. **Simplify the slice.** Use `simplify` for the behavior-preserving cleanup pass.
-6. **Review the slice.** Have a read-only reviewer check the diff against its claim and the project rules: every claimed invariant needs a meaningful test, changed behavior needs matching docs, and defaults or fallbacks must represent a deliberate decision. Fix or explicitly answer every finding, then rerun the repository check.
-7. **Commit the slice.** One logical change per commit.
-8. **Repeat.** Pick the next slice. If the plan no longer fits the work, stop and say so — the plan's boundary is the user's to move, not the loop's.
+- **Vertical**, the default: one whole path through the stack, with its type, its implementation and its test.
+- **Contract-first**: the schema and types land first, then each consumer as a slice of its own.
+- **Risk-first**: the uncertain part goes first, so the plain parts build on something proven.
 
-## Slicing strategies
+A slice is a path, never a layer. Good: `POST /orders`, the form that calls it, and one test. Bad: every endpoint, then every screen, then every test.
 
-- **Vertical slice** — one complete path through the stack (type + implementation + test). Preferred default.
-- **Contract-first** — define the schema and types first, then implement consumers.
-- **Risk-first** — tackle the uncertain part first, then build the straightforward parts on top.
+## Stop and hand back
 
-A slice is one path, not one layer. Good: `POST /orders` endpoint + the form that calls it + one test. Bad: all endpoints, then all UI, then all tests.
+A run takes slice after slice with no reader in between, and its scope stays with whoever set it. Stop, and hand back to whoever coordinates the run, or else the owner, when:
 
-## Running unattended
+- the next slice needs a change the brief or plan does not cover
+- one slice has failed verification twice, since a third try is a guess
+- a fix reaches a file or contract outside the plan's boundary
+- the right behavior is unclear and nobody is there to ask
 
-The loop runs slice after slice without a reader in between; the scope it runs inside stays the user's. Stop and hand back when:
-
-- the next slice needs something the plan doesn't cover
-- the same slice fails verification twice — a third attempt is guessing
-- the fix reaches a file or contract outside the plan's boundary
-- the correct behavior is unclear, and step 3 has no one to ask
-
-Say what stopped it and which slices landed. The per-slice commits are the record — don't keep a second log beside them.
+Name what stopped the run and which slices were committed. The per-slice commits are the record; keep no progress log beside them.
 
 ## See also
 
-- `plan` for scope and phase boundaries
-- `git` for whether the work branches or uses a worktree
-- `tdd` for red-green-refactor within each slice
-- `simplify` for the behavior-preserving cleanup pass
+- `plan` — the scope and slices a run takes as its input
+- `tdd` — red-green-refactor inside a slice of crucial logic
+- `code-writing` — how each slice's code is written and verified
+- `simplify` — the cleanup pass each slice gets
+- `design-review` — the review each slice waits on
+- `git` — how each slice is committed
 
 ## Red flags
 
-- Uncommitted work spanning more than one slice — "I'll commit it all at the end"
-- Tests haven't run since the last significant change
-- Mixing refactoring with feature work in the same slice
-- Expanding scope mid-slice instead of deferring to the next one
-- Implementing a version-sensitive API from memory
-- A comment in the slice that no comments in `principles` refuses
-- A fallback added because the correct behavior was unclear, or a deliberate one whose reason a reader can't infer
-- Widening the plan mid-loop instead of stopping to ask
-- A third attempt at a slice that has already failed verification twice
-- A slice that reached green by weakening the check rather than fixing the code
+- Skipping this skill because a brief or plan already sliced the work
+- A slice that is one layer of the stack rather than one path through it
+- Reordering, merging or splitting a brief's slices without saying why
+- Starting the next slice before the last one is accepted and committed
+- Widening the plan mid-run instead of stopping to hand back
+- A third attempt at a slice that already failed verification twice
+- A progress log kept beside the per-slice commits

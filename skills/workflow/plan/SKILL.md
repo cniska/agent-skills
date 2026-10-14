@@ -57,7 +57,7 @@ Tag every fenced block with its language so it renders highlighted where the hos
 
 ## See also
 
-- `build` for execution discipline per slice
+- `build` for running the plan's slices and stopping where the plan runs out
 - `search-sessions` for what earlier sessions already designed or ruled out for this change
 
 ## Red flags

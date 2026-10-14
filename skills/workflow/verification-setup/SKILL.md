@@ -52,7 +52,7 @@ Name the mode, the skill and files added or changed, the behavior driven, the ev
 
 ## See also
 
-- `build` for verifying each slice
+- `task` for the Close step that runs this proof on each change
 - `skill-writing` for dry-running a changed skill across unlike projects
 
 ## Red flags
