@@ -20,19 +20,16 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 One task's life, from my request through its landed commit to the workflow changes its coach proposes:
 
 ```mermaid
-flowchart TD
-  you(["You"]) -- "a request" --> lead["Coordinator"]
-  lead -- "a line per worker, its brief" --> ledger[("Ledger")]
-  lead -- "batched questions, report" --> you
-  lead -- "the brief" --> worker["Worker runs the task route"]
-  worker -- "each commit's diff" --> reviewer["Fresh reviewer"]
-  reviewer -- "accept, or return with findings" --> worker
-  worker -- "accepted commit" --> push["Push to the remote"]
-  push -- "the landed task's sessions" --> coach["Coach"]
-  coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
-  lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
-  exp -- "past its check date: signals before and after, in the coach's next brief" --> coach
+flowchart LR
+  you(["You"]) -- "request" --> coord["Coordinator"]
+  coord -- "brief" --> worker["Worker"]
+  worker <-- "diff, verdict" --> reviewer["Reviewer"]
+  worker -- "lands" --> coach["Coach"]
+  coach -- "proposals" --> coord
+  coord -- "report" --> you
 ```
+
+The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger, the experiments and their check dates.
 
 ## Install
 

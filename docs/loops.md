@@ -33,7 +33,22 @@ Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plug
 
 ## The outer loop
 
-The coordinator runs all the work in one long session on autocompaction; the [README chart](../README.md#three-loops) shows its handoffs.
+The coordinator runs all the work in one long session on autocompaction, from my request to the experiments its coach proposes.
+
+```mermaid
+flowchart TD
+  you(["You"]) -- "a request" --> lead["Coordinator"]
+  lead -- "a line per worker, its brief" --> ledger[("Ledger")]
+  lead -- "batched questions, report" --> you
+  lead -- "the brief" --> worker["Worker runs the task route"]
+  worker -- "each commit's diff" --> reviewer["Fresh reviewer"]
+  reviewer -- "accept, or return with findings" --> worker
+  worker -- "accepted commit" --> push["Push to the remote"]
+  push -- "the landed task's sessions" --> coach["Coach"]
+  coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
+  lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
+  exp -- "past its check date: signals before and after, in the coach's next brief" --> coach
+```
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
