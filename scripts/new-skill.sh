@@ -47,9 +47,16 @@ title="$(echo "$skill_name" | tr '-' ' ' | awk '{for (i=1;i<=NF;i++) { $i=touppe
 
 shopt -u patsub_replacement 2>/dev/null || true
 template="$(cat "$ROOT_DIR/SKILL_TEMPLATE.md")"
-template="${template//<skill-name>/$skill_name}"
-template="${template//<imperative sentence describing when to use this skill>/$skill_description}"
-template="${template//<Skill title>/$title}"
+fill() {
+  if [[ "$template" != *"$1"* ]]; then
+    echo "error: SKILL_TEMPLATE.md has no $1 placeholder for new-skill.sh to fill" >&2
+    exit 1
+  fi
+  template="${template//"$1"/$2}"
+}
+fill "<skill-name>" "$skill_name"
+fill "<imperative sentence describing when to use this skill>" "$skill_description"
+fill "<Skill title>" "$title"
 
 mkdir -p "$skill_dir"
 printf '%s\n' "$template" >"$skill_file"
