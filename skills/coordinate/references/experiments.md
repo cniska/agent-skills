@@ -34,4 +34,4 @@ Brief each `workflow-review` run with the record's path. For each open experimen
 
 ## Close
 
-Apply the verdict, then append a `close` line with its outcome, repeating the open line's other fields. A revert or trim lands as its own commit, or is recorded in one, named in `by_sha`. A trim is a new change, so it also opens its own experiment; a revert does not.
+A later check date or a new `from` is a new `open` line, as The record says, never a close. Apply a keep, revert or trim verdict, then append a `close` line with its outcome, repeating the open line's other fields. A revert or trim lands as its own commit, or is recorded in one, named in `by_sha`. A trim is a new change, so it also opens its own experiment; a revert does not.
