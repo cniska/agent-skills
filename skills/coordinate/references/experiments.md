@@ -20,7 +20,7 @@ A workflow change stays only if it moves what it was meant to move. Every change
 | `by_sha` | on a `revert` or `trim` close: the commit that made it, or records it, as for `sha` |
 | `eval` | optional, when the owner approved an eval run for the change: `{case, champion, challenger}`, the case and each side's score |
 
-An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date, append another `open` line for that `sha`, repeating its other fields; the latest one counts.
+An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date or `from`, append another `open` line for that `sha`, repeating its other fields; the latest one counts.
 
 ## Open
 
@@ -30,7 +30,7 @@ A second change aimed at the same signal while one is open muddies both checks: 
 
 ## Check
 
-Brief each `workflow-review` run with the record's path. It proposes keep, revert, trim or a later check date for each open experiment past its check date.
+Brief each `workflow-review` run with the record's path. For each open experiment past its check date it proposes keep, revert, trim or a later check date, or, when the change was not installed yet, a new `from`: the time the new version first ran, or, when it never ran, an install, with the `from` at that install.
 
 ## Close
 
