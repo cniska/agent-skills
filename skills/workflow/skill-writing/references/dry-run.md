@@ -6,7 +6,7 @@ Reading a changed skill shows how it reads; running it on real projects shows wh
 
 - **Pick 2–3 unlike repos**, unlike in the dimension the change touches: repos that release differently for a release rule, a docs-heavy and a docs-light one for a doc rule. Repos that share a stack and shape hide the gap only one shape reveals, such as a release with no command or a project with no spec.
 - **Write 3–6 checks** of what the change should make a run do, each one visible in a run's output or tool log, such as "flags the missing migration" or "reads the release reference before tagging". The checks go to the judge, never to a runner.
-- **Pick one task per repo** that a user of that repo would plausibly ask for and that reaches the changed rule. Both versions get the same task.
+- **Pick one task per repo** that a user of that repo would plausibly ask for and that reaches the changed rule. Both versions get the same task. The task leaves the checked behavior to the skill: a check that the task's wording or the repo's own rules already decide passes for both versions and measures nothing.
 - **Pick the baseline**: the previous version of the skill on an update, no skill on a create.
 
 ## Run blind
@@ -30,5 +30,5 @@ A runner that knows its work is a trial reads the skill more closely and follows
 
 - The same failed check or the same friction from independent repos is a defect in the skill: fix it. Friction from a single run is usually that repo's judgment call: leave it.
 - Fold the fixes in, then re-run the worst-affected repo when a fix changed behavior.
-- Report the change, the checks, each repo's verdict for both versions, the fixes folded in, and whether the new version should ship.
+- Report the change, the checks, each repo's verdict for both versions, the fixes folded in, and whether the new version should ship. A repo where the versions differ on no check is reported as untested, not as a pass.
 - Delete the clones; an output that beats what the repo has goes to the user as a finding.
