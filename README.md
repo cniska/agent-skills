@@ -7,13 +7,13 @@ I do all my engineering with coding agents, and these skills encode the workflow
 Two parts carry the workflow:
 
 - **[task](skills/task/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
-- **A separate reviewer agent judges every commit.** It holds the change to my design rules in [design-review](skills/design-review/SKILL.md), and it never wrote the code it judges.
+- **[A separate reviewer](#the-reviewer) judges every commit** against my design rules in [design-review](skills/design-review/SKILL.md).
 
 Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
 
 ## Two loops
 
-- **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step.
+- **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
 - **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what needs me. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
 
 ```mermaid
@@ -64,11 +64,15 @@ npx skills add cniska/agent-skills
 
 In Claude Code, add this checkout as the marketplace (`claude plugin marketplace add <path>`) and run `claude plugin update cniska-skills@cniska` after each commit.
 
-For other agents, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent. It removes links to skills that no longer exist. It leaves any other file or folder of the same name alone and reports it. `mise run link <skill>…` links only the skills you name.
+For other agents, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent.
+
+- It removes links to skills that no longer exist.
+- It leaves any other file or folder of the same name alone and reports it.
+- `mise run link <skill>…` links only the skills you name.
 
 ## How a task runs
 
-A skill only helps when something loads it. Start a task with `/task <task>`, and the route for that kind of task loads each skill as its step starts. With the plugin, the command is `/cniska-skills:task <task>`.
+Start a task with `/task <task>`. The route for that kind of task loads each skill as its step starts, since a skill only helps when something loads it. With [the plugin](#the-plugin), the command is `/cniska-skills:task <task>`.
 
 ```text
 /task <task>
@@ -88,8 +92,6 @@ A skill only helps when something loads it. Start a task with `/task <task>`, an
 /task <a handoff pasted from the last session> → Resume
 ```
 
-With [the plugin](#the-plugin) installed, a session-start hook sends every task through `task`, so a plain prompt takes the same route.
-
 Four rules shape every route:
 
 - **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
@@ -107,16 +109,18 @@ Four rules shape every route:
 
 ## The reviewer
 
-[design-review](skills/design-review/SKILL.md) holds code to my design rules: architecture, patterns and code smells.
+A fresh agent that did not write the work runs [design-review](skills/design-review/SKILL.md) on each commit, and on the design wherever its shape is open. The agent that made a change never judges how it is built.
 
-The reviewer judges a change the way I would in review. For each problem it states what is wrong and what it should be instead, so its findings steer the work toward the shape I would have given it myself.
+- **It judges the way I would in review**, against my design rules: architecture, patterns and code smells.
+- **For each problem it states what is wrong and what it should be instead**, so its findings steer the work toward the shape I would have given it.
+- **On how code is built, its verdict wins** over other reviewers.
 
 It ranks each finding Fix or Consider:
 
 - **Fix** is a design the next case would copy, or one that misleads the next writer. While a Fix finding stands, the reviewer returns the change. Every Fix finding is fixed, and the re-review judges only the fix.
-- **Consider** is local mess. When only Consider findings remain, the reviewer accepts. They are fixed in their own follow-up commit after the accepted one, for one round only. Findings raised after that round, or about neighboring code, go into the task's report, unless the fix is a check that would have caught them. Only a finding whose fix is a tradeoff comes to me.
+- **Consider** is local mess. When only Consider findings remain, the reviewer accepts. They are fixed in their own follow-up commit after the accepted one, for one round only. Findings raised after that round, or about neighboring code, go into the task's report, unless the fix is a check that would have caught them.
 
-The routes run the reviewer in a fresh agent that did not write the work, on each commit and on the design wherever the shape is open, so the agent that made a change never judges how it is built. On how code is built, its verdict wins over other reviewers.
+Only a finding whose fix is a tradeoff comes to me.
 
 ## The plugin
 
@@ -139,8 +143,15 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 - **Context check:** runs on each prompt and, once the session's context passes the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), tells the agent to offer a handoff at the next step boundary, once per session.
   - Where a ledger exists, it stays quiet and lets autocompaction run instead. Set Claude Code's `autoCompactWindow` to the same threshold, so compaction starts where the handoff would have been offered.
   - It reads the size from Claude Code's session transcript. If that format changes, the check warns on stderr and stays silent.
-- **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes. It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions, looking at my corrections, the questions I had to ask and the friction sessions reported, and proposes only the changes that repeat. It changes nothing itself, runs only read commands and `agent-record sync`, and ends each report with `Proposals: <n>`.
-- **Coach schedule:** when a session starts or is cleared more than a day after the last coach run, or with no run recorded, tells the agent the coach is due. A run counts once its report ends with `Proposals: <n>`. The agent applies the proposals at the next break and brings me only conflicts.
+- **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
+  - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
+  - It proposes only the changes that repeat across sessions.
+  - It changes nothing itself and runs only read commands and `agent-record sync`.
+  - It ends each report with `Proposals: <n>`.
+- **Coach schedule:** a session-start hook that tells the agent when the coach is due.
+  - The coach is due when a session starts or is cleared more than a day after the last run, or with no run recorded.
+  - A run counts once its report ends with `Proposals: <n>`.
+  - The agent applies the proposals at the next break and brings me only conflicts.
 
 The hooks need `jq`.
 
@@ -287,7 +298,7 @@ Grouped by where the routes use them.
 
 These are built for my own use, in my own tone and decision style. The goal is consistent execution quality across sessions, not generic prompt patterns.
 
-I run the whole set with an `AGENTS.md` in every repo. That file is the grounding hub: skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that hub first.
+I run the whole set with an `AGENTS.md` in every repo. Skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that file first.
 
 What feeds the maintenance: daily use in my own projects, gaps observed in real sessions, selective upstream review as a signal, and external feedback when it aligns with these principles.
 
@@ -334,7 +345,10 @@ Naming actual models here would be wrong within months, so this column gives the
 
 ### Principles
 
-Each principle lives in one place. A principle more than one skill applies lives in [principles](skills/principles/SKILL.md), one file each, with its rule: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source. The rest live in the skill that applies them. The reviewer cites the rule behind each finding.
+Each principle lives in one place, and the reviewer cites the rule behind each finding.
+
+- **A principle more than one skill applies** lives in [principles](skills/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
+- **The rest** live in the skill that applies them:
 
 | Principle | In practice | Lives in |
 |-----------|------------|--------|
@@ -368,7 +382,11 @@ mise run bootstrap
 
 A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktrees](https://github.com/cniska/agent-worktrees) to install dependencies; it needs no teardown.
 
-In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads, so [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, turns off mise's own shellcheck, installs dependencies, and installs the `cniska-skills` plugin that [`.claude/settings.json`](.claude/settings.json) enables, since a cloud session does not install it from the settings alone.
+In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads. [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) works around that:
+
+- It installs mise from npm and shellcheck from PyPI, and turns off mise's own shellcheck.
+- It installs dependencies.
+- It installs the `cniska-skills` plugin that [`.claude/settings.json`](.claude/settings.json) enables, since a cloud session does not install it from the settings alone.
 
 The checks:
 
@@ -376,7 +394,7 @@ The checks:
 - `mise run test` runs the bash and TypeScript tests.
 - `mise run lint` runs Biome, `tsc` and the pinned `shellcheck`.
 
-On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `validate`, `lint` and `test`, plus the eval checks that need no model, `test:evals` and `test:triggers`; [`evals/README.md`](evals/README.md) describes them.
+On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `validate`, `lint` and `test`, plus the eval checks that need no model, `test:evals` and `test:triggers`. [`evals/README.md`](evals/README.md) describes them.
 
 - **Commit subjects** are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
 - **Comments** in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang, are refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
