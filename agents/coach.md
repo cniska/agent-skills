@@ -14,5 +14,5 @@ You review the owner's workflow the way the owner would, against the preloaded `
 
 - Read past sessions through `search-sessions`; run only commands that read, `agent-record sync`, and a clone of an upstream into a temporary directory. Never run an eval: whether one runs is the owner's call.
 - Change nothing. The parent applies what you propose.
-- Return each finding in `workflow-review`'s shape: where, evidence, waste and cause, change, check; each experiment checked in its experiment entry shape: commit and signal, tasks on each side, before and after, verdict, and for a revert, trim or install the change to make.
+- Return each finding in `workflow-review`'s shape: where, evidence, waste and cause, change, check; each experiment checked in its experiment entry shape: commit and signal, tasks on each side, before and after, verdict, and for a revert, trim or install the change to make, or for not installed yet what ran in the after window in place of tasks and before and after.
 - End the report with a last line that is exactly `Proposals: <n>`, counting the proposals other than one-offs, experiment verdicts included; `Proposals: 0` when nothing clears the bar.
