@@ -120,15 +120,27 @@ The routes run the reviewer in a fresh agent that did not write the work, on eac
 
 ## The plugin
 
-This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill with the hooks and agents below. In Claude Code its skills carry the plugin's prefix.
+This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill, with the `cniska-skills:` prefix, plus the hooks and agents below.
 
-- **A session-start hook** tells every new session to start each task with `cniska-skills:task`, and to load other skills only as it, or a skill it loads, directs. It tells every resumed, forked or compacted session to take the Resume route.
-- **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write. It ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
-- **`cniska-skills:coach`** runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions; it changes nothing and runs only read commands and `agent-record sync`. It finds where the workflow failed me, through my corrections, the questions I had to ask and the friction sessions reported, proposes the changes that repeat across sessions, and ends each report with `Proposals: <n>`.
-- **A coach schedule** records each `cniska-skills:coach` run, once its report ends with `Proposals: <n>`. When a new or cleared session starts more than a day after the last run, or with no run recorded, it tells the agent the coach is due and to apply its proposals at the next break, except conflicts, which go to me.
-- **A ledger** holds work that spans agents or repos: [coordinate](skills/coordinate/SKILL.md) keeps open work, owner decisions, questions waiting on the owner and running agents in `agent-skills/ledger.md` under `$XDG_STATE_HOME` (`~/.local/state` when unset or not absolute), or at the path a non-empty `AGENT_LEDGER` names, such as a file in a repo so the ledger outlives a cloud container. On session start, resume and compaction, a hook prints the file into context when it exists. The [outer loop](#two-loops) relies on it and on autocompaction: the ledger keeps its state, so compaction loses nothing it needs. Set Claude Code's `autoCompactWindow` to the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), so compaction runs where a session without a ledger would be offered a handoff.
-- **A context check** runs on each prompt. Once the session's context grows large, past the threshold set in [`hooks/context-size.sh`](hooks/context-size.sh), it tells the agent to offer a handoff at the next step boundary, once per session. Where a ledger exists, it stays quiet and lets autocompaction run. It reads token usage from the session transcript, whose format is internal to Claude Code; when that format changes, the check warns on stderr and says nothing to the agent.
-- **A commit gate** blocks any `git commit` whose diff changes more than Markdown until `cniska-skills:reviewer` has accepted that exact diff, in the worktree the commit targets. The accept is recorded for the repo the reviewer's report names on its `Repo:` line, so a session can review a change in another repo. An edit after the accept, or a `Verdict: return`, blocks the commit again. The gate needs `jq`.
+- **Session-start hook:** sends every task through `task`, so a plain prompt takes the same route as `/task`.
+  - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
+  - A resumed, forked or compacted session is told to take the Resume route, or to load `coordinate` again when it coordinates other agents.
+- **Reviewer agent (`cniska-skills:reviewer`):** the [reviewer](#the-reviewer). It runs [design-review](skills/design-review/SKILL.md) read-only and ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
+- **Commit gate:** blocks a commit until the reviewer has accepted that exact diff.
+  - An edit after the accept, or a `Verdict: return`, blocks it again.
+  - A diff that changes only Markdown needs no accept.
+  - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
+- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, so the [outer loop](#two-loops) loses nothing when one long session compacts.
+  - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
+  - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set).
+  - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
+- **Context check:** once the session's context passes the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), tells the agent to offer a handoff at the next step boundary, once per session.
+  - Where a ledger exists, it stays quiet and lets autocompaction run instead. Set Claude Code's `autoCompactWindow` to the same threshold, so compaction starts where the handoff would have been offered.
+  - It reads the size from Claude Code's session transcript. If that format changes, the check warns on stderr and stays silent.
+- **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes. It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions, looking at my corrections, the questions I had to ask and the friction sessions reported, and proposes only the changes that repeat. It changes nothing itself, runs only read commands and `agent-record sync`, and ends each report with `Proposals: <n>`.
+- **Coach schedule:** when a session starts or is cleared more than a day after the last coach run, or with no run recorded, tells the agent the coach is due. A run counts once its report ends with `Proposals: <n>`. The agent applies the proposals at the next break and brings me only conflicts.
+
+The hooks need `jq`.
 
 How the parts fit together, with the optional [agent-record](https://github.com/cniska/agent-record), [agent-worktrees](https://github.com/cniska/agent-worktrees) and [agent-gates](https://github.com/cniska/agent-gates) beside the plugin:
 
@@ -188,12 +200,18 @@ sequenceDiagram
 
 ### Optional companions
 
-- **`cniska-record`** works where the [agent-record](https://github.com/cniska/agent-record) CLI is on PATH. It starts `agent-record sync` in the background whenever a session starts, resumes, clears or compacts, and adds a note to search the record before acting on a handoff, plan or memory. `search-sessions` asks that record first. Install it with `claude plugin install cniska-record@cniska`.
-- **`cniska-worktrees`** requires the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI, so install the CLI first. Whenever a session starts, resumes, clears or compacts, it adds a note telling the agent to create and remove task worktrees with the CLI. It also sends Claude Code's own worktrees through the CLI with `WorktreeCreate` and `WorktreeRemove` hooks. Install it with `claude plugin install cniska-worktrees@cniska`.
+- **`cniska-record`** keeps the [agent-record](https://github.com/cniska/agent-record) session record current and points the agent at it.
+  - Whenever a session starts, resumes, clears or compacts, it runs `agent-record sync` in the background and adds a note to search the record before acting on a handoff, plan or memory.
+  - `search-sessions` asks that record first.
+  - It does nothing unless the agent-record CLI is on PATH. Install it with `claude plugin install cniska-record@cniska`.
+- **`cniska-worktrees`** gives each task its own checkout through the [agent-worktrees](https://github.com/cniska/agent-worktrees) CLI.
+  - Whenever a session starts, resumes, clears or compacts, it adds a note telling the agent to create and remove task worktrees with the CLI.
+  - Its `WorktreeCreate` and `WorktreeRemove` hooks send Claude Code's own worktrees through the CLI too.
+  - Install the CLI first, then `claude plugin install cniska-worktrees@cniska`.
 
 `cniska-skills` works without either.
 
-[agent-gates](https://github.com/cniska/agent-gates) has no plugin on purpose. `agent-gates install` writes git hooks and CI workflows that each repo commits, so they gate every contributor, agents included, with no session hook.
+[agent-gates](https://github.com/cniska/agent-gates) has no plugin on purpose. `agent-gates install` writes git hooks and CI workflows that each repo commits, so they gate every contributor, agents included, without a session hook.
 
 ## Skills
 
