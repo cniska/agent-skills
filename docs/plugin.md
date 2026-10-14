@@ -61,7 +61,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:reviewer` judges a design or a change it did not write, as [the reviewer](reviewer.md) says.
 
 - It runs [design-review](../skills/expertise/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
-- It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
+- It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
 - Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, or an accept with any finding, is sent back to it once before it may stop.
 
 ## Researcher agent

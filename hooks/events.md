@@ -48,9 +48,10 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `commit` | `deny` | `repo_not_found` | the directory the command names is not a repository |
 | `commit` | `deny` | `gate_error` | the gate itself failed, so it refused |
 | `verdict` | `deny` or `allow` | `missing_verdict` | the report has no `Verdict:` line |
-| `verdict` | `deny` or `allow` | `missing_repo` | the report has no `Repo:` line |
+| `verdict` | `deny` or `allow` | `missing_repo` | a `Verdict:` line has no `Repo:` line directly above it |
 | `verdict` | `deny` or `allow` | `repo_relative` | the `Repo:` path is not absolute |
 | `verdict` | `deny` or `allow` | `repo_not_found` | the `Repo:` path is not a repository |
+| `verdict` | `deny` or `allow` | `repo_repeated` | two `Repo:` lines name the same repository |
 | `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 
@@ -58,14 +59,14 @@ A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second,
 
 ### `verdict`
 
-The reviewer ended with a well-formed verdict, and the commit gate now holds it.
+The reviewer ended with a well-formed verdict, and the commit gate now holds it: one line per `Repo:` and `Verdict:` pair in the report.
 
 | Field | Value |
 |---|---|
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
 | `fingerprint` | the fingerprint of the diff as it stood when the verdict was recorded |
-| `reason` | `no_diff` when a return says the brief gave no diff to read, otherwise `null` |
+| `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
 
 ### `permission_prompt`
 

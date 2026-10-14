@@ -33,7 +33,7 @@ readonly MULTIPLE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissi
 readonly AMBIGUOUS='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with '"'"'cd <absolute path> && git commit ...'"'"'."}}'
 readonly CREATE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."}}'
 readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Verdict: accept'"'"' or '"'"'Verdict: return'"'"'."}'
-readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then 'Repo: <absolute path>' and 'Verdict: accept' or 'Verdict: return' as the last two lines."
+readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 NO_SECTIONS="$(jq -cn --arg reason "The report lacks a section. $SHAPE" '{decision: "block", reason: $reason}')"
 WITH_FINDINGS="$(jq -cn --arg reason "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE" '{decision: "block", reason: $reason}')"
 readonly NO_SECTIONS WITH_FINDINGS
@@ -195,6 +195,38 @@ assert "an accept naming one repo approves nothing in another" "$(gate_from "cd 
 edit app.py 'print(10)'
 assert "an accept for a worktree does not approve the main checkout" "$(gate 'git commit -am x')" "$DENIED"
 
+two_repos() { printf '%s\nRepo: %s\nVerdict: %s\nRepo: %s\n\nVerdict: %s' "$(sections)" "$1" "$2" "$3" "$4"; }
+record_handback "$(two_repos "$worktree" accept "$other" accept)" >/dev/null
+assert "a report naming two repos lets the first commit" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" ""
+assert "a report naming two repos lets the second commit" "$(gate_from 'git commit -am x' "$other")" ""
+record_handback "$(two_repos "$worktree" return "$other" accept)" >/dev/null
+assert "a return for the first of two repos clears its accept" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
+assert "an accept for the second of two repos still stands" "$(gate_from 'git commit -am x' "$other")" ""
+assert "a Repo line with text between it and the verdict pairs with nothing" "$(record_handback "$(sections)"$'\nRepo: '"$repo"$'\nAll good.\nVerdict: accept')" "$NO_REPO"
+assert "a verdict with no Repo line above it beside a paired one keeps the reviewer running" \
+  "$(record_handback "$(sections)"$'\nRepo: '"$repo"$'\nVerdict: accept\nAll good.\nVerdict: return')" "$NO_REPO"
+assert "two pairs naming one repository keep the reviewer running" \
+  "$(record_handback "$(two_repos "$repo" return "$repo" accept)")" \
+  "$(jq -cn --arg reason "'$repo' has more than one verdict. Give each repository one verdict: name it in one 'Repo:' line only." '{decision: "block", reason: $reason}')"
+record_handback "$(report "$repo" accept)" >/dev/null
+record_handback "$(sections)"$'\nRepo: '"$repo"$'\nVerdict: return\nAll good.\nVerdict: return' >/dev/null
+assert "a return beside an unpaired verdict still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
+record_handback "$(report "$repo" accept)" >/dev/null
+record_handback "$(two_repos "$repo" return "$repo" accept)" >/dev/null
+assert "a return beside a second pair for its repository still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
+record_handback "$(report "$repo" accept)" >/dev/null
+record_handback "$(two_repos "$scratch/nowhere" accept "$repo" return)" >/dev/null
+assert "a return after a pair naming no repository still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
+record_handback "$(report "$repo" accept)" >/dev/null
+record_handback "$(sections)"$'\nAll good.\nVerdict: accept\nRepo: '"$repo"$'\nVerdict: return' >/dev/null
+assert "a return after an unpaired verdict still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
+assert "a report with two bad pairs is denied for the first" \
+  "$(record_handback "$(two_repos relative accept "$scratch/nowhere" accept)")" \
+  "$(jq -cn --arg reason "'relative' is not an absolute path. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict." '{decision: "block", reason: $reason}')"
+assert "a second pair naming no repository keeps the reviewer running" \
+  "$(record_handback "$(two_repos "$worktree" accept "$scratch/nowhere" accept)")" \
+  "{\"decision\":\"block\",\"reason\":\"'$scratch/nowhere' is not a repository. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
+
 home_repo="$HOME/project"
 mkdir -p "$home_repo"
 (cd "$home_repo" && git init -q -b main && printf 'a = 1\n' >lib.py && git add -A && git commit -q -m base && printf 'a = 2\n' >>lib.py)
@@ -313,7 +345,10 @@ assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(rep
 assert "a report without the sections logs missing_findings" "$(decided record_logged $'Fine.\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_findings"
 assert "an accept with a finding logs accept_with_findings" "$(decided record_logged "$(sections "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" accept_with_findings
 assert "a return for a brief with no diff logs reason no_diff" "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.verdict, .reason] | @tsv')" "return	no_diff"
+assert "a no_diff return beside an accept for another repo logs the reason on its own pair only" \
+  "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: accept' | jq -sc 'map(.reason)')" '["no_diff",null]'
 assert "a verdict with no Reason line logs a null reason" "$(decided record_logged "$(report "$logged" return)" | jq -c .reason)" null
+assert "two pairs naming one repository log repo_repeated" "$(decided record_logged "$(sections)"$'\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" repo_repeated
 assert "a Repo path that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
 (cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)

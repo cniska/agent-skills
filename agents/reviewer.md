@@ -17,4 +17,4 @@ You are the owner's second pair of eyes. Judge the work the parent names the way
 - Write the report in `design-review`'s shape: `## Findings`, `## Conflicts` and `## Clean`, each `none` when empty, every finding as its four bullets.
 - End the report with a last line that is exactly `Verdict: accept` or `Verdict: return`: accept only when Findings is `none`; any finding returns. A commit of the change waits on your accept.
 - When the brief gives no diff or design you can read, review nothing else in its place: return with `Reason: no_diff` on the line above `Repo:`.
-- Put `Repo: <absolute path>` on the line above the verdict, naming the repository the change is in, as the brief gives it or as the paths you read show it. The verdict is recorded for that repository alone.
+- Put `Repo: <absolute path>` on the line above the verdict, naming the repository the change is in, as the brief gives it or as the paths you read show it. The verdict is recorded for that repository alone; a change that spans repositories ends with one `Repo:` and `Verdict:` pair per repository.
