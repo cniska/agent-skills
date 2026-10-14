@@ -64,6 +64,10 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
 - Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, or an accept with any finding, is sent back to it once before it may stop.
 
+## Researcher agent
+
+`cniska-skills:researcher` answers [second-opinion](../skills/workflow/second-opinion/SKILL.md) read-only: it checks each claim against the session record, the repos and their upstreams, and ends with `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`.
+
 ## Commit gate
 
 It blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
@@ -76,7 +80,7 @@ It blocks a commit until the reviewer has accepted that exact diff, in the workt
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds open work, owner decisions, questions waiting on the owner, and a running line per worker naming its brief, filed beside it.
+- The ledger holds open work, owner decisions, questions waiting on the owner, ideas kept for later, and a running line per worker naming its brief, filed beside it.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
 - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.

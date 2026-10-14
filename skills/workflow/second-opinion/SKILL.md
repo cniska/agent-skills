@@ -9,7 +9,7 @@ One model agreeing with itself is not verification. Have a different model attac
 
 ## Workflow
 
-1. **Pick a reviewer that can know the answer.** Use a `powerful`-tier model other than the one that made the call — another model the host runs first, since it shares the host's tools and product knowledge. Another provider adds independence only where its knowledge and tools reach the subject; for whether something is still true, live access to the source outweighs anything learned in training.
+1. **Pick a reviewer that can know the answer.** Use a `powerful`-tier model other than the one that made the call, run as a `researcher` agent where the host can start one, since it checks each claim against the session record, the repos and their upstreams. Otherwise prefer another model the host runs, since it shares the host's tools and product knowledge. Another provider adds independence only where its knowledge and tools reach the subject; for whether something is still true, live access to the source outweighs anything learned in training.
 2. **Hand over the smallest reviewable unit**: the artifact, plus the constraints a decision must meet or the sources a fact should be checked against.
 3. **Frame it to disprove.** Write your own position down first and keep it out of the prompt. Ask what is wrong, say the author may be overconfident, and name the kinds of failure to hunt for, not the ones you suspect. Demand a position, and accept "nothing found after checking X" as an answer.
 4. **Require a citation for every factual finding**, such as `file:line` or a URL. Read any finding you act on at its source, and report the rest as unverified rather than dropping or adopting them.
