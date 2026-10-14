@@ -24,12 +24,13 @@ Find where the workflow failed the owner, and say what should change so it does 
    - friction a session reported about the workflow itself;
    - an eval case that regressed, where the repo has evals.
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
+   Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
 5. **Read the upstreams** when the brief names an upstream list, as [references/upstreams.md](references/upstreams.md) says.
 
 ## Judge
 
-Sort each finding into one kind:
+Tag each finding with the waste it cost, as [references/waste-and-cause.md](references/waste-and-cause.md) says, and sort it into one kind:
 
 | Kind | What happened | Proposal |
 |---|---|---|
@@ -37,16 +38,18 @@ Sort each finding into one kind:
 | Unstated rule | The owner enforces it and nothing states it | Add it to the skill that owns that step, or make it a check |
 | Repo rule | It holds in one project only | That repo's rules file |
 | Dead weight | A step routinely finds nothing, or repeats another | Cut it, or scale it to the work |
+| False stop | A gate refused correct work | Fix the gate, not the work |
 | One-off | One session | None; list it |
 
 A finding that fits two kinds goes in the one that changes less.
 
 ## Report
 
-One heading per kind, one proposal per finding:
+One heading per kind, one proposal per finding, within each kind the costliest first:
 
 - **Where:** the skill, agent or rules file, and the line.
 - **Evidence:** the quotes, each with its citation.
+- **Waste and cause:** what it cost, and the reachable cause the whys stopped at.
 - **Change:** the smallest edit that would have prevented it, cuts first.
 - **Check:** the eval case or test that would catch it coming back, where a grader can judge it from a trace.
 
@@ -63,6 +66,7 @@ A conflict's proposal also names the decision the owner has to make. Then the on
 ## Red flags
 
 - A proposal resting on one session
+- A proposal whose cause is the symptom, such as "the agent forgot"
 - Paraphrasing what the owner said instead of quoting it
 - Proposing a rule the current version already states
 - Siding with a skill over the owner's correction instead of naming the conflict

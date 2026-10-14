@@ -27,7 +27,7 @@ The upstream list the brief names: an array, one entry per upstream.
 | Touches a decision the owner settled | Conflict, naming the decision |
 | Anything else | Listed in one line and dropped |
 
-A proposal from an upstream takes the same shape as any other: where, evidence, change, check. The upstream commit is the idea, never the evidence.
+A proposal from an upstream takes the same shape as any other. The upstream commit is the idea, never the evidence.
 
 ## Report
 
