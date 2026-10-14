@@ -1,6 +1,6 @@
 ---
 name: task
-description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order (a feature plans the design, validates it, then builds). Use at the start of any task that changes code or reviews a change, and again to re-enter its route after context compaction. A skill, loaded with the Skill tool; not a host's Task tool.
+description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order (a feature plans the design, validates it, then builds). Use at the start of any task that changes code or reviews a change, and again to re-enter its route after context compaction or a host resume or fork. A skill, loaded with the Skill tool; not a host's Task tool.
 argument-hint: "<task>"
 ---
 
@@ -16,7 +16,7 @@ A skill runs only when something loads it, and this one is a skill: load it with
 4. **`design-review` runs in a fresh agent that did not write the work**, briefed with the diff or design in a file it reads, and every decision the owner settled, a plan included. A return's Fix findings are all fixed and re-reviewed until accept; the re-review judges only the fix, for `review` as for `design-review`: the whole-change review stands, and a finding it raises about other code starts its own fix without holding back the accept. On how the code is built, `design-review` wins over other reviewers; any other disagreement, such as a finding that clashes with a settled decision, goes to the owner as a conflict, not a Fix.
 5. **Re-route when the task changes kind**, and say so.
 6. **Fix every finding in reach rather than filing it**: an accept's Consider findings and neighboring code each land in their own commit, through the same commit steps. Another agent's work on the owner's machine is in reach. Only an owner decision, or a change another person owns, goes to the report. Scope decides where a fix lands, inside the change or in its own commit or branch started at once, never whether it lands.
-7. **Re-enter the route after context compaction**: load `task` again, rebuild the route and step from the checkout (`git worktree list`, `git status`, `git log`), then load the current step's skill, and `code-writing` before any further edit. A plan that lives only in a message goes to the repo first. Picking up another session's work is `coordinate`'s resume, not this.
+7. **Re-enter the route after context compaction, or when the host resumes or forks the session**: the session still holds its own context, so load `task` again, rebuild the route and step from the checkout (`git worktree list`, `git status`, `git log`), then load the current step's skill, and `code-writing` before any further edit. A plan that lives only in a message goes to the repo first. Picking up another session's work is `coordinate`'s resume, not this.
 
 ## Report
 
