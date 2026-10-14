@@ -11,17 +11,44 @@ INPUT=""
 readonly QUOTES="'\""
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
 readonly WORD_END="([[:space:];&|)${QUOTES}]|\$)"
-readonly GIT_WORD="${WORD_START}([^[:space:];&|()${QUOTES}]*/)?git"
-readonly GIT_COMMIT_PATTERN="${GIT_WORD}([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*[[:space:]]+commit${WORD_END}"
+readonly COMMAND_START="(^|[;&|(]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
+readonly GIT_COMMAND="${COMMAND_START}([^[:space:];&|()${QUOTES}]*/)?git"
+readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*[[:space:]]+commit${WORD_END}"
 readonly GIT_DIR_PATTERN='git[[:space:]]+-C[[:space:]]+([^[:space:]]+)[[:space:]]+commit'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
 readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
-readonly REPO_CREATE_PATTERN="${GIT_WORD}([[:space:]]+-[^[:space:]]+)*[[:space:]]+(init|clone)${WORD_END}"
+readonly REPO_CREATE_PATTERN="${GIT_COMMAND}([[:space:]]+-[^[:space:]]+)*[[:space:]]+(init|clone)${WORD_END}"
+readonly HEREDOC_PATTERN="(^|[^<])<<-?[[:space:]]*[${QUOTES}]?([A-Za-z0-9_.-]+)[${QUOTES}]?(.*)\$"
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
 readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...'."
 readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."
+
+heredoc_delimiters() {
+  local rest="$1"
+  while [[ $rest =~ $HEREDOC_PATTERN ]]; do
+    printf '%s\n' "${BASH_REMATCH[2]}"
+    rest="${BASH_REMATCH[3]}"
+  done
+}
+
+without_heredocs() {
+  local line delimiter
+  local -a pending=()
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "${#pending[@]}" -gt 0 ]; then
+      if [ "${line#"${line%%[!$'\t']*}"}" = "${pending[0]}" ]; then
+        pending=("${pending[@]:1}")
+      fi
+      continue
+    fi
+    printf '%s\n' "$line"
+    while IFS= read -r delimiter; do
+      pending+=("$delimiter")
+    done < <(heredoc_delimiters "$line")
+  done <<<"$1"
+}
 
 commit_command() {
   local command="$1"
@@ -105,19 +132,19 @@ main() {
   : "${CLAUDE_PLUGIN_DATA:?CLAUDE_PLUGIN_DATA is required}"
   local command cwd
   INPUT="$(cat)"
-  command="$(jq -r '.tool_input.command // empty' <<<"$INPUT")"
+  command="$(without_heredocs "$(jq -r '.tool_input.command // empty' <<<"$INPUT")")"
   cwd="$(jq -r '.cwd // empty' <<<"$INPUT")"
-  if ! grep -Eq "$GIT_COMMIT_PATTERN" <<<"$command"; then
+  if ! [[ $command =~ $GIT_COMMIT_PATTERN ]]; then
     return
   fi
 
   local prefix named changes repo
   prefix="$(commit_command "$command")"
-  if grep -Eq "$GIT_COMMIT_PATTERN" <<<"${command#"$prefix"}"; then
+  if [[ ${command#"$prefix"} =~ $GIT_COMMIT_PATTERN ]]; then
     deny "$MULTIPLE_REASON" multiple_commits
     return
   fi
-  if grep -Eq "$REPO_CREATE_PATTERN" <<<"$prefix"; then
+  if [[ $prefix =~ $REPO_CREATE_PATTERN ]]; then
     deny "$CREATE_REASON" repo_created
     return
   fi

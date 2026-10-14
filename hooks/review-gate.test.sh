@@ -266,10 +266,27 @@ done
 for command in \
   'git -C ~/project commit -am x && git -C ~/other commit -am y' \
   'cd ~/project && git commit -am x && cd ~/other && git commit -am y' \
-  'cd ~/project && git commit -m x && git add -A && git commit -m y'; do
+  'cd ~/project && git commit -m x && git add -A && git commit -m y' \
+  'git commit -m a && git commit -m b'; do
   assert "a command with two commits [$command] is refused" "$(gate_from "$command" "$scratch")" "$MULTIPLE"
 done
-assert "a commit quoted inside bash -c is gated" "$(gate_from "bash -c 'git commit -am x'" "$home_repo")" "$DENIED"
+assert "a commit quoted inside bash -c is not a command the gate reads" "$(gate_from "bash -c 'git commit -am x'" "$home_repo")" ""
+for command in \
+  $'cat >msg.txt <<EOF\ngit commit -m a && git commit -m b\nEOF\ngit -C ~/project commit -F msg.txt' \
+  $'cat <<-\'EOF\' >msg.txt\n\tgit commit -m a\n\tEOF\ngit -C ~/project commit -F msg.txt' \
+  "grep -n 'git commit' notes.txt && git -C ~/project commit -am x" \
+  "grep -n 'git init' notes.txt && git -C ~/project commit -am x" \
+  "jq -r 'select(.command | test(\"git commit\"))' log.jsonl; git -C ~/project commit -am x"; do
+  assert "one commit beside commit text in [$command] is gated as one" "$(gate_from "$command" "$scratch")" "$DENIED"
+done
+for command in \
+  $'cat <<EOF\ngit commit -m a\nEOF' \
+  "grep -rn 'git commit' hooks" \
+  "jq -r 'select(.command | contains(\"git commit\"))' log.jsonl"; do
+  assert "commit text with no commit in [$command] passes" "$(gate_from "$command" "$home_repo")" ""
+done
+assert "two commits on separate lines are refused" "$(gate_from $'git -C ~/project commit -am x\ngit -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
+assert "a commit after a closed heredoc is still counted" "$(gate_from $'cat <<EOF\nx\nEOF\ngit -C ~/project commit -am x && git -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
 assert "a commit that creates its repo in the same command is refused" "$(gate_from 'git init -q && git add -A && git commit -m x' "$scratch")" "$CREATE"
 assert "a commit after cloning in the same command is refused" "$(gate_from 'git clone -q ~/project copy && git -C copy commit -m x' "$scratch")" "$CREATE"
 
