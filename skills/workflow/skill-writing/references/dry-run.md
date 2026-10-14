@@ -21,7 +21,7 @@ A runner that knows its work is a trial reads the skill more closely and follows
 
 ## Judge
 
-1. **Read each run's own transcript or tool log** for which files it opened: whether it loaded the skill, which references it read, and at which step. A run that never loaded the changed text tested nothing. A run that loaded another copy is a setup fault: isolate it and run it again. Only a run that loaded the right copy and still missed the changed text is a finding against the description, not a pass. Read only those runs' logs, never other sessions'.
+1. **Read each run's own transcript or tool log** for which files it opened: whether it loaded the skill, which references it read, and at which step. A run that loaded another copy is a setup fault: isolate it and run it again. A run that loaded no copy, or loaded the right copy and still missed the changed text, is a finding against the description, not a pass. Read only those runs' logs, never other sessions'.
 2. **Have one judge score both versions of a repo in one pass** against the checks, with the outputs under neutral labels and no sign of which is new. Use a different model from the runners where the host offers one.
 3. **Read every output yourself** and compare with the judge. Where the two disagree, suspect the checks first and sharpen them.
 4. **Then ask each runner for a friction report**, as a follow-up to the same agent: the judgment calls it had to make, where the guidance was unclear or fought the repo, and what it did differently from what it expected. Asked after the work, the question cannot shape the run.
