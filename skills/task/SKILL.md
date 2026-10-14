@@ -16,7 +16,7 @@ A skill runs only when something loads it, and this one is a skill: load it with
 4. **`design-review` runs in a fresh agent that did not write the work**, briefed with the diff or design in a file it reads, and every decision the owner settled, a plan included. A return's Fix findings are all fixed and re-reviewed until accept; the re-review judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement, such as a finding that clashes with a settled decision, goes to the owner as a conflict, not a Fix.
 5. **Re-route when the task changes kind**, and say so.
 6. **Fix a finding in your own change rather than filing it; on someone else's change, report it.** An accept's Consider findings land in their own commit after the accepted one, through the same commit steps; only one whose fix is a tradeoff goes to the owner. On that follow-up, fix in the same commit only the Consider findings about the fix itself; any raised after that, or about neighboring code, goes to the report unless its fix is a check that would have caught it.
-7. **Offer `handoff` at the breaks it names**, such as a route's report followed by a different task, where no ledger `coordinate` keeps carries the work.
+7. **Offer `handoff` at the breaks it names**, such as a route's report followed by a different task, where no ledger file exists.
 
 ## Report
 
