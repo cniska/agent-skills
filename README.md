@@ -143,7 +143,7 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 
 Ideas and evidence come from different places. Upstreams, the repos and people I follow, bring ideas. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. An idea becomes a proposal only when the record shows the friction it answers, or the ledger names the gap.
 
-The loop changes skills, agents, hooks, checks and its upstream lists on its own. Anything else comes to me as a conflict: a change to a repo's `AGENTS.md`, to permissions, to my settled decisions, or to how much autonomy the agents have.
+The loop changes skills, agents, hooks, checks and its upstream lists on its own. Anything else comes to me as a conflict: a change to a repo's `AGENTS.md`, to permissions, to my settled decisions or to how much autonomy the agents have, and adding, running or changing an eval.
 
 It follows lean practice, in plain terms first:
 
