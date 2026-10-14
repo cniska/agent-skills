@@ -28,6 +28,14 @@ A skill runs only when something loads it, and this one is a skill: load it with
 - Several asks in one request: answer each by name, so none is dropped.
 - After changes, name every choice the owner did not ask for.
 
+## Shared steps
+
+Every route that changes code runs its own steps between these, and names them where they fall:
+
+- **Open:** the branch or worktree the repo prescribes, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface.
+- **Challenge:** `second-opinion` on the design the agent proposed, by a `researcher` agent where the host can start one, then `design-review` of the result by a fresh agent.
+- **Close:** `design-review` by a fresh agent on each commit; the repo's checks, and its running-app proof where it has one; `review` on the whole change; then land as the repo's rule says.
+
 ## Routes
 
 | Route | When | File |
