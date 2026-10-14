@@ -350,6 +350,64 @@ describe("validate", () => {
     });
   });
 
+  describe("shared text", () => {
+    const TEN = "every task names its route before the first edit lands";
+    const NINE = "every task names its route before the first edit";
+
+    function withProse(path: string, text: string): string {
+      const root = fixture();
+      write(root, "skills/workflow/demo/SKILL.md", WELL_FORMED);
+      write(root, path, text);
+      return root;
+    }
+
+    test("fails a planted run of ten words a doc shares with a skill", () => {
+      const root = withProse("docs/loops.md", `# Loops\n\nHere ${TEN} today.\n`);
+      write(root, "skills/workflow/demo/references/steps.md", `# Steps\n\nNote that ${TEN}, always.\n`);
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "docs/loops.md and skills/workflow/demo/references/steps.md share a run of 10 words",
+      );
+      expect(run.output).toContain(`  ${TEN}`);
+      expect(run.output).toContain("to resolve: keep it in one place and name it from the other");
+    });
+
+    test("matches across case, line breaks and Markdown punctuation", () => {
+      const root = withProse(
+        "README.md",
+        "# Skills\n\n**Every task** names its `route`\nbefore the _first_ edit — lands.\n",
+      );
+      write(root, "agents/coach.md", `# Coach\n\n- ${TEN}\n`);
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain("README.md and agents/coach.md share a run of 10 words");
+    });
+
+    test("scans AGENTS.md", () => {
+      const root = withProse("AGENTS.md", `# Rules\n\n${TEN}\n`);
+      write(root, "docs/a.md", `# A\n\n${TEN}\n`);
+      expect(validate(root).output).toContain("AGENTS.md and docs/a.md share a run of 10 words");
+    });
+
+    test("passes a run of nine words", () => {
+      const root = withProse("docs/a.md", `# A\n\n${NINE} once.\n`);
+      write(root, "docs/b.md", `# B\n\n${NINE} twice.\n`);
+      expect(validate(root).code).toBe(0);
+    });
+
+    test("passes a link target two files share", () => {
+      const link = "[the steps](../skills/workflow/demo/references/one/two/three/four/five/six/seven.md)";
+      const root = withProse("docs/a.md", `# A\n\nSee ${link}.\n`);
+      write(root, "docs/b.md", `# B\n\nRead ${link}.\n`);
+      expect(validate(root).code).toBe(0);
+    });
+
+    test("passes a run repeated inside one file", () => {
+      expect(validate(withProse("docs/a.md", `# A\n\n${TEN}.\n\n${TEN}.\n`)).code).toBe(0);
+    });
+  });
+
   describe("plugin manifest", () => {
     function withManifest(manifest: object): Run {
       const root = fixture();

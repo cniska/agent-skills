@@ -10,7 +10,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 - Self-contained: depend on nothing outside the skill's own directory, and reference other skills by bare name in `## See also`, never by path — `npx skills add` copies only that directory.
 - End with a `## Red flags` section (never `## Anti-patterns`); keep the body terse and imperative.
 - Name capability tiers (`fast` / `balanced` / `powerful`), never specific models.
-- The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, `## Red flags`, every link resolving inside the skill's own directory.
+- The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, `## Red flags`, every link resolving inside the skill's own directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
 - Add guidance only for friction that repeats in real use; prefer trimming to growing.
 - After a material change to a skill, dry-run it on unlike real repos (the `skill-writing` skill) before pushing.
 

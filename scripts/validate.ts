@@ -6,6 +6,7 @@ import { CodedError } from "../lib/coded-error";
 import { type Frontmatter, frontmatter } from "../lib/frontmatter";
 import { ROOT_DIR } from "../lib/paths";
 import { readJson, readText } from "../lib/read-file";
+import { sharedRuns } from "../lib/shared-text";
 import {
   SKILL_KIND_RULES,
   SKILL_KINDS,
@@ -51,6 +52,9 @@ const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL
   ", or ",
 );
 const NEW_SKILL = "the skill-writing skill";
+const SHARED_RUN_WORDS = 10;
+const SCANNED_FILES = ["README.md", "AGENTS.md"] as const;
+const SCANNED_DIRS = ["skills", "docs", "agents"] as const;
 
 const PluginManifest = z.looseObject({ skills: z.array(z.string()).optional() });
 
@@ -312,6 +316,25 @@ function proseProblems(root: string): Problem[] {
   }));
 }
 
+function scannedDocs(root: string): Doc[] {
+  const files = [
+    ...SCANNED_FILES.map((file) => join(root, file)).filter((file) => existsSync(file)),
+    ...SCANNED_DIRS.map((dir) => join(root, dir))
+      .filter((dir) => existsSync(dir))
+      .flatMap(markdownFiles),
+  ];
+  return files.map((file) => readDoc(root, file));
+}
+
+function sharedTextProblems(root: string): Problem[] {
+  return sharedRuns(scannedDocs(root), SHARED_RUN_WORDS).map(({ first, second, words }) => ({
+    message: withDetail(`${first} and ${second} share a run of ${words.length} words`, [
+      `  ${words.join(" ")}`,
+    ]),
+    resolve: "keep it in one place and name it from the other",
+  }));
+}
+
 function strayProblems(skillsDir: string): Problem[] {
   return strayEntries(skillsDir).map((entry) => ({
     message: `skills/${entry} is outside ${KIND_FOLDERS}`,
@@ -365,6 +388,7 @@ runMain((args) => {
     }),
     ...manifestProblems(root),
     ...proseProblems(root),
+    ...sharedTextProblems(root),
   ];
   for (const [resolve, messages] of byResolve(problems)) {
     reportProblems(
