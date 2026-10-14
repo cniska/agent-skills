@@ -167,6 +167,10 @@ assert "a text stop after an accepting handback is judged by the text alone" "$(
 land
 edit README.md 'more docs'
 assert "a Markdown-only change commits without a verdict" "$(gate 'git commit -am docs')" ""
+(cd "$repo" && printf 'x = 1\n' >scratch.py && git add README.md)
+assert "a staged Markdown-only change commits beside an untracked code file" "$(gate 'git commit -m docs')" ""
+assert "a same-command add of an untracked code file needs a verdict" "$(gate 'git add -A && git commit -m docs')" "$DENIED"
+(cd "$repo" && rm scratch.py)
 land
 (cd "$repo" && git mv app.py app.md)
 assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$DENIED"
@@ -328,6 +332,8 @@ decided() {
 }
 
 fingerprint_of() { (source "$HERE/review-state.sh" && diff_fingerprint "$1"); }
+carried_of() { (source "$HERE/review-state.sh" && carried_paths "$1" "$2"); }
+assert "listing carried paths in an unknown untracked mode fails" "$(carried_of "$logged" bogus >/dev/null 2>&1; echo "$?")" 1
 
 before="$(lines)"
 gate_logged 'git status' >/dev/null

@@ -74,7 +74,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 It blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
 
 - An edit after the accept, or a `Verdict: return`, blocks it again.
-- A diff that changes only Markdown needs no accept.
+- A diff that changes only Markdown needs no accept; untracked files count only when the commit command adds them.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 
 ## Ledger hook

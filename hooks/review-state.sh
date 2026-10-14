@@ -17,16 +17,23 @@ diff_base() {
   git hash-object -t tree /dev/null
 }
 
-changed_paths() {
+carried_paths() {
   (
     cd "$1" || exit 1
     git diff --name-only --no-renames "$(diff_base)"
-    git ls-files --others --exclude-standard
+    case "$2" in
+      added) git ls-files --others --exclude-standard ;;
+      tracked_only) ;;
+      *)
+        printf 'carried_paths: unknown untracked mode %s\n' "$2" >&2
+        exit 1
+        ;;
+    esac
   )
 }
 
 touches_code() {
-  changed_paths "$1" | grep -v '\.md$' >/dev/null
+  printf '%s' "$1" | grep -v '\.md$' >/dev/null
 }
 
 diff_fingerprint() {

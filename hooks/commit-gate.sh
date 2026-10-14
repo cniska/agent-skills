@@ -13,7 +13,9 @@ readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
 readonly WORD_END="([[:space:];&|)${QUOTES}]|\$)"
 readonly COMMAND_START="(^|[;&|(]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
 readonly GIT_COMMAND="${COMMAND_START}([^[:space:];&|()${QUOTES}]*/)?git"
-readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*[[:space:]]+commit${WORD_END}"
+readonly GIT_OPTIONS="([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*"
+readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WORD_END}"
+readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
 readonly GIT_DIR_PATTERN='git[[:space:]]+-C[[:space:]]+([^[:space:]]+)[[:space:]]+commit'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
 readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
@@ -162,9 +164,13 @@ main() {
     deny "$(unresolved_reason "$named")" repo_not_found
     return
   fi
-  local head
+  local head untracked=tracked_only paths
   head="$(head_commit "$repo")"
-  if ! touches_code "$repo"; then
+  if [[ $prefix =~ $GIT_ADD_PATTERN ]]; then
+    untracked=added
+  fi
+  paths="$(carried_paths "$repo" "$untracked")"
+  if ! touches_code "$paths"; then
     record allow no_code_change "$repo" "$head"
     return
   fi
