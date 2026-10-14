@@ -1,47 +1,13 @@
 {
   "positive": [
-    {
-      "prompt": "report on the work in flight across the repos"
-    },
-    {
-      "prompt": "give me a status report"
-    },
-    {
-      "prompt": "what's in flight?"
-    },
-    {
-      "prompt": "what's the status of all work?"
-    },
-    {
-      "prompt": "how are we with inflight work?"
-    },
-    {
-      "prompt": "how would you prioritize all work now?"
-    },
-    {
-      "prompt": "run these three tasks across the api and web repos with an agent each"
-    }
+    { "prompt": "how are we with inflight work?" },
+    { "prompt": "what work is still inflight?" },
+    { "prompt": "keep coordinating all the pending work" },
+    { "prompt": "pick up the coordinate session" }
   ],
   "negative": [
-    {
-      "prompt": "what's the status of my branch against main?",
-      "owner": "git"
-    },
-    {
-      "prompt": "how far along is this task, which step are we on?",
-      "owner": "task"
-    },
-    {
-      "prompt": "rebase my branch on main",
-      "owner": "git"
-    },
-    {
-      "prompt": "open a pull request for this branch",
-      "owner": "pr"
-    },
-    {
-      "prompt": "review how last week's sessions went and what should change in the workflow",
-      "owner": "workflow-review"
-    }
+    { "prompt": "i was thinking we could add a sitrep (situation report) skill that lays out whats inflight for me", "owner": "skill-writing" },
+    { "prompt": "ask fable to validate the design then build this", "owner": "task" },
+    { "prompt": "use agent-record to get the full picture", "owner": "search-sessions" }
   ]
 }

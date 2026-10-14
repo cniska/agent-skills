@@ -1,14 +1,14 @@
 {
   "positive": [
     { "prompt": "create the daily brief cloud routine" },
-    { "prompt": "we should store the routines in md format in the repo" },
-    { "prompt": "set up a nightly routine that runs the release check" },
-    { "prompt": "move the triage task to a scheduled run in the cloud" },
-    { "prompt": "the scheduled task stalled overnight, make it safe to run unattended" }
+    { "prompt": "We should store the routines in md format in the repo under .agents/routines" },
+    { "prompt": "lets update the routine to be a daily brief shall we combining email and calendar and possibly other sources later too?" },
+    { "prompt": "no i want the release routine to be able to do the releases for me" },
+    { "prompt": "i have another crazy idea. could we setup a routine that would look at the upstreams, addy, pstack and superpowers, mattpocock (maybe others in the future) and see if theyve added something that would fit my workflow. this would be part of improving the loop" }
   ],
   "negative": [
-    { "prompt": "create a skill for our release process", "owner": "skill-writing" },
-    { "prompt": "add a rule to AGENTS.md about where scripts live", "owner": "agents-md" },
-    { "prompt": "release a new version and cut the tag", "owner": "ship" }
+    { "prompt": "can you fix the build skill here_", "owner": "skill-writing" },
+    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "agents-md" },
+    { "prompt": "okay commit everything and make a new release?", "owner": "ship" }
   ]
 }
