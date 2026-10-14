@@ -64,6 +64,8 @@ One heading per tier, marked Fix or Consider, with each violation's four fields 
 - `simplify` for the named move that fixes a local smell
 - `second-opinion` to challenge a module redesign
 - `refactor` to carry out an approved redesign
+- `deprecation` to remove a piece that something still reaches
+- `search-sessions` for earlier returns on a module
 
 ## Red flags
 

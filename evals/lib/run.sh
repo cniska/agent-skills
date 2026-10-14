@@ -62,7 +62,7 @@ main() {
   bun --version >/dev/null 2>&1 || die "bun is required; run mise install"
   claude --version >/dev/null 2>&1 || die "claude is required to run evals"
   [ "$against" != none ] || [ -n "$skill" ] || die "--against none needs --skill" 2
-  [ -z "$skill" ] || [ -d "$root/skills/$skill" ] || die "no skill $skill under skills/" 2
+  [ -z "$skill" ] || compgen -G "$root/skills/*/$skill/SKILL.md" >/dev/null || die "no skill $skill under skills/workflow/ or skills/expertise/" 2
 
   local cases
   cases="$(bun "$root/evals/lib/list-cases.ts" "$skill" | tr '\n' ' ')"
@@ -78,7 +78,7 @@ main() {
   use_this_trees_cases "$work/head"
   if [ "$against" = none ]; then
     rsync -a "$work/head/" "$work/base/"
-    rm -rf "$work/base/skills/$skill"
+    rm -rf "$work/base/skills/"*/"$skill"
   elif [ -n "$against" ]; then
     mkdir -p "$work/base"
     git -C "$root" archive "$against" | tar -x -C "$work/base"

@@ -8,8 +8,9 @@ mkdir -p "$target"
 status=0
 
 link_one() {
-  local name="$1" src="$repo_skills/$1" dest="$target/$1"
-  if [ ! -f "$src/SKILL.md" ]; then
+  local name="$1" dest="$target/$1" src
+  src="$(compgen -G "$repo_skills/*/$name" | head -n 1)"
+  if [ -z "$src" ] || [ ! -f "$src/SKILL.md" ]; then
     echo "error: no skill named $name" >&2
     status=1
   elif [ -L "$dest" ] && [ "$(readlink "$dest")" = "$src" ]; then
@@ -28,7 +29,7 @@ if [ "$#" -gt 0 ]; then
   exit "$status"
 fi
 
-for dir in "$repo_skills"/*/; do link_one "$(basename "$dir")"; done
+for dir in "$repo_skills"/*/*/; do link_one "$(basename "$dir")"; done
 
 for dest in "$target"/*; do
   [ -L "$dest" ] || continue

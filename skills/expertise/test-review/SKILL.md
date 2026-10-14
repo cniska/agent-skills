@@ -66,7 +66,7 @@ For a new or changed test, identify the behavior, a regression it would catch, a
 
 ## Output
 
-For each finding: **label** (`Restore` | `Must-add` | `Should-add` | `Optional` | `Remove`), **source file + test file**, **what is untested**, **why it matters** (the concrete bug the test would catch), **fix direction**. When invoked from `review`, map Restore → Critical, Must-add → Critical/Fix, Should-add → Fix, Optional/Remove → Consider.
+For each finding: **label** (`Restore` | `Must-add` | `Should-add` | `Optional` | `Remove`), **source file + test file**, **what is untested**, **why it matters** (the concrete bug the test would catch), **fix direction**. When a full review collects these findings, map Restore → Critical, Must-add → Critical/Fix, Should-add → Fix, Optional/Remove → Consider.
 
 Group the summary by those labels. Report every Must-add and Should-add with its label — the caller filters by severity, not you; fold Optional items into one line or omit them. If nothing clears the threshold, say "No test findings".
 

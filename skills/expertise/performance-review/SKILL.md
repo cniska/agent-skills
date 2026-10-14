@@ -46,12 +46,13 @@ Flag a performance issue only with a concrete trigger: name the input, request p
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **file**, **triggering workload**, **performance impact**, **evidence**, and **fix direction**.
+For each finding: **label** (Critical / Fix / Consider / Nit), **file**, **triggering workload**, **performance impact**, **evidence**, and **fix direction**.
 
 If nothing clears the threshold, report "No performance findings" — don't pad.
 
 ## See also
 
+- `review` for severity framing and merge gating
 - `correctness-review` for behavior changes caused by timeouts, limits, or concurrency
 - `architecture-review` for boundary and ownership changes behind performance fixes
 

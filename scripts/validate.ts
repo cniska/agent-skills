@@ -1,10 +1,19 @@
 import { existsSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
+import { z } from "zod";
 import { reportProblems, runMain } from "../lib/cli";
 import { CodedError } from "../lib/coded-error";
 import { type Frontmatter, frontmatter } from "../lib/frontmatter";
 import { ROOT_DIR } from "../lib/paths";
-import { readText } from "../lib/read-file";
+import { readJson, readText } from "../lib/read-file";
+import {
+  SKILL_KIND_RULES,
+  SKILL_KINDS,
+  type SkillDir,
+  type SkillKind,
+  skillDirs,
+  strayEntries,
+} from "../lib/skills";
 
 const USAGE = "usage: bun scripts/validate.ts [root]";
 const IMPERATIVE_VERBS = [
@@ -32,6 +41,17 @@ const RED_FLAGS = /^## Red flags$/m;
 const ANTI_PATTERNS = /^## Anti-patterns$/m;
 const LINK = /\]\(([^)\n]+)\)/g;
 const EXTERNAL_LINK = /^(https?:|mailto:|#)/;
+const SKILL_NAME = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
+const SEE_ALSO = /^## See also$/;
+const HEADING = /^## /;
+const MANIFEST_SKILLS = SKILL_KINDS.map((kind) => `./skills/${kind}`);
+const KIND_FOLDERS = SKILL_KINDS.map((kind) => `skills/${kind}/`).join(" and ");
+const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL_KIND_RULES[kind]}`).join(
+  ", or ",
+);
+const NEW_SKILL = `mise run new-skill <${SKILL_KINDS.join("|")}> <name> "<description>"`;
+
+const PluginManifest = z.looseObject({ skills: z.array(z.string()).optional() });
 
 type Problem = { readonly message: string; readonly resolve: string };
 
@@ -39,6 +59,7 @@ type Doc = { readonly file: string; readonly shown: string; readonly text: strin
 
 type Skill = {
   readonly name: string;
+  readonly kind: SkillKind;
   readonly dir: string;
   readonly skillDoc: Doc;
   readonly docs: readonly Doc[];
@@ -133,6 +154,25 @@ function linkProblems({ name, dir, docs }: Skill): string[] {
   );
 }
 
+function outsideSeeAlso(text: string): string[] {
+  let inSeeAlso = false;
+  return text.split("\n").flatMap((line, index) => {
+    if (HEADING.test(line)) inSeeAlso = SEE_ALSO.test(line);
+    return inSeeAlso ? [] : [`  ${index + 1}:${line}`];
+  });
+}
+
+function routeProblems({ kind, docs }: Skill, workflow: ReadonlySet<string>): string[] {
+  if (kind !== "expertise") return [];
+  return docs.flatMap((doc) => {
+    const lines = outsideSeeAlso(doc.text).filter((line) =>
+      [...line.matchAll(SKILL_NAME)].some((match) => workflow.has(match[1] ?? "")),
+    );
+    if (lines.length === 0) return [];
+    return [withDetail(`expertise skill names a workflow skill outside ## See also in ${doc.shown}`, lines)];
+  });
+}
+
 function modelProblems({ docs }: Skill): string[] {
   return docs.flatMap((doc) => {
     const lines = modelLines(doc.text);
@@ -167,13 +207,15 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
   { resolve: "name a fast, balanced or powerful tier instead of the model", problems: modelProblems },
 ];
 
-function load(root: string, name: string): Loaded {
-  const dir = join(root, "skills", name);
+const ROUTE_RESOLVE =
+  "state the rule without loading or routing to the workflow skill, and name it under ## See also if a reader needs it";
+
+function load(root: string, { name, kind, dir }: SkillDir): Loaded {
   const skillFile = join(dir, "SKILL.md");
   if (!existsSync(skillFile)) {
     return refused(
       `missing SKILL.md in ${name}`,
-      'add the SKILL.md with mise run new-skill <name> "<description>", or remove the directory if it is not a skill',
+      `add the SKILL.md with ${NEW_SKILL}, or remove the directory if it is not a skill`,
     );
   }
   const skillDoc = readDoc(root, skillFile);
@@ -195,6 +237,7 @@ function load(root: string, name: string): Loaded {
     kind: "skill",
     skill: {
       name,
+      kind,
       dir,
       skillDoc,
       docs,
@@ -204,8 +247,11 @@ function load(root: string, name: string): Loaded {
   };
 }
 
-function skillProblems(skill: Skill): Problem[] {
-  return CHECKS.flatMap(({ resolve, problems }) => problems(skill).map((message) => ({ message, resolve })));
+function skillProblems(skill: Skill, workflow: ReadonlySet<string>): Problem[] {
+  return [
+    ...CHECKS.flatMap(({ resolve, problems }) => problems(skill).map((message) => ({ message, resolve }))),
+    ...routeProblems(skill, workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
+  ];
 }
 
 function readmeProblems(root: string): Problem[] {
@@ -224,13 +270,32 @@ function readmeProblems(root: string): Problem[] {
   ];
 }
 
-function skillNames(root: string): string[] {
-  const dir = join(root, "skills");
-  if (!existsSync(dir)) throw new CodedError("skills_missing", { dir: root });
-  return readdirSync(dir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => entry.name)
-    .sort();
+function strayProblems(skillsDir: string): Problem[] {
+  return strayEntries(skillsDir).map((entry) => ({
+    message: `skills/${entry} is outside ${KIND_FOLDERS}`,
+    resolve: `move each skill into ${KIND_CHOICES}`,
+  }));
+}
+
+function duplicateProblems(skills: readonly SkillDir[]): Problem[] {
+  const names = skills.map((skill) => skill.name);
+  return [...new Set(names.filter((name, index) => names.indexOf(name) !== index))].map((name) => ({
+    message: `skill ${name} sits in more than one of ${KIND_FOLDERS}`,
+    resolve: `keep each skill in exactly one of ${KIND_FOLDERS}`,
+  }));
+}
+
+function manifestProblems(root: string): Problem[] {
+  const path = join(root, ".claude-plugin", "plugin.json");
+  if (!existsSync(path)) return [];
+  const listed = readJson(path, PluginManifest).skills ?? [];
+  if (listed.join("\n") === MANIFEST_SKILLS.join("\n")) return [];
+  return [
+    {
+      message: `.claude-plugin/plugin.json lists skills [${listed.join(", ")}], not [${MANIFEST_SKILLS.join(", ")}]`,
+      resolve: `set "skills" in .claude-plugin/plugin.json to ${JSON.stringify(MANIFEST_SKILLS)}, so the plugin loads every skill folder`,
+    },
+  ];
 }
 
 function byResolve(problems: readonly Problem[]): Map<string, string[]> {
@@ -242,11 +307,18 @@ function byResolve(problems: readonly Problem[]): Map<string, string[]> {
 runMain((args) => {
   if (args.length > 1) throw new CodedError("usage", { usage: USAGE, problem: "takes at most one root" });
   const root = resolve(args[0] ?? ROOT_DIR);
+  const skillsDir = join(root, "skills");
+  if (!existsSync(skillsDir)) throw new CodedError("skills_missing", { dir: root });
+  const skills = skillDirs(skillsDir);
+  const workflow = new Set(skills.filter((skill) => skill.kind === "workflow").map((skill) => skill.name));
   const problems = [
-    ...skillNames(root).flatMap((name) => {
-      const loaded = load(root, name);
-      return loaded.kind === "skill" ? skillProblems(loaded.skill) : [loaded.problem];
+    ...strayProblems(skillsDir),
+    ...duplicateProblems(skills),
+    ...skills.flatMap((skillDir) => {
+      const loaded = load(root, skillDir);
+      return loaded.kind === "skill" ? skillProblems(loaded.skill, workflow) : [loaded.problem];
     }),
+    ...manifestProblems(root),
     ...readmeProblems(root),
   ];
   for (const [resolve, messages] of byResolve(problems)) {

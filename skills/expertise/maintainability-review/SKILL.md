@@ -56,7 +56,7 @@ A suppression comment is the exception: the comment rule refuses it, so label it
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **file**, **violated convention**, **evidence** (cite both the offending line and the code that establishes the convention), **fix direction**.
+For each finding: **label** (Critical / Fix / Consider / Nit), **file**, **violated convention**, **evidence** (cite both the offending line and the code that establishes the convention), **fix direction**.
 
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
 - Good: **Fix** — `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`). Rename to `fetchUserData`.
@@ -65,6 +65,7 @@ Order Critical → Fix → Consider → Nit. If nothing clears the threshold, re
 
 ## See also
 
+- `review` for severity framing and merge gating
 - `design-review` and `code-writing` for the rules that hold regardless of local convention
 - `simplify` for performing the cleanups this review identifies
 

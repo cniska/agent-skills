@@ -2,7 +2,7 @@
 
 An eval measures what a skill changes. Each case runs the agent in a small, realistic situation and checks what it did. Every comparison is a champion against a challenger on the same cases: the skill as committed against your uncommitted edit, `main`'s skills against another ref's, or the skills against the set with one skill removed, which shows whether a case measures it. Only the cases are committed; a challenger is a working-tree edit, tried and then kept or discarded.
 
-How to find a behavior worth a case, write graders that can fail, and score a change is in [the `skill-writing` eval reference](../skills/skill-writing/references/evals.md).
+How to find a behavior worth a case, write graders that can fail, and score a change is in [the `skill-writing` eval reference](../skills/workflow/skill-writing/references/evals.md).
 
 Runs use Claude Code's [`claude plugin eval`](https://code.claude.com/docs/en/plugin-evals). Each run loads this repo's plugin from a scratch copy, with its skills, hooks and agents, and starts in a clean setup with nothing else loaded. A case declares the skills it exercises as an inline `tags` list in its `prompt.md` frontmatter (`tags: [git]`), and `--skill` runs only the cases tagged with that skill.
 

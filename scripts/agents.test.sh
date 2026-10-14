@@ -48,7 +48,7 @@ for agent in "$AGENTS"/*.md; do
   count=0
   while IFS= read -r skill; do
     count=$((count + 1))
-    assert "$name preloads $skill, which exists" "$([ -f "$SKILLS/${skill#cniska-skills:}/SKILL.md" ] && echo yes || echo no)" yes
+    assert "$name preloads $skill, which exists" "$(compgen -G "$SKILLS/*/${skill#cniska-skills:}/SKILL.md" >/dev/null && echo yes || echo no)" yes
   done < <(frontmatter_list "$agent" skills)
   assert "$name preloads at least one skill" "$([ "$count" -gt 0 ] && echo yes || echo no)" yes
 done

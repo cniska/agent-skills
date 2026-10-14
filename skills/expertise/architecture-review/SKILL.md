@@ -45,7 +45,7 @@ An evidenced pattern is not automatically a defect. Reads through an injected co
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **impacted files**, **violated pattern**, **evidence**, **fix direction**.
+For each finding: **label** (Critical / Fix / Consider / Nit), **impacted files**, **violated pattern**, **evidence**, **fix direction**.
 
 - Bad: "Consider: UserService is doing a lot; could be more decoupled." (taste, no contract, no evidence)
 - Good: **Fix** — `src/api/client.ts` imports `src/auth/session.ts` which imports it back (runtime cycle), violating the api→auth dependency direction in `docs/architecture.md`. Move `TokenStore` into `auth`.
@@ -54,6 +54,7 @@ Group as **Confirmed issues** | **Open questions** | **Optional refactors** (max
 
 ## See also
 
+- `review` for severity framing and merge gating
 - `design-review` for indirection, YAGNI, cohesion and duplication, judged against the owner's rules rather than the repo's
 - `simplify` for performing the moves this review identifies
 

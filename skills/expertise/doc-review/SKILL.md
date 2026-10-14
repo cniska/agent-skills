@@ -23,7 +23,7 @@ Read the diff, then the affected doc files. For changes touching many docs, fan 
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **affected file**, **what drifted or is missing**, **fix direction**.
+For each finding: **label** (Critical / Fix / Consider / Nit), **affected file**, **what drifted or is missing**, **fix direction**.
 
 - Bad: "README could explain the retry architecture in more depth."
 - Good: **Fix** — `docs/config.md` still says `maxRetries` defaults to 3; this diff changes it to 5 in `src/client.ts`.

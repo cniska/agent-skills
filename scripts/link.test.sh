@@ -21,7 +21,7 @@ trap 'rm -rf "$target"' EXIT
 run() { SKILLS_DIR="$target" "$LINK" "$@" >/dev/null 2>&1; echo "$?"; }
 
 assert "named skill links"         "$(run review)" 0
-assert "link points at the repo"   "$(readlink "$target/review")" "$REPO_SKILLS/review"
+assert "link points at the repo"   "$(readlink "$target/review")" "$REPO_SKILLS/workflow/review"
 assert "relinking is a no-op"      "$(run review)" 0
 assert "unknown skill fails"       "$(run no-such-skill)" 1
 
@@ -29,12 +29,13 @@ mkdir "$target/writing"
 assert "existing folder is kept"   "$(run writing)" 1
 assert "folder left untouched"     "$([ -L "$target/writing" ] && echo link || echo dir)" dir
 
-ln -s "$REPO_SKILLS/renamed-away" "$target/renamed-away"
+ln -s "$REPO_SKILLS/workflow/renamed-away" "$target/renamed-away"
 ln -s /elsewhere/missing "$target/foreign"
 run >/dev/null
 assert "dangling repo link removed"  "$([ -L "$target/renamed-away" ] && echo kept || echo gone)" gone
 assert "foreign link left alone"     "$([ -L "$target/foreign" ] && echo kept || echo gone)" kept
-assert "every skill linked"          "$([ -L "$target/audit" ] && echo yes || echo no)" yes
+assert "every workflow skill linked" "$([ -L "$target/audit" ] && echo yes || echo no)" yes
+assert "every expertise skill linked" "$([ -L "$target/principles" ] && echo yes || echo no)" yes
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

@@ -6,5 +6,9 @@
   },
   "homepage": "https://github.com/cniska/agent-skills",
   "repository": "https://github.com/cniska/agent-skills",
-  "license": "MIT"
+  "license": "MIT",
+  "skills": [
+    "./skills/workflow",
+    "./skills/expertise"
+  ]
 }

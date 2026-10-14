@@ -12,11 +12,11 @@ Source and tests do not change during the review. A finding outside the module i
 
 ## Purpose
 
-State in one sentence what the module is for, taken from the doc that owns the subject, not from the code. List the owner's decisions that bind it, from the repo's rules, spec, decision records or design docs and backlog, and earlier returns on the module, found with `search-sessions`. A piece those decisions keep stays.
+State in one sentence what the module is for, taken from the doc that owns the subject, not from the code. List the owner's decisions that bind it, from the repo's rules, spec, decision records or design docs and backlog, and earlier returns on the module, found in past sessions. A piece those decisions keep stays.
 
 ## What reaches it
 
-For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search with `rg -n '\b<name>\b'`, counting imports and calls only. A piece nothing reaches is a cut candidate; one that other code or a deployed caller still reaches is removed through `deprecation`. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
+For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search with `rg -n '\b<name>\b'`, counting imports and calls only. A piece nothing reaches is a cut candidate; one that other code or a deployed caller still reaches is removed by deprecating it, replacement first. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
 
 ## Damage
 
@@ -50,4 +50,4 @@ Read the module's docs against its code. The doc states the intent, so where the
 
 Have a different model challenge the redesign, framed to disprove it, and check each of its claims against the code.
 
-Write the report with the sections above, and what the challenge changed. Nothing changes until the owner approves it; the approved redesign is carried out with `refactor`.
+Write the report with the sections above, and what the challenge changed. Nothing changes until the owner approves it; the approved redesign is carried out as a refactor.

@@ -6,6 +6,7 @@ import { CodedError } from "../../lib/coded-error";
 import { readFrontmatter } from "../../lib/frontmatter";
 import { SKILLS_DIR } from "../../lib/paths";
 import { readJson } from "../../lib/read-file";
+import { skillDirs } from "../../lib/skills";
 import { EVALS_DIR } from "./cases";
 
 const TRIGGERS_DIR = join(EVALS_DIR, "triggers");
@@ -61,9 +62,9 @@ function cosine(a: Vector, b: Vector): number {
 }
 
 function buildIndex(): { skills: Skill[]; ranking: (prompt: string) => Ranked[] } {
-  const described = readdirSync(SKILLS_DIR)
-    .filter((name) => existsSync(join(SKILLS_DIR, name, "SKILL.md")))
-    .map((name) => ({ name, text: description(join(SKILLS_DIR, name, "SKILL.md")) }));
+  const described = skillDirs(SKILLS_DIR)
+    .filter(({ dir }) => existsSync(join(dir, "SKILL.md")))
+    .map(({ name, dir }) => ({ name, text: description(join(dir, "SKILL.md")) }));
   const docFreq = new Map<string, number>();
   for (const s of described)
     for (const t of new Set(terms(s.text))) docFreq.set(t, (docFreq.get(t) ?? 0) + 1);

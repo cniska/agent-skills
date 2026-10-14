@@ -5,7 +5,7 @@ description: Write tests that catch a named bug and are proven able to fail. Use
 
 # Test writing
 
-Write each test against a bug it would catch, in the repo's own suite, and watch it fail before trusting it. `tdd` drives new behavior test-first; this skill is how any single test is written, and the whole job when the code already exists.
+Write each test against a bug it would catch, in the repo's own suite, and watch it fail before trusting it. Driving new behavior test-first is its own step; this skill is how any single test is written, and the whole job when the code already exists.
 
 ## Workflow
 

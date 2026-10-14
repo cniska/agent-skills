@@ -46,7 +46,7 @@ Flag a bug only with a concrete trigger: name the input or sequence and the wron
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **file**, **the bug**, **triggering input → wrong result**, **fix direction**.
+For each finding: **label** (Critical / Fix / Consider / Nit), **file**, **the bug**, **triggering input → wrong result**, **fix direction**.
 
 - Bad: "This function looks fragile and could misbehave." (no trigger)
 - Good: **Critical** — `pricing.ts:40` `applyDiscount` uses `>` not `>=`, so an order exactly at the threshold gets nothing (total 100, threshold 100 → 0% instead of 10%).

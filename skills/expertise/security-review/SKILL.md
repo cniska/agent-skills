@@ -63,7 +63,7 @@ Only report findings with a concrete attack path, trust-boundary failure, or uns
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit — see `review`), **affected files**, **attack/failure path** (who can reach it), **why risky**, **fix**, **test idea**. Severity follows reachability: Critical = reachable by remote unauthenticated input; Fix = authenticated or same-network; Consider/Nit = requires local access or defense-in-depth.
+For each finding: **label** (Critical / Fix / Consider / Nit), **affected files**, **attack/failure path** (who can reach it), **why risky**, **fix**, **test idea**. Severity follows reachability: Critical = reachable by remote unauthenticated input; Fix = authenticated or same-network; Consider/Nit = requires local access or defense-in-depth.
 
 - Reject: "The WebSocket uses WS not WSS — should be encrypted." (no reachable attack path)
 - Report: **Critical** — `server.ts:42` binds `0.0.0.0` with `auth:false` by default; any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).

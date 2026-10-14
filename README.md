@@ -6,15 +6,15 @@ I do all my engineering with coding agents, and these skills encode the workflow
 
 Two parts carry the workflow:
 
-- **[task](skills/task/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
-- **[A separate reviewer](#the-reviewer) judges every commit** against my design rules in [design-review](skills/design-review/SKILL.md).
+- **[task](skills/workflow/task/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
+- **[A separate reviewer](#the-reviewer) judges every commit** against my design rules in [design-review](skills/expertise/design-review/SKILL.md).
 
 Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
 
 ## Three loops
 
-- **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
-- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction, and a session that dies, or moves to another machine or account, resumes from it.
+- **The inner loop is one task.** [task](skills/workflow/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
+- **The outer loop is all the work.** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/workflow/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction, and a session that dies, or moves to another machine or account, resumes from it.
 - **The improvement loop changes the workflow.** The [coach](#the-plugin) reads how past work went, and the coordinator applies each change it proposes as an experiment, with the signal it should move and a check date. On that date, the signal before and after the change decides whether it stays or is reverted or trimmed, as [the improvement loop](#the-improvement-loop) shows.
 
 ```mermaid
@@ -112,15 +112,15 @@ Four rules shape every route:
 
 | Route | When | Steps |
 |---|---|---|
-| Feature | New or changed behavior | [feature.md](skills/task/references/feature.md) |
-| Bug fix | Behavior that differs from what it should be | [bug-fix.md](skills/task/references/bug-fix.md) |
-| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](skills/task/references/refactor.md) |
-| Test | A change only to tests, or to the spec wording they prove | [test.md](skills/task/references/test.md) |
-| Review | Someone else's change, or a change that already landed | [review.md](skills/task/references/review.md) |
+| Feature | New or changed behavior | [feature.md](skills/workflow/task/references/feature.md) |
+| Bug fix | Behavior that differs from what it should be | [bug-fix.md](skills/workflow/task/references/bug-fix.md) |
+| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](skills/workflow/task/references/refactor.md) |
+| Test | A change only to tests, or to the spec wording they prove | [test.md](skills/workflow/task/references/test.md) |
+| Review | Someone else's change, or a change that already landed | [review.md](skills/workflow/task/references/review.md) |
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. The coach runs [workflow-review](skills/workflow-review/SKILL.md) to find what to change, and the coordinator applies each change as an [experiment](skills/coordinate/references/experiments.md).
+The workflow changes only on evidence, and a change stays only if it helps. The coach runs [workflow-review](skills/workflow/workflow-review/SKILL.md) to find what to change, and the coordinator applies each change as an [experiment](skills/workflow/coordinate/references/experiments.md).
 
 ```mermaid
 flowchart LR
@@ -156,11 +156,11 @@ It follows lean practice, in plain terms first:
 - Rules become checks, as [principles](#principles) says, and a gate that refuses correct work is a defect of the gate (jidoka, false stops).
 - An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [principles](#principles) (andon).
 
-[waste-and-cause.md](skills/workflow-review/references/waste-and-cause.md) has the detail.
+[waste-and-cause.md](skills/workflow/workflow-review/references/waste-and-cause.md) has the detail.
 
 ## The reviewer
 
-A fresh agent that did not write the work runs [design-review](skills/design-review/SKILL.md) on each commit, and on the design wherever its shape is open. The agent that made a change never judges how it is built.
+A fresh agent that did not write the work runs [design-review](skills/expertise/design-review/SKILL.md) on each commit, and on the design wherever its shape is open. The agent that made a change never judges how it is built.
 
 - **It judges the way I would in review**, against my design rules: architecture, patterns and code smells.
 - **For each problem it states what is wrong and what it should be instead**, so its findings steer the work toward the shape I would have given it.
@@ -181,20 +181,20 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
   - A resumed, forked or compacted session is told to load `coordinate` again and resume its ledger and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - **Reviewer agent (`cniska-skills:reviewer`):** judges a design or a change it did not write, as the [reviewer](#the-reviewer).
-  - It runs [design-review](skills/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
+  - It runs [design-review](skills/expertise/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
   - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
 - **Commit gate:** blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
   - An edit after the accept, or a `Verdict: return`, blocks it again.
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
-- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
+- **Ledger hook:** prints the [coordinate](skills/workflow/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
   - The ledger holds open work, owner decisions, questions waiting on the owner, and a running line per worker naming its brief, filed beside it.
   - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline, and says when it could not (offline, diverged, uncommitted changes) and how far behind the printed ledger is.
   - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
-  - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
+  - It runs [workflow-review](skills/workflow/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
   - It proposes only the changes that repeat across sessions.
   - It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, passed on by the due note), comparing its signal before and after, and proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
   - It also reads what moved in the upstream list its brief names (the `upstreams.json` beside the ledger, passed on by the due note), and proposes an upstream change only when the session record or the ledger already asks for it.
@@ -289,77 +289,62 @@ sequenceDiagram
 
 ## Skills
 
-Grouped by where the routes use them.
-
-**Shaping the work**
+**Workflow** — steps that produce an output; one that goes unused is fixed or dropped.
 
 | Skill | Description |
 |-------|------------|
-| [plan](skills/plan/SKILL.md) | Design through dialogue, slice vertically |
-| [spec](skills/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
-| [ui-design](skills/ui-design/SKILL.md) | Design or review interfaces against product states and visual hierarchy |
-| [database-design](skills/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
+| [task](skills/workflow/task/SKILL.md) | Pick a route by what the task changes and load each step's skill |
+| [coordinate](skills/workflow/coordinate/SKILL.md) | Run work across agents and repos from a ledger, asking the owner only what it cannot answer |
+| [plan](skills/workflow/plan/SKILL.md) | Design through dialogue, slice vertically |
+| [spec](skills/workflow/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
+| [build](skills/workflow/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
+| [tdd](skills/workflow/tdd/SKILL.md) | Red-green-refactor, one test at a time |
+| [debug](skills/workflow/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
+| [refactor](skills/workflow/refactor/SKILL.md) | Refactor or rewrite so the new design copies nothing from the old |
+| [simplify](skills/workflow/simplify/SKILL.md) | Reduce complexity, Chesterton's Fence, preserve behavior |
+| [deprecation](skills/workflow/deprecation/SKILL.md) | Build replacement first, migrate consumers, remove completely |
+| [git](skills/workflow/git/SKILL.md) | Conventional commits, rebase to sync, squash to land |
+| [pr](skills/workflow/pr/SKILL.md) | Self-review gated PR create or description update |
+| [ship](skills/workflow/ship/SKILL.md) | Pre-release gate, version bump from commits, cut the tag |
+| [review](skills/workflow/review/SKILL.md) | All review dimensions on a diff — self or PR mode |
+| [audit](skills/workflow/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
+| [explain-diff](skills/workflow/explain-diff/SKILL.md) | Explain a diff's intent and risk in the session |
+| [second-opinion](skills/workflow/second-opinion/SKILL.md) | Have a different model attack a consequential call or a document's facts |
+| [issue](skills/workflow/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
+| [why](skills/workflow/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
+| [search-sessions](skills/workflow/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited; asks [agent-record](https://github.com/cniska/agent-record) first where it is installed |
+| [adr](skills/workflow/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
+| [docs](skills/workflow/docs/SKILL.md) | Create or update project documentation |
+| [agents-md](skills/workflow/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
+| [skill-writing](skills/workflow/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, dry-run blind against a baseline on unlike real repos, score on eval cases where the repo has them |
+| [routine-writing](skills/workflow/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
+| [verification-setup](skills/workflow/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
+| [workflow-review](skills/workflow/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence and named by the waste it cost and its cause |
 
-**Writing code**
-
-| Skill | Description |
-|-------|------------|
-| [code-writing](skills/code-writing/SKILL.md) | Shared code rules once, plus a toolchain and pitfalls reference per language |
-| [build](skills/build/SKILL.md) | Vertical slices — implement, verify, commit, repeat |
-| [tdd](skills/tdd/SKILL.md) | Red-green-refactor, one test at a time |
-| [test-writing](skills/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
-| [debug](skills/debug/SKILL.md) | Stop the line, reproduce, fix root cause, guard with test |
-| [refactor](skills/refactor/SKILL.md) | Refactor or rewrite so the new design copies nothing from the old |
-| [simplify](skills/simplify/SKILL.md) | Reduce complexity, Chesterton's Fence, preserve behavior |
-| [git](skills/git/SKILL.md) | Conventional commits, rebase to sync, squash to land |
-| [deprecation](skills/deprecation/SKILL.md) | Build replacement first, migrate consumers, remove completely |
-
-**Judging the work**
-
-| Skill | Description |
-|-------|------------|
-| [design-review](skills/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
-| [review](skills/review/SKILL.md) | All review dimensions on a diff — self or PR mode |
-| [correctness-review](skills/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
-| [maintainability-review](skills/maintainability-review/SKILL.md) | Conformance to local conventions, naming and readability |
-| [architecture-review](skills/architecture-review/SKILL.md) | Conformance to the project's stated boundaries, dependency direction and contracts |
-| [security-review](skills/security-review/SKILL.md) | Trust boundaries, execution safety, concrete attack paths only |
-| [performance-review](skills/performance-review/SKILL.md) | Repeated work, unbounded operations, and resource use |
-| [test-review](skills/test-review/SKILL.md) | Coverage gaps, edge cases, test quality |
-| [doc-review](skills/doc-review/SKILL.md) | Drift detection, terminology, outdated names |
-| [explain-diff](skills/explain-diff/SKILL.md) | Explain a diff's intent and risk in the session |
-| [second-opinion](skills/second-opinion/SKILL.md) | Have a different model attack a consequential call or a document's facts |
-| [principles](skills/principles/SKILL.md) | The principles more than one skill applies, one file each, read by name |
-
-**Landing it**
+**Expertise** — rules for what good looks like in one kind of work; one may go unused for a while.
 
 | Skill | Description |
 |-------|------------|
-| [pr](skills/pr/SKILL.md) | Self-review gated PR create or description update |
-| [ship](skills/ship/SKILL.md) | Pre-release gate, version bump from commits, cut the tag |
-
-**Used on their own**
-
-| Skill | Description |
-|-------|------------|
-| [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
-| [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited; asks [agent-record](https://github.com/cniska/agent-record) first where it is installed |
-| [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
-| [issue](skills/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
-| [agents-md](skills/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
-| [docs](skills/docs/SKILL.md) | Create or update project documentation |
-| [adr](skills/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
-| [writing](skills/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
-| [routine-writing](skills/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
-| [verification-setup](skills/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
-| [workflow-review](skills/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence and named by the waste it cost and its cause |
-| [skill-writing](skills/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, dry-run blind against a baseline on unlike real repos, score on eval cases where the repo has them |
+| [principles](skills/expertise/principles/SKILL.md) | The principles more than one skill applies, one file each, read by name |
+| [code-writing](skills/expertise/code-writing/SKILL.md) | Shared code rules once, plus a toolchain and pitfalls reference per language |
+| [test-writing](skills/expertise/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
+| [writing](skills/expertise/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
+| [database-design](skills/expertise/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
+| [ui-design](skills/expertise/ui-design/SKILL.md) | Design or review interfaces against product states and visual hierarchy |
+| [design-review](skills/expertise/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
+| [correctness-review](skills/expertise/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
+| [maintainability-review](skills/expertise/maintainability-review/SKILL.md) | Conformance to local conventions, naming and readability |
+| [architecture-review](skills/expertise/architecture-review/SKILL.md) | Conformance to the project's stated boundaries, dependency direction and contracts |
+| [security-review](skills/expertise/security-review/SKILL.md) | Trust boundaries, execution safety, concrete attack paths only |
+| [performance-review](skills/expertise/performance-review/SKILL.md) | Repeated work, unbounded operations, and resource use |
+| [test-review](skills/expertise/test-review/SKILL.md) | Coverage gaps, edge cases, test quality |
+| [doc-review](skills/expertise/doc-review/SKILL.md) | Drift detection, terminology, outdated names |
 
 ## How I maintain these
 
 These are built for my own use, in my own tone and decision style. The goal is consistent execution quality across sessions, not generic prompt patterns.
 
-I run the whole set with an `AGENTS.md` in every repo. Skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/agents-md/SKILL.md) skill to create that file first.
+I run the whole set with an `AGENTS.md` in every repo. Skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](skills/workflow/agents-md/SKILL.md) skill to create that file first.
 
 What feeds the maintenance: daily use in my own projects, gaps observed in real sessions, selective upstream review as a signal, and external feedback when it aligns with these principles.
 
@@ -383,14 +368,14 @@ Where a rule must hold, I enforce the outcome rather than every step: the review
 
 ### Skill conventions
 
-Each skill is one self-contained directory: `skills/<name>/SKILL.md`, plus any `references/` files it loads only when a task needs them. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
+Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, where the kind is `workflow` or `expertise`, plus any `references/` files it loads only when a task needs them. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
 
 - **Self-contained.** A skill depends on nothing outside its own directory, because `npx skills add` copies only that directory, so shared or repo-root files never ship. Every link resolves inside the skill.
 - **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path, so there are no cross-directory links to break.
 - **Terse and imperative.** Each skill states its intent and workflow, and ends with a `## Red flags` section of failure modes. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models.
 
-`mise run validate` enforces the mechanical parts: frontmatter, `## Red flags`, and links that stay inside the skill.
+`mise run validate` enforces the mechanical parts: the two kind folders, frontmatter, `## Red flags`, and links that stay inside the skill.
 
 ### Model tiers
 
@@ -408,7 +393,7 @@ Naming actual models here would be wrong within months, so this column gives the
 
 Each principle lives in one place, and the reviewer cites the rule behind each finding.
 
-- **A principle more than one skill applies** lives in [principles](skills/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
+- **A principle more than one skill applies** lives in [principles](skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
 - **The rest** live in the skill that applies them:
 
 | Principle | In practice | Lives in |
@@ -460,7 +445,7 @@ On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/work
 - **Commit subjects** are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
 - **Comments** in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang, are refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
 
-Create a new skill with `mise run new-skill <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
+Create a new skill with `mise run new-skill <workflow|expertise> <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
 
 ## License
 
