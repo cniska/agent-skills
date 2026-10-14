@@ -58,8 +58,11 @@ assert "a blank HOME falls back to the account's home" \
   "$(HOME="  " bash -c 'source "$1"; ledger_path' _ "$HERE/ledger-path.sh")" "$real_home/.local/state/agent-skills/ledger.md"
 
 hooks="$HERE/hooks.json"
-assert "every SessionStart group and PostCompact run the ledger hook" "$(grep -c 'hooks/ledger.sh"' "$hooks")" 3
-assert "PostCompact runs the ledger hook" "$(jq -r '.hooks.PostCompact[].hooks[].command | endswith("/hooks/ledger.sh")' "$hooks")" true
+runs_ledger() {
+  jq -r --arg event "$1" '[.hooks[$event][] | any(.hooks[]; .command | endswith("/hooks/ledger.sh"))] | all' "$hooks"
+}
+assert "every SessionStart group runs the ledger hook" "$(runs_ledger SessionStart)" true
+assert "every PostCompact group runs the ledger hook" "$(runs_ledger PostCompact)" true
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
