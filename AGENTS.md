@@ -1,6 +1,6 @@
 # Skills
 
-Self-contained engineering skills for AI coding agents — one per directory at `skills/<kind>/<name>/`, with `SKILL.md` and any `references/` it loads on demand. The repo root is also the `cniska-skills` Claude Code plugin: `.claude-plugin/`, `hooks/` and `agents/` beside `skills/`, with `plugin.json` listing both kind folders; an agent preloads skills by their `cniska-skills:` name, and its test fails when a named skill is missing. `README.md` is the reference for the full set, capability tiers, and principles.
+Self-contained engineering skills for AI coding agents — one per directory at `skills/<kind>/<name>/`, with `SKILL.md` and any `references/` it loads on demand. The repo root is also the `cniska-skills` Claude Code plugin: `.claude-plugin/`, `hooks/` and `agents/` beside `skills/`, with `plugin.json` listing both kind folders; an agent preloads skills by their `cniska-skills:` name, and its test fails when a named skill is missing. `README.md` lists the full set and links the rest of the reference in `docs/`; `docs/conventions.md` holds the capability tiers and principles.
 
 ## Authoring a skill
 
