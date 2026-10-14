@@ -129,6 +129,14 @@ assert "a branch with no upstream says the remote may be newer" "$(run_in "$repo
 
 old ledger"
 
+repo="$(setup_ledger_repo pruned)"
+git -C "$repo" config fetch.prune true
+git -C "$scratch/pruned/remote.git" branch -q -m main moved
+assert "an upstream the fetch prunes is named and the ledger still prints" "$(run_in "$repo")" \
+  "Ledger not pulled: after fetching, git could not compare it with origin/main.
+
+old ledger"
+
 git init -q "$scratch/untracked"
 printf 'untracked ledger\n' >"$scratch/untracked/ledger.md"
 assert "a ledger git does not track prints with no pull" "$(run_in "$scratch/untracked")" "untracked ledger"

@@ -3,6 +3,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/ledger-path.sh"
+source "$HERE/deadline.sh"
 
 readonly COACH_DUE_AFTER_SECONDS=86400
 readonly NEVER_RUN="the past week's sessions"
@@ -43,15 +44,11 @@ upstream_note() (
     reviews+=("$reviewed")
     count=$((count + 1))
   done <<<"$entries"
+  set +m
   if ((count == 0)); then
     return 0
   fi
-  { sleep "$UPSTREAM_DEADLINE_SECONDS" && kill -- "${pids[@]/#/-}"; } >/dev/null 2>&1 </dev/null &
-  local watchdog="$!"
-  set +m
-  wait "${pids[@]}" 2>/dev/null || true
-  kill -- "-$watchdog" 2>/dev/null || true
-  wait "$watchdog" 2>/dev/null || true
+  wait_within_deadline "$UPSTREAM_DEADLINE_SECONDS" "${pids[@]}" || true
   local i head answered=0 moved=0
   for ((i = 0; i < count; i++)); do
     head="$(cat -- "$answers/$i" 2>/dev/null)" || head=""

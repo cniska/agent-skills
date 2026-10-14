@@ -3,6 +3,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/ledger-path.sh"
+source "$HERE/deadline.sh"
 
 readonly FETCH_DEADLINE_SECONDS=5
 readonly KILLED_STATUS=143
@@ -10,14 +11,8 @@ readonly KILLED_STATUS=143
 fetch_within_deadline() {
   set -m
   GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null &
-  local fetch="$!"
-  { sleep "$FETCH_DEADLINE_SECONDS" && kill -- "-$fetch"; } >/dev/null 2>&1 </dev/null &
-  local watchdog="$!" status=0
   set +m
-  wait "$fetch" 2>/dev/null || status=$?
-  kill -- "-$watchdog" 2>/dev/null || true
-  wait "$watchdog" 2>/dev/null || true
-  return "$status"
+  wait_within_deadline "$FETCH_DEADLINE_SECONDS" "$!"
 }
 
 commits_between() {
@@ -58,8 +53,10 @@ pull_ledger() {
     return 0
   fi
   local behind ahead
-  behind="$(commits_between "$dir" 'HEAD..@{upstream}')"
-  ahead="$(commits_between "$dir" '@{upstream}..HEAD')"
+  if ! behind="$(commits_between "$dir" 'HEAD..@{upstream}')" || ! ahead="$(commits_between "$dir" '@{upstream}..HEAD')"; then
+    not_pulled "after fetching, git could not compare it with $upstream."
+    return 0
+  fi
   if ((behind == 0)); then
     return 0
   fi

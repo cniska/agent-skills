@@ -121,6 +121,8 @@ assert "no plugin data warns on stderr" "$(printf '{}' | { env -u CLAUDE_PLUGIN_
 git_bin="$scratch/git-bin"
 git_calls="$scratch/git-calls"
 mkdir -p "$git_bin"
+printf '#!/bin/sh\nsleep 30\n' >"$scratch/stalled-transport"
+chmod +x "$scratch/stalled-transport"
 cat >"$git_bin/git" <<EOF
 #!/usr/bin/env bash
 printf '%s\n' "\$*" >>"$git_calls"
@@ -129,7 +131,7 @@ case "\$2" in
   https://github.com/a/moved) printf '%s\tHEAD\n' bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb ;;
   https://github.com/b/still) printf '%s\tHEAD\n' cccccccccccccccccccccccccccccccccccccccc ;;
   https://github.com/c/moved) printf '%s\tHEAD\n' dddddddddddddddddddddddddddddddddddddddd ;;
-  https://github.com/s/stalled) exec sleep 30 ;;
+  https://github.com/s/stalled) "$scratch/stalled-transport" ;;
   *) exit 128 ;;
 esac
 EOF
@@ -180,6 +182,7 @@ assert "a stalled upstream is dropped at the deadline and the rest still count" 
   "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered; brief the coach with the list at $upstreams."
 assert "a stalled upstream holds the session start no longer than the deadline" "$([ "$elapsed" -le 8 ] && echo yes || echo "no, ${elapsed}s")" yes
 assert "a stalled upstream writes nothing to stderr" "$(cat "$scratch/stalled-stderr")" ""
+assert "a stalled upstream leaves no transport running" "$(pgrep -f "$scratch/stalled-transport" | wc -l | tr -d ' ')" 0
 
 printf 'not json\n' >"$upstreams"
 assert "an unreadable upstream list still says the coach is due" "$(git_due)" "$DUE_NEVER"
