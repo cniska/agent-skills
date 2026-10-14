@@ -35,16 +35,15 @@ Tag each finding with the waste it cost, as [references/waste-and-cause.md](refe
 
 | Kind | What happened | Proposal |
 |---|---|---|
-| Conflict | The agent followed a skill and the owner corrected it | Change the skill; the owner decides which position stands |
+| Conflict | The agent followed a skill and the owner corrected it, or the change crosses the owner's boundary | The change; the owner decides whether it stands |
 | Unstated rule | The owner enforces it and nothing states it | Add it to the skill that owns that step, or make it a check |
-| Repo rule | It holds in one project only | That repo's rules file, under the Conflict heading so the owner decides |
 | Dead weight | A step routinely finds nothing, or repeats another | Cut it, or scale it to the work |
 | False stop | A gate refused correct work | Fix the gate, not the work |
 | One-off | One session | None; list it |
 
 A finding that fits two kinds goes in the one that changes less.
 
-A proposal that touches permissions, how much autonomy the agents have, or a decision the owner settled goes under Conflict instead of its own kind.
+The owner's boundary is a repo's rules file, permissions, how much autonomy the agents have, and the decisions the owner settled. A proposal that crosses it goes under Conflict whatever its kind, such as a rule that holds in one project only, which goes in that repo's rules file.
 
 ## Report
 
