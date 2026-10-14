@@ -20,7 +20,7 @@ diff_base() {
 changed_paths() {
   (
     cd "$1" || exit 1
-    git diff --name-only "$(diff_base)"
+    git diff --name-only --no-renames "$(diff_base)"
     git ls-files --others --exclude-standard
   )
 }

@@ -108,6 +108,9 @@ land
 edit README.md 'more docs'
 assert "a Markdown-only change commits without a verdict" "$(gate 'git commit -am docs')" ""
 land
+(cd "$repo" && git mv app.py app.md)
+assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$DENIED"
+(cd "$repo" && git mv app.md app.py)
 
 worktree="$scratch/topic"
 (cd "$repo" && git worktree add -q -b topic "$worktree")
