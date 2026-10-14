@@ -112,12 +112,11 @@ The hooks append what a session transcript does not show plainly to `events.json
 
 ## Upstreams
 
-Upstreams, the repos and people I follow, bring ideas.
+Upstreams, the repos and people I follow, bring ideas, and [how I maintain these](maintaining.md) counts reviewing them among its feeds.
 
 - The improvement loop changes its upstream lists on its own.
 - The coach also reads what moved in the upstream list its brief names (the `upstreams.json` beside the ledger, passed on by the due note), and proposes an upstream change only when the session record or the ledger already asks for it.
 - Beyond read commands and `agent-record sync`, the coach may make a temporary clone of an upstream.
-- [How I maintain these](maintaining.md) names selective upstream review among what feeds the maintenance.
 - When the coach is due and `upstreams.json` sits beside the ledger, the coach schedule also says how many upstreams moved since their last reviewed commit and where the list is, asking each with `git ls-remote` and skipping any that do not answer.
 
 ## Optional companions

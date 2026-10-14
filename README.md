@@ -30,6 +30,8 @@ flowchart LR
 
 ## Install
 
+Once installed, [how a task runs](docs/loops.md#how-a-task-runs) says how to start a task and which route each kind of task takes.
+
 ### Claude Code
 
 Install the `cniska-skills` plugin, which bundles every skill with [the hooks and agents](#the-plugin):
@@ -49,8 +51,6 @@ claude plugin install cniska-skills@cniska
 ```
 npx skills add cniska/agent-skills
 ```
-
-[How a task runs](docs/loops.md#how-a-task-runs) says how to start a task and which route each kind of task takes.
 
 ## The plugin
 
