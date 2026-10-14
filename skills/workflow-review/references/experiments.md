@@ -11,7 +11,7 @@ The experiment record the brief names is a JSON-lines file, one line per event. 
 Before comparing, apply these to the tasks Check step 2 counts on each side, so noise is not read as a result:
 
 - **Fewer than 10 on a side:** not enough data.
-- **10 to 29:** report the direction, and judge only if owner interrupts move the same way, or, where owner interrupts is the signal, time to land does not get worse; otherwise it is not enough data, until the Verdict's bound on later check dates is reached.
+- **10 to 29:** report the direction, and judge only if owner interrupts agree with the signal: no worse when it moved as named, no better when it did not; or, where owner interrupts is the signal, only if time to land does not get worse. Otherwise it is not enough data, until the Verdict's bound on later check dates is reached.
 - **30 or more:** judge on the signal the experiment named.
 
 ## Check
