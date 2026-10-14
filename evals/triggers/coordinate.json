@@ -3,7 +3,8 @@
     { "prompt": "how are we with inflight work?" },
     { "prompt": "what work is still inflight?" },
     { "prompt": "keep coordinating all the pending work" },
-    { "prompt": "pick up the coordinate session" }
+    { "prompt": "pick up the coordinate session" },
+    { "prompt": "my last session hit its usage limit with three workers running, pick it back up" }
   ],
   "negative": [
     { "prompt": "i was thinking we could add a sitrep (situation report) skill that lays out whats inflight for me", "owner": "skill-writing" },

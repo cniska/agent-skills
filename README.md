@@ -14,7 +14,7 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 ## Three loops
 
 - **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
-- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
+- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction, and a session that dies, or moves to another machine or account, resumes from it.
 - **The improvement loop changes the workflow.** The [coach](#the-plugin) reads how past work went, and the coordinator applies each change it proposes as an experiment, with the signal it should move and a check date. On that date, the signal before and after the change decides whether it stays or is reverted or trimmed, as [the improvement loop](#the-improvement-loop) shows.
 
 ```mermaid
@@ -188,7 +188,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 - **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
-  - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
+  - The ledger holds open work, owner decisions, questions waiting on the owner, and a running line per worker naming its brief, filed beside it.
   - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline, and says when it could not (offline, diverged, uncommitted changes) and how far behind the printed ledger is.
   - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).

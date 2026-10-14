@@ -1,6 +1,6 @@
 ---
 name: coordinate
-description: Run work across several agents or repos for an owner — delegate each task, keep a ledger, batch the owner's questions and keep every agent moving. Use when you run or resume work across several agents or repos for an owner, or when asked for a report on what's in flight (inflight), the status of all work or how to prioritize it.
+description: Run work across several agents or repos for an owner — delegate each task, keep a ledger, batch the owner's questions and keep every agent moving. Use when you run work across several agents or repos for an owner, or resume a coordinating session and its workers after it stopped or moved, or when asked for a report on what's in flight (inflight), the status of all work or how to prioritize it.
 argument-hint: "<the work>"
 ---
 
@@ -13,14 +13,14 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 1. **Delegate each task to a subagent that loads the `task` skill with the Skill tool**, briefed as [the brief](references/brief.md) says.
 2. **Run reviewers as in-process subagents** that did not write the work, never as new cloud sessions.
 3. **Follow each repo's push rule.** A worker lands accepted commits as `task` says.
-4. **Keep a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute, creating its directory. It holds open work per repo, owner decisions, questions waiting on the owner, running agents, the path to the [experiment record](references/experiments.md) beside it, and any plan that spans sessions or agents. The session running the agents rewrites it at every report it gives; a session that only reports leaves it unchanged and says which ledger lines git contradicts. Where the file sits in a git checkout, commit and push the ledger and its experiment record alone, under that repo's rules.
-5. **Keep every plan in the ledger or a repo**, never only in a message or a temp path another machine cannot reach.
+4. **Keep a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute, creating its directory. It holds open work per repo, owner decisions, questions waiting on the owner, a running line per worker naming its repo, worktree and brief, the path to the [experiment record](references/experiments.md) beside it, and any plan that spans sessions or agents. The session running the agents rewrites it whenever a worker starts or stops and at every report it gives: a worker's running line and its brief, filed beside the ledger, are committed and pushed before the worker starts, so a session that dies loses nothing. A session that only reports leaves it unchanged and says which ledger lines git contradicts. Where the file sits in a git checkout, commit and push the ledger, its briefs and its experiment record alone, under that repo's rules.
+5. **Keep every plan in the ledger's repo or the work's repo**, never only in a message or a temp path another machine cannot reach. Each worker works in its own worktree, never a primary checkout, so what it leaves is findable and its own.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
 7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing or slicing, and name each in the report. When unsure, get a `powerful`-tier read through `second-opinion` first. Ask the owner only about product tradeoffs and what you cannot answer.
 
 ## Resume
 
-After compaction or in a fresh session, read the ledger first, then gather [the report's sources](references/report.md#sources).
+Resume a coordinating session, with its ledger, its workers and what they left, after compaction, in a fresh session, or on another machine, in the cloud or under another account, as [resume](references/resume.md) says.
 
 ## Report
 
@@ -38,7 +38,9 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - A task worked in the coordinator's own context instead of delegated
 - A reviewer started as a new cloud session
 - A worker's commit stacked on one not yet accepted
-- A plan held only in a message or a temp path
+- A plan or brief held only in a message or a temp path
+- A worker started before its running line is in the ledger and its brief committed beside it, or working in a primary checkout
+- A resume that reads the ledger unpulled, trusts orphaned changes unreviewed, or reports before rewriting the ledger
 - A report from the session running the agents that leaves the ledger stale
 - An owner question about a choice the coordinator could recommend, or one asked before a second opinion
 - A quiet agent left unchecked
