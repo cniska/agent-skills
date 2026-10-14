@@ -106,6 +106,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - `${x^^}`, `${x,,}`, `mapfile` and associative arrays need bash 4.
 - `set -e` is off inside a function called from `if`, `&&`, `||` or `!`, even for commands deep inside it.
 - `$(...)` does not inherit `-e` before bash 4.4's `inherit_errexit`.
+- `exit`, or a `die` helper, run as a pipeline stage or inside `( … )` ends only that subshell, and the script runs on. Assign its output in a statement of its own, then pipe the variable.
 - `jq` exits 2 and 3 for its own usage and compile errors, so a script whose statuses overlap cannot tell its failure from jq's.
 
 ## Red flags
