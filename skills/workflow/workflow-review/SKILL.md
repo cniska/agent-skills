@@ -26,9 +26,8 @@ Find where the workflow failed the owner, and say what should change so it does 
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
-5. **Read the upstreams** when the brief names an upstream list, as [references/upstreams.md](references/upstreams.md) says.
-6. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says.
-7. **Check the repo's evals and checks**, as its rules name them, from their cases and the results already recorded, running none: a case that measures nothing, both sides passing or both failing; a trigger prompt that loads the wrong skill; a check the repo has that no route runs. Each is a finding.
+5. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says.
+6. **Check the repo's evals and checks**, as its rules name them, from their cases and the results already recorded, running none: a case that measures nothing, both sides passing or both failing; a trigger prompt that loads the wrong skill; a check the repo has that no route runs. Each is a finding.
 
 ## Judge
 
@@ -77,5 +76,4 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 - Applying a conflict without the owner's call
 - Running an eval, or proposing one the change's risk does not justify
 - A finding whose fix is a tool, written as a skill line
-- Proposing an upstream change because it looks good, with no friction or ledger gap behind it
 - Keeping an experiment past its check date without comparing its signal before and after

@@ -30,6 +30,6 @@ A gate that refuses correct work is a defect of the gate, not of the work. The f
 
 The whys can end at no tool doing this: friction that repeats and that no skill line, repo rule or check can remove, because it needs a mechanism outside the repo, such as a command, a query or a small service; a hook or check inside the repo stays a check. The shape to propose is a small standalone tool in its own repo that gives agents a mechanism a skill line cannot, such as a record of past sessions, a gate on commits or an isolated checkout.
 
-- Check first that no existing tool or option already does it, the repo's own and the upstreams' included.
+- Check first that no existing tool or option already does it, the repo's own included.
 - Name the friction it repeats, from the evidence, and the smallest tool that would remove it.
 - A new tool is a product call: propose it to the owner as a Conflict, never build it. With too little evidence for a proposal, list it with the one-offs as an idea for the caller's backlog.
