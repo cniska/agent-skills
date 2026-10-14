@@ -174,11 +174,12 @@ assert "a skipped entry asks no remote" "$(calls)" 1
 
 jq -n --arg a "$A_OLD" '[{repo: "s/stalled", taken: "s", reviewed: $a}, {repo: "a/moved", taken: "x", reviewed: $a}]' >"$upstreams"
 started="$(date +%s)"
-stalled_output="$(git_due)"
+stalled_output="$(printf '%s' "$SESSION_START" | PATH="$git_bin:$PATH" "$DUE" 2>"$scratch/stalled-stderr")"
 elapsed=$(($(date +%s) - started))
 assert "a stalled upstream is dropped at the deadline and the rest still count" "$stalled_output" \
   "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered."
 assert "a stalled upstream holds the session start no longer than the deadline" "$([ "$elapsed" -le 8 ] && echo yes || echo "no, ${elapsed}s")" yes
+assert "a stalled upstream writes nothing to stderr" "$(cat "$scratch/stalled-stderr")" ""
 
 printf 'not json\n' >"$upstreams"
 assert "an unreadable upstream list still says the coach is due" "$(git_due)" "$DUE_NEVER"

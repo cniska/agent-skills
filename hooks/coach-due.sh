@@ -31,18 +31,18 @@ upstream_note() {
     warn "$list is not a list of upstreams with a repo and a reviewed commit, so the upstream count is skipped"
     return 0
   fi
-  local answers repo reviewed count=0
+  local repo reviewed count=0
   local -a pids=() reviews=()
-  answers="$(mktemp -d)"
+  upstream_answers="$(mktemp -d)"
+  trap 'rm -rf -- "$upstream_answers"' EXIT
   while IFS=$'\t' read -r repo reviewed; do
     [[ $repo =~ $REPO_PATTERN ]] || continue
-    (ask_remote "$repo") >"$answers/$count" 2>/dev/null </dev/null &
+    (ask_remote "$repo") >"$upstream_answers/$count" 2>/dev/null </dev/null &
     pids+=("$!")
     reviews+=("$reviewed")
     count=$((count + 1))
   done <<<"$entries"
   if ((count == 0)); then
-    rm -rf -- "$answers"
     return 0
   fi
   { sleep "$UPSTREAM_DEADLINE_SECONDS" && kill "${pids[@]}"; } >/dev/null 2>&1 </dev/null &
@@ -52,7 +52,7 @@ upstream_note() {
   wait "$watchdog" 2>/dev/null || true
   local i head answered=0 moved=0
   for ((i = 0; i < count; i++)); do
-    head="$(cat -- "$answers/$i" 2>/dev/null)" || head=""
+    head="$(cat -- "$upstream_answers/$i" 2>/dev/null)" || head=""
     head="${head%%[[:space:]]*}"
     [[ $head =~ ^[0-9a-f]{40}$ ]] || continue
     answered=$((answered + 1))
@@ -60,7 +60,6 @@ upstream_note() {
       moved=$((moved + 1))
     fi
   done
-  rm -rf -- "$answers"
   if ((moved > 0)); then
     printf 'Upstreams moved since their last review: %d of the %d that answered.\n' "$moved" "$answered"
   fi
