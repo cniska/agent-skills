@@ -17,15 +17,21 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
 - **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment that the signals keep or revert.
 
+One task's life, from my request to a workflow change the signals keep or revert:
+
 ```mermaid
-flowchart LR
-  you(["You"]) --> outer["Outer loop"]
-  outer --> you
-  outer --> inner["Inner loop"]
-  inner --> outer
-  inner --> improve["Improvement loop"]
-  outer --> improve
-  improve --> outer
+flowchart TD
+  you(["You"]) -- "a request" --> lead["Coordinator"]
+  lead -- "running line, brief" --> ledger[("Ledger")]
+  lead -- "batched questions, report" --> you
+  lead -- "the brief" --> worker["Worker runs the task route"]
+  worker -- "each commit's diff" --> reviewer["Fresh reviewer"]
+  reviewer -- "accept, or return with findings" --> worker
+  worker -- "accepted commit" --> push["Push to the remote"]
+  push -- "the landed task's sessions" --> coach["Task coach"]
+  coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
+  lead -- "one change: commit, signal, check date" --> exp["Experiment"]
+  exp -- "past its check date: signals before and after" --> coach
 ```
 
 ## Install

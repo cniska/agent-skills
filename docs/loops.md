@@ -1,6 +1,6 @@
 # The loops
 
-The workflow runs in three loops, as the [README](../README.md#three-loops) shows at a glance. Each loop has a chart of its handoffs, and the improvement loop a second for its experiment cycle.
+The workflow runs in three loops. The [README chart](../README.md#three-loops) follows one task through all three; the charts here add what that chart leaves out.
 
 ## The inner loop
 
@@ -8,9 +8,9 @@ One agent runs one task, from its route to a landed commit.
 
 ```mermaid
 flowchart LR
-  route["Route"] --> steps["Steps load their skills"]
-  steps --> rev["Fresh reviewer"]
-  rev --> commit["Commit"]
+  route["Route"] -- "the steps to run" --> steps["Steps load their skills"]
+  steps -- "each commit's diff" --> rev["Fresh reviewer"]
+  rev -- "accept" --> commit["Commit"]
   commit -- "report" --> lead["Coordinator"]
   commit -- "sessions and events" --> rec[("agent-record")]
 ```
@@ -50,17 +50,7 @@ Four rules shape every route:
 
 ## The outer loop
 
-The coordinator runs all the work in one long session on autocompaction.
-
-```mermaid
-flowchart LR
-  you(["You"]) -- "the work" --> lead["Coordinator"]
-  lead -- "batched questions" --> you
-  lead -- "reads and rewrites" --> ledger[("Ledger")]
-  lead -- "delegates a task" --> inner["Inner loop"]
-  inner -- "each task, once it lands" --> coach["Coach"]
-  coach -- "proposals" --> lead
-```
+The coordinator runs all the work in one long session on autocompaction; the [README chart](../README.md#three-loops) shows its handoffs.
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop and keeps the agents moving.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
@@ -75,20 +65,18 @@ The workflow changes only on evidence, and a change stays only if it helps. The 
 flowchart LR
   task["Landed task"] -- "its sessions" --> coach["Coach"]
   rec[("agent-record")] -- "earlier sessions, signals" --> coach
-  coach -- "proposals, keep or revert" --> lead["Coordinator"]
+  coach -- "proposals, keep, revert or trim" --> lead["Coordinator"]
 ```
 
 On the check date, the signal before and after the change decides whether it stays or is reverted or trimmed:
 
 ```mermaid
 flowchart LR
-  prop["Proposal<br/>with evidence"] --> exp["Experiment<br/>commit, signal, check date"]
-  exp --> move["Signals move"]
-  move --> check["Check date<br/>before vs after"]
-  check --> keep["Keep"]
-  check --> revert["Revert or trim"]
-  keep --> prop
-  revert --> prop
+  prop["Proposal"] -- "applied: open line with commit, signal, check date" --> exp["Experiment"]
+  exp -- "signal before and after, past the check date" --> review["Workflow review"]
+  review -- "keep, revert, trim or a later check" --> lead["Coordinator"]
+  lead -- "close line, or a new open line" --> rec[("Experiment record")]
+  lead -- "a trim: its own experiment" --> prop
 ```
 
 An eval I approve can check a change before it lands, and the signals judge it after.
