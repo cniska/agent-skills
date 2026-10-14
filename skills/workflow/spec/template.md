@@ -61,7 +61,7 @@ This document specifies what the tool must do, not how. Implementation choices a
 
 ## 5. Out of scope
 
-<What v1 deliberately does not do, so scope creep has a name to bump against. Note anything moved in or out since a prior version.>
+<What v1 deliberately does not do, so scope creep has a name to bump against. An excluded item that another tool or layer owns names that owner. Note anything moved in or out since a prior version.>
 
 ## 6. Acceptance criteria
 
