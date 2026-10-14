@@ -9,10 +9,8 @@ readonly FETCH_DEADLINE_SECONDS=5
 readonly KILLED_STATUS=143
 
 fetch_within_deadline() {
-  set -m
-  GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null &
-  set +m
-  wait_within_deadline "$FETCH_DEADLINE_SECONDS" "$!"
+  start_in_group env GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null
+  wait_for_groups_within_deadline "$FETCH_DEADLINE_SECONDS" "$!"
 }
 
 commits_between() {

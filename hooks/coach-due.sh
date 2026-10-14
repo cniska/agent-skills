@@ -36,19 +36,17 @@ upstream_note() (
   local -a pids=() reviews=()
   answers="$(mktemp -d)"
   trap 'rm -rf -- "$answers"' EXIT
-  set -m
   while IFS=$'\t' read -r repo reviewed; do
     [[ $repo =~ $REPO_PATTERN ]] || continue
-    (ask_remote "$repo") >"$answers/$count" 2>/dev/null </dev/null &
+    start_in_group ask_remote "$repo" >"$answers/$count" 2>/dev/null </dev/null
     pids+=("$!")
     reviews+=("$reviewed")
     count=$((count + 1))
   done <<<"$entries"
-  set +m
   if ((count == 0)); then
     return 0
   fi
-  wait_within_deadline "$UPSTREAM_DEADLINE_SECONDS" "${pids[@]}" || true
+  wait_for_groups_within_deadline "$UPSTREAM_DEADLINE_SECONDS" "${pids[@]}" || true
   local i head answered=0 moved=0
   for ((i = 0; i < count; i++)); do
     head="$(cat -- "$answers/$i" 2>/dev/null)" || head=""

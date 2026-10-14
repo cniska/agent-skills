@@ -1,4 +1,10 @@
-wait_within_deadline() {
+start_in_group() {
+  set -m
+  "$@" &
+  set +m
+}
+
+wait_for_groups_within_deadline() {
   local seconds="$1"
   shift
   set -m
