@@ -24,7 +24,7 @@ Find where the workflow failed the owner, and say what should change so it does 
    - a question the owner had to ask mid-task that a skill should have answered;
    - friction a session reported about the workflow itself, or a gate stop, a review return or a retry;
    - an eval case that regressed, where the repo has evals.
-   When the scope is one task, search every earlier session for each piece of friction it shows; one with no earlier sighting is a one-off.
+   When the scope is one task, read its steps first where the session record traces them: a refused or failed step, a review return, a long step, an agent heavy on tokens or a compaction is where to open its transcripts; then search every earlier session for each piece of friction it shows; one with no earlier sighting is a one-off.
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.

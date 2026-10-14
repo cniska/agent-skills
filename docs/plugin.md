@@ -97,6 +97,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 `cniska-skills:coach` is a task coach: once a task lands, it finds where the workflow failed me in that task and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
 
 - It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over the task's sessions, the worker's and its subagents': my corrections, the questions I had to ask, gate stops, review returns, retries and the friction the sessions reported.
+- It reads the task's trace from agent-record first where it is installed, and the transcripts only at the steps that show friction; without the record it reads the transcripts whole.
 - It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
 - It proposes changes only to what I commit to, as workflow-review says.
 - It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
