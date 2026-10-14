@@ -18,7 +18,7 @@ run = 'bun run test && for t in $(find . -name "*.test.sh" -not -path "./node_mo
 
 [tasks.lint]
 description = "Shellcheck shell scripts, then lint and typecheck the TypeScript"
-run = 'bun run lint && bun run typecheck && shellcheck -x --source-path=SCRIPTDIR $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
+run = 'bun run lint && bun run typecheck && shellcheck $(find . -name "*.sh" -not -path "./node_modules/*" -not -path "./.claude/*")'
 
 [tasks.bootstrap]
 description = "Install dependencies, which wire the commit hooks, and run validation"
