@@ -72,7 +72,7 @@ main() {
   fi
   local record="$CLAUDE_PLUGIN_DATA/coach/last-run"
   local content=""
-  if [ -e "$record" ] && ! content="$(<"$record")" 2>/dev/null; then
+  if [ -e "$record" ] && ! content="$(cat -- "$record" 2>/dev/null)"; then
     warn "$record cannot be read, so whether the coach is due is unknown"
     exit 1
   fi
