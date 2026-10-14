@@ -4,7 +4,7 @@ Resume a coordinating session: its ledger, its workers and what they left, on th
 
 1. **Pull the ledger's repo, then read the ledger.** Where a pull already ran at session start, read what it said: a failed pull leaves the ledger behind the remote.
 2. **Take the in-flight list from the ledger's running lines** and the brief file each names. A worker still running, such as after compaction, keeps going; check in on it as rule 6 says. Check each other line against its repo's remote with `git ls-remote` and `git log`, not a tracking ref:
-   - **Landed**: everything the brief asks is on the remote. Mark it done.
+   - **Landed**: everything the brief asks is on the remote. Drop its line and delete its brief: `git log` holds what landed, and the ledger states only what is true now.
    - **Partial**: some of it is. Restart the worker from its brief, naming what already landed and what remains.
    - **Not started**: none of it is. Restart the worker from its brief as it stands.
 3. **Look for work the ledger missed**: gather [the report's sources](report.md#sources) for every repo the ledger names, and read the previous session's last report from the session record.
