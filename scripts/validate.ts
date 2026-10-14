@@ -254,20 +254,31 @@ function skillProblems(skill: Skill, workflow: ReadonlySet<string>): Problem[] {
   ];
 }
 
-function readmeProblems(root: string): Problem[] {
-  const path = join(root, "README.md");
-  if (!existsSync(path)) return [];
-  const lines = modelLines(readText(path));
-  if (lines.length === 0) return [];
-  return [
-    {
-      message: withDetail(
-        "named model in README.md (describe how to pick a tier, not today's models)",
-        lines,
-      ),
-      resolve: "describe how to pick a fast, balanced or powerful tier instead of naming a model",
-    },
-  ];
+function proseDocs(root: string): string[] {
+  const docsDir = join(root, "docs");
+  const docs = existsSync(docsDir)
+    ? readdirSync(docsDir)
+        .filter((name) => name.endsWith(".md"))
+        .sort()
+        .map((name) => `docs/${name}`)
+    : [];
+  return ["README.md", ...docs].filter((shown) => existsSync(join(root, shown)));
+}
+
+function proseProblems(root: string): Problem[] {
+  return proseDocs(root).flatMap((shown) => {
+    const lines = modelLines(readText(join(root, shown)));
+    if (lines.length === 0) return [];
+    return [
+      {
+        message: withDetail(
+          `named model in ${shown} (describe how to pick a tier, not today's models)`,
+          lines,
+        ),
+        resolve: "describe how to pick a fast, balanced or powerful tier instead of naming a model",
+      },
+    ];
+  });
 }
 
 function strayProblems(skillsDir: string): Problem[] {
@@ -319,7 +330,7 @@ runMain((args) => {
       return loaded.kind === "skill" ? skillProblems(loaded.skill, workflow) : [loaded.problem];
     }),
     ...manifestProblems(root),
-    ...readmeProblems(root),
+    ...proseProblems(root),
   ];
   for (const [resolve, messages] of byResolve(problems)) {
     reportProblems(

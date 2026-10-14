@@ -220,6 +220,16 @@ describe("validate", () => {
     expect(run.output).toContain("3:Pick Opus for planning.");
   });
 
+  test("fails a model name in a doc under docs/", () => {
+    const root = fixture();
+    write(root, "skills/workflow/demo/SKILL.md", WELL_FORMED);
+    write(root, "docs/conventions.md", "# Tiers\n\nRun Haiku for reads.\n");
+    const run = validate(root);
+    expect(run.code).toBe(1);
+    expect(run.output).toContain("named model in docs/conventions.md");
+    expect(run.output).toContain("3:Run Haiku for reads.");
+  });
+
   test("names the fix once for every skill that breaks the same rule", () => {
     const root = fixture();
     write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, "No red flags here."));
