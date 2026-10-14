@@ -41,9 +41,9 @@ Tag each finding with the waste it cost, as [references/waste-and-cause.md](refe
 | False stop | A gate refused correct work | Fix the gate, not the work |
 | One-off | One session | None; list it |
 
-A finding that fits two kinds goes in the one that changes less.
+A finding that fits two kinds goes in the one that changes less, unless it crosses the owner's boundary, which makes it a Conflict.
 
-The owner's boundary is a repo's rules file, permissions, how much autonomy the agents have, and the decisions the owner settled. A proposal that crosses it goes under Conflict whatever its kind, such as a rule that holds in one project only, which goes in that repo's rules file.
+The owner's boundary is a repo's rules file, permissions, how much autonomy the agents have, and the decisions the owner settled; a rule that holds in one project only crosses it, since it goes in that repo's rules file.
 
 ## Report
 
