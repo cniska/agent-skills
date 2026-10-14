@@ -136,7 +136,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - An edit after the accept, or a `Verdict: return`, blocks it again.
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
-- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, so the [outer loop](#two-loops) loses nothing when one long session compacts.
+- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#two-loops).
   - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
