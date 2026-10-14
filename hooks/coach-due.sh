@@ -65,6 +65,30 @@ upstream_note() (
   fi
 )
 
+experiment_note() {
+  local record
+  record="$(dirname -- "$(ledger_path)")/experiments.jsonl"
+  [ -f "$record" ] || return 0
+  local today counts
+  today="$(date -u '+%Y-%m-%d')"
+  if ! counts="$(jq -rs --arg today "$today" '
+    reduce .[] as $e ({};
+      if $e.event == "open" then .[$e.sha] = $e
+      elif $e.event == "close" then del(.[$e.sha])
+      else . end)
+    | [.[]]
+    | [length, (map(select((.check | type) == "string" and .check[0:10] < $today)) | length)]
+    | @tsv' -- "$record" 2>/dev/null)"; then
+    warn "$record is not a record of experiments, one JSON line per event, so the experiment count is skipped"
+    return 0
+  fi
+  local open past
+  IFS=$'\t' read -r open past <<<"$counts"
+  if ((open > 0)); then
+    printf 'Experiments open: %d, %d of them past their check date; brief the coach with the record at %s.\n' "$open" "$past" "$record"
+  fi
+}
+
 main() {
   if [ -z "${CLAUDE_PLUGIN_DATA:-}" ]; then
     warn "CLAUDE_PLUGIN_DATA is not set, so the coach's last run is unknown"
@@ -91,8 +115,9 @@ main() {
     fi
     since="the sessions since $when"
   fi
-  printf 'The coach is due. At the next break, run cniska-skills:coach over %s, then apply its proposals except conflicts, which go to the owner.\n' "$since"
+  printf 'The coach is due. At the next break, run cniska-skills:coach over %s, then apply its proposals except conflicts, which go to the owner, opening an experiment for each change as cniska-skills:coordinate says.\n' "$since"
   upstream_note
+  experiment_note
 }
 
 main "$@"

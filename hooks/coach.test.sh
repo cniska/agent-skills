@@ -25,7 +25,7 @@ mkdir -p "$scratch/ledger"
 last_run="$CLAUDE_PLUGIN_DATA/coach/last-run"
 
 readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Proposals: <n>'"'"', counting the proposals other than one-offs."}'
-readonly DUE_NEVER="The coach is due. At the next break, run cniska-skills:coach over the past week's sessions, then apply its proposals except conflicts, which go to the owner."
+readonly DUE_NEVER="The coach is due. At the next break, run cniska-skills:coach over the past week's sessions, then apply its proposals except conflicts, which go to the owner, opening an experiment for each change as cniska-skills:coordinate says."
 
 record_handback() {
   local transcript="$scratch/transcript.jsonl"
@@ -80,7 +80,7 @@ assert "right after a run the coach is not due" "$(due)" ""
 
 printf '%s\n' 1700000000 >"$last_run"
 assert "a run older than a day makes the coach due since that run" "$(due)" \
-  "The coach is due. At the next break, run cniska-skills:coach over the sessions since 2023-11-14T22:13:20Z, then apply its proposals except conflicts, which go to the owner."
+  "The coach is due. At the next break, run cniska-skills:coach over the sessions since 2023-11-14T22:13:20Z, then apply its proposals except conflicts, which go to the owner, opening an experiment for each change as cniska-skills:coordinate says."
 
 printf '%s\n' $(($(date +%s) - 86400 + 60)) >"$last_run"
 assert "a run just under a day old is not due" "$(due)" ""
@@ -186,6 +186,36 @@ assert "an unreadable upstream list still says the coach is due" "$(git_due)" "$
 assert "an unreadable upstream list exits 0" "$(PATH="$git_bin:$PATH" due_code)" 0
 assert "an unreadable upstream list warns on stderr" "$(PATH="$git_bin:$PATH" due_stderr | grep -c '^coach-due.sh: .*upstream count is skipped')" 1
 rm -f "$upstreams" "$git_calls"
+
+experiments="$scratch/ledger/experiments.jsonl"
+readonly EXPERIMENT_NOTE="Experiments open"
+assert "with no experiment record the due note stands alone" "$(due)" "$DUE_NEVER"
+
+{
+  jq -cn '{v: 1, event: "open", sha: "a1", signal: "owner interrupts", check: "2020-01-01"}'
+  jq -cn '{v: 1, event: "open", sha: "b2", signal: "time to land", check: "2020-01-01"}'
+  jq -cn '{v: 1, event: "open", sha: "b2", signal: "time to land", check: "2999-01-01"}'
+  jq -cn '{v: 1, event: "open", sha: "c3", signal: "review loops", check: "2020-01-01"}'
+  jq -cn '{v: 1, event: "close", sha: "c3", outcome: "keep"}'
+  jq -cn '{v: 1, event: "open", sha: "d4", signal: "stranded work", check: "2020-02-01T00:00:00Z"}'
+} >"$experiments"
+assert "a due coach counts the open experiments and those past their check date" "$(due)" \
+  "$DUE_NEVER"$'\n'"$EXPERIMENT_NOTE: 3, 2 of them past their check date; brief the coach with the record at $experiments."
+assert "counting experiments writes nothing to stderr" "$(due_stderr)" ""
+
+record_last_message 'Proposals: 1' >/dev/null
+assert "a coach that is not due says nothing about experiments" "$(due)" ""
+rm -f "$last_run"
+
+jq -cn '{v: 1, event: "open", sha: "a1", check: "2020-01-01"}' >"$experiments"
+jq -cn '{v: 1, event: "close", sha: "a1", outcome: "revert"}' >>"$experiments"
+assert "a record with every experiment closed adds nothing" "$(due)" "$DUE_NEVER"
+
+printf 'not json\n' >"$experiments"
+assert "an unreadable experiment record still says the coach is due" "$(due)" "$DUE_NEVER"
+assert "an unreadable experiment record exits 0" "$(due_code)" 0
+assert "an unreadable experiment record warns on stderr" "$(due_stderr | grep -c '^coach-due.sh: .*experiment count is skipped')" 1
+rm -f "$experiments"
 
 hooks="$HERE/hooks.json"
 assert "the run recorder listens to the coach agent" \

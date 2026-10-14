@@ -46,7 +46,7 @@ flowchart TB
   commit -- "sessions and events" --> rec
   rec -- "signals" --> coach
   ups -- "ideas" --> coach
-  ledger -- "open experiments" --> coach
+  ledger -- "experiment record, via the due note" --> coach
   coach -- "proposals, keep or revert" --> lead
 ```
 
@@ -191,7 +191,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
   - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
   - It proposes only the changes that repeat across sessions.
-  - It checks each open experiment past its check date, comparing its signal before and after, and proposes keeping, reverting or trimming the change.
+  - It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, passed on by the due note), comparing its signal before and after, and proposes keeping, reverting or trimming the change.
   - It also reads what moved in the upstream list its brief names (the `upstreams.json` beside the ledger, passed on by the due note), and proposes an upstream change only when the session record or the ledger already asks for it.
   - It changes nothing itself and runs only read commands, `agent-record sync` and a temporary clone of an upstream.
   - It ends each report with `Proposals: <n>`.
@@ -199,7 +199,8 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - The coach is due when a session starts or is cleared more than a day after the last run, or with no run recorded.
   - A run counts once its report ends with `Proposals: <n>`.
   - When the coach is due and `upstreams.json` sits beside the ledger, it also says how many upstreams moved since their last reviewed commit and where the list is, asking each with `git ls-remote` and skipping any that do not answer.
-  - The agent applies the proposals at the next break and brings me only conflicts.
+  - When the coach is due and `experiments.jsonl` sits beside the ledger, it also says how many experiments are open, how many of them are past their check date, and where the record is.
+  - The agent applies the proposals at the next break, opening an experiment for each change, and brings me only conflicts.
 - **Event log:** the hooks append what a session transcript does not show plainly to `events.jsonl` in the plugin's data directory, for [agent-record](https://github.com/cniska/agent-record) to archive.
   - It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict, each permission prompt and each auto-mode denial.
   - A hook that cannot write the line says so on stderr and decides as it would have.
