@@ -1,0 +1,34 @@
+# Upstreams
+
+Upstreams bring ideas; the session record brings the evidence. An upstream change earns a proposal only when the evidence already asks for it.
+
+## The list
+
+`upstreams.json` beside the ledger: an array, one entry per upstream.
+
+- `repo`: `owner/name` on GitHub.
+- `path`: optional; the read takes only changes under it. The session-start count ignores it, so an upstream can count as moved with nothing to read.
+- `only`: optional; `new-skills` limits the read to skills the upstream added.
+- `taken`: what the owner took from it.
+- `reviewed`: the last commit reviewed.
+
+## Read
+
+1. **Take the entries in list order.**
+2. **Read only what changed** between `reviewed` and the remote's head, under `path` and within `only`: new or changed skills, hooks, agents and checks. Skip formatting, renames and churn.
+3. **Note the head read up to** for each entry, even when nothing clears the bar.
+
+## The bar
+
+| Change | Outcome |
+|---|---|
+| Answers friction two independent sessions show, by the two-session rule | Proposal, citing the sessions and the upstream commit |
+| Closes a gap the ledger names | Proposal, citing the ledger line and the upstream commit |
+| Touches a decision the owner settled | Conflict, naming the decision |
+| Anything else | Listed in one line and dropped |
+
+A proposal from an upstream takes the same shape as any other: where, evidence, change, check. The upstream commit is the idea, never the evidence.
+
+## Report
+
+An `Upstreams` heading after the one-offs: each entry's dropped changes, one line each, and the head read up to. The list advances to those heads in the commit that lands the report, so the next run starts there.
