@@ -42,11 +42,10 @@ Flag a bug only with a concrete trigger: name the input or sequence and the wron
 1. Read the diff and enough surrounding code to know what each change is *supposed* to do.
 2. For each change, ask: what input or interleaving makes this do the wrong thing? Trace actual behavior against claimed behavior.
 3. Check the tests — a green suite around wrong behavior means the test is wrong too; note both.
-4. When the diff is wider than you can hold in one read, fan out **fast-tier** readers — one per independent question — to surface candidate bugs. Verify each trigger yourself before reporting.
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit), **file**, **the bug**, **triggering input → wrong result**, **fix direction**.
+For each bug: **label** (Critical / Fix / Consider / Nit), **file**, **the bug**, **triggering input → wrong result**, **fix direction**.
 
 - Bad: "This function looks fragile and could misbehave." (no trigger)
 - Good: **Critical** — `pricing.ts:40` `applyDiscount` uses `>` not `>=`, so an order exactly at the threshold gets nothing (total 100, threshold 100 → 0% instead of 10%).
@@ -55,7 +54,6 @@ Order Critical → Fix → Consider → Nit. If nothing breaks under a concrete 
 
 ## See also
 
-- `review` for severity framing and merge gating
 - `test-review` for whether the bug's absence is guarded by a test
 - `debug` for reproducing and root-causing a confirmed bug
 

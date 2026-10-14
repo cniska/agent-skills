@@ -51,12 +51,12 @@ A suppression comment is the exception: the comment rule refuses it, so label it
 
 1. Identify local style conventions from nearby code.
 2. Compare against repo-wide documented conventions.
-3. Find concrete deviations with evidence. When the diff is wider than you can hold in one read, fan out **fast-tier** readers — one per independent question — to surface candidate findings. Verify each before reporting.
+3. Find concrete deviations with evidence.
 4. Report findings ordered by severity.
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit), **file**, **violated convention**, **evidence** (cite both the offending line and the code that establishes the convention), **fix direction**.
+For each departure from convention: **label** (Critical / Fix / Consider / Nit), **file**, **violated convention**, **evidence** (cite both the offending line and the code that establishes the convention), **fix direction**.
 
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
 - Good: **Fix** — `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`). Rename to `fetchUserData`.
@@ -65,7 +65,6 @@ Order Critical → Fix → Consider → Nit. If nothing clears the threshold, re
 
 ## See also
 
-- `review` for severity framing and merge gating
 - `design-review` and `code-writing` for the rules that hold regardless of local convention
 - `simplify` for performing the cleanups this review identifies
 

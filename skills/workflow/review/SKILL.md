@@ -21,7 +21,7 @@ Do not duplicate the same issue across categories. A finding backed by the repo'
 Before reviewing, check the diff size:
 
 - ~100 lines: good, reviewable in one pass.
-- ~300 lines: acceptable if one logical change.
+- ~300 lines: fine when it is one logical change.
 - ~1000 lines: too large — ask the author to split before reviewing.
 
 Refactoring mixed with feature work is two changes. Flag it.
@@ -102,7 +102,7 @@ One section per review dimension (Design, Correctness, Maintainability, Architec
 
 ## See also
 
-- `design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
+- the dimension skills step 5 loads, for each dimension's depth
 - `audit` for a read-only sweep of code already on the default branch
 - `database-design` for the schema rules a migration is checked against
 - `simplify` for acting on structural findings

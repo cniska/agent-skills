@@ -59,11 +59,11 @@ Only report findings with a concrete attack path, trust-boundary failure, or uns
 2. Classify each: local-only, authenticated, remote-accessible, privileged.
 3. Check validation, authorization, safe defaults at each boundary. For large audits, fan out **fast-tier** readers — one per boundary or subsystem — to collect raw candidates. Verify each against the code before reporting.
 4. Identify exploitable paths (read, write, execute, network, persist).
-5. Report findings by severity: critical → high → medium → low.
+5. Report findings by severity, Critical first.
 
 ## Output
 
-For each finding: **label** (Critical / Fix / Consider / Nit), **affected files**, **attack/failure path** (who can reach it), **why risky**, **fix**, **test idea**. Severity follows reachability: Critical = reachable by remote unauthenticated input; Fix = authenticated or same-network; Consider/Nit = requires local access or defense-in-depth.
+For each attack path: **label** (Critical / Fix / Consider / Nit), **affected files**, **attack/failure path** (who can reach it), **why risky**, **fix**, **test idea**. Severity follows reachability: Critical = reachable by remote unauthenticated input; Fix = authenticated or same-network; Consider/Nit = requires local access or defense-in-depth.
 
 - Reject: "The WebSocket uses WS not WSS — should be encrypted." (no reachable attack path)
 - Report: **Critical** — `server.ts:42` binds `0.0.0.0` with `auth:false` by default; any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).
