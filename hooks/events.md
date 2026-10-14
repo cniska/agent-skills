@@ -87,15 +87,7 @@ Auto mode refused a tool call (`PermissionDenied`).
 
 ## Signals
 
-Each kind serves a signal of the self-improving loop:
-
-| Signal | From |
-|---|---|
-| Owner interrupts | `permission_prompt` is an interrupt caused by a permission block; `permission_denied` is one when the owner then unblocks the call |
-| Time to land | `gate` `commit` `allow` marks a commit attempted, the child of `head`; the push time is in git (below) |
-| Review loops | `verdict` lines per repository: returns before an accept, rounds per `fingerprint`; `changed_since_accept` denials count rework after an accept |
-| Stranded work | a `verdict` `accept` and its commit with no push after it |
-| False stops | every `deny`, by `gate` and `reason`, and every `permission_denied`, followed by an `allow` of the same work or an override |
+This file describes the events only. Which signal each line serves, and how a stop is judged, is defined by the session record: agent-record's spec.
 
 ## Left out
 
