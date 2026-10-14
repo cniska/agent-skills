@@ -11,7 +11,7 @@ A workflow change stays only if it moves what it was meant to move. Every change
 | `v` | `1` |
 | `ts` | when the line was written, as an ISO time |
 | `event` | `open` or `close` |
-| `sha` | the commit that made the change, or, for a change outside any repo, the commit that records it: its own commit, in the repo that holds the workflow, recording only that change |
+| `sha` | the commit that made the change, or, for a change outside any repo, the commit that records it: its own commit, in the repo whose skills, agents, hooks or checks the change belongs with, recording only that change |
 | `signal` | the one signal it should move, as the session record names it, such as owner interrupts or time to land |
 | `direction` | `up` or `down` |
 | `from` | when the change reached the sessions doing the work, as an ISO time: the commit time, or later if it waits on an install; for a change outside any repo, the time it took effect |
