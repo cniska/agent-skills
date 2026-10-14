@@ -27,4 +27,5 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 ## Commits
 
 - Commit directly to `main` — no branch or PR.
+- Push each commit to `main` once validate, test and lint pass and a fresh reviewer accepts it; that accept is the owner's standing sign-off, so no push waits on them.
 - Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, under 50 characters.
