@@ -6,7 +6,7 @@ I do all my engineering with coding agents, and these skills encode the workflow
 
 Two parts carry the workflow:
 
-- **[task](skills/workflow/task/SKILL.md) routes each task** by what it changes, and loads the skill each step needs.
+- **[task](skills/workflow/task/SKILL.md) routes each task** by what it changes (feature, bug fix, refactor, test or review), and loads the skill each step needs.
 - **[A separate reviewer](docs/reviewer.md) judges every commit** against my design rules in [design-review](skills/expertise/design-review/SKILL.md).
 
 Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
@@ -15,23 +15,23 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed commit, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment that the signals keep or revert.
+- **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
 
-One task's life, from my request to a workflow change the signals keep or revert:
+One task's life, from my request through its landed commit to the workflow changes its coach proposes:
 
 ```mermaid
 flowchart TD
   you(["You"]) -- "a request" --> lead["Coordinator"]
-  lead -- "running line, brief" --> ledger[("Ledger")]
+  lead -- "a line per worker, its brief" --> ledger[("Ledger")]
   lead -- "batched questions, report" --> you
   lead -- "the brief" --> worker["Worker runs the task route"]
   worker -- "each commit's diff" --> reviewer["Fresh reviewer"]
   reviewer -- "accept, or return with findings" --> worker
   worker -- "accepted commit" --> push["Push to the remote"]
-  push -- "the landed task's sessions" --> coach["Task coach"]
+  push -- "the landed task's sessions" --> coach["Coach"]
   coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
-  lead -- "one change: commit, signal, check date" --> exp["Experiment"]
-  exp -- "past its check date: signals before and after" --> coach
+  lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
+  exp -- "past its check date: signals before and after, in the coach's next brief" --> coach
 ```
 
 ## Install
