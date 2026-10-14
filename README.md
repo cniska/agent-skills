@@ -78,7 +78,7 @@ Start a task with `/task <task>`. The route for that kind of task loads each ski
 /task <task>
   → a route, chosen by what the task changes: Feature | Bug fix | Refactor | Test | Review
   → each step loads its skill when the step starts
-  → each commit: simplify → design-review by a fresh agent
+  → each commit: design-review by a fresh agent
   → the repo's checks → review → land as the repo's rule says
 ```
 
@@ -97,7 +97,7 @@ Four rules shape every route:
 - **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
 - **A route only names the skills; each skill decides how its step is done.** A step whose work does not come up is skipped and named in the report.
 - **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
-- **A skill or agent change takes `skill-writing`**, then the per-commit steps.
+- **A skill or agent change takes `skill-writing`**, then the per-commit step, `design-review` by a fresh agent.
 
 | Route | When | Steps |
 |---|---|---|
@@ -196,7 +196,7 @@ sequenceDiagram
   participant P as Commit gate
   participant G as Git hooks
   participant C as CI
-  A->>A: task picks a route, steps load skills, then simplify
+  A->>A: task picks a route, steps load skills
   A->>V: here is the diff
   V-->>A: Verdict: return, with findings
   A->>V: the fix
