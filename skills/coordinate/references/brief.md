@@ -4,7 +4,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 
 ## What it holds
 
-- **The goal**, and every decision the owner settled, stated as the rule, not its history.
+- **The repo and the goal**, and every decision the owner settled, stated as the rule, not its history.
 - **The repo's rules to follow**: point at its `AGENTS.md` or `CLAUDE.md` and name only the rules this task is likely to trip.
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **How reviews get recorded**: who runs the reviewer, and what a commit gate needs before the worker may commit.
