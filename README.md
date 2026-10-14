@@ -170,7 +170,7 @@ flowchart LR
   skills --> rev
   rev -- "accept" --> gate
   gate --> hooks
-  hooks -- "push" --> ci
+  hooks -- "after push" --> ci
   rec -- "past sessions" --> coach
   coach -- "proposals" --> agent
 ```
@@ -190,7 +190,7 @@ sequenceDiagram
   A->>V: the fix
   Note over V: judges only the fix, not the whole diff again
   V-->>A: Verdict: accept
-  Note over P: records the accept for this diff
+  Note over V: the accept is recorded for this diff
   A->>P: git commit
   P->>G: allowed (diff unchanged since accept)
   G-->>A: the project's commit checks pass
