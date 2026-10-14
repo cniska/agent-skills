@@ -189,6 +189,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 - **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
   - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
+  - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline, and says when it could not (offline, diverged, uncommitted changes) and how far behind the printed ledger is.
   - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.

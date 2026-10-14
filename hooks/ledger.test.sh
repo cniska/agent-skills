@@ -57,6 +57,80 @@ real_home="$(
 assert "a blank HOME falls back to the account's home" \
   "$(HOME="  " bash -c 'source "$1"; ledger_path' _ "$HERE/ledger-path.sh")" "$real_home/.local/state/agent-skills/ledger.md"
 
+export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com
+unset AGENT_LEDGER XDG_STATE_HOME GIT_SSH_COMMAND
+
+commit_ledger() {
+  printf '%s\n' "$2" >"$1/ledger.md"
+  git -C "$1" add ledger.md
+  git -C "$1" commit -qm "$2"
+}
+
+setup_ledger_repo() {
+  local root="$scratch/$1"
+  git init -q --bare -b main "$root/remote.git"
+  git clone -q "$root/remote.git" "$root/ledger" 2>/dev/null
+  commit_ledger "$root/ledger" "old ledger"
+  printf 'notes\n' >"$root/ledger/notes.md"
+  git -C "$root/ledger" add notes.md
+  git -C "$root/ledger" commit -qm notes
+  git -C "$root/ledger" push -q origin main 2>/dev/null
+  git clone -q "$root/remote.git" "$root/other" 2>/dev/null
+  commit_ledger "$root/other" "new ledger"
+  git -C "$root/other" push -q origin main 2>/dev/null
+  printf '%s\n' "$root/ledger"
+}
+
+run_in() { AGENT_LEDGER="$1/ledger.md" "$HOOK" </dev/null 2>/dev/null; }
+
+repo="$(setup_ledger_repo clean)"
+assert "a clean ledger checkout behind its remote is pulled first" "$(run_in "$repo")" "new ledger"
+assert "an up-to-date ledger prints with no note" "$(run_in "$repo")" "new ledger"
+
+repo="$(setup_ledger_repo dirty)"
+printf 'edited\n' >>"$repo/notes.md"
+assert "a dirty ledger checkout is not pulled and says how far behind" "$(run_in "$repo")" \
+  "Ledger not pulled: its repo has uncommitted changes; it is 1 commits behind origin/main.
+
+old ledger"
+
+repo="$(setup_ledger_repo diverged)"
+commit_ledger "$repo" "local ledger"
+assert "a diverged ledger branch is not pulled and says so" "$(run_in "$repo")" \
+  "Ledger not pulled: its branch has diverged from origin/main; it is 1 commits behind.
+
+local ledger"
+
+repo="$(setup_ledger_repo offline)"
+git -C "$repo" remote set-url origin "$scratch/offline/missing.git"
+assert "an unreachable remote is named and the ledger still prints" "$(run_in "$repo")" \
+  "Ledger not pulled: could not fetch origin/main (offline or unreachable); it is at least 0 commits behind as of the last fetch.
+
+old ledger"
+
+repo="$(setup_ledger_repo slow)"
+git -C "$repo" remote set-url origin "ssh://ledger.invalid/remote.git"
+printf '#!/bin/sh\nsleep 20\n' >"$scratch/slow-ssh"
+chmod +x "$scratch/slow-ssh"
+started="$(date +%s)"
+slow="$(GIT_SSH="$scratch/slow-ssh" AGENT_LEDGER="$repo/ledger.md" "$HOOK" </dev/null 2>/dev/null)"
+assert "a fetch past the deadline is stopped and named" "$slow" \
+  "Ledger not pulled: fetching origin/main took over 5s; it is at least 0 commits behind as of the last fetch.
+
+old ledger"
+assert "a fetch past the deadline returns within it" "$((($(date +%s) - started) <= 8))" 1
+
+repo="$(setup_ledger_repo local)"
+git -C "$repo" branch -q --unset-upstream
+assert "a branch with no upstream says the remote may be newer" "$(run_in "$repo")" \
+  "Ledger not pulled: its branch tracks no remote branch, so the remote may hold a newer ledger.
+
+old ledger"
+
+git init -q "$scratch/untracked"
+printf 'untracked ledger\n' >"$scratch/untracked/ledger.md"
+assert "a ledger git does not track prints with no pull" "$(run_in "$scratch/untracked")" "untracked ledger"
+
 hooks="$HERE/hooks.json"
 runs_ledger() {
   jq -r --arg event "$1" '[.hooks[$event][] | any(.hooks[]; .command | endswith("/hooks/ledger.sh"))] | all' "$hooks"
