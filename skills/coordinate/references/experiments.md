@@ -1,0 +1,36 @@
+# Experiments
+
+A workflow change stays only if it moves what it was meant to move. Every change the coordinator applies to skills, agents, hooks or checks, proposed by a workflow review or not, is an experiment until it is checked.
+
+## The record
+
+`experiments.jsonl`, in the ledger's directory, is the one place experiments are recorded. Append one JSON line per event and never rewrite a line. The ledger names no experiment itself; it points at this file.
+
+| Field | Value |
+|---|---|
+| `v` | `1` |
+| `ts` | when the line was written, as an ISO time |
+| `event` | `open` or `close` |
+| `sha` | the commit that made the change |
+| `signal` | the one signal it should move, as the session record names it, such as owner interrupts or time to land |
+| `direction` | `up` or `down` |
+| `from` | when the change reached the sessions doing the work, as an ISO time: the commit time, or later if it waits on an install |
+| `check` | a date by which enough work has run for the signal to show, typically one to two weeks out |
+| `outcome` | on `close` only: `keep`, `revert` or `trim` |
+| `by_sha` | on a `revert` or `trim` close: the commit that made it |
+
+An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date, append another `open` line for that `sha`; the latest one counts.
+
+## Open
+
+When the change lands, append an `open` line.
+
+A second change aimed at the same signal while one is open muddies both checks: wait for the first check, or let the two checks overlap knowingly and say so in the report.
+
+## Check
+
+Brief each `workflow-review` run with the record's path. It proposes keep, revert, trim or a later check date for each open experiment past its check date.
+
+## Close
+
+Apply the verdict, then append a `close` line with its outcome, repeating the open line's other fields. A revert or trim lands as its own commit, named in `by_sha`. A trim is a new change, so it also opens its own experiment; a revert does not.
