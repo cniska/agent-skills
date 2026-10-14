@@ -16,7 +16,7 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 4. **Keep a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute, creating its directory. It holds open work per repo, owner decisions, questions waiting on the owner, running agents, and any plan that spans sessions or agents. The session running the agents rewrites it at every report it gives; a session that only reports leaves it unchanged and says which ledger lines git contradicts. Where the file sits in a git checkout, commit and push that file alone, under that repo's rules.
 5. **Keep every plan in the ledger or a repo**, never only in a message or a temp path another machine cannot reach.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
-7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing, slicing or which reviewer finding to take, and name each in the report. When unsure, get a `powerful`-tier read through `second-opinion` first. Ask the owner only about product tradeoffs and what you cannot answer.
+7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing or slicing, and name each in the report. When unsure, get a `powerful`-tier read through `second-opinion` first. Ask the owner only about product tradeoffs and what you cannot answer.
 
 ## Resume
 

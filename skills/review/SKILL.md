@@ -53,10 +53,10 @@ Label every finding explicitly — an unlabeled finding is ambiguous. This scale
 |-------|---------|
 | **Critical:** | Blocks merge — security, data loss, broken functionality |
 | **Fix:** | A real defect or convention violation; address before merge |
-| **Consider:** | Worth thinking about, not required |
+| **Consider:** | Does not block merge |
 | **Nit:** | Style preference, minor improvement |
 
-Order output Critical → Fix → Consider → Nit. In the summary table, Consider and Nit both count as optional.
+Order output Critical → Fix → Consider → Nit.
 
 ## Review checks
 
@@ -87,9 +87,9 @@ If the change includes database migrations, load `database-design` and check the
 
 ## Output
 
-One section per review dimension (Design, Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Optional):
+One section per review dimension (Design, Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Non-blocking):
 
-| Category | Critical | Fix | Optional |
+| Category | Critical | Fix | Non-blocking |
 |----------|----------|-----|----------|
 | Design | 0 | 0 | 0 |
 | Correctness | 0 | 0 | 0 |
