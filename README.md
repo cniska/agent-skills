@@ -60,18 +60,6 @@ claude plugin install cniska-skills@cniska
 npx skills add cniska/agent-skills
 ```
 
-### Claude Code on the web
-
-Cloud sessions start in a fresh container, so install the skills from the environment's setup script (environment settings → Setup script). The script runs before the session starts, so the skills are in place when it does:
-
-```
-npx -y skills add cniska/agent-skills -g -a claude-code -s '*' -y --copy
-```
-
-- `-g` installs at user level (`~/.claude/skills`), so every repo in the session gets the set.
-- `-s '*'` takes every skill.
-- `-y` skips the prompts a setup script can't answer.
-
 ### Working on the skills themselves
 
 In Claude Code, add this checkout as the marketplace (`claude plugin marketplace add <path>`) and run `claude plugin update cniska-skills@cniska` after each commit.
