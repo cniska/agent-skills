@@ -80,6 +80,20 @@ record_handback "$(report "$repo" accept)" >/dev/null
 assert "a new untracked file after the accept blocks the commit" "$(gate 'git commit -am x')" "$DENIED"
 
 record_handback "$(report "$repo" accept)" >/dev/null
+(cd "$repo" && git add new.py)
+assert "staging a new file the reviewer accepted untracked still commits" "$(gate 'git commit -am x')" ""
+(cd "$repo" && git reset -q new.py)
+assert "unstaging an accepted new file still commits" "$(gate 'git commit -am x')" ""
+
+land
+(cd "$repo" && mv app.py moved.py)
+record_handback "$(report "$repo" accept)" >/dev/null
+(cd "$repo" && git add -A)
+assert "staging an accepted move still commits" "$(gate 'git commit -m x')" ""
+(cd "$repo" && git mv moved.py app.py)
+edit app.py 'print(4)'
+
+record_handback "$(report "$repo" accept)" >/dev/null
 record_handback "$(report "$repo" return)" >/dev/null
 assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$DENIED"
 

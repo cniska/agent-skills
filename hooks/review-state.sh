@@ -32,8 +32,13 @@ touches_code() {
 diff_fingerprint() {
   (
     cd "$1" || exit 1
-    git diff --binary "$(diff_base)"
-    git ls-files --others --exclude-standard -z | while IFS= read -r -d '' path; do
+    local base
+    base="$(diff_base)"
+    git diff --binary --no-renames --diff-filter=a "$base"
+    {
+      git diff --name-only --no-renames --diff-filter=A -z "$base"
+      git ls-files --others --exclude-standard -z
+    } | sort -z | while IFS= read -r -d '' path; do
       printf '%s\0' "$path"
       git hash-object -- "$path"
     done
