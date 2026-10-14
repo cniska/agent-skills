@@ -18,6 +18,9 @@ assert() {
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 export CLAUDE_PLUGIN_DATA="$scratch/data"
+export HOME="$scratch/home"
+unset XDG_STATE_HOME AGENT_LEDGER
+mkdir -p "$HOME"
 
 readonly NOTE_350K="This session's context holds about 350k tokens. Offer a handoff at the next step boundary, as the handoff skill says."
 
@@ -91,6 +94,15 @@ assert "a missing transcript never blocks the prompt" "$(exit_code "$scratch/non
 
 assert "no plugin data directory fails without blocking the prompt" \
   "$(jq -cn --arg t "$large" '{session_id: "s-nodata", transcript_path: $t}' | env -u CLAUDE_PLUGIN_DATA "$HOOK" >/dev/null 2>&1; echo "$?")" 1
+
+ledgered="$(transcript_with ledgered "$user_entry" "$(assistant_entry 2 340000 9998)")"
+assert "a missing ledger keeps the suggestion" "$(AGENT_LEDGER="$scratch/missing.md" prompt "$ledgered" s-missing-ledger)" "$NOTE_350K"
+mkdir -p "$HOME/.local/state/agent-skills"
+: >"$HOME/.local/state/agent-skills/ledger.md"
+assert "a ledger at the default path leaves compaction to run" "$(prompt "$ledgered" s-default-ledger)" ""
+: >"$scratch/override.md"
+assert "a ledger the override names leaves compaction to run" "$(AGENT_LEDGER="$scratch/override.md" XDG_STATE_HOME="$scratch/state" prompt "$ledgered" s-override-ledger)" ""
+rm "$HOME/.local/state/agent-skills/ledger.md"
 
 hooks="$HERE/hooks.json"
 assert "every prompt runs the context check" "$(jq -r '.hooks.UserPromptSubmit[0].hooks[0].command' "$hooks")" "\"\${CLAUDE_PLUGIN_ROOT}\"/hooks/context-size.sh"

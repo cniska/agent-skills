@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HERE/ledger-path.sh"
+
 readonly SUGGEST_HANDOFF_AT_TOKENS=300000
 readonly TRANSCRIPT_TAIL_LINES=400
 
@@ -19,6 +22,9 @@ context_tokens() {
 }
 
 main() {
+  if [ -f "$(ledger_path)" ]; then
+    return
+  fi
   if ! command -v jq >/dev/null; then
     warn "jq is not installed, so the context size cannot be read"
     exit 1
