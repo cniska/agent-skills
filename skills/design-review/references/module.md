@@ -8,7 +8,7 @@ One module per run: the files that share its prefix or folder, and their tests. 
 
 Name the module's public API (see "Each module has a public API"), and list every import other modules make from its internal files; each one is a boundary finding. The module owns what its files define and write. Something dispatched from another module, or a table written through another module, is a dependency, judged where it is owned. A cause that crosses a boundary belongs to the module that will own the shared code, and only that module's report proposes the change.
 
-Source and tests do not change during the review. A finding outside the module goes to the repo's backlog, committed on its own.
+Source and tests do not change during the review. A finding outside the module is reported for its own fix, started once the review ends, never a backlog entry.
 
 ## Purpose
 

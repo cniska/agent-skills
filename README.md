@@ -14,7 +14,7 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 ## Two loops
 
 - **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
-- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, asks me only what needs me, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
+- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
 
 ```mermaid
 flowchart TB
@@ -118,9 +118,9 @@ A fresh agent that did not write the work runs [design-review](skills/design-rev
 It ranks each finding Fix or Consider:
 
 - **Fix** is a design the next case would copy, or one that misleads the next writer. While a Fix finding stands, the reviewer returns the change. Every Fix finding is fixed, and the re-review judges only the fix.
-- **Consider** is local mess. When only Consider findings remain, the reviewer accepts. They are fixed in their own follow-up commit after the accepted one, for one round only. Findings raised after that round, or about neighboring code, go into the task's report, unless the fix is a check that would have caught them.
+- **Consider** is local mess. When only Consider findings remain, the reviewer accepts. They are fixed in their own follow-up commit after the accepted one, as is neighboring code the review turns up, never left in a backlog. A finding a re-review raises about other code starts its own fix rather than blocking the accept.
 
-Only a finding whose fix is a tradeoff comes to me.
+Only a finding that needs my decision, or sits in a change another person owns, goes into the task's report.
 
 ## The plugin
 

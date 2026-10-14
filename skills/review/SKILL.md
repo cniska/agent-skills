@@ -82,7 +82,7 @@ If the change includes database migrations, load `database-design` and check the
 
 ## Fix policy
 
-- **Self:** fix all findings by default — including trivial ones — each as its own subject-scoped commit. Small issues left unfixed accumulate into tech debt. Where a finding is structural rather than a defect — complexity, misplaced logic, indirection — load `simplify` and apply its named moves, one per commit.
+- **Self:** fix every finding, trivial ones and neighboring code included, each as its own subject-scoped commit, never a backlog entry. Small issues left unfixed accumulate into tech debt. Where a finding is structural rather than a defect — complexity, misplaced logic, indirection — load `simplify` and apply its named moves, one per commit.
 - **PR:** never commit to someone else's branch. Deliver findings as a review (`gh pr review`), or a comment block if asked.
 
 ## Output
