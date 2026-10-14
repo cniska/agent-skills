@@ -74,11 +74,12 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
 
 With [the plugin](#the-plugin) installed, a session-start hook sends every task through `coordinate`, so a plain prompt takes the same route.
 
-Three rules shape every route:
+Four rules shape every route:
 
 - **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
 - **A route only names the skills; each skill decides how its step is done.** A step whose work does not come up is skipped and named in the report.
-- **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill. A skill or agent change goes through `skill-writing`, and a test-only or spec-wording change through `test-writing`, each then through the commit steps.
+- **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
+- **A skill, agent, test-only or spec-wording change takes its writing skill**, `skill-writing` or `test-writing`, then the per-commit steps.
 
 | Route | When | Steps |
 |---|---|---|
