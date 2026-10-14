@@ -15,7 +15,7 @@ const AssistantLine = z.looseObject({ message: z.looseObject({ content: Blocks }
 const TextBlock = z.looseObject({ type: z.literal("text"), text: z.string() });
 const ToolUseBlock = z.looseObject({ type: z.literal("tool_use"), name: z.string(), input: z.unknown() });
 
-type LineBlocks = readonly unknown[];
+type LineBlocks = Readonly<z.infer<typeof Blocks>>;
 
 function parseLine(line: string, source: string, index: number): LineBlocks {
   let raw: unknown;
@@ -52,8 +52,8 @@ function messageText(blocks: LineBlocks): string {
     .join("\n");
 }
 
-function toolCalls(messages: readonly LineBlocks[]): ToolCall[] {
-  return messages.flatMap((blocks) =>
+function toolCalls(lines: readonly LineBlocks[]): ToolCall[] {
+  return lines.flatMap((blocks) =>
     blocks.flatMap((block) => {
       const call = ToolUseBlock.safeParse(block);
       return call.success ? [{ name: call.data.name, input: JSON.stringify(call.data.input) }] : [];
@@ -62,9 +62,9 @@ function toolCalls(messages: readonly LineBlocks[]): ToolCall[] {
 }
 
 export function parseTrace(text: string, source: string): Trace {
-  const messages = text
+  const lines = text
     .split("\n")
     .flatMap((line, index) => (line.trim() ? [parseLine(line, source, index)] : []));
-  const replies = messages.map(messageText).filter(Boolean);
-  return { text, lastMessage: replies.at(-1) ?? "", toolCalls: toolCalls(messages) };
+  const replies = lines.map(messageText).filter(Boolean);
+  return { text, lastMessage: replies.at(-1) ?? "", toolCalls: toolCalls(lines) };
 }
