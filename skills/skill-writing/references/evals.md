@@ -49,4 +49,4 @@ Calibrate a new case against the set with the skill removed: five or more runs p
 
 - Keeping a change because it scored well once, or on a case both sides already pass
 - Trusting a grader nobody has seen fail
-- A trigger prompt written rather than taken from a real request, or a description changed with its trigger prompts left stale
+- A trigger prompt guessed rather than taken from a real request, or a description changed with its trigger prompts left stale
