@@ -91,7 +91,6 @@ AGENTS.md is the hub that gives the other skills their project-specific groundin
 - `review` — the Invariants section is the checklist this skill verifies. An invariant with no test and no review coverage is incomplete.
 - `doc-review` — the Docs section states when to update canonical docs; the `doc-review` skill enforces it.
 - `ship` — the Workflow section's release command is the entry point the `ship` skill invokes to cut a release; the script it names owns the pre-release gates.
-- `update-config` — `settings.json` harness config belongs there, not here.
 
 ## Red flags
 

@@ -44,6 +44,7 @@ const EXTERNAL_LINK = /^(https?:|mailto:|#)/;
 const SKILL_NAME = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
 const SEE_ALSO = /^## See also$/;
 const HEADING = /^## /;
+const LINKED_TEXT = /\[[^\]\n]*\]\([^)\n]+\)/g;
 const MANIFEST_SKILLS = SKILL_KINDS.map((kind) => `./skills/${kind}`);
 const KIND_FOLDERS = SKILL_KINDS.map((kind) => `skills/${kind}/`).join(" and ");
 const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL_KIND_RULES[kind]}`).join(
@@ -66,6 +67,10 @@ type Skill = {
   readonly declaredName: string | null;
   readonly description: string | null;
 };
+
+type NumberedLine = { readonly shown: string; readonly inSeeAlso: boolean };
+
+type SkillNames = { readonly all: ReadonlySet<string>; readonly workflow: ReadonlySet<string> };
 
 type Loaded =
   | { readonly kind: "skill"; readonly skill: Skill }
@@ -154,12 +159,40 @@ function linkProblems({ name, dir, docs }: Skill): string[] {
   );
 }
 
-function outsideSeeAlso(text: string): string[] {
+function numberedLines(text: string): NumberedLine[] {
   let inSeeAlso = false;
-  return text.split("\n").flatMap((line, index) => {
+  return text.split("\n").map((line, index) => {
     if (HEADING.test(line)) inSeeAlso = SEE_ALSO.test(line);
-    return inSeeAlso ? [] : [`  ${index + 1}:${line}`];
+    return { shown: `  ${index + 1}:${line}`, inSeeAlso };
   });
+}
+
+function outsideSeeAlso(text: string): string[] {
+  return numberedLines(text)
+    .filter((line) => !line.inSeeAlso)
+    .map((line) => line.shown);
+}
+
+function seeAlsoLines(text: string): string[] {
+  return numberedLines(text)
+    .filter((line) => line.inSeeAlso)
+    .map((line) => line.shown);
+}
+
+function unknownNames(line: string, skills: ReadonlySet<string>): string[] {
+  return [...line.replace(LINKED_TEXT, "").matchAll(SKILL_NAME)]
+    .map((match) => match[1] ?? "")
+    .filter((name) => !skills.has(name));
+}
+
+function seeAlsoProblems({ docs }: Skill, skills: ReadonlySet<string>): string[] {
+  return docs.flatMap((doc) =>
+    seeAlsoLines(doc.text).flatMap((line) =>
+      unknownNames(line, skills).map((name) =>
+        withDetail(`## See also names '${name}', which is no skill in this repo, in ${doc.shown}`, [line]),
+      ),
+    ),
+  );
 }
 
 function routeProblems({ kind, docs }: Skill, workflow: ReadonlySet<string>): string[] {
@@ -211,6 +244,9 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
   { resolve: "name a fast, balanced or powerful tier instead of the model", problems: modelProblems },
 ];
 
+const SEE_ALSO_RESOLVE =
+  "name a skill that exists under skills/, or say it in plain words outside backticks if it is not a skill";
+
 const ROUTE_RESOLVE =
   "state the rule without loading or routing to the workflow skill, and name it under ## See also if a reader needs it";
 
@@ -251,10 +287,11 @@ function load(root: string, { name, kind, dir }: SkillDir): Loaded {
   };
 }
 
-function skillProblems(skill: Skill, workflow: ReadonlySet<string>): Problem[] {
+function skillProblems(skill: Skill, names: SkillNames): Problem[] {
   return [
     ...CHECKS.flatMap(({ resolve, problems }) => problems(skill).map((message) => ({ message, resolve }))),
-    ...routeProblems(skill, workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
+    ...routeProblems(skill, names.workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
+    ...seeAlsoProblems(skill, names.all).map((message) => ({ message, resolve: SEE_ALSO_RESOLVE })),
   ];
 }
 
@@ -315,13 +352,16 @@ runMain((args) => {
   const skillsDir = join(root, "skills");
   if (!existsSync(skillsDir)) throw new CodedError("skills_missing", { dir: root });
   const skills = skillDirs(skillsDir);
-  const workflow = new Set(skills.filter((skill) => skill.kind === "workflow").map((skill) => skill.name));
+  const names: SkillNames = {
+    all: new Set(skills.map((skill) => skill.name)),
+    workflow: new Set(skills.filter((skill) => skill.kind === "workflow").map((skill) => skill.name)),
+  };
   const problems = [
     ...strayProblems(skillsDir),
     ...duplicateProblems(skills),
     ...skills.flatMap((skillDir) => {
       const loaded = load(root, skillDir);
-      return loaded.kind === "skill" ? skillProblems(loaded.skill, workflow) : [loaded.problem];
+      return loaded.kind === "skill" ? skillProblems(loaded.skill, names) : [loaded.problem];
     }),
     ...manifestProblems(root),
     ...proseProblems(root),

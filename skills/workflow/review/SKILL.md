@@ -103,7 +103,7 @@ One section per review dimension (Design, Correctness, Maintainability, Architec
 ## See also
 
 - `design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review` for dimension-specific depth
-- `audit` for a read-only sweep of code already on `main`
+- `audit` for a read-only sweep of code already on the default branch
 - `database-design` for the schema rules a migration is checked against
 - `simplify` for acting on structural findings
 - `explain-diff` for building the understanding this skill judges against, on a complex or unfamiliar change

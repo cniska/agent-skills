@@ -11,7 +11,7 @@ Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, whe
 - **Terse and imperative.** Each skill states its intent and workflow, and ends with a `## Red flags` section of failure modes. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models.
 
-`mise run validate` enforces the mechanical parts: the two kind folders, frontmatter, `## Red flags`, and links that stay inside the skill.
+`mise run validate` enforces the mechanical parts, which the repo's [`AGENTS.md`](../AGENTS.md) lists.
 
 ## Model tiers
 

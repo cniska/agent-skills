@@ -309,6 +309,34 @@ describe("validate", () => {
       expect(validate(kinds(`Run \`demo log\` and \`demo-x\`.\n\n${RED_FLAGS}`)).code).toBe(0);
     });
 
+    test("fails a See also name that is no skill in the repo", () => {
+      const run = validate(kinds(`## See also\n\n- \`demo\` and \`ghost\` for the steps\n\n${RED_FLAGS}`));
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "## See also names 'ghost', which is no skill in this repo, in skills/expertise/rules/SKILL.md",
+      );
+      expect(run.output).toContain("10:- `demo` and `ghost` for the steps");
+      expect(run.output).not.toContain("names 'demo'");
+    });
+
+    test("fails a See also name in a reference file", () => {
+      const root = kinds(RED_FLAGS);
+      write(root, "skills/expertise/rules/references/more.md", "# More\n\n## See also\n\n- `ghost`\n");
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "names 'ghost', which is no skill in this repo, in skills/expertise/rules/references/more.md",
+      );
+    });
+
+    test("passes a See also link to a file in the skill and a name outside See also", () => {
+      const root = kinds(
+        `Run \`ghost\` first.\n\n## See also\n\n- [\`notes\`](notes.md) for detail\n\n${RED_FLAGS}`,
+      );
+      write(root, "skills/expertise/rules/notes.md", "# Notes\n");
+      expect(validate(root).code).toBe(0);
+    });
+
     test("passes an expertise skill that names another expertise skill", () => {
       const root = kinds(`Use \`rules\` and \`other\` here.\n\n${RED_FLAGS}`);
       expect(validate(root).code).toBe(0);
