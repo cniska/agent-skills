@@ -44,16 +44,16 @@ Tag each finding with the waste it cost, as [references/waste-and-cause.md](refe
 
 A finding that fits two kinds goes in the one that changes less, unless it crosses the owner's boundary, which makes it a Conflict.
 
-The owner's boundary is a repo's rules file, permissions, how much autonomy the agents have, the decisions the owner settled, and adding, running or changing an eval; a rule that holds in one project only crosses it, since it goes in that repo's rules file.
+The owner's boundary is a repo's rules file, permissions, how much autonomy the agents have, the decisions the owner settled, adding, running or changing an eval, and a new tool; a rule that holds in one project only crosses it, since it goes in that repo's rules file.
 
 ## Report
 
 One heading per kind, one proposal per finding, within each kind the costliest first:
 
-- **Where:** the skill, agent or rules file, and the line.
+- **Where:** the skill, agent or rules file, and the line; for a missing tool, where the friction occurs.
 - **Evidence:** the quotes, each with its citation, or for an eval or check finding, the case and the result that shows it.
 - **Waste and cause:** what it cost, and the reachable cause the whys stopped at.
-- **Change:** the smallest edit that would have prevented it, cuts first.
+- **Change:** the smallest edit that would have prevented it, cuts first; for a missing tool, the smallest tool.
 - **Check:** the cheapest test or check that would catch it coming back. Propose an eval only when the change's risk justifies one: a behavior the skill exists for, a past regression, or a change no cheaper check can judge, and say why. A proposed eval goes to the owner as its own Conflict, naming the change it judges; the change stays in its kind, and the signal on the check date judges it until the owner decides.
 
 A conflict's proposal also names the decision the owner has to make. Then the experiments checked, then the one-offs, one line each, and what was searched for and not found. No summary paragraph.
@@ -76,5 +76,6 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 - Growing a skill where a cut or a check would do
 - Applying a conflict without the owner's call
 - Running an eval, or proposing one the change's risk does not justify
+- A finding whose fix is a tool, written as a skill line
 - Proposing an upstream change because it looks good, with no friction or ledger gap behind it
 - Keeping an experiment past its check date without comparing its signal before and after
