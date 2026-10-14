@@ -17,6 +17,8 @@ type Facts = {
   readonly arm_count: { readonly name: string; readonly arms: number };
   readonly trace_unrecorded: { readonly name: string; readonly index: number };
   readonly trace_gone: { readonly path: string };
+  readonly installs_missing: { readonly path: string };
+  readonly checkout_invalid: { readonly path: string; readonly problem: string };
   readonly unreachable: { readonly value: string };
 };
 
@@ -110,6 +112,17 @@ const ERRORS: { readonly [Code in ErrorCode]: Entry<Code> } = {
     exit: 1,
     message: ({ path }) => `trace is gone: ${path}`,
     resolve: () => KEEP_A_TRACE,
+  },
+  installs_missing: {
+    exit: 1,
+    message: ({ path }) => `no plugin install record at ${path}`,
+    resolve: () =>
+      "install the plugin with claude plugin install, or set CLAUDE_CONFIG_DIR to the config directory that holds plugins/installed_plugins.json",
+  },
+  checkout_invalid: {
+    exit: 1,
+    message: ({ path, problem }) => `${path} is not a git checkout with a commit: ${problem}`,
+    resolve: () => "pass the marketplace's source checkout, the main agent-skills checkout",
   },
   unreachable: {
     exit: 1,

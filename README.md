@@ -44,7 +44,7 @@ claude plugin marketplace add cniska/agent-skills
 claude plugin install cniska-skills@cniska
 ```
 
-- An installed plugin is a copy of the commit it was installed from, and `claude plugin update cniska-skills@cniska` brings it up to the marketplace's latest.
+- An installed plugin is a copy of the commit it was installed from, and `claude plugin update cniska-skills@cniska --scope user` brings it up to the marketplace's latest; a project-scope install takes `--scope project`, run from that project.
 - To try it for one session from a checkout, run `claude --plugin-dir .`.
 - Skills also installed through `npx skills add` show up a second time without the prefix, so use one or the other.
 - The plugin's hooks need `jq`.

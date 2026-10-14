@@ -29,6 +29,10 @@ description = "Symlink skills into ~/.agents/skills (all, or the named ones)"
 usage = 'arg "[name]" var=#true help="skills to link; none links every skill"'
 run = "./scripts/link.sh $usage_name"
 
+[tasks."plugin:update"]
+description = "Update the cniska-skills plugin at user and project scope, then check both are at the checkout's HEAD"
+run = "./scripts/plugin-update.sh"
+
 [tasks.eval]
 description = "Run the skill evals, optionally against a base ref or none, then summarize (uses your login; local only, never CI)"
 run = "evals/lib/run.sh"

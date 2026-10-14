@@ -17,8 +17,12 @@ To work on the skills in Claude Code, add this checkout as the marketplace and u
 
 ```
 claude plugin marketplace add <path>
-claude plugin update cniska-skills@cniska
+mise run plugin:update
 ```
+
+- `mise run plugin:update` runs `claude plugin update cniska-skills@cniska --scope user`, then `--scope project` from this checkout, since the scope-less update run inside the checkout updates only the project scope.
+- It then runs [`scripts/plugin-check.ts`](../scripts/plugin-check.ts), which fails naming each of the two installs that is not at this checkout's `HEAD`, and ignores project installs elsewhere.
+- The check reads `plugins/installed_plugins.json` under `CLAUDE_CONFIG_DIR`, or `~/.claude` when that is unset.
 
 For other agents, `mise run link` symlinks every skill from this checkout into `~/.agents/skills` (or `SKILLS_DIR`), so an edit here is live in every agent.
 
