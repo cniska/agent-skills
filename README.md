@@ -46,7 +46,7 @@ flowchart TB
   commit -- "sessions and events" --> rec
   rec -- "signals" --> coach
   ups -- "ideas" --> coach
-  ledger -- "experiment record, via the due note" --> coach
+  lead -- "experiment record, via the due note" --> coach
   coach -- "proposals, keep or revert" --> lead
 ```
 
