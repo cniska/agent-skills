@@ -27,7 +27,7 @@ Where no rule decides a case, choose what a sensible engineer would choose for t
 
 ## Read
 
-Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation. For each new helper or type in scope, search the repo for the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised.
+Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation. For each new helper or type in scope, search the repo for the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised. A finding that clashes with a decision the owner settled in the brief is a conflict for the owner, never a Fix.
 
 ## Judge
 
@@ -54,7 +54,7 @@ A violation that fits two tiers goes in the higher one. Tiers 1 and 2 are **Fix*
 
 ## Report
 
-One heading per tier, marked Fix or Consider, with each violation's four fields under it. Then list the rules checked and found clean, with the places each was checked in. A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
+One heading per tier, marked Fix or Consider, with each violation's four fields under it, and a Conflicts heading for the owner where a finding clashes with a settled decision. Then list the rules checked and found clean, with the places each was checked in. A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
 
 ## See also
 
