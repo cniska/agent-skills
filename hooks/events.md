@@ -15,7 +15,7 @@ The plugin's hooks append one JSON object per line to `events.jsonl` in the plug
 | `ts` | UTC time, ISO 8601 to the second |
 | `event` | the kind, below |
 | `session` | the session id |
-| `agent` | the id of the subagent the hook fired in, or `null` in the main agent; at `SubagentStop`, the stopping subagent |
+| `agent` | the id of the subagent the hook fired in, or `null` in the main agent; at `SubagentStop`, the stopping subagent; at `PreToolUse` on `SubagentHandback`, the subagent handing back |
 | `cwd` | the working directory the hook was given |
 
 ## Kinds
@@ -26,8 +26,8 @@ A plugin gate decided whether work goes on.
 
 | Field | Value |
 |---|---|
-| `gate` | `commit` (the commit gate on a `git commit`) or `verdict` (the reviewer's report check at `SubagentStop`) |
-| `decision` | `allow` or `deny`; for `verdict`, `deny` keeps the reviewer running |
+| `gate` | `commit` (the commit gate on a `git commit`) or `verdict` (the reviewer's report check at `PreToolUse` on `SubagentHandback`, or at `SubagentStop` when the run ends without a hand-back) |
+| `decision` | `allow` or `deny`; for `verdict`, `deny` refuses the hand-back or the stop, so the reviewer keeps running |
 | `reason` | a code from the table below |
 | `repo` | the repository's absolute top level, or `null` |
 | `head` | `commit` only: the commit `HEAD` named, so the new commit is its child; otherwise `null` |
@@ -58,11 +58,11 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 
-A `verdict` gate denies a reviewer's first `SubagentStop` and allows the second, so a reviewer that never fixes its report still ends; neither records a verdict, though a return naming its repository still clears that repository's accept, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
+A `verdict` gate judges the report a reviewer passes to `SubagentHandback`, at `PreToolUse`, while the reviewer still runs to read a deny. `SubagentStop` judges the run the same way unless its final block is a hand-back, which `PreToolUse` already allowed; there the report is the final message. One bound covers both events: each reason a reviewer was denied is kept in a file for its agent id under the plugin's data directory, and the same reason again is allowed, so a reviewer that never fixes its report still ends. Neither the deny nor that allow records a verdict, though a return naming its repository still clears that repository's accept, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
 
 ### `verdict`
 
-The reviewer ended with a well-formed verdict, and the commit gate now holds it: one line per `Repo:` and `Verdict:` pair in the report.
+The reviewer handed back a well-formed verdict, or ended its run with one, and the commit gate now holds it: one line per `Repo:` and `Verdict:` pair in the report.
 
 | Field | Value |
 |---|---|

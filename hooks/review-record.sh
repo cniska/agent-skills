@@ -3,7 +3,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-state.sh"
-source "$HERE/subagent-report.sh"
+source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 
 readonly MISSING_VERDICT_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
@@ -21,13 +21,12 @@ die() {
 }
 
 malformed_report() {
-  local input="$1" stop_hook_active="$2" code="$3" reason="$4" decision=deny
-  if [ "$stop_hook_active" = "true" ]; then
-    decision=allow
+  local input="$1" code="$2" reason="$3" decision=allow
+  if deny_once "$input" "$code" "$reason"; then
+    decision=deny
   fi
   event_log "$input" gate --arg gate verdict --arg decision "$decision" --arg reason "$code" \
     --arg repo "" --arg head "" --arg fingerprint ""
-  [ "$decision" = allow ] || jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
 }
 
 has_sections() {
@@ -86,13 +85,14 @@ named_before() {
 }
 
 main() {
+  jq --version >/dev/null 2>&1 || die "jq is required to read the reviewer's verdict"
+  local input agent
+  input="$(cat)"
+  judges "$input" cniska-skills:reviewer || return 0
+  ! left_to_handback "$input" || return 0
   if [ -z "${CLAUDE_PLUGIN_DATA:-}" ]; then
     die "CLAUDE_PLUGIN_DATA is required"
   fi
-  jq --version >/dev/null 2>&1 || die "jq is required to read the reviewer's verdict"
-  local input stop_hook_active agent
-  input="$(cat)"
-  stop_hook_active="$(jq -r '.stop_hook_active // false' <<<"$input")"
   agent="$(jq -r '.agent_id // empty' <<<"$input")"
   [ -n "$agent" ] || die "agent_id is required to tell reviewers apart"
 
@@ -100,7 +100,7 @@ main() {
   report="$(subagent_report "$input")"
   pairs="$(verdict_pairs <<<"$report")"
   if [ -z "$pairs" ]; then
-    malformed_report "$input" "$stop_hook_active" missing_verdict "$MISSING_VERDICT_REASON"
+    malformed_report "$input" missing_verdict "$MISSING_VERDICT_REASON"
     return
   fi
 
@@ -137,15 +137,15 @@ main() {
     [ "$verdict" = return ] || accepts=$((accepts + 1))
   done <<<"$pairs"
   if [ -n "$code" ]; then
-    malformed_report "$input" "$stop_hook_active" "$code" "$why"
+    malformed_report "$input" "$code" "$why"
     return
   fi
 
   if ! has_sections <<<"$report"; then
-    malformed_report "$input" "$stop_hook_active" missing_findings "$MISSING_FINDINGS_REASON"
+    malformed_report "$input" missing_findings "$MISSING_FINDINGS_REASON"
     return
   elif [ "$accepts" -gt 0 ] && ! findings_empty <<<"$report"; then
-    malformed_report "$input" "$stop_hook_active" accept_with_findings "$ACCEPT_WITH_FINDINGS_REASON"
+    malformed_report "$input" accept_with_findings "$ACCEPT_WITH_FINDINGS_REASON"
     return
   fi
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/subagent-report.sh"
+source "$HERE/subagent-gate.sh"
 
 readonly MISSING_PROPOSALS_REASON="End your report with a last line that is exactly 'Proposals: <n>', counting the proposals other than one-offs."
 
@@ -17,11 +17,13 @@ has_proposals_line() {
 
 main() {
   jq --version >/dev/null 2>&1 || die "jq is required to read the coach's report"
-  local input
+  local input report
   input="$(cat)"
-  [ "$(jq -r '.stop_hook_active // false' <<<"$input")" = "true" ] && return
-  subagent_report "$input" | has_proposals_line && return
-  jq -cn --arg reason "$MISSING_PROPOSALS_REASON" '{decision: "block", reason: $reason}'
+  judges "$input" cniska-skills:coach || return 0
+  ! left_to_handback "$input" || return 0
+  report="$(subagent_report "$input")"
+  has_proposals_line <<<"$report" && return
+  deny_once "$input" missing_proposals "$MISSING_PROPOSALS_REASON" || return 0
 }
 
 main "$@"

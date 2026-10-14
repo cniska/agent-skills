@@ -4,6 +4,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/ledger-path.sh"
 source "$HERE/transcript.sh"
+source "$HERE/subagent-gate.sh"
 
 warn() {
   printf 'task-coach.sh: %s\n' "$1" >&2
@@ -45,18 +46,18 @@ main() {
   }
   local input
   input="$(cat)"
-  [ "$(jq -r '.stop_hook_active // false' <<<"$input")" = "true" ] && return
   local agent session transcript
   agent="$(jq -r '.agent_id // empty' <<<"$input")"
   session="$(jq -r '.session_id // empty' <<<"$input")"
-  transcript="$(jq -r '.agent_transcript_path // empty' <<<"$input")"
+  transcript="$(agent_transcript "$input")"
   [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
   loaded_task "$transcript" || return 0
   ran_coach "$transcript" && return
+  ! left_to_handback "$input" || return 0
 
   local reason
   reason="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
-  jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
+  deny_once "$input" coach_not_run "$reason" || return 0
 }
 
 main "$@"

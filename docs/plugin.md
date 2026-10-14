@@ -102,13 +102,13 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
 - Signals and the experiment checks that need agent-record say so and are skipped without it.
 - It changes nothing itself and runs only read commands and `agent-record sync`.
-- It ends each report with `Proposals: <n>`; a stop hook keeps it running once until it does.
+- It ends each report with `Proposals: <n>`; a hook refuses its hand-back once until it does.
 
 ## Task coach hook
 
-A subagent stop hook runs the coach at the end of every delegated task.
+A hand-back hook runs the coach at the end of every delegated task.
 
-- When a subagent that loaded `task` stops, the hook keeps it running once and asks it to run the coach over its own task before it hands back, naming its agent, session and transcript.
+- When a subagent that loaded `task` hands back, the hook refuses the hand-back once and asks it to run the coach over its own task first, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask at its stop.
 - It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits beside the ledger.
 - It skips a subagent that already ran the coach.
 - The worker hands back the coach's report with its own, and its caller applies the proposals, opening an experiment for each change a signal can read, and brings me only conflicts.

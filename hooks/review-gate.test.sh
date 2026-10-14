@@ -32,12 +32,18 @@ readonly UNRESOLVED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permis
 readonly MULTIPLE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."}}'
 readonly AMBIGUOUS='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with '"'"'cd <absolute path> && git commit ...'"'"'."}}'
 readonly CREATE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."}}'
-readonly MISSING='{"decision":"block","reason":"End your report with a last line that is exactly '"'"'Verdict: accept'"'"' or '"'"'Verdict: return'"'"'."}'
+refused() { jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'; }
+blocked() { jq -cn --arg reason "$1" '{decision: "block", reason: $reason}'; }
+readonly MISSING_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
+MISSING="$(refused "$MISSING_REASON")"
+MISSING_AT_STOP="$(blocked "$MISSING_REASON")"
+readonly MISSING MISSING_AT_STOP
 readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
-NO_SECTIONS="$(jq -cn --arg reason "The report lacks a section. $SHAPE" '{decision: "block", reason: $reason}')"
-WITH_FINDINGS="$(jq -cn --arg reason "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE" '{decision: "block", reason: $reason}')"
-readonly NO_SECTIONS WITH_FINDINGS
-readonly NO_REPO='{"decision":"block","reason":"Put '"'"'Repo: <absolute path of the repository under review>'"'"' on the line above the verdict."}'
+NO_SECTIONS="$(refused "The report lacks a section. $SHAPE")"
+WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE")"
+readonly REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
+NO_REPO="$(refused "$REPO_REASON")"
+readonly NO_SECTIONS WITH_FINDINGS NO_REPO
 
 gate() {
   jq -cn --arg command "$1" --arg cwd "$repo" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
@@ -56,21 +62,23 @@ fresh_agent() {
   printf 'reviewer-%s\n' "$count"
 }
 
-record_handback() {
-  local transcript="$scratch/transcript.jsonl"
-  handback_line "$1" >"$transcript"
-  jq -cn --arg cwd "$repo" --arg transcript "$transcript" --arg active "${2:-false}" --arg agent "$(fresh_agent)" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: "", stop_hook_active: ($active == "true")}' | "$RECORD" 2>/dev/null
+record_as() {
+  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${3:-cniska-skills:reviewer}" \
+    '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: $type, agent_id: $agent, cwd: $cwd}' | "$RECORD" 2>/dev/null
 }
 
-record_as() {
-  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg active "${3:-false}" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, stop_hook_active: ($active == "true")}' | "$RECORD" 2>/dev/null
+record_handback() {
+  local agent
+  agent="$(fresh_agent)"
+  if [ "${2:-}" = again ]; then
+    record_as "$agent" "$1" >/dev/null
+  fi
+  record_as "$agent" "$1"
 }
 
 record_last_message() {
   jq -cn --arg cwd "$repo" --arg message "$1" --arg agent "$(fresh_agent)" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, stop_hook_active: false}' | "$RECORD" 2>/dev/null
+    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>/dev/null
 }
 
 sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\nnone\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}"; }
@@ -89,9 +97,9 @@ assert "a commit after cd and && is gated" "$(gate "cd $repo && git commit -m x"
 
 assert "a verdict with no Repo line keeps the reviewer running" "$(record_handback $'All good.\nVerdict: accept')" "$NO_REPO"
 assert "an accept with no Repo line approves nothing" "$(gate 'git commit -am x')" "$DENIED"
-assert "a Repo line that is not a repository keeps the reviewer running" "$(record_handback "$(report "$scratch/nowhere" accept)")" "{\"decision\":\"block\",\"reason\":\"'$scratch/nowhere' is not a repository. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
-assert "a relative Repo path keeps the reviewer running" "$(record_handback "$(report repo accept)")" "{\"decision\":\"block\",\"reason\":\"'repo' is not an absolute path. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
-assert "a missing Repo line on the second stop lets the reviewer stop" "$(record_handback $'All good.\nVerdict: accept' true)" ""
+assert "a Repo line that is not a repository keeps the reviewer running" "$(record_handback "$(report "$scratch/nowhere" accept)")" "$(refused "'$scratch/nowhere' is not a repository. $REPO_REASON")"
+assert "a relative Repo path keeps the reviewer running" "$(record_handback "$(report repo accept)")" "$(refused "'repo' is not an absolute path. $REPO_REASON")"
+assert "a missing Repo line on the second hand-back lets the reviewer hand back" "$(record_handback $'All good.\nVerdict: accept' again)" ""
 assert "a reviewer stopped without a Repo line approved nothing" "$(gate 'git commit -am x')" "$DENIED"
 
 assert "an accepting verdict records nothing to say" "$(record_handback "$(report "$repo" accept)")" ""
@@ -121,10 +129,10 @@ record_handback "$(report "$repo" accept)" >/dev/null
 record_handback "$(report "$repo" return)" >/dev/null
 assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$DENIED"
 
-SAME_REVIEWER="$(jq -cn --arg reason "This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff; this one returned it.' above your verdict." '{decision: "block", reason: $reason}')"
+SAME_REVIEWER="$(refused "This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff; this one returned it.' above your verdict.")"
 record_as returner "$(report "$repo" return)" >/dev/null
 assert "an accept from the reviewer that returned keeps it running" "$(record_as returner "$(report "$repo" accept)")" "$SAME_REVIEWER"
-assert "an accept from the reviewer that returned on its second stop lets it stop" "$(record_as returner "$(report "$repo" accept)" true)" ""
+assert "an accept from the reviewer that returned on its second hand-back lets it hand back" "$(record_as returner "$(report "$repo" accept)")" ""
 assert "an accept from the reviewer that returned approves nothing" "$(gate 'git commit -am x')" "$DENIED"
 assert "an accept from a fresh reviewer after the return records" "$(record_as fresh "$(report "$repo" accept)")" ""
 assert "that fresh accept lets the diff commit" "$(gate 'git commit -am x')" ""
@@ -135,59 +143,69 @@ record_as returner "$(report "$repo" return)" >/dev/null
 
 assert "a report with no verdict keeps the reviewer running" "$(record_handback 'Looks fine to me.')" "$MISSING"
 assert "a verdict not on its own line does not count" "$(record_handback 'My Verdict: accept')" "$MISSING"
-assert "a missing verdict on the second stop lets the reviewer stop" "$(record_handback 'Still no verdict.' true)" ""
+assert "a missing verdict on the second hand-back lets the reviewer hand back" "$(record_handback 'Still no verdict.' again)" ""
 
 assert "a report without the three sections keeps the reviewer running" "$(record_handback $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
 assert "a report missing one section keeps the reviewer running" "$(record_handback "$(sections | grep -v '^## Clean$')"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
 assert "an accept without the sections approves nothing" "$(gate 'git commit -am x')" "$DENIED"
 assert "an accept with a finding keeps the reviewer running" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
 assert "an accept with 'none' and a finding keeps the reviewer running" "$(record_handback "$(sections "none"$'\n'"$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
-assert "an accept with a finding on the second stop lets the reviewer stop" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept' true)" ""
+assert "an accept with a finding on the second hand-back lets the reviewer hand back" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept' again)" ""
 assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$DENIED"
 assert "an accept whose Findings says 'None.' counts" "$(record_handback "$(sections 'None.')"$'\nRepo: '"$repo"$'\nVerdict: accept')" ""
 assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
 assert "a return with a finding records nothing to say" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: return')" ""
 assert "that return clears the accept" "$(gate 'git commit -am x')" "$DENIED"
 record_handback "$(report "$repo" accept)" >/dev/null
-assert "a return without the sections on the second stop still clears the accept" \
-  "$(record_handback $'Bad.\nRepo: '"$repo"$'\nVerdict: return' true; gate 'git commit -am x')" "$DENIED"
+assert "a return without the sections on the second hand-back still clears the accept" \
+  "$(record_handback $'Bad.\nRepo: '"$repo"$'\nVerdict: return' again; gate 'git commit -am x')" "$DENIED"
 
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
+assert "a hand-back from an agent other than the reviewer is not judged" "$(record_as worker 'No verdict.' general-purpose)" ""
+edit app.py 'print(5)'
+assert "an accept handed back by another agent approves nothing" "$(record_as worker "$(report "$repo" accept)" general-purpose; gate 'git commit -am x')" "$DENIED"
+
 transcript="$scratch/late.jsonl"
-stop_on() {
-  jq -cn --arg cwd "$repo" --arg transcript "$transcript" --arg message "${1:-}" --arg agent "$(fresh_agent)" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: $message, stop_hook_active: false}' | "$RECORD" 2>/dev/null
+stop_as() {
+  jq -cn --arg cwd "$repo" --arg transcript "$transcript" --arg agent "$1" --arg message "${2:-}" \
+    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: $message}' | "$RECORD" 2>/dev/null
 }
-record_late() {
-  (sleep 0.5 && handback_line "$1" >>"$transcript") &
-  stop_on
+stop_on() { stop_as "$(fresh_agent)" "${1:-}"; }
+stop_late() {
+  local message="$1"
+  shift
+  (sleep 0.5 && "$@" >>"$transcript") &
+  stop_on "$message"
   wait
 }
 
-record_handback "$(report "$repo" return)" >/dev/null
+record_handback "$(report "$repo" accept)" >/dev/null
 read_line >"$transcript"
-assert "a handback written to the transcript after the stop fires still counts" "$(record_late "$(report "$repo" accept)")" ""
-assert "that late accept lets the diff commit" "$(gate 'git commit -am x')" ""
+assert "a stop whose hand-back reaches the transcript late leaves it to the hand-back hook" "$(stop_late '' handback_line "$(report "$repo" return)")" ""
+assert "that stop records nothing from the hand-back" "$(gate 'git commit -am x')" ""
+
+{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "attachment", attachment: {type: "hook_blocking_error"}}'; } >"$transcript"
+assert "a text end after a block is judged by the text, not the earlier hand-back" "$(stop_late 'Looking again.' text_line 'Looking again.')" "$MISSING_AT_STOP"
+
+{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "user", message: {content: "Look again."}}'; } >"$transcript"
+assert "a text end after a resume is judged by the text, not the earlier hand-back" "$(stop_late 'Looking again.' text_line 'Looking again.')" "$MISSING_AT_STOP"
 
 record_handback "$(report "$repo" return)" >/dev/null
-{ handback_line "$(report "$repo" return)" && read_line; } >"$transcript"
-record_late "$(report "$repo" accept)" >/dev/null
-assert "a late accept after a re-review is not read as the earlier return" "$(gate 'git commit -am x')" ""
+text_line "$(report "$repo" accept)" >"$transcript"
+assert "a text end with no last message is judged by its final text" "$(stop_on)" ""
+assert "that text accept lets the diff commit" "$(gate 'git commit -am x')" ""
 
-record_handback "$(report "$repo" accept)" >/dev/null
-{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "attachment", attachment: {type: "hook_blocking_error"}}'; } >"$transcript"
-record_late "$(report "$repo" return)" >/dev/null
-assert "a late return on the stop after a block is not read as the earlier accept" "$(gate 'git commit -am x')" "$DENIED"
+edit app.py 'print(6)'
+assert "a denied hand-back keeps the reviewer running" "$(record_as texter 'No verdict.')" "$MISSING"
+text_line 'No verdict.' >"$transcript"
+assert "a run that then ends in text with the same fault stops through the same bound" "$(stop_as texter 'No verdict.')" ""
+text_line $'Fine.\nRepo: '"$repo"$'\nVerdict: accept' >"$transcript"
+assert "a text end with a fault not yet denied keeps the reviewer running" "$(stop_as texter $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$(blocked "The report lacks a section. $SHAPE")"
+assert "neither end approves anything" "$(gate 'git commit -am x')" "$DENIED"
 
-record_handback "$(report "$repo" accept)" >/dev/null
-{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "user", message: {content: "Look again."}}'; } >"$transcript"
-record_late "$(report "$repo" return)" >/dev/null
-assert "a late return after a resume is not read as the earlier accept" "$(gate 'git commit -am x')" "$DENIED"
-
-{ handback_line "$(report "$repo" accept)" && text_line 'Looking again.'; } >"$transcript"
-assert "a text stop after an accepting handback is judged by the text alone" "$(stop_on 'Looking again.')" "$MISSING"
+assert "a text stop after an accepting handback is judged by the text alone" "$(stop_on 'Looking again.')" "$MISSING_AT_STOP"
 
 land
 edit README.md 'more docs'
@@ -223,7 +241,7 @@ assert "an accept naming a path outside the session's repo lets that repo commit
 assert "an accept naming one repo approves nothing in another" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
 edit app.py 'print(10)'
 assert "an accept for a worktree does not approve the main checkout" "$(gate 'git commit -am x')" "$DENIED"
-mismatch="$(jq -cn --arg reason "The report cites files in '$(cd "$worktree" && pwd -P)', another worktree of '$repo', and none in '$repo'. Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository." '{decision: "block", reason: $reason}')"
+mismatch="$(refused "The report cites files in '$(cd "$worktree" && pwd -P)', another worktree of '$repo', and none in '$repo'. Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository.")"
 assert "an accept naming the main checkout while citing only a worktree's files keeps the reviewer running" \
   "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py:2.\nRepo: '"$repo"$'\nVerdict: accept')" "$mismatch"
 assert "an accept citing a worktree's files approves nothing in the main checkout" "$(gate 'git commit -am x')" "$DENIED"
@@ -246,7 +264,7 @@ assert "a verdict with no Repo line above it beside a paired one keeps the revie
   "$(record_handback "$(sections)"$'\nRepo: '"$repo"$'\nVerdict: accept\nAll good.\nVerdict: return')" "$NO_REPO"
 assert "two pairs naming one repository keep the reviewer running" \
   "$(record_handback "$(two_repos "$repo" return "$repo" accept)")" \
-  "$(jq -cn --arg reason "'$repo' has more than one verdict. Give each repository one verdict: name it in one 'Repo:' line only." '{decision: "block", reason: $reason}')"
+  "$(refused "'$repo' has more than one verdict. Give each repository one verdict: name it in one 'Repo:' line only.")"
 record_handback "$(report "$repo" accept)" >/dev/null
 record_handback "$(sections)"$'\nRepo: '"$repo"$'\nVerdict: return\nAll good.\nVerdict: return' >/dev/null
 assert "a return beside an unpaired verdict still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
@@ -261,10 +279,10 @@ record_handback "$(sections)"$'\nAll good.\nVerdict: accept\nRepo: '"$repo"$'\nV
 assert "a return after an unpaired verdict still clears its accept" "$(gate 'git commit -am x')" "$DENIED"
 assert "a report with two bad pairs is denied for the first" \
   "$(record_handback "$(two_repos relative accept "$scratch/nowhere" accept)")" \
-  "$(jq -cn --arg reason "'relative' is not an absolute path. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict." '{decision: "block", reason: $reason}')"
+  "$(refused "'relative' is not an absolute path. $REPO_REASON")"
 assert "a second pair naming no repository keeps the reviewer running" \
   "$(record_handback "$(two_repos "$worktree" accept "$scratch/nowhere" accept)")" \
-  "{\"decision\":\"block\",\"reason\":\"'$scratch/nowhere' is not a repository. Put 'Repo: <absolute path of the repository under review>' on the line above the verdict.\"}"
+  "$(refused "'$scratch/nowhere' is not a repository. $REPO_REASON")"
 
 home_repo="$HOME/project"
 mkdir -p "$home_repo"
@@ -344,18 +362,23 @@ printf 'not json' | "$GATE" >/dev/null 2>&1
 assert "a gate that fails refuses the commit rather than allowing it" "$?" 2
 
 assert "recording a verdict without plugin data fails" \
-  "$(printf '{"last_assistant_message":""}' | env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null 2>&1; echo "$?")" 1
+  "$(printf '{"agent_type":"cniska-skills:reviewer","last_assistant_message":""}' | env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null 2>&1; echo "$?")" 1
 assert "recording a verdict without plugin data names the script and the variable" \
-  "$(printf '{"last_assistant_message":""}' | { env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null; } 2>&1)" "review-record.sh: CLAUDE_PLUGIN_DATA is required"
+  "$(printf '{"agent_type":"cniska-skills:reviewer","last_assistant_message":""}' | { env -u CLAUDE_PLUGIN_DATA "$RECORD" >/dev/null; } 2>&1)" "review-record.sh: CLAUDE_PLUGIN_DATA is required"
 
 edit app.py 'print(12)'
 assert "recording a verdict without an agent id fails" \
-  "$(jq -cn --arg cwd "$repo" --arg message "$(report "$repo" accept)" '{cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>&1 >/dev/null; echo "$?")" \
+  "$(jq -cn --arg cwd "$repo" --arg message "$(report "$repo" accept)" '{agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>&1 >/dev/null; echo "$?")" \
   "review-record.sh: agent_id is required to tell reviewers apart
 1"
 assert "a verdict without an agent id approves nothing" "$(gate 'git commit -am x')" "$DENIED"
 
-assert "the verdict recorder listens to the reviewer agent" "$(grep -c '"matcher": "^cniska-skills:reviewer$"' "$HERE/hooks.json")" 1
+assert "a stop of an agent other than the reviewer is not judged" \
+  "$(jq -cn --arg cwd "$repo" '{hook_event_name: "SubagentStop", agent_type: "general-purpose", agent_id: "w1", cwd: $cwd, last_assistant_message: "No verdict."}' | "$RECORD" 2>/dev/null)" ""
+assert "the verdict recorder judges every subagent's stop" \
+  "$(jq -r '.hooks.SubagentStop[] | select(has("matcher") | not) | .hooks[].command' "$HERE/hooks.json" | grep -c 'review-record.sh$')" 1
+assert "the verdict recorder judges every hand-back" \
+  "$(jq -r '.hooks.PreToolUse[] | select(.matcher == "SubagentHandback") | .hooks[].command' "$HERE/hooks.json" | grep -c 'review-record.sh$')" 1
 
 log="$CLAUDE_PLUGIN_DATA/events.jsonl"
 logged="$scratch/logged"
@@ -370,8 +393,8 @@ gate_logged() {
 }
 
 record_logged() {
-  jq -cn --arg cwd "$logged" --arg message "$1" --arg active "${2:-false}" --arg agent "$reviewer" \
-    '{session_id: "s1", agent_id: $agent, hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message, stop_hook_active: ($active == "true")}' | "$RECORD" 2>/dev/null
+  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" \
+    '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: "cniska-skills:reviewer", cwd: $cwd}' | "$RECORD" 2>/dev/null
 }
 reviewer=r1
 
@@ -428,7 +451,7 @@ assert "a commit naming no repository logs repo_not_found" "$(decided gate_logge
 assert "a gate that fails logs gate_error" "$(decided sh -c "printf 'not json' | '$GATE' 2>/dev/null" | jq -r '[.decision, .reason] | @tsv')" "deny	gate_error"
 
 assert "a report with no verdict logs a deny" "$(decided record_logged 'No verdict.' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_verdict"
-assert "the second stop without a verdict logs an allow" "$(decided record_logged 'No verdict.' true | jq -r '[.decision, .reason] | @tsv')" "allow	missing_verdict"
+assert "the second hand-back without a verdict logs an allow" "$(decided record_logged 'No verdict.' | jq -r '[.decision, .reason] | @tsv')" "allow	missing_verdict"
 assert "a report with no Repo line logs missing_repo" "$(decided record_logged $'Fine.\nVerdict: accept' | jq -r .reason)" missing_repo
 assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(report logged accept)" | jq -r .reason)" repo_relative
 assert "a report without the sections logs missing_findings" "$(decided record_logged $'Fine.\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_findings"
@@ -442,8 +465,8 @@ assert "two pairs naming one repository log repo_repeated" "$(decided record_log
 record_logged "$(report "$logged" return)" >/dev/null
 assert "an accept from the reviewer that returned logs same_reviewer" "$(decided record_logged "$(report "$logged" accept)" | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	same_reviewer"
 before="$(lines)"
-record_logged "$(report "$logged" accept)" true >/dev/null
-assert "its second stop logs an allow and no verdict" "$(new_lines "$before" | jq -sc 'map([.event, .decision, .reason])')" '[["gate","allow","same_reviewer"]]'
+record_logged "$(report "$logged" accept)" >/dev/null
+assert "its second hand-back logs an allow and no verdict" "$(new_lines "$before" | jq -sc 'map([.event, .decision, .reason])')" '[["gate","allow","same_reviewer"]]'
 assert "a Repo path that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
 (cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)
