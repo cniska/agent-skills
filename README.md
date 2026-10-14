@@ -9,7 +9,7 @@ Two parts carry the workflow:
 - **[task](skills/workflow/task/SKILL.md) routes each task** by what it changes (feature, bug fix, refactor, test or review), and loads the skill each step needs.
 - **[A separate reviewer](docs/reviewer.md) judges every commit** against my design rules in [design-review](skills/expertise/design-review/SKILL.md).
 
-Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
+Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
 
 ## Three loops
 
