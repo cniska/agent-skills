@@ -1,4 +1,3 @@
-# shellcheck shell=bash
 handback_report() {
   local transcript="$1"
   if [ -z "$transcript" ] || [ ! -f "$transcript" ]; then

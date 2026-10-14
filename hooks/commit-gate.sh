@@ -3,7 +3,6 @@ set -eEuo pipefail
 trap 'printf "commit-gate.sh failed on line %s, so the commit is refused until the gate runs cleanly\n" "$LINENO" >&2; exit 2' ERR
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=review-state.sh
 source "$HERE/review-state.sh"
 
 readonly QUOTES="'\""

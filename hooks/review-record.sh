@@ -2,9 +2,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=review-state.sh
 source "$HERE/review-state.sh"
-# shellcheck source=subagent-report.sh
 source "$HERE/subagent-report.sh"
 
 readonly MISSING_VERDICT_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."

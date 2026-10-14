@@ -1,4 +1,3 @@
-# shellcheck shell=bash
 review_state_file() {
   local repo="$1"
   local key
