@@ -357,6 +357,28 @@ done
 assert "a scratch repo under a home outside the temp directories is refused" "$(HOME=/usr gate_from 'git init -q ~/r && cd ~/r && git commit -m x' "$scratch")" "$CREATE"
 assert "a repo created from a cwd outside the temp directories with a relative cd is refused" "$(gate_from 'git init -q r && cd r && git commit -m x' /)" "$CREATE"
 assert "a commit after cloning in the same command is refused" "$(gate_from 'git clone -q ~/project copy && git -C copy commit -m x' "$scratch")" "$CREATE"
+checkout="$(cd "$HERE/.." && pwd)"
+for command in \
+  "cd $scratch/x && git init -q && git commit -m x" \
+  "cd $scratch/y && git init -q && git commit -m a && git commit -m b" \
+  "git -C $scratch/w init -q && git -C $scratch/w commit -m a && git -C $scratch/w commit -m b"; do
+  assert "a scratch repo reached from a checkout as [$command] passes" "$(gate_from "$command" "$checkout")" ""
+done
+for command in \
+  'cd /usr/x && git init -q && git commit -m x' \
+  'cd /usr/x && git init -q && git commit -m a && git commit -m b' \
+  "cd $scratch/z && git init -q && git commit -m a && cd $checkout && git commit -m b" \
+  "cd $scratch/z && git init -q && git commit -m a && git -C $checkout commit -m b" \
+  "cd $scratch/z && git init -q; git commit -m x" \
+  "cd $scratch/z; git init -q && git commit -m x" \
+  "cd $scratch/z && git init -q || git commit -m x" \
+  "git -C $scratch/w init -q && git -C $scratch/w commit -m a && git commit -m b" \
+  "git init -q $scratch/w && git -C w commit -m x" \
+  "git init -q $scratch/w && echo \"git -C $scratch/w commit\" && git commit -m x" \
+  "(cd $scratch/z) && git init -q && git commit -m x"; do
+  assert "a repo created from a checkout whose commit may land outside the temp directories [$command] is refused" "$(gate_from "$command" "$checkout")" "$CREATE"
+done
+assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$scratch")" "$AMBIGUOUS"
 
 printf 'not json' | "$GATE" >/dev/null 2>&1
 assert "a gate that fails refuses the commit rather than allowing it" "$?" 2

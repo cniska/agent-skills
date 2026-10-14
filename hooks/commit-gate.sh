@@ -7,6 +7,8 @@ source "$HERE/review-state.sh"
 source "$HERE/event-log.sh"
 
 INPUT=""
+COMMIT_PARTS=()
+COMMIT_CALLS=()
 
 readonly QUOTES="'\""
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
@@ -16,11 +18,12 @@ readonly GIT_COMMAND="${COMMAND_START}([^[:space:];&|()${QUOTES}]*/)?git"
 readonly GIT_OPTIONS="([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*"
 readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WORD_END}"
 readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
-readonly GIT_DIR_PATTERN='git[[:space:]]+-C[[:space:]]+([^[:space:]]+)[[:space:]]+commit'
+readonly COMMIT_DIR_PATTERN='[[:space:]]-C[[:space:]]+([^[:space:]]+)'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
+readonly CHAIN_BREAK_PATTERN="[;&|"$'\n'"]"
 readonly REPO_OVERRIDE_PATTERN="--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
 readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|${REPO_OVERRIDE_PATTERN}"
-readonly GIT_SUBCOMMAND="${GIT_COMMAND}([[:space:]]+-[^[:space:]]+)*[[:space:]]+"
+readonly GIT_SUBCOMMAND="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+"
 readonly REPO_INIT_PATTERN="${GIT_SUBCOMMAND}init${WORD_END}"
 readonly REPO_CLONE_PATTERN="${GIT_SUBCOMMAND}clone${WORD_END}"
 readonly REPO_TARGET_PATTERN="${WORD_START}(cd|pushd)[[:space:]]+[^[:space:];&|)]+|[[:space:]]-C[[:space:]]+[^[:space:];&|)]+"
@@ -59,16 +62,22 @@ without_heredocs() {
   done <<<"$1"
 }
 
-commit_command() {
-  local command="$1"
-  [[ $command =~ $GIT_COMMIT_PATTERN ]]
-  local match="${BASH_REMATCH[0]}"
-  printf '%s%s\n' "${command%%"$match"*}" "$match"
+walk_commits() {
+  local rest="$1" call part
+  COMMIT_PARTS=()
+  COMMIT_CALLS=()
+  while [[ $rest =~ $GIT_COMMIT_PATTERN ]]; do
+    call="${BASH_REMATCH[0]}"
+    part="${rest%%"$call"*}$call"
+    COMMIT_PARTS+=("$part")
+    COMMIT_CALLS+=("$call")
+    rest="${rest#"$part"}"
+  done
 }
 
 named_dir() {
-  local prefix="$1"
-  if [[ $prefix =~ $GIT_DIR_PATTERN ]]; then
+  local prefix="$1" call="$2"
+  if [[ $call =~ $COMMIT_DIR_PATTERN ]]; then
     printf '%s\n' "${BASH_REMATCH[1]}"
   elif [[ $prefix =~ $LEADING_CD_PATTERN ]]; then
     printf '%s\n' "${BASH_REMATCH[1]}"
@@ -137,15 +146,48 @@ under_temp() {
   return 1
 }
 
+only_and_chain() {
+  local joined="${1//&&/}"
+  ! [[ $joined =~ $CHAIN_BREAK_PATTERN ]]
+}
+
+leading_dir() {
+  local prefix="$1" cwd="$2" target
+  [[ $prefix =~ $LEADING_CD_PATTERN ]] || return 1
+  target="${BASH_REMATCH[1]}"
+  only_and_chain "$prefix" || return 1
+  expanded_dir "$target" "$cwd"
+}
+
+every_commit_named() {
+  local call
+  for call in "${COMMIT_CALLS[@]}"; do
+    [[ $call =~ $COMMIT_DIR_PATTERN ]] || return 1
+  done
+}
+
+scratch_dir() {
+  local prefix="$1" cwd="$2" dir
+  if under_temp "$cwd"; then
+    printf '%s\n' "$cwd"
+  elif dir="$(leading_dir "$prefix" "$cwd")" && under_temp "$dir"; then
+    printf '%s\n' "$dir"
+  elif every_commit_named; then
+    printf '%s\n' "$cwd"
+  else
+    return 1
+  fi
+}
+
 creates_scratch_repo() {
-  local prefix="$1" cwd="$2" targets target count=0
+  local prefix="$1" cwd="$2" dir targets target count=0
   ! grep -qE -- "$REPO_OVERRIDE_PATTERN" <<<"$prefix" || return 1
-  under_temp "$cwd" || return 1
+  dir="$(scratch_dir "$prefix" "$cwd")" || return 1
   targets="$(repo_targets "$prefix")"
   while IFS= read -r target; do
     [ -n "$target" ] || continue
     count=$((count + 1))
-    under_temp "$(expanded_dir "$target" "$cwd")" || return 1
+    under_temp "$(expanded_dir "$target" "$dir")" || return 1
   done <<<"$targets"
   [ "$count" -eq "$(repo_changes "$prefix")" ]
 }
@@ -191,25 +233,27 @@ main() {
     return
   fi
 
-  local prefix named changes repo
-  prefix="$(commit_command "$command")"
-  if [[ ${command#"$prefix"} =~ $GIT_COMMIT_PATTERN ]]; then
-    deny "$MULTIPLE_REASON" multiple_commits
-    return
-  fi
+  local prefix span named changes repo
+  walk_commits "$command"
+  prefix="${COMMIT_PARTS[0]}"
   if [[ $prefix =~ $REPO_CLONE_PATTERN ]]; then
     deny "$CREATE_REASON" repo_created
     return
   fi
   if [[ $prefix =~ $REPO_INIT_PATTERN ]]; then
-    if creates_scratch_repo "$prefix" "$cwd"; then
+    span="$(printf '%s' "${COMMIT_PARTS[@]}")"
+    if creates_scratch_repo "$span" "$cwd"; then
       record allow scratch_repo
     else
       deny "$CREATE_REASON" repo_created
     fi
     return
   fi
-  named="$(named_dir "$prefix")"
+  if [ "${#COMMIT_CALLS[@]}" -gt 1 ]; then
+    deny "$MULTIPLE_REASON" multiple_commits
+    return
+  fi
+  named="$(named_dir "$prefix" "${COMMIT_CALLS[0]}")"
   changes="$(repo_changes "$prefix")"
   if [ "$changes" -eq 0 ]; then
     if ! repo="$(repo_root "$cwd")" || [ -z "$repo" ]; then
