@@ -143,7 +143,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
   - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
   - It proposes only the changes that repeat across sessions.
-  - It also reads what moved in the upstreams listed in `upstreams.json` beside the ledger, and proposes an upstream change only when the session record or the ledger already asks for it.
+  - It also reads what moved in the upstream list its brief names (the `upstreams.json` beside the ledger, passed on by the due note), and proposes an upstream change only when the session record or the ledger already asks for it.
   - It changes nothing itself and runs only read commands, `agent-record sync` and a temporary clone of an upstream.
   - It ends each report with `Proposals: <n>`.
 - **Coach schedule:** a session-start hook that tells the agent when the coach is due.
