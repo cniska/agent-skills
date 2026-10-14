@@ -10,6 +10,10 @@ A case measures something only where the model without the skill gets it wrong.
 2. Take the prompt from real use, in the user's own wording, never naming the skill. Where the user's real prompts name the fix itself ("rebase on main"), keep their register and drop the mechanism; phrasing that leans toward the wrong default ("pull main into my branch") is fair.
 3. Run it once against the set with the skill removed and read what that side did. Keep the case only if it breaks the rule on a behavior check — failing the skill-fired check alone proves nothing, since a run without the skill always fails it. A case both sides pass sits at the ceiling and measures nothing. A case the skill's own side fails too is kept: it is a tuning target, the gap the next change to the skill should close. A suite that drives changes needs such cases; once the skill passes them all, add harder prompts or rules rather than relaxing graders. A triggering case — one that checks only that the skill loads for a request — is the exception: it cannot separate anything from no skill, and exists to compare versions of the skill's description.
 
+## Trigger prompts
+
+Where the repo has a trigger check, a written or changed description adds or updates that skill's positive and negative trigger prompts in the same change, as does a skill seen loading for the wrong request or not loading for its own. Take every prompt from a real request in the session record, never a guessed one: positives that loaded the skill or that the owner had to steer to it, negatives that went to a neighbouring skill. A skill with no real requests yet gets no trigger prompts.
+
 ## Write the case
 
 - The prompt file: the prompt, a turn limit generous enough to finish, the tools it needs, and the skills it exercises as tags, so a run can select the cases of one skill. Frontmatter takes only the keys the eval format knows; an unknown one is an error. Listing a tool does not offer it; a run gets a gated tool only when the eval command grants it, so a "must not edit" grader can fail only when edits are granted.
