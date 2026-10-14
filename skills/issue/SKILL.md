@@ -9,6 +9,7 @@ Create a GitHub issue from a short description.
 
 ## Conventions
 
+- The repo's own issue template, labels and commit subject rules win over the defaults below
 - Title: Conventional Commit format (`type(scope): description`), under 60 chars, no trailing period
 - Label: `enhancement` for features, `bug` for bugs
 - Body sections (in order): **What would you like?**, **Motivation**, **Proposed approach**, **Scope**

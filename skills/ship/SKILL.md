@@ -24,7 +24,7 @@ Check the entire project against the preconditions below. Never push; the last h
 2. **Run quality checks** (warn, don't block):
    - no `TODO` / `FIXME` left in non-test source
    - user-facing docs and changelog reflect the user-visible features since the last tag — cross-reference `feat` subjects; defer drift detail to `doc-review`
-3. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits):
+3. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits). With no `v*` tag yet, this is the first release: the version is the one the project records, or its release entry point chooses, no bump is computed, and the output reads `none → <version>`.
    - previous tag: `git describe --tags --abbrev=0 --match 'v[0-9]*'`
    - commits: `git log <prev_tag>..HEAD --oneline --no-merges`
    - **major** — any commit has `BREAKING CHANGE` in the body or `!` before the colon in the subject

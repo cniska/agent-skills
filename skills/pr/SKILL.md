@@ -9,7 +9,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 
 ## Conventions
 
-- Title: Conventional Commit format (`type(scope): description`), under 60 chars, no trailing period
+- Title: the repo's commit subject rules, which win; without them, Conventional Commit format (`type(scope): description`), under 60 chars, no trailing period
 - Body: follow `.github/pull_request_template.md` if it exists — fill in each section, do not add or remove sections
 - Keep it short — the fewest bullets that convey the change. Omit anything a reviewer would infer from the diff: mechanical steps, refactors in service of the main change, file moves, renames
 - Bullets: high-signal plain English only; say what changed and why it is safe, never how the work unfolded — no code blocks, no prose paragraphs, no implementation bookkeeping

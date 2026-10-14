@@ -1,14 +1,14 @@
 ---
 name: review
-description: Run all review dimensions against a diff. Use when reviewing a feature branch before merge or reviewing someone else's PR.
-argument-hint: "[pr-url-or-number]"
+description: Run all review dimensions against a diff. Use when reviewing a feature branch before merge, a change whose commits already landed, or someone else's PR.
+argument-hint: "[pr-url-or-number | commit-range]"
 ---
 
 # Review
 
 Run all review dimensions against the current branch and produce one unified review. Approve when a change improves overall code health, even if it isn't perfect.
 
-Two modes: **Self** (no argument) — current branch diff against `main`; **PR** (URL or number) — someone else's PR. Code already on `main` with no diff is `audit`.
+Two modes: **Self** (no argument, or a commit range) — the current branch's diff against `main`, or, where accepted commits land on `main` one by one, the range of the change's commits; **PR** (URL or number) — someone else's PR. Code already on `main` with no change to bound it is `audit`.
 
 ## Scope
 
@@ -28,9 +28,9 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ## Workflow
 
-### Self (no argument)
+### Self
 
-1. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`. If no commits ahead of `main`, report and stop.
+1. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`, or `git log` and `git diff --stat` over the given range. If the scope holds no commit, report and stop.
 2. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
 3. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
 4. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
