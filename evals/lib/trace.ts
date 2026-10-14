@@ -9,12 +9,9 @@ export type Trace = {
   readonly toolCalls: readonly ToolCall[];
 };
 
-const Line = z.looseObject({
-  type: z.string().optional(),
-  message: z.unknown().optional(),
-});
-const Content = z.looseObject({ content: z.unknown() });
+const Line = z.looseObject({ type: z.string().optional() });
 const Blocks = z.array(z.looseObject({ type: z.string() }));
+const AssistantLine = z.looseObject({ message: z.looseObject({ content: Blocks }) });
 const TextBlock = z.looseObject({ type: z.literal("text"), text: z.string() });
 const ToolUseBlock = z.looseObject({ type: z.literal("tool_use"), name: z.string(), input: z.unknown() });
 
@@ -31,16 +28,20 @@ function parseLine(line: string, source: string, index: number): Message {
       problem: `line ${index + 1} is not JSON: ${error.message}`,
     });
   }
-  const parsed = Line.safeParse(raw);
-  if (!parsed.success) {
+  const type = parseWith(Line, raw, source, index).type ?? null;
+  if (type !== "assistant") return { type, blocks: [] };
+  return { type, blocks: parseWith(AssistantLine, raw, source, index).message.content };
+}
+
+function parseWith<T extends z.ZodType>(schema: T, raw: unknown, source: string, index: number): z.infer<T> {
+  const result = schema.safeParse(raw);
+  if (!result.success) {
     throw new CodedError("input_invalid", {
       path: source,
-      problem: `line ${index + 1}: ${z.prettifyError(parsed.error)}`,
+      problem: `line ${index + 1}: ${z.prettifyError(result.error)}`,
     });
   }
-  const message = Content.safeParse(parsed.data.message);
-  const blocks = Blocks.safeParse(message.success ? message.data.content : undefined);
-  return { type: parsed.data.type ?? null, blocks: blocks.success ? blocks.data : [] };
+  return result.data;
 }
 
 function messageText(message: Message): string {

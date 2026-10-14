@@ -16,4 +16,9 @@ describe("parseTrace", () => {
     );
     expect(trace.lastMessage).toBe("Done.");
   });
+
+  test("refuses an assistant line whose message is not a list of blocks", () => {
+    const line = JSON.stringify({ type: "assistant", message: "Done." });
+    expect(() => parseTrace(line, "trace.jsonl")).toThrow(/line 1/);
+  });
 });
