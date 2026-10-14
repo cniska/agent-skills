@@ -108,7 +108,7 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 - A deliberately empty value spelled as an absent field, or compared against the wrong empty value
 - A default substituted for a value whose emptiness is a bug
 - Branching on an error's message text
-- A comment in the change that the toolchain does not read to produce the program
+- A comment in the change that no comments in `principles` refuses
 - A mechanical rule written into `AGENTS.md` or a skill where a type, lint or test could hold it
 - A test helper that returns quietly when it runs out of steps
 - A refusal test that asserts the error but not that nothing happened

@@ -37,7 +37,7 @@ Format: `type(scope): description` — types: `feat`, `fix`, `refactor`, `docs`,
 - No transitional architecture: land the canonical owner, contract, and single source of truth.
 - Define string unions and shared types as a schema first (e.g. Zod), infer the type from it.
 - Import from the canonical module — no re-export layers.
-- No comments in new or changed code, other than one the toolchain reads to produce the program; a *why* goes into a name, type, test or the tool's config.
+- No comments in new or changed code, other than one a tool reads, such as a shebang or a build constraint, and never a suppression, doc comment or tool setting; a *why* goes into a name, type, test or the tool's config.
 
 ## Style
 

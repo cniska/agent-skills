@@ -53,7 +53,7 @@ Say what stopped it and which slices landed. The per-slice commits are the recor
 - Mixing refactoring with feature work in the same slice
 - Expanding scope mid-slice instead of deferring to the next one
 - Implementing a version-sensitive API from memory
-- A comment in the slice that the toolchain does not read to produce the program
+- A comment in the slice that no comments in `principles` refuses
 - A fallback added because the correct behavior was unclear, or a deliberate one whose reason a reader can't infer
 - Widening the plan mid-loop instead of stopping to ask
 - A third attempt at a slice that has already failed verification twice
