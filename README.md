@@ -18,37 +18,17 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 - **The improvement loop changes the workflow.** The [coach](#the-plugin) reads how past work went, and the coordinator applies each change it proposes as an experiment, with the signal it should move and a check date. On that date, the signal before and after the change decides whether it stays or is reverted or trimmed, as [the improvement loop](#the-improvement-loop) shows.
 
 ```mermaid
-flowchart TB
-  you(["You"])
-  ups(["Upstreams<br/>repos and people"])
-  subgraph improve["Improvement loop: coach and experiments"]
-    rec[("agent-record<br/>signals")]
-    coach["Coach"]
-    subgraph outer["Outer loop: coordinate, one long session on autocompaction"]
-      lead["Coordinator"]
-      ledger[("Ledger")]
-      subgraph inner["Inner loop: task, one agent per task"]
-        route["Route"]
-        steps["Steps load their skills"]
-        rev["Fresh reviewer"]
-        commit["Commit"]
-      end
-    end
-  end
-  you -- "the work" --> lead
-  lead -- "batched questions" --> you
-  lead -- "reads and rewrites" --> ledger
-  lead -- "delegates a task" --> route
-  route --> steps
-  steps --> rev
-  rev --> commit
-  commit -- "report" --> lead
-  commit -- "sessions and events" --> rec
-  rec -- "signals" --> coach
-  ups -- "ideas" --> coach
-  lead -- "experiment record, via the due note" --> coach
-  coach -- "proposals, keep or revert" --> lead
+flowchart LR
+  you(["You"]) --> outer["Outer loop"]
+  outer --> you
+  outer --> inner["Inner loop"]
+  inner --> outer
+  inner --> improve["Improvement loop"]
+  outer --> improve
+  improve --> outer
 ```
+
+[The loops](docs/loops.md) has a chart for each loop, with its handoffs.
 
 ## Install
 
