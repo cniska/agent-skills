@@ -20,7 +20,7 @@ Two modes, inferred from the request:
 4. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name, never by path; match the sibling's section order and lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method. Keep project specifics out: a skill states what holds in any repo and defers the rest to the repo's own rules.
 5. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed.
 6. **Validate** with the repo's validator.
-7. **Dry-run before commit**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
+7. **Dry-run before pushing**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
 8. **Score on evals**, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md).
 9. **Commit** the way the repo's rules say, only once the user gives the go.
 
@@ -35,7 +35,7 @@ Two modes, inferred from the request:
 - A project's commands, paths, branches or names written into a skill
 - Inventing a new structure instead of cloning the closest sibling
 - Blind-appending a rule on update instead of merging and trimming duplicates
-- Committing a materially changed skill without the dry run, or because it reads well
+- Pushing a materially changed skill without the dry run, or because it reads well
 - Treating a small diff as automatically non-material — a single new bullet can change what a skill flags
 - Dry-run repos that rhyme — same stack, same shape, same conventions
 - A dry-run prompt that says it is a test or names the skill to load

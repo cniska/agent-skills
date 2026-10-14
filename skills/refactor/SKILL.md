@@ -19,7 +19,7 @@ The repo's own rules hold throughout: its commit gate, its docs-with-behavior ru
 
 ## Refactor
 
-1. **Pin the behavior.** Where no test pins what the code does now, write tests at the outermost surface the refactor keeps, such as the app, the CLI or the HTTP API, that assert what it does today, bugs included, before moving anything. These are the tests that stay untouched; a test of an internal the refactor removes goes with that internal, once the outer tests cover what it checked.
+1. **Pin the behavior.** Where no test pins what the code does now, write tests at the outermost surface the refactor keeps, such as the app, the CLI or the HTTP API, that assert what it does today, bugs included, before moving anything. Where the code judges or transforms input, also run the old and the new code over a table of near-miss cases, each just inside or just outside a rule, and over real files, and diff their outputs. These are the tests that stay untouched; a test of an internal the refactor removes goes with that internal, once the outer tests cover what it checked.
 2. **Make the change easy, then make the easy change.** Before a feature the structure fights, reshape the structure first in its own commits, then add the feature.
 3. **Keep structure and behavior in separate commits.** A commit either changes structure, with the pinning tests untouched and green, or changes behavior. Where splitting them would take a shim, the commit changes both and its subject says it changes behavior.
 4. **Fix each pattern once, cleanly, in one place first.** Pick the module agents will copy from, give it the right shape in full, and let the rest follow it. Take the shape from `design-review`'s rules, never from the code beside it.

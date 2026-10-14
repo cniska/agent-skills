@@ -16,6 +16,7 @@ A runner that knows its work is a trial reads the skill more closely and follows
 - Give each runner the task as the user would type it. Nothing it sees, in the prompt, directory, branch or file names, mentions a test, a trial, a comparison or a skill under review, and it does not learn that other runs exist.
 - Do not name the skill to load. Install the version under test where the runner's agent discovers skills, inside a scratch worktree of the target repo, never in the shared skill directory other sessions read.
 - Run both versions on each repo in parallel. Output stays uncommitted in the scratch worktree; a run never commits or pushes.
+- A headless runner (`claude -p`) ends at its first question, and a background subagent it starts dies when `-p` exits. Resume a stopped run in its own session with the answer a user would give, and judge only finished runs.
 
 ## Judge
 
