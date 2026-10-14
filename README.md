@@ -139,8 +139,8 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 
 - **Owner interrupts:** how often I had to answer, correct or unblock an agent.
 - **Time to land:** from my request to the commit on the remote.
-- **Review loops:** reviewer returns per commit, and rounds to accept.
-- **Stranded work:** accepted commits not landed when the repo's rule would land them.
+- **Review loops:** reviewer runs per commit.
+- **Stranded work:** commits not on the remote within an hour of being made.
 - **False stops:** a gate that refused work which then went on with nothing the gate checks changed.
 
 [agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines each signal exactly.
@@ -178,7 +178,7 @@ Only a finding that needs my decision, or sits in a change another person owns, 
 This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill, with the `cniska-skills:` prefix, plus the hooks and agents below.
 
 - **Session-start hook:** sends every task through `task`, so a plain prompt takes the same route as `/task`.
-  - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
+  - A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept.
   - A resumed, forked or compacted session is told to load `coordinate` again and resume its ledger and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - **Reviewer agent (`cniska-skills:reviewer`):** judges a design or a change it did not write, as the [reviewer](#the-reviewer).
   - It runs [design-review](skills/expertise/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
@@ -187,7 +187,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - An edit after the accept, or a `Verdict: return`, blocks it again.
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
-- **Ledger hook:** prints the [coordinate](skills/workflow/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
+- **Ledger hook:** prints the [coordinate](skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](#three-loops).
   - The ledger holds open work, owner decisions, questions waiting on the owner, and a running line per worker naming its brief, filed beside it.
   - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline, and says when it could not (offline, diverged, uncommitted changes) and how far behind the printed ledger is.
   - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
@@ -393,6 +393,7 @@ Naming actual models here would be wrong within months, so this column gives the
 Each principle lives in one place, and the reviewer cites the rule behind each finding.
 
 - **A principle more than one skill applies** lives in [principles](skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
+- **The design rules** live in [design-review's patterns](skills/expertise/design-review/references/patterns.md), in two parts: Architecture, such as one mechanism per question, pure decisions with separate effects, and coded errors; and Code, such as no indirection and no tech debt.
 - **The rest** live in the skill that applies them:
 
 | Principle | In practice | Lives in |
@@ -405,11 +406,11 @@ Each principle lives in one place, and the reviewer cites the rule behind each f
 | Prove-It pattern | Failing test before fix | debug, tdd |
 | Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
 | DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
-| Rule of 3 | Extract after three instances, not before — though a substantial block earns a name on its second | simplify, design-review |
+| Rule of 3 | A small block gets a name at its third copy, a substantial one at its second | design-review |
 | Hyrum's Law | All observable behavior becomes a commitment | deprecation |
 | Code as liability | Less code serving the same purpose is better | deprecation |
-| Source over memory | Verify framework behavior in primary docs before implementation | build, code-writing |
-| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing |
+| Source over memory | Check the installed version's docs, types or source, not memory | build, code-writing |
+| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing, design-review |
 | Minimum dependencies | The standard library or a dependency already in the tree before a new one | code-writing |
 | Save-point pattern | Commit early when exploring uncertain changes | git |
 | Evidence threshold | Concrete references, not speculation | review skills |
@@ -423,9 +424,9 @@ mise install
 mise run bootstrap
 ```
 
-`mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/): the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `no-comments-javascript` and `no-comments-shell` gates.
+`mise run bootstrap` installs dependencies and runs validation. Installing runs the `prepare` script, which points Git at [`.githooks/`](.githooks/): the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `format` and `no-comments` gates.
 
-A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktree](https://github.com/cniska/agent-worktree) to install dependencies; it needs no teardown.
+A new worktree runs [`scripts/worktree-setup.sh`](scripts/worktree-setup.sh) under [agent-worktree](https://github.com/cniska/agent-worktree) to trust and install the mise tools and install dependencies; it needs no teardown.
 
 In Claude Code cloud sessions, the proxy blocks mise.run and GitHub release downloads. [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh) works around that:
 
@@ -442,6 +443,7 @@ The checks:
 On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `validate`, `lint` and `test`, plus the eval checks that need no model, `test:evals` and `test:triggers`. [`evals/README.md`](evals/README.md) describes them.
 
 - **Commit subjects** are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
+- **Formatting:** the `pre-commit` hook runs Biome's formatter over a commit's staged files and stages the result, and [`.github/workflows/format.yml`](.github/workflows/format.yml) refuses unformatted files in CI.
 - **Comments** in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang, are refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
 
 Create a new skill with `mise run new-skill <workflow|expertise> <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
