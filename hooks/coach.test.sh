@@ -150,7 +150,7 @@ jq -n --arg a "$A_OLD" --arg c "$C_HEAD" '[
   {repo: "c/moved", taken: "w", reviewed: $a}
 ]' >"$upstreams"
 assert "a due coach counts the upstreams that moved among those that answered" "$(git_due)" \
-  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 2 of the 3 that answered."
+  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 2 of the 3 that answered; brief the coach with the list at $upstreams."
 assert "each upstream's remote is asked for its head" "$(grep -c '^ls-remote https://github.com/[^ ]* HEAD$' "$git_calls")" 4
 assert "counting upstreams writes nothing to stderr" "$(PATH="$git_bin:$PATH" due_stderr)" ""
 
@@ -169,7 +169,7 @@ assert "an unreachable upstream is skipped silently" "$(git_due)" "$DUE_NEVER"
 jq -n --arg a "$A_OLD" '[{repo: "--upload-pack=evil", taken: "z", reviewed: $a}, {repo: "a/moved", taken: "x", reviewed: $a}]' >"$upstreams"
 rm -f "$git_calls"
 assert "an entry whose repo is not owner/name is skipped" "$(git_due)" \
-  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered."
+  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered; brief the coach with the list at $upstreams."
 assert "a skipped entry asks no remote" "$(calls)" 1
 
 jq -n --arg a "$A_OLD" '[{repo: "s/stalled", taken: "s", reviewed: $a}, {repo: "a/moved", taken: "x", reviewed: $a}]' >"$upstreams"
@@ -177,7 +177,7 @@ started="$(date +%s)"
 stalled_output="$(printf '%s' "$SESSION_START" | PATH="$git_bin:$PATH" "$DUE" 2>"$scratch/stalled-stderr")"
 elapsed=$(($(date +%s) - started))
 assert "a stalled upstream is dropped at the deadline and the rest still count" "$stalled_output" \
-  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered."
+  "$DUE_NEVER"$'\n'"$MOVED_NOTE: 1 of the 1 that answered; brief the coach with the list at $upstreams."
 assert "a stalled upstream holds the session start no longer than the deadline" "$([ "$elapsed" -le 8 ] && echo yes || echo "no, ${elapsed}s")" yes
 assert "a stalled upstream writes nothing to stderr" "$(cat "$scratch/stalled-stderr")" ""
 

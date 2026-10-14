@@ -61,7 +61,7 @@ upstream_note() (
     fi
   done
   if ((moved > 0)); then
-    printf 'Upstreams moved since their last review: %d of the %d that answered.\n' "$moved" "$answered"
+    printf 'Upstreams moved since their last review: %d of the %d that answered; brief the coach with the list at %s.\n' "$moved" "$answered" "$list"
   fi
 )
 

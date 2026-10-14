@@ -4,7 +4,7 @@ Upstreams bring ideas; the session record brings the evidence. An upstream chang
 
 ## The list
 
-`upstreams.json` beside the ledger: an array, one entry per upstream.
+The upstream list the brief names: an array, one entry per upstream.
 
 - `repo`: `owner/name` on GitHub.
 - `path`: optional; the read takes only changes under it. The session-start count ignores it, so an upstream can count as moved with nothing to read.

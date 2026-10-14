@@ -149,7 +149,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 - **Coach schedule:** a session-start hook that tells the agent when the coach is due.
   - The coach is due when a session starts or is cleared more than a day after the last run, or with no run recorded.
   - A run counts once its report ends with `Proposals: <n>`.
-  - When the coach is due and `upstreams.json` exists, it also says how many upstreams moved since their last reviewed commit, asking each with `git ls-remote` and skipping any that do not answer.
+  - When the coach is due and `upstreams.json` sits beside the ledger, it also says how many upstreams moved since their last reviewed commit and where the list is, asking each with `git ls-remote` and skipping any that do not answer.
   - The agent applies the proposals at the next break and brings me only conflicts.
 
 The hooks need `jq`.

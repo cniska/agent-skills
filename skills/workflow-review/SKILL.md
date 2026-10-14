@@ -25,7 +25,7 @@ Find where the workflow failed the owner, and say what should change so it does 
    - an eval case that regressed, where the repo has evals.
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
-5. **Read the upstreams** when the owner keeps an upstream list beside the ledger, as [references/upstreams.md](references/upstreams.md) says.
+5. **Read the upstreams** when the brief names an upstream list, as [references/upstreams.md](references/upstreams.md) says.
 
 ## Judge
 
