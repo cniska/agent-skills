@@ -1,0 +1,11 @@
+{
+  "positive": [
+    { "prompt": "check my work skill and see if were missing something here that we should add:" },
+    { "prompt": "do we need a skill for this?" },
+    { "prompt": "can you fix the build skill here_" },
+    { "prompt": "i was thinking we could add a sitrep (situation report) skill that lays out whats inflight for me" }
+  ],
+  "negative": [
+    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "agents-md" }
+  ]
+}
