@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats. Use after a stretch of work, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use after a stretch of work, or when asked what should change in the workflow.
 ---
 
 # Workflow review
@@ -27,6 +27,7 @@ Find where the workflow failed the owner, and say what should change so it does 
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
 5. **Read the upstreams** when the brief names an upstream list, as [references/upstreams.md](references/upstreams.md) says.
+6. **Check each open experiment** in the record the brief names whose check date has passed: its signal before and after, as [references/experiments.md](references/experiments.md) says.
 
 ## Judge
 
@@ -53,7 +54,7 @@ One heading per kind, one proposal per finding, within each kind the costliest f
 - **Change:** the smallest edit that would have prevented it, cuts first.
 - **Check:** the eval case or test that would catch it coming back, where a grader can judge it from a trace.
 
-A conflict's proposal also names the decision the owner has to make. Then the one-offs, one line each, and what was searched for and not found. No summary paragraph.
+A conflict's proposal also names the decision the owner has to make. Then the experiments checked, then the one-offs, one line each, and what was searched for and not found. No summary paragraph.
 
 ## See also
 
@@ -73,3 +74,4 @@ A conflict's proposal also names the decision the owner has to make. Then the on
 - Growing a skill where a cut or a check would do
 - Applying a conflict without the owner's call
 - Proposing an upstream change because it looks good, with no friction or ledger gap behind it
+- Keeping an experiment past its check date without comparing its signal before and after
