@@ -18,7 +18,6 @@ type Facts = {
   readonly trace_unrecorded: { readonly name: string; readonly index: number };
   readonly trace_gone: { readonly path: string };
   readonly unreachable: { readonly value: string };
-  readonly invariant_failed: { readonly condition: string };
 };
 
 export type ErrorCode = keyof Facts;
@@ -115,11 +114,6 @@ const ERRORS: { readonly [Code in ErrorCode]: Entry<Code> } = {
   unreachable: {
     exit: 1,
     message: ({ value }) => `unreachable: ${value}`,
-    resolve: () => BUG,
-  },
-  invariant_failed: {
-    exit: 1,
-    message: ({ condition }) => `invariant failed: ${condition}`,
     resolve: () => BUG,
   },
 };

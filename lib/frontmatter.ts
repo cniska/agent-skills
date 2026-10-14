@@ -1,7 +1,7 @@
 import { CodedError } from "./coded-error";
 import { readText } from "./read-file";
 
-export type FrontmatterValue = string | readonly string[] | Readonly<Record<string, string>>;
+type FrontmatterValue = string | readonly string[] | Readonly<Record<string, string>>;
 export type Frontmatter = Readonly<Record<string, FrontmatterValue>>;
 
 type Open =
