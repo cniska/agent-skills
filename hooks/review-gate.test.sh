@@ -39,9 +39,14 @@ gate() {
   jq -cn --arg command "$1" --arg cwd "$repo" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
 }
 
+assistant_line() { jq -cn --argjson block "$1" '{type: "assistant", message: {content: [$block]}}'; }
+handback_line() { assistant_line "$(jq -cn --arg message "$1" '{type: "tool_use", name: "SubagentHandback", input: {message: $message}}')"; }
+read_line() { assistant_line '{"type": "tool_use", "name": "Read", "input": {"file_path": "/x"}}'; }
+text_line() { assistant_line "$(jq -cn --arg text "$1" '{type: "text", text: $text}')"; }
+
 record_handback() {
   local transcript="$scratch/transcript.jsonl"
-  jq -cn --arg message "$1" '{type: "assistant", message: {content: [{type: "tool_use", name: "SubagentHandback", input: {message: $message}}]}}' >"$transcript"
+  handback_line "$1" >"$transcript"
   jq -cn --arg cwd "$repo" --arg transcript "$transcript" --arg active "${2:-false}" \
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: "", stop_hook_active: ($active == "true")}' | "$RECORD" 2>/dev/null
 }
@@ -103,6 +108,40 @@ assert "a missing verdict on the second stop lets the reviewer stop" "$(record_h
 
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
+
+transcript="$scratch/late.jsonl"
+stop_on() {
+  jq -cn --arg cwd "$repo" --arg transcript "$transcript" --arg message "${1:-}" \
+    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript, last_assistant_message: $message, stop_hook_active: false}' | "$RECORD" 2>/dev/null
+}
+record_late() {
+  (sleep 0.5 && handback_line "$1" >>"$transcript") &
+  stop_on
+  wait
+}
+
+record_handback "$(report "$repo" return)" >/dev/null
+read_line >"$transcript"
+assert "a handback written to the transcript after the stop fires still counts" "$(record_late "$(report "$repo" accept)")" ""
+assert "that late accept lets the diff commit" "$(gate 'git commit -am x')" ""
+
+record_handback "$(report "$repo" return)" >/dev/null
+{ handback_line "$(report "$repo" return)" && read_line; } >"$transcript"
+record_late "$(report "$repo" accept)" >/dev/null
+assert "a late accept after a re-review is not read as the earlier return" "$(gate 'git commit -am x')" ""
+
+record_handback "$(report "$repo" accept)" >/dev/null
+{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "attachment", attachment: {type: "hook_blocking_error"}}'; } >"$transcript"
+record_late "$(report "$repo" return)" >/dev/null
+assert "a late return on the stop after a block is not read as the earlier accept" "$(gate 'git commit -am x')" "$DENIED"
+
+record_handback "$(report "$repo" accept)" >/dev/null
+{ handback_line "$(report "$repo" accept)" && jq -cn '{type: "user", message: {content: "Look again."}}'; } >"$transcript"
+record_late "$(report "$repo" return)" >/dev/null
+assert "a late return after a resume is not read as the earlier accept" "$(gate 'git commit -am x')" "$DENIED"
+
+{ handback_line "$(report "$repo" accept)" && text_line 'Looking again.'; } >"$transcript"
+assert "a text stop after an accepting handback is judged by the text alone" "$(stop_on 'Looking again.')" "$MISSING"
 
 land
 edit README.md 'more docs'
