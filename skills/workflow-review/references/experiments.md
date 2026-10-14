@@ -30,9 +30,11 @@ For each open experiment whose check date has passed:
 |---|---|
 | The signal moved as named, and nothing weightier got worse | Keep |
 | Flat, or the wrong way | Revert, or trim the part that did not pay off; prefer trimming to adding |
-| The record shows the old version still running in part of the after window | Not installed yet, never no effect: a new `from` at the time the new version first ran, and a check date after it |
+| The record shows the old version still running in part of the after window | Not installed yet: a new `from` at the time the new version first ran, and a check date after it |
 | The record shows the new version has not run at all | Not installed yet: install it, with a new `from` at the install and a check date after it |
 | Not enough data | A later check date, unless the `open` lines for that `sha` already carry more than one distinct `check` date for the same `from`; then 10 or more tasks a side are judged on direction alone, and fewer go to the owner as unproven, as a Conflict |
+
+An after window the new version did not run in is never read as no effect.
 
 The before and after are the evidence, so a verdict needs no second session.
 
