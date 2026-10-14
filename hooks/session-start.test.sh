@@ -24,8 +24,9 @@ assert "start leaves the other skills to task" \
   "$(run start | grep -c 'load other skills only as it, or a skill it loads, directs.')" 1
 assert "start says commits wait on the reviewer" \
   "$(run start | grep -c 'waits until cniska-skills:reviewer has accepted the diff')" 1
-assert "resume sends the session to the Resume route" \
-  "$(run resume | grep -c 'Load the cniska-skills:task skill again and take its Resume route')" 1
+assert "resume sends the session back into its route" \
+  "$(run resume | grep -c "Load the cniska-skills:task skill again and re-enter the work's route")" 1
+assert "resume names no Resume route" "$(run resume | grep -c 'Resume')" 0
 assert "resume sends a coordinating session to coordinate" \
   "$(run resume | grep -c 'or cniska-skills:coordinate when this session coordinates other agents')" 1
 assert "start exits 0" "$(code start)" 0

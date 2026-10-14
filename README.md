@@ -76,7 +76,7 @@ Start a task with `/task <task>`. The route for that kind of task loads each ski
 
 ```text
 /task <task>
-  → a route, chosen by what the task changes: Feature | Bug fix | Refactor | Review | Resume
+  → a route, chosen by what the task changes: Feature | Bug fix | Refactor | Test | Review
   → each step loads its skill when the step starts
   → each commit: simplify → design-review by a fresh agent
   → the repo's checks → review → land as the repo's rule says
@@ -88,8 +88,8 @@ Start a task with `/task <task>`. The route for that kind of task loads each ski
 /task fix issue #25                          → Bug fix
 /task add a --json flag to the sync command  → Feature
 /task split the config module by concern     → Refactor
+/task cover the retry limit with a test      → Test
 /task review PR #41                          → Review
-/task <a handoff pasted from the last session> → Resume
 ```
 
 Four rules shape every route:
@@ -97,15 +97,15 @@ Four rules shape every route:
 - **The repo's rules win.** A route reads the repo's `AGENTS.md` or `CLAUDE.md` first and defers to it on how to branch, check and land. A repo skill that covers the task or a step takes its place.
 - **A route only names the skills; each skill decides how its step is done.** A step whose work does not come up is skipped and named in the report.
 - **A task that changes no code has no route.** A question or a doc edit goes straight to its own skill.
-- **A skill, agent, test-only or spec-wording change takes its writing skill**, `skill-writing` or `test-writing`, then the per-commit steps.
+- **A skill or agent change takes `skill-writing`**, then the per-commit steps.
 
 | Route | When | Steps |
 |---|---|---|
 | Feature | New or changed behavior | [feature.md](skills/task/references/feature.md) |
 | Bug fix | Behavior that differs from what it should be | [bug-fix.md](skills/task/references/bug-fix.md) |
 | Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](skills/task/references/refactor.md) |
+| Test | A change only to tests, or to the spec wording they prove | [test.md](skills/task/references/test.md) |
 | Review | Someone else's change, or a change that already landed | [review.md](skills/task/references/review.md) |
-| Resume | After context compaction, or when a session picks up earlier work | [resume.md](skills/task/references/resume.md) |
 
 ## The reviewer
 
@@ -128,7 +128,7 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
 
 - **Session-start hook:** sends every task through `task`, so a plain prompt takes the same route as `/task`.
   - A new session is told to start each task with `cniska-skills:task` and to load other skills only as a route directs.
-  - A resumed, forked or compacted session is told to take the Resume route, or to load `coordinate` again when it coordinates other agents.
+  - A resumed, forked or compacted session is told to reload `task` and re-enter its route, or to load `coordinate` again when it coordinates other agents.
 - **Reviewer agent (`cniska-skills:reviewer`):** judges a design or a change it did not write, as the [reviewer](#the-reviewer).
   - It runs [design-review](skills/design-review/SKILL.md) read-only, with its skills preloaded, since a subagent starts without the parent's.
   - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it.
