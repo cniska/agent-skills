@@ -393,24 +393,22 @@ Naming actual models here would be wrong within months, so this column gives the
 Each principle lives in one place, and the reviewer cites the rule behind each finding.
 
 - **A principle more than one skill applies** lives in [principles](skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, rules as checks, no drift, and verify at the source.
-- **The design rules** live in [design-review's patterns](skills/expertise/design-review/references/patterns.md), in two parts: Architecture, such as one mechanism per question, pure decisions with separate effects, and coded errors; and Code, such as no indirection and no tech debt.
+- **The design rules** live in [design-review's patterns](skills/expertise/design-review/references/patterns.md), in two parts: Architecture, such as one reason to change per module, building only what the job needs (YAGNI), and parsing what crosses a boundary; and Code, such as no abstraction before the third copy (rule of three).
 - **The rest** live in the skill that applies them:
 
 | Principle | In practice | Lives in |
 |-----------|------------|--------|
 | Vertical slices | One complete path through the stack at a time | build, plan |
 | Contract first | Schema before implementation | build |
-| SRP | One responsibility per module, one change per commit | design-review, build, git |
-| YAGNI | Don't build for hypothetical requirements | design-review |
+| One change per commit | One logical change per commit | build, git |
 | Stop the line | Something breaks — stop, don't push past it | debug |
 | Prove-It pattern | Failing test before fix | debug, tdd |
 | Mock at boundaries | Mock external systems, not internal functions | test-writing, test-review |
 | DAMP over DRY | Descriptive tests over deduplicated tests | test-writing |
-| Rule of 3 | A small block gets a name at its third copy, a substantial one at its second | design-review |
 | Hyrum's Law | All observable behavior becomes a commitment | deprecation |
 | Code as liability | Less code serving the same purpose is better | deprecation |
 | Source over memory | Check the installed version's docs, types or source, not memory | build, code-writing |
-| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing, design-review |
+| Parse, don't cast | Data crossing a boundary becomes a typed value at the edge | code-writing |
 | Minimum dependencies | The standard library or a dependency already in the tree before a new one | code-writing |
 | Save-point pattern | Commit early when exploring uncertain changes | git |
 | Evidence threshold | Concrete references, not speculation | review skills |
@@ -443,7 +441,7 @@ The checks:
 On pull requests and pushes to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs `validate`, `lint` and `test`, plus the eval checks that need no model, `test:evals` and `test:triggers`. [`evals/README.md`](evals/README.md) describes them.
 
 - **Commit subjects** are refused on commit by the `commit-msg` hook, and judged for every pushed commit by [`.github/workflows/commits.yml`](.github/workflows/commits.yml).
-- **Formatting:** the `pre-commit` hook runs Biome's formatter over a commit's staged files and stages the result, and [`.github/workflows/format.yml`](.github/workflows/format.yml) refuses unformatted files in CI.
+- **Formatting:** the `pre-commit` hook runs the repo's `format` script, stages what it changes in files the commit stages whole, and refuses a partly staged file it would change, and [`.github/workflows/format.yml`](.github/workflows/format.yml) refuses unformatted files in CI.
 - **Comments** in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang, are refused on commit by the `pre-commit` hook and in CI by [`.github/workflows/no-comments.yml`](.github/workflows/no-comments.yml).
 
 Create a new skill with `mise run new-skill <workflow|expertise> <kebab-case-name> "<imperative description>"`, which runs [`./scripts/new-skill.sh`](scripts/new-skill.sh) from [`SKILL_TEMPLATE.md`](SKILL_TEMPLATE.md). `mise tasks` lists every command.
