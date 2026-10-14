@@ -6,7 +6,7 @@ I do all my engineering with coding agents, and these skills encode the workflow
 
 Two parts carry the workflow:
 
-- **[coordinate](skills/coordinate/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
+- **[task](skills/task/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs. [coordinate](skills/coordinate/SKILL.md) runs work across several agents or repos, delegating each task to `task`.
 - **A separate reviewer agent judges every commit.** It holds the change to my design rules in [design-review](skills/design-review/SKILL.md), and it never wrote the code it judges.
 
 Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
@@ -52,10 +52,10 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 
 ## How a task runs
 
-A skill only helps when something loads it. Start a task with `/coordinate <task>`, and the route for that kind of task loads each skill as its step starts. With the plugin, the command is `/cniska-skills:coordinate <task>`.
+A skill only helps when something loads it. Start a task with `/task <task>`, and the route for that kind of task loads each skill as its step starts. With the plugin, the command is `/cniska-skills:task <task>`.
 
 ```text
-/coordinate <task>
+/task <task>
   → a route, chosen by what the task changes: Feature | Bug fix | Refactor | Review | Resume
   → each step loads its skill when the step starts
   → each commit: simplify → design-review by a fresh agent
@@ -65,14 +65,14 @@ A skill only helps when something loads it. Start a task with `/coordinate <task
 `<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a handoff from an earlier session. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
 ```text
-/coordinate fix issue #25                          → Bug fix
-/coordinate add a --json flag to the sync command  → Feature
-/coordinate split the config module by concern     → Refactor
-/coordinate review PR #41                          → Review
-/coordinate <a handoff pasted from the last session> → Resume
+/task fix issue #25                          → Bug fix
+/task add a --json flag to the sync command  → Feature
+/task split the config module by concern     → Refactor
+/task review PR #41                          → Review
+/task <a handoff pasted from the last session> → Resume
 ```
 
-With [the plugin](#the-plugin) installed, a session-start hook sends every task through `coordinate`, so a plain prompt takes the same route.
+With [the plugin](#the-plugin) installed, a session-start hook sends every task through `task`, so a plain prompt takes the same route.
 
 Four rules shape every route:
 
@@ -83,11 +83,11 @@ Four rules shape every route:
 
 | Route | When | Steps |
 |---|---|---|
-| Feature | New or changed behavior | [feature.md](skills/coordinate/references/feature.md) |
-| Bug fix | Behavior that differs from what it should be | [bug-fix.md](skills/coordinate/references/bug-fix.md) |
-| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](skills/coordinate/references/refactor.md) |
-| Review | Someone else's change, or a change that already landed | [review.md](skills/coordinate/references/review.md) |
-| Resume | After context compaction, or when a session picks up earlier work | [resume.md](skills/coordinate/references/resume.md) |
+| Feature | New or changed behavior | [feature.md](skills/task/references/feature.md) |
+| Bug fix | Behavior that differs from what it should be | [bug-fix.md](skills/task/references/bug-fix.md) |
+| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [refactor.md](skills/task/references/refactor.md) |
+| Review | Someone else's change, or a change that already landed | [review.md](skills/task/references/review.md) |
+| Resume | After context compaction, or when a session picks up earlier work | [resume.md](skills/task/references/resume.md) |
 
 ## The reviewer
 
@@ -106,7 +106,7 @@ The routes run the reviewer in a fresh agent that did not write the work, on eac
 
 This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill with the hooks and agents below. In Claude Code its skills carry the plugin's prefix.
 
-- **A session-start hook** tells every new session to start each task with `cniska-skills:coordinate`, and to load other skills only as it, or a skill it loads, directs. It tells every resumed, forked or compacted session to take the Resume route.
+- **A session-start hook** tells every new session to start each task with `cniska-skills:task`, and to load other skills only as it, or a skill it loads, directs. It tells every resumed, forked or compacted session to take the Resume route.
 - **`cniska-skills:reviewer`** runs [design-review](skills/design-review/SKILL.md) as a read-only agent that judges a design or a change it did not write. It ends each report with the repo it judged on a `Repo:` line and `Verdict: accept` or `Verdict: return`. It preloads its skills, since a subagent starts without the parent's.
 - **`cniska-skills:coach`** runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions; it changes nothing and runs only read commands and `agent-record sync`. It finds where the workflow failed me, through my corrections, the questions I had to ask and the friction sessions reported, proposes the changes that repeat across sessions, and ends each report with `Proposals: <n>`.
 - **A coach schedule** records each `cniska-skills:coach` run, once its report ends with `Proposals: <n>`. When a new or cleared session starts more than a day after the last run, or with no run recorded, it tells the agent the coach is due and to apply its proposals at the next break, except conflicts, which go to me.
@@ -121,7 +121,7 @@ flowchart LR
   agent(["Agent"])
   subgraph S["cniska-skills plugin"]
     hook["Session start hook"]
-    skills["Skills: coordinate + routes"]
+    skills["Skills: task + routes"]
     rev["Reviewer agent"]
     gate["Commit gate"]
   end
@@ -147,7 +147,7 @@ sequenceDiagram
   participant P as Commit gate
   participant G as Git hooks
   participant C as CI
-  A->>A: coordinate picks a route, steps load skills
+  A->>A: task picks a route, steps load skills
   A->>V: here is the diff
   V-->>A: Verdict: return, with findings
   A->>V: the fix

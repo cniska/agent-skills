@@ -1,6 +1,6 @@
 {
   "name": "cniska-skills",
-  "description": "The agent-skills set, with hooks that start every task on the coordinate routes and gate each commit on a design review.",
+  "description": "The agent-skills set, with hooks that start every task on the task routes and gate each commit on a design review.",
   "author": {
     "name": "Christoffer Niska"
   },

@@ -59,7 +59,7 @@ A decision goes in as its rule, not its history:
 - `writing` — voice and plain wording for the handoff
 - `search-sessions` — recover what an earlier session decided when no handoff carried it forward
 - `git` — commit the unfinished work this document points at
-- `coordinate`, `review`, `pr`, `ship` — offer a handoff at the breaks named above
+- `task`, `review`, `pr`, `ship` — offer a handoff at the breaks named above
 
 ## Red flags
 

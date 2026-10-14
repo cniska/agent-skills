@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Judge a design or a change the way the owner would, as a second pair of eyes that did not write it — architecture, design patterns and code smells, with the design-review skill preloaded, read-only. Use for every coordinate route step that runs design-review.
+description: Judge a design or a change the way the owner would, as a second pair of eyes that did not write it — architecture, design patterns and code smells, with the design-review skill preloaded, read-only. Use for every task route step that runs design-review.
 tools: Read, Grep, Glob
 skills:
   - cniska-skills:design-review

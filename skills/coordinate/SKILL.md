@@ -1,53 +1,43 @@
 ---
 name: coordinate
-description: Run a task along the route its kind needs — feature, bug fix, refactor or review — loading each step's skill in order. Use at the start of any task that changes code or reviews a change, and again to resume one after context compaction.
-argument-hint: "<task>"
+description: Run work across several agents or repos for an owner — delegate each task, keep a ledger, batch the owner's questions and keep every agent moving. Use when you run or resume work across several agents or repos for an owner.
+argument-hint: "<the work>"
 ---
 
 # Coordinate
 
-A skill runs only when something loads it. Pick the task's route and work through its steps, loading each step's skill when the step starts. A route names skills; each skill owns how its step is done.
+Hold work that spans agents or repos so none of it is lost, stranded, or left waiting on the owner without need. Each task itself runs through `task`.
 
-## Pick the route
+## Rules
 
-1. **Read the request and the repo's `AGENTS.md` or `CLAUDE.md`.** The repo's rules win over any step: how it branches, checks and lands. Push or land each accepted commit, as the repo says, before starting the next, so a return strands no commit stacked on one still awaiting review. Where the repo lands each commit once accepted, `review` runs on the whole change after the last one lands. A repo skill that covers the task or a step takes its place.
-2. **Match the route by what the task changes**, read from the code it names, not by its wording. A code change always has a route. A change to a skill or agent goes through `skill-writing`, and one only to tests or spec wording through `test-writing`, each then through the per-commit steps, `simplify` then `design-review` by a fresh agent, and landing. A task that changes no code, such as a question or a doc edit, goes straight to its own skill.
-3. **Load each step's skill with the Skill tool when the step starts**: this set's skill, not a host skill that shares its name. Skip a step only when its work does not arise, such as `second-opinion` on a design the owner's brief decided rather than one the agent proposed, or one already challenged; a change that looks small still takes every step its work reaches.
-4. **`design-review` runs in a fresh agent that did not write the work**, briefed with the diff or design in a file it reads, and every decision the owner settled, a plan included. A return's Fix findings are all fixed and re-reviewed until accept; the re-review judges only the fix, for `review` as for `design-review`: the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement, such as a finding that clashes with a settled decision, goes to the owner as a conflict, not a Fix.
-5. **Re-route when the task changes kind**, and say so.
-6. **Fix a finding in your own change rather than filing it; on someone else's change, report it.** An accept's Consider findings land in their own commit after the accepted one, through the same commit steps; only one whose fix is a tradeoff goes to the owner. On that follow-up, fix in the same commit only the Consider findings about the fix itself; any raised after that, or about neighboring code, goes to the report unless its fix is a check that would have caught it.
-7. **An agent that coordinates others keeps a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute: open work per repo, owner decisions, questions waiting on the owner, running agents, and any plan that spans sessions or agents, never left only in a message or a temp path another machine cannot reach. Where no ledger file exists, offer `handoff` at the breaks it names, such as a route's report followed by a different task.
+1. **Delegate each task to a subagent that loads `task`**, briefed with the repo, the task, every decision the owner settled, and where its plan lives.
+2. **Run reviewers as in-process subagents** that did not write the work, never as new cloud sessions.
+3. **Follow each repo's push rule.** A worker pushes or lands each accepted commit before starting its next, as `task` says, so a return strands nothing stacked on it.
+4. **Keep a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute, creating its directory. It holds open work per repo, owner decisions, questions waiting on the owner, running agents, and any plan that spans sessions or agents. Rewrite it at every report; where the file sits in a git checkout, commit and push that file alone, under that repo's rules.
+5. **Keep every plan in the ledger or a repo**, never only in a message or a temp path another machine cannot reach.
+6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
+7. **Take a choice a repo's rules or a conventional default decide**, such as push timing, slicing or which reviewer finding to take, and name it in the report. Ask the owner only about product or design tradeoffs.
+
+## Resume
+
+After compaction or in a fresh session, read the ledger first, then each open repo's `git log`, then check every agent the ledger lists as running.
 
 ## Report
 
-- Outcome first, then what needs the owner's decision; the rest in short bullets.
-- A working agent sends owner questions to whoever coordinates it and goes on with work that does not depend on them; the coordinator batches them into its report.
-- Name the route, and every step skipped or not yet run.
-- Several asks in one request: answer each by name, so none is dropped.
-- A coordinator rewrites its ledger at every report, creating its directory; where the file sits in a git checkout, it commits and pushes that file alone, under that repo's rules.
-- Take a choice the repo's rules or a conventional default decide, such as push timing, slicing or which finding to take, and name it with every other choice the owner did not ask for. Ask the owner only about product or design tradeoffs.
-
-## Routes
-
-| Route | When | File |
-|---|---|---|
-| Feature | New or changed behavior | [references/feature.md](references/feature.md) |
-| Bug fix | Behavior that differs from what it should be | [references/bug-fix.md](references/bug-fix.md) |
-| Refactor | A change to structure that keeps behavior, a redesign, or a removal | [references/refactor.md](references/refactor.md) |
-| Review | Someone else's change, or a change that already landed | [references/review.md](references/review.md) |
-| Resume | After context compaction, or when a session picks up earlier work | [references/resume.md](references/resume.md) |
+- Outcome per repo first, then the owner's questions, batched from every worker; the rest in short bullets.
+- Name every choice the owner did not ask for.
 
 ## See also
 
-- `design-review` — the judgment every route's commits wait on
-- `handoff` — carry the route and step into a fresh session at a clean break, where no ledger file exists
+- `task` — the route each delegated task runs
+- `design-review` — what the reviewers judge
 
 ## Red flags
 
-- A code edit made outside a route
-- Skipping a step because the change looks small
-- The session that wrote a change running its `design-review`
-- Landing past a repo rule that asks the owner first
-- A return left partly fixed, or review stopped before an accept
-- Starting a second task's route in the same long session with no ledger file and no offered handoff
-- A coordinator's report that leaves the ledger stale
+- A task worked in the coordinator's own context instead of delegated
+- A reviewer started as a new cloud session
+- A worker's commit stacked on one still awaiting review
+- A plan held only in a message or a temp path
+- A report that leaves the ledger stale
+- An owner question about a choice a repo's rules or a default settle
+- A quiet agent left unchecked
