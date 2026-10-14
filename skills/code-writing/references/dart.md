@@ -44,12 +44,12 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 - A package's public surface is `lib/<package>.dart` exporting files from `lib/src/`; that file is the only re-export. From outside, import the package's library, never another package's `src/`.
 - An exception is a `final class … implements Exception` with its facts as fields, including an enum `kind` when callers react differently. Callers use `on TheException catch (e)` and switch on the kind.
 - `Error` subclasses (`StateError`, `ArgumentError`, `TypeError`) are bugs. Throw them for a violated precondition; never catch them.
-- A deliberate degradation — a saved document from another build read as empty — catches the one type that failure throws, usually `FormatException` from the reader, and says why in one line. `on Object` or `catch (_)` there also turns every bug in the code it wraps into the same silent fallback.
+- A deliberate degradation — a saved document from another build read as empty — catches the one type that failure throws, usually `FormatException` from the reader, in a function named for the fallback. `on Object` or `catch (_)` there also turns every bug in the code it wraps into the same silent fallback.
 
 ## Testing
 
 - No real time: inject `package:clock` and drive timers with `fakeAsync`.
-- A suppression (`// ignore:`, `// ignore_for_file:`) carries its reason.
+- No `// ignore:` or `// ignore_for_file:`: fix the code, or set the lint in `analysis_options.yaml` with its reason.
 
 ## Red flags
 

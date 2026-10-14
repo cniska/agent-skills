@@ -33,7 +33,7 @@ A developer-machine script that wants more than 3.2 offers should be written in 
   done | xargs -0 shellcheck --severity=warning
   ```
 
-- Point shellcheck at sourced files (`# shellcheck source=lib/common.sh`, or `source-path=SCRIPTDIR` in `.shellcheckrc`) rather than disabling SC1091.
+- Point shellcheck at sourced files with `source-path=SCRIPTDIR` in `.shellcheckrc` rather than disabling SC1091.
 - `shfmt` formats with the repo's settings (`-i 2` where there are none), run on each written file.
 
 ## Layout
@@ -78,7 +78,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - Quote every expansion. Build argument lists as arrays (`args=(--flag "$value")`, `"${args[@]}"`), never as a string split later.
 - Filenames are read with `while IFS= read -r` or NUL-delimited (`find -print0`, `git ls-files -z`, `xargs -0`); never parse `ls`.
 - `printf` over `echo` for anything containing a variable.
-- A `# shellcheck disable=` carries its reason on the directive. A repeated SC2086 suppression means an argument string should be an array.
+- No `# shellcheck` directive: fix the code, or set the check in `.shellcheckrc` with its reason. An SC2086 that keeps coming back means an argument string should be an array.
 - Scratch space is `mktemp -d` plus a cleanup trap on `EXIT`; never a fixed path under `/tmp`.
 
 ## Output and portability
@@ -114,7 +114,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - bash 4 or 5 syntax in a script a developer runs, or a bash 5 script with no version check
 - `set -e` doing the work of an explicit check inside a function, or `|| true` hiding a failure
 - An unquoted expansion, an argument string split into a command, or `eval`
-- A `shellcheck disable` with no reason
+- A `# shellcheck` directive in a script
 - A script that mutates before it has checked its inputs, or that fails on a second run
 - A fixed `/tmp/...` path, or scratch space with no cleanup trap
 - `${{ … }}` inside a workflow's `run:` block

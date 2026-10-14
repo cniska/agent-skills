@@ -50,7 +50,7 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 - Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
 - A promise is awaited, returned, or detached with a handler.
 - `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
-- `@ts-expect-error` over `@ts-ignore`, so the suppression fails once the error is gone.
+- No `@ts-expect-error`, `@ts-ignore`, `biome-ignore` or JSDoc types: fix the type or parse the value, and set a check that must be off in `tsconfig.json` or `biome.json`. Typed code is TypeScript.
 
 ## React
 
@@ -64,7 +64,7 @@ Without declared tasks: `bunx biome check --write .`, `bunx tsc --noEmit`, `bun 
 ## Red flags
 
 - `x !== undefined` on a value typed `T | null`, or an optional field standing for a deliberately empty value
-- `as T` on parsed data, `!`, `any` or `@ts-ignore`
+- `as T` on parsed data, `!`, `any`, or a `@ts-` or `biome-ignore` suppression
 - `enum` or `namespace` in new code
 - A tsconfig option TypeScript 7 removed, or a zod 3 API in a zod 4 tree
 - ESLint or Prettier beside Biome

@@ -70,7 +70,7 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 
 ## Verification
 
-Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards and carries its reason on the directive, as any ignore does.
+Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards: it goes into `pyproject.toml`'s per-file ignores or a mypy override, with its reason there, never `noqa` or `type: ignore` in source.
 
 ## Red flags
 
@@ -80,7 +80,7 @@ Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exis
 - A public function with no annotations, or an `Any` where a type could be written
 - `except Exception: pass`, a bare `except:`, or `raise` inside an `except` without `from`
 - f-strings inside a `logger.*` call, or `logging.basicConfig` in a library
-- A `noqa`, `type: ignore` or ruff ignore with no reason on the directive
+- A `noqa` or `type: ignore` in source, or a docstring, one `argparse` reads as `__doc__` included
 - `datetime.now()` without a timezone
 - A mutable default argument
 
@@ -124,7 +124,7 @@ asyncio_default_fixture_loop_scope = "function"
 ```
 
 - `requires-python` is a narrow range so a new interpreter is an explicit decision; dependencies carry a lower bound and a major cap, and ruff, being pre-1.0, a minor cap.
-- ruff: `line-length = 120`, `select = ["ALL"]`, `convention = "google"`, whole tools off with a reason (`ARG`, `EM`, `ERA`, `FBT`, `FIX`, `INP`, `PLR`, `TD`), and per-file ignores for `tests/`, `scripts/` and `__init__.py`. Adjust `extend-exclude` and `known-first-party` locally.
+- ruff: `line-length = 120`, `select = ["ALL"]`, whole tools off with a reason (`ARG`, `D`, `EM`, `ERA`, `FBT`, `FIX`, `INP`, `PLR`, `TD`), and per-file ignores for `tests/`, `scripts/` and `__init__.py`. Adjust `extend-exclude` and `known-first-party` locally.
 - `mise.toml` pins `python`, `uv` and `prek`, with `boot` (`mise install --locked`, `uv sync --locked`, `prek install`), `lint` (`prek run -a --hook-stage manual`) and `test` (`uv run --locked pytest`) tasks.
 - `prek` runs `ruff check --fix` and `ruff format` on commit, `uv lock` when a manifest changes, and mypy plus the import linters at the `manual` stage. An agent harness also runs `ruff format` on each written file.
 - CI: OIDC to the index (`id-token: write`), `astral-sh/setup-uv` with `enable-cache: true` and `prune-cache: false`, `actions/setup-python` with `python-version-file: pyproject.toml`, `uv sync --locked`, then `mise run lint` and `mise run test`. Third-party actions are pinned to a full commit SHA.

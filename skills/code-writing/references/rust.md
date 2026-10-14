@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-Edition 2024 for new code. `rustfmt` and `clippy` from an exact pinned version in `rust-toolchain.toml` (`1.xx.y`; a bare `stable` resolves to whatever each machine has, so machines and CI drift), `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. No `unsafe` without a `// SAFETY:` comment.
+Edition 2024 for new code. `rustfmt` and `clippy` from an exact pinned version in `rust-toolchain.toml` (`1.xx.y`; a bare `stable` resolves to whatever each machine has, so machines and CI drift), `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. `unsafe_code` is denied workspace-wide; `unsafe` sits only in a small safe function carrying `#[expect(unsafe_code, reason = "...")]`, whose name and tests hold the invariant it relies on.
 
 Modern means: native `async fn` in traits (stable since 1.75), `LazyLock` / `OnceLock` over `lazy_static` / `ctor`, `let-else` and `if let` chains where they clarify intent.
 
@@ -55,7 +55,7 @@ Log through the workspace's shared logger crate; in a standalone repo, wrap `tra
 
 ## Documentation
 
-A crate published to crates.io carries `///` on every public item and `//!` with a usage example at the top of `lib.rs`. A suppression is `#[expect(lint, reason = "...")]`, which carries its reason without a comment and warns once the lint no longer fires.
+No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its README carries the usage example. Lint levels live in `Cargo.toml`'s `[lints]`; a single site's exception is `#[expect(lint, reason = "...")]`, an attribute the compiler reads that warns once the lint no longer fires.
 
 ## Verification
 
@@ -69,7 +69,7 @@ A crate published to crates.io carries `///` on every public item and `//!` with
 - `Box<dyn Trait>` for a fixed in-tree set of implementations
 - `lazy_static`, `once_cell` or `async-trait` where std or native async traits cover it
 - `unwrap()` or `expect()` on a `Result` where the failure mode is reachable
-- `#[allow(...)]` where `#[expect(..., reason = "...")]` fits, an advisory ignore in `deny.toml` without its reason, or `unsafe` without `// SAFETY:`
+- `#[allow(...)]` where `[lints]` or `#[expect(..., reason = "...")]` fits, an advisory ignore in `deny.toml` without its reason, a doc comment, or `unsafe` outside a small safe function that carries its `#[expect(unsafe_code, …)]`
 
 ## Setup
 
@@ -82,10 +82,9 @@ Versions are starting points; when a workspace `Cargo.toml` or `rust-toolchain.t
 - `.cargo/config.toml` aliases: `xb` (build), `xt` (test), `xc` (clippy), `xd` (doc).
 - A `PostToolUse` hook on `Edit|Write` runs `rustfmt "$f"` on each touched `.rs` file, in place rather than with `--check`; `rustfmt` reads the repo's `rustfmt.toml` for its edition, so let-chains format correctly.
 
-Logging wrapper:
+Logging wrapper, in `src/logger.rs`:
 
 ```rust
-// src/logger.rs
 pub use tracing::{debug, error, info, instrument, trace, warn};
 
 pub struct LogGuard { _guard: Option<tracing_appender::non_blocking::WorkerGuard> }

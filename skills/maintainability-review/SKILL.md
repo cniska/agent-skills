@@ -37,7 +37,7 @@ Check where the codebase already has a clear local pattern:
 
 - a comment the project's comment rule does not allow
 - no unused params, dead branches, or ad-hoc fallbacks
-- a new suppression of a type, lint, or security check, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag it unless the diff says why
+- a new suppression of a type, lint, or security check in config or an attribute, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag it unless the diff says why
 - keep structure and terminology aligned with nearby code
 - prefer clear, idiomatic code over cleverness
 
@@ -45,7 +45,7 @@ Check where the codebase already has a clear local pattern:
 
 Sections 1 and 3 require evidence of a local convention — cite the nearby code that establishes it. Sections 2 and 4 are default checks that apply without repo evidence, but cap them at **Consider** unless a documented convention elevates them. Never report a default check as must-fix.
 
-A suppression comment is the exception: the lint or type config it silences is itself the documented convention, so cite that config and label it **Fix**.
+A suppression comment is the exception: the comment rule refuses it, so label it **Fix**.
 
 ## Workflow
 
