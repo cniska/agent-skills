@@ -7,4 +7,4 @@ timeout_seconds: 900
 allowed_tools: [Read, Glob, Grep, Skill, Agent, Bash]
 ---
 
-coach the work so far, today is 2026-10-29. the ledger is ledger.md, the experiment record is experiments.jsonl, and signals/ has the before/after numbers for each change. what should change in how my agents work?
+check my open experiments, today is 2026-10-29. the ledger is ledger.md, the experiment record is experiments.jsonl, and signals/ has the before/after numbers for each change. what should change in how my agents work?

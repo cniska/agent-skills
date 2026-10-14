@@ -22,7 +22,7 @@ What it leaves behind:
 flowchart LR
   agent(["Agent"]) -- "coordinate rewrites" --> ledger[("Ledger")]
   hook["Hooks"] -- "event log" --> rec[("agent-record")]
-  rec -- "past sessions, signals" --> coach["Coach agent"]
+  rec -- "the task's and earlier sessions, signals" --> coach["Coach agent"]
   coach -- "proposals" --> agent
 ```
 

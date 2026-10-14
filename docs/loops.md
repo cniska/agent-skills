@@ -73,7 +73,8 @@ The workflow changes only on evidence, and a change stays only if it helps. The 
 
 ```mermaid
 flowchart LR
-  rec[("agent-record")] -- "signals" --> coach["Coach"]
+  task["Landed task"] -- "its sessions" --> coach["Coach"]
+  rec[("agent-record")] -- "earlier sessions, signals" --> coach
   coach -- "proposals, keep or revert" --> lead["Coordinator"]
 ```
 

@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task ends, after a stretch of work, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task lands, or when asked what should change in the workflow.
 ---
 
 # Workflow review
@@ -18,7 +18,7 @@ Find where the workflow failed the owner, and say what should change so it does 
 
 ## Read
 
-1. **Scope** to the task, window or projects the brief names; without one, ask for it. A task's sessions are the run that did it and the subagents that run started, which its agent tool calls name.
+1. **Scope** to the task the brief names, or to the window or projects the owner asks about; without either, ask. A task's sessions are the run that did it and the subagents that run started, which its agent tool calls name.
 2. **Find the evidence** through `search-sessions`, in the scope:
    - the owner correcting an agent;
    - a question the owner had to ask mid-task that a skill should have answered;
