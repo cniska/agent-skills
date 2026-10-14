@@ -20,6 +20,15 @@
       "description": "Keeps the agent-record session record current and tells each session to search it before acting on a handoff or plan."
     },
     {
+      "name": "cniska-gates",
+      "source": {
+        "source": "git-subdir",
+        "url": "cniska/agent-gates",
+        "path": "plugin"
+      },
+      "description": "Tells the agent which comments each edit added, in agent-gates' no-comments words, before it commits."
+    },
+    {
       "name": "cniska-worktree",
       "source": {
         "source": "git-subdir",
