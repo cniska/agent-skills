@@ -133,6 +133,8 @@ flowchart LR
   revert --> prop
 ```
 
+An eval I approve can check a change before it lands, and the signals judge it after.
+
 The signals count the friction I feel, per week, repo and route; owner interrupts and time to land weigh most:
 
 - **Owner interrupts:** how often I had to answer, correct or unblock an agent.
