@@ -18,8 +18,9 @@ A workflow change stays only if it moves what it was meant to move. Every change
 | `check` | a date by which enough work has run for the signal to show, typically one to two weeks out |
 | `outcome` | on `close` only: `keep`, `revert` or `trim` |
 | `by_sha` | on a `revert` or `trim` close: the commit that made it |
+| `eval` | optional, on `open` only when the owner approved an eval run for the change: `{case, champion, challenger}`, the case and each side's score |
 
-An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date, append another `open` line for that `sha`; the latest one counts.
+An experiment is open while its `open` line has no `close` line with the same `sha`. To move a check date, append another `open` line for that `sha`, repeating its other fields; the latest one counts.
 
 ## Open
 
