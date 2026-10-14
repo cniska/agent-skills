@@ -9,12 +9,12 @@ Two parts carry the workflow:
 - **[task](skills/task/SKILL.md) routes each task.** It picks a route by what the task changes and loads the skill each step needs.
 - **A separate reviewer agent judges every commit.** It holds the change to my design rules in [design-review](skills/design-review/SKILL.md), and it never wrote the code it judges.
 
+Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
+
 ## Two loops
 
-- **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to reviewed commit, step by step.
-- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what needs me. It keeps its state in a [ledger](#the-plugin) and lets autocompaction keep one long session going, so nothing depends on what the session still remembers.
-
-Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
+- **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step.
+- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what needs me. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
 
 ## Install
 
