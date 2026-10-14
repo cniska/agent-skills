@@ -1,7 +1,8 @@
 import { copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { runMain } from "../../lib/cli";
 import { CodedError } from "../../lib/coded-error";
+import { ROOT_DIR } from "../../lib/paths";
 import { cases } from "./cases";
 import { loadResult } from "./results";
 
@@ -33,7 +34,8 @@ runMain((args) => {
   if (run.tracePath === null) throw new CodedError("trace_unrecorded", { name: caseName, index });
   if (!existsSync(run.tracePath)) throw new CodedError("trace_gone", { path: run.tracePath });
 
+  const saved = join(target.dir, "traces", `${label}.jsonl`);
   mkdirSync(join(target.dir, "traces"), { recursive: true });
-  copyFileSync(run.tracePath, join(target.dir, "traces", `${label}.jsonl`));
-  console.log(`evals/${caseName}/traces/${label}.jsonl`);
+  copyFileSync(run.tracePath, saved);
+  console.log(relative(ROOT_DIR, saved));
 });

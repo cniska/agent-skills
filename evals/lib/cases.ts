@@ -5,6 +5,7 @@ import { CodedError } from "../../lib/coded-error";
 import { readFrontmatter } from "../../lib/frontmatter";
 
 export const EVALS_DIR = join(import.meta.dir, "..");
+const SCENARIOS_DIR = join(EVALS_DIR, "scenarios");
 
 export type EvalCase = { readonly name: string; readonly dir: string; readonly tags: readonly string[] };
 
@@ -28,10 +29,10 @@ function caseTags(dir: string): readonly string[] {
 }
 
 export function cases(): EvalCase[] {
-  return readdirSync(EVALS_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && isCase(join(EVALS_DIR, entry.name)))
+  return readdirSync(SCENARIOS_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && isCase(join(SCENARIOS_DIR, entry.name)))
     .map((entry) => {
-      const dir = join(EVALS_DIR, entry.name);
+      const dir = join(SCENARIOS_DIR, entry.name);
       return { name: entry.name, dir, tags: caseTags(dir) };
     });
 }

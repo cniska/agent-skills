@@ -9,7 +9,7 @@ Runs use Claude Code's [`claude plugin eval`](https://code.claude.com/docs/en/pl
 ## A case
 
 ```text
-evals/<case>/
+evals/scenarios/<case>/
 ├── prompt.md        # what a user would type, never naming the skill; tags, run limits and tools in frontmatter
 ├── case.yaml        # points at the scaffold
 ├── scaffold.sh      # builds the throwaway workspace the run starts in

@@ -78,8 +78,8 @@ const ERRORS: { readonly [Code in ErrorCode]: Entry<Code> } = {
   },
   case_missing: {
     exit: 1,
-    message: ({ name }) => `no case ${name} under evals/`,
-    resolve: () => "pass the name of a directory under evals/ that holds prompt.md",
+    message: ({ name }) => `no case ${name} under evals/scenarios/`,
+    resolve: () => "pass the name of a directory under evals/scenarios/ that holds prompt.md",
   },
   results_missing: {
     exit: 1,
