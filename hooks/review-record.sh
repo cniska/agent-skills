@@ -8,6 +8,7 @@ source "$HERE/event-log.sh"
 
 readonly MISSING_VERDICT_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
 readonly MISSING_REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
+readonly WORKTREE_MISMATCH_REASON="Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository."
 readonly REPO_REPEATED_REASON="Give each repository one verdict: name it in one 'Repo:' line only."
 readonly REPORT_SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
@@ -44,6 +45,19 @@ verdict_pairs() {
   awk '/^Reason: no_diff$/{reason = substr($0, 9); repo = ""; next} /^Repo: /{repo = substr($0, 7); next} /^Verdict: (accept|return)$/ {print substr($0, 10) "\037" repo "\037" (repo == "" ? "" : reason)} NF {repo = ""; reason = ""}'
 }
 
+cited_worktrees() {
+  local repo="$1" worktrees path dir
+  worktrees="$(git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p')"
+  { grep -v '^Repo: ' | grep -Eo "/[^[:space:]\`'\"():,]+" || true; } | sort -u | while IFS= read -r path; do
+    dir="$path"
+    while [ ! -d "$dir" ]; do
+      dir="$(dirname "$dir")"
+    done
+    dir="$(cd "$dir" && pwd -P)" || continue
+    awk -v dir="$dir/" 'index(dir, $0 "/") == 1 && length($0) > length(best) {best = $0} END {if (best != "") print best}' <<<"$worktrees"
+  done | sort -u
+}
+
 named_before() {
   local repo="$1" seen
   shift
@@ -70,7 +84,7 @@ main() {
     return
   fi
 
-  local verdicts=() repos=() reasons=() verdict named reason repo accepts=0 code="" why="" pair_code pair_why
+  local verdicts=() repos=() reasons=() verdict named reason repo accepts=0 code="" why="" pair_code pair_why cited
   while IFS=$'\037' read -r verdict named reason; do
     pair_code=""
     if [ -z "$named" ]; then
@@ -81,8 +95,11 @@ main() {
       pair_code=repo_not_found pair_why="'$named' is not a repository. $MISSING_REPO_REASON"
     else
       [ "$verdict" = accept ] || rm -f "$(review_state_file "$repo")"
+      cited="$(cited_worktrees "$repo" <<<"$report")"
       if named_before "$repo" ${repos[@]+"${repos[@]}"}; then
         pair_code=repo_repeated pair_why="'$named' has more than one verdict. $REPO_REPEATED_REASON"
+      elif [ -n "$cited" ] && ! grep -qxF "$repo" <<<"$cited"; then
+        pair_code=worktree_mismatch pair_why="The report cites files in '$(head -n 1 <<<"$cited")', another worktree of '$named', and none in '$named'. $WORKTREE_MISMATCH_REASON"
       fi
     fi
     if [ -n "$pair_code" ]; then

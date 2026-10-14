@@ -52,6 +52,7 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 | `verdict` | `deny` or `allow` | `repo_relative` | the `Repo:` path is not absolute |
 | `verdict` | `deny` or `allow` | `repo_not_found` | the `Repo:` path is not a repository |
 | `verdict` | `deny` or `allow` | `repo_repeated` | two `Repo:` lines name the same repository |
+| `verdict` | `deny` or `allow` | `worktree_mismatch` | the report cites files in another worktree of the `Repo:` repository and none in the one it names |
 | `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 

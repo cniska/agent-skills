@@ -194,6 +194,16 @@ assert "an accept naming a path outside the session's repo lets that repo commit
 assert "an accept naming one repo approves nothing in another" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$DENIED"
 edit app.py 'print(10)'
 assert "an accept for a worktree does not approve the main checkout" "$(gate 'git commit -am x')" "$DENIED"
+mismatch="$(jq -cn --arg reason "The report cites files in '$(cd "$worktree" && pwd -P)', another worktree of '$repo', and none in '$repo'. Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository." '{decision: "block", reason: $reason}')"
+assert "an accept naming the main checkout while citing only a worktree's files keeps the reviewer running" \
+  "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py:2.\nRepo: '"$repo"$'\nVerdict: accept')" "$mismatch"
+assert "an accept citing a worktree's files approves nothing in the main checkout" "$(gate 'git commit -am x')" "$DENIED"
+assert "a cited file that does not exist yet still places the worktree" \
+  "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/new/file.py.\nRepo: '"$repo"$'\nVerdict: accept')" "$mismatch"
+assert "an accept citing files in both the main checkout and a worktree records" \
+  "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py and '"$repo"$'/app.py.\nRepo: '"$repo"$'\nVerdict: accept')" ""
+assert "an accept naming the worktree it cites records" \
+  "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py.\nRepo: '"$worktree"$'\nVerdict: accept')" ""
 
 two_repos() { printf '%s\nRepo: %s\nVerdict: %s\nRepo: %s\n\nVerdict: %s' "$(sections)" "$1" "$2" "$3" "$4"; }
 record_handback "$(two_repos "$worktree" accept "$other" accept)" >/dev/null
