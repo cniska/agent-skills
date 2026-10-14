@@ -11,22 +11,28 @@ Two parts carry the workflow:
 
 Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
 
-## Two loops
+## Three loops
 
 - **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
 - **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, takes every choice it can recommend and asks me only product tradeoffs and what it cannot answer, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
+- **The improvement loop changes the workflow.** The [coach](#the-plugin) reads how past work went, and the coordinator applies each change it proposes as an experiment, with the signal it should move and a check date. On that date, the signal before and after the change decides whether it stays or is reverted or trimmed, as [the improvement loop](#the-improvement-loop) shows.
 
 ```mermaid
 flowchart TB
   you(["You"])
-  subgraph outer["Outer loop: coordinate, one long session on autocompaction"]
-    lead["Coordinator"]
-    ledger[("Ledger")]
-    subgraph inner["Inner loop: task, one agent per task"]
-      route["Route"]
-      steps["Steps load their skills"]
-      rev["Fresh reviewer"]
-      commit["Commit"]
+  ups(["Upstreams<br/>repos and people"])
+  subgraph improve["Improvement loop: coach and experiments"]
+    rec[("agent-record<br/>signals")]
+    coach["Coach"]
+    subgraph outer["Outer loop: coordinate, one long session on autocompaction"]
+      lead["Coordinator"]
+      ledger[("Ledger")]
+      subgraph inner["Inner loop: task, one agent per task"]
+        route["Route"]
+        steps["Steps load their skills"]
+        rev["Fresh reviewer"]
+        commit["Commit"]
+      end
     end
   end
   you -- "the work" --> lead
@@ -37,6 +43,11 @@ flowchart TB
   steps --> rev
   rev --> commit
   commit -- "report" --> lead
+  commit -- "sessions and events" --> rec
+  rec -- "signals" --> coach
+  ups -- "ideas" --> coach
+  ledger -- "open experiments" --> coach
+  coach -- "proposals, keep or revert" --> lead
 ```
 
 ## Install
@@ -107,6 +118,42 @@ Four rules shape every route:
 | Test | A change only to tests, or to the spec wording they prove | [test.md](skills/task/references/test.md) |
 | Review | Someone else's change, or a change that already landed | [review.md](skills/task/references/review.md) |
 
+## The improvement loop
+
+The workflow changes only on evidence, and a change stays only if it helps. The coach runs [workflow-review](skills/workflow-review/SKILL.md) to find what to change, and the coordinator applies each change as an [experiment](skills/coordinate/references/experiments.md).
+
+```mermaid
+flowchart LR
+  prop["Proposal<br/>with evidence"] --> exp["Experiment<br/>commit, signal, check date"]
+  exp --> move["Signals move"]
+  move --> check["Check date<br/>before vs after"]
+  check --> keep["Keep"]
+  check --> revert["Revert or trim"]
+  keep --> prop
+  revert --> prop
+```
+
+The signals count the friction I feel, per week, repo and route; owner interrupts and time to land weigh most:
+
+- **Owner interrupts:** how often I had to answer, correct or unblock an agent.
+- **Time to land:** from my request to the commit on the remote.
+- **Review loops:** reviewer returns per commit, and rounds to accept.
+- **Stranded work:** accepted commits not landed when the repo's rule would land them.
+- **False stops:** a gate or check that refused correct work.
+
+Ideas and evidence come from different places. Upstreams, the repos and people I follow, bring ideas. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. An idea becomes a proposal only when the record shows the friction it answers, or the ledger names the gap.
+
+The loop changes skills, hooks, checks and its upstream lists on its own. Anything else comes to me as a conflict: a change to a repo's `AGENTS.md`, to permissions, to my settled decisions, or to how much autonomy the agents have.
+
+It follows lean practice, in plain terms first:
+
+- The skills are the standard way of working, and every change the coordinator makes to them is an experiment (kaizen).
+- Each finding names what it cost and is traced back to a skill line, a repo rule or a check (waste, 5 whys).
+- Rules become checks, as [principles](#principles) says, and a gate that refuses correct work is a defect of the gate (jidoka, false stops).
+- An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [principles](#principles) (andon).
+
+[waste-and-cause.md](skills/workflow-review/references/waste-and-cause.md) has the detail.
+
 ## The reviewer
 
 A fresh agent that did not write the work runs [design-review](skills/design-review/SKILL.md) on each commit, and on the design wherever its shape is open. The agent that made a change never judges how it is built.
@@ -136,13 +183,15 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - An edit after the accept, or a `Verdict: return`, blocks it again.
   - A diff that changes only Markdown needs no accept.
   - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
-- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#two-loops).
+- **Ledger hook:** prints the [coordinate](skills/coordinate/SKILL.md) ledger into context on session start, resume and compaction, for the [outer loop](#three-loops).
   - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
+  - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
   - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
   - It proposes only the changes that repeat across sessions.
+  - It checks each open experiment past its check date, comparing its signal before and after, and proposes keeping, reverting or trimming the change.
   - It also reads what moved in the upstream list its brief names (the `upstreams.json` beside the ledger, passed on by the due note), and proposes an upstream change only when the session record or the ledger already asks for it.
   - It changes nothing itself and runs only read commands, `agent-record sync` and a temporary clone of an upstream.
   - It ends each report with `Proposals: <n>`.
@@ -163,11 +212,12 @@ How the parts fit together, with the optional [agent-record](https://github.com/
 ```mermaid
 flowchart LR
   rec[("agent-record<br/>session record")]
+  ups(["Upstreams"])
   wt["agent-worktree<br/>a checkout per task"]
   ledger[("Ledger<br/>a local file, or a repo you choose")]
   agent(["Agent"])
   subgraph S["cniska-skills plugin"]
-    hook["Session hooks<br/>start, ledger"]
+    hook["Hooks<br/>session, ledger, events"]
     skills["Skills<br/>coordinate, task and its routes"]
     rev["Reviewer agent"]
     gate["Commit gate"]
@@ -187,7 +237,9 @@ flowchart LR
   rev -- "accept" --> gate
   gate --> hooks
   hooks -- "after push" --> ci
-  rec -- "past sessions" --> coach
+  hook -- "event log" --> rec
+  rec -- "past sessions, signals" --> coach
+  ups -- "ideas" --> coach
   coach -- "proposals" --> agent
 ```
 
