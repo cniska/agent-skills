@@ -1,6 +1,6 @@
 # Hook events
 
-The plugin's hooks append one JSON object per line to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly. [agent-record](https://github.com/cniska/agent-record) archives the file as a source of its own; the hooks never read the file back. [Its spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines the signals counted from these lines and how a stop is judged.
+The plugin's hooks append one JSON object per line to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly. [agent-record](https://github.com/cniska/agent-record) archives the file as a source of its own; the hooks never read the file back. [agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines the signals counted from these lines and how a stop is judged.
 
 - The file is only appended to, one line per decision, and never rewritten.
 - A write fails open: a hook that cannot write the line says so on stderr and decides exactly as it would have.
