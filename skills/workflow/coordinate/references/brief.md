@@ -8,6 +8,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 - **The repo's rules to follow**: point at its `AGENTS.md` or `CLAUDE.md` and name only the rules this task is likely to trip.
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **Where it works**: a worktree of its own, never a primary checkout.
+- **The open obstacles that touch the work**, from the ledger: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
 - **How reviews get recorded**: who runs the reviewer, and what a commit gate needs before the worker may commit.
 - **How the work lands**: commit, push or pull request, on which branch, and whether the worker or the coordinator does it.
 - **What to report, and how short**: the outcome, commits, checks, choices the owner did not make, and anything left open, in a line budget.
