@@ -1,6 +1,6 @@
 ---
 name: explain-diff
-description: Explain a diff's intent and risk in the session, so a change is grasped before review, handoff, or merge. Use when asked to explain a change, or when a change is complex, unfamiliar, or headed to other people.
+description: Explain a diff's intent and risk in the session, so a change is grasped before review or merge. Use when asked to explain a change, or when a change is complex, unfamiliar, or headed to other people.
 argument-hint: "[pr-url-or-number]"
 ---
 

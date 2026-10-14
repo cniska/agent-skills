@@ -42,16 +42,6 @@
         ]
       }
     ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/context-size.sh"
-          }
-        ]
-      }
-    ],
     "SubagentStop": [
       {
         "matcher": "^cniska-skills:reviewer$",

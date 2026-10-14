@@ -18,7 +18,7 @@ Where `agent-record` (github.com/cniska/agent-record) is installed, ask it first
 
 1. **List every slug for the repo, not just this one.** A worktree or a sibling checkout gets a slug of its own, so one project spreads over several — `-Users-me-code-apps`, `-Users-me-code-apps--claude-worktrees-puzzles`, and so on. Glob for the repo's name and take them all: searching only the current directory's slug is how a conversation held in another checkout goes missing.
 2. **Narrow by file first.** A line carries whole tool results and file contents, so a transcript runs to megabytes. `grep -l` the subject's terms across the candidate slugs, honor a stated time window with `find -mtime`, and parse only the files that hit.
-3. **Read messages, skip the machinery.** Keep events whose `type` is `user` or `assistant`, and take `message.content` — a string, or the `text` parts of a list. Drop tool calls and their results, skill preambles (`Base directory for this skill:`), handoff documents pasted in as an opening message, and image placeholders. Search both sides: a decision is often only stated in the reply.
+3. **Read messages, skip the machinery.** Keep events whose `type` is `user` or `assistant`, and take `message.content` — a string, or the `text` parts of a list. Drop tool calls and their results, skill preambles (`Base directory for this skill:`), briefs pasted in as an opening message, and image placeholders. Search both sides: a decision is often only stated in the reply.
 4. **Widen once you have a hit.** Read the messages around it in that session. The exchange that settled a question is usually three or four messages, and the sentence that changed the answer is rarely the one that matched.
 5. **Collect what makes a quote actionable**: session id, timestamp, who said it, and any commit, file, or path named in the same exchange. A message saying the thing was written down is the thread to the artifact.
 6. **Check the artifact against the current checkout.** A decision committed in another checkout and never pushed, or written to a file on a branch you are not on, is invisible from where you stand. Verify on the current branch before reporting a decision as present or missing, and say which it is.
@@ -31,7 +31,6 @@ Say plainly what the search did not find — an absence you looked for is a find
 
 ## See also
 
-- `handoff` — write the next session's brief, so a decision does not need excavating
 - `git` — find the commit or branch a transcript names
 
 ## Red flags

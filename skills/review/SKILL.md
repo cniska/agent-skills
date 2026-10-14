@@ -30,21 +30,20 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ### Self (no argument)
 
-1. If the branch was built in this long session, offer `handoff` as it says for a gate, then re-run `/review` in the fresh session. Otherwise proceed here.
-2. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`. If no commits ahead of `main`, report and stop.
-3. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
-4. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
-5. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
-6. Run every dimension pass in this session — load each skill (`design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. Run Design first; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so in that category's output rather than improvising.
-7. Fold in the second opinion's findings. Verify each; discard false positives.
-8. Merge findings: deduplicate, keep strongest framing per root issue.
-9. Label every finding by severity (see below). Fix all findings by default — commit each fix as its own subject-scoped commit.
+1. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`. If no commits ahead of `main`, report and stop.
+2. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
+3. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
+4. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
+5. Run every dimension pass in this session — load each skill (`design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. Run Design first; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so in that category's output rather than improvising.
+6. Fold in the second opinion's findings. Verify each; discard false positives.
+7. Merge findings: deduplicate, keep strongest framing per root issue.
+8. Label every finding by severity (see below). Fix all findings by default — commit each fix as its own subject-scoped commit.
 
 ### PR (URL or number)
 
 1. `gh pr view <N>` for metadata; `gh pr diff <N>` for the diff. Read repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 2. When the PR is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question. Verify findings yourself.
-3. Run every dimension pass (as in Self step 6). Attach evidence to every finding.
+3. Run every dimension pass (as in Self step 5). Attach evidence to every finding.
 
 ## Severity
 

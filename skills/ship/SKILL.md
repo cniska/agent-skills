@@ -21,19 +21,18 @@ Check the entire project against the preconditions below. Never push; the last h
    - commits exist since the last release tag — a tag over no new commits releases nothing
    - the project's verification passes (its verify command per `AGENTS.md`)
    - no secrets in tracked files — grep tracked, non-`.env` files for common key shapes (`sk-`, `Bearer `, `-----BEGIN`, provider API-key env names)
-2. **Prepare context**: if the release follows a long implementation or review session, offer `handoff` as it says for a gate, then re-run in the fresh session.
-3. **Run quality checks** (warn, don't block):
+2. **Run quality checks** (warn, don't block):
    - no `TODO` / `FIXME` left in non-test source
    - user-facing docs and changelog reflect the user-visible features since the last tag — cross-reference `feat` subjects; defer drift detail to `doc-review`
-4. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits):
+3. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits):
    - previous tag: `git describe --tags --abbrev=0 --match 'v[0-9]*'`
    - commits: `git log <prev_tag>..HEAD --oneline --no-merges`
    - **major** — any commit has `BREAKING CHANGE` in the body or `!` before the colon in the subject
    - **minor** — any commit subject is `feat(...)` or `feat:`
    - **patch** — everything else
-5. **Report** using the output format below, then **ask for confirmation**.
-6. **Cut the release**: if the project has a release entry point, run it with the chosen level; otherwise take the manual path — record the version where the project keeps it, write the changelog entry, and create the commit and annotated tag `v<version>`.
-7. **Print the push commands** and stop. Do not push.
+4. **Report** using the output format below, then **ask for confirmation**.
+5. **Cut the release**: if the project has a release entry point, run it with the chosen level; otherwise take the manual path — record the version where the project keeps it, write the changelog entry, and create the commit and annotated tag `v<version>`.
+6. **Print the push commands** and stop. Do not push.
 
 ## Output format
 
@@ -60,7 +59,6 @@ Check the entire project against the preconditions below. Never push; the last h
 - `review` — the quality gate that runs before ship; ship assumes it passed
 - `git` — commit conventions the version bump reads from
 - `doc-review` — user-facing drift before the tag
-- `handoff` — compact the context before a release that follows a long session
 
 ## Red flags
 

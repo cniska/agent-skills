@@ -22,32 +22,30 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - working directory is clean (`git status`)
    - branch has commits ahead of `main` (`git log main..HEAD --oneline`)
    - project verification passes (run the project's test/lint/typecheck command)
-2. **Prepare review context**:
-   - if the implementation happened in this long session, offer `handoff` as it says for a gate, then re-run `/pr` in the fresh session; skip it once the owner has approved the draft
-3. **Run the review skill** (if available):
+2. **Run the review skill** (if available):
    - if there are must-fix findings, stop and report them — do not create the PR
-4. **Gather context**:
+3. **Gather context**:
    - read `.github/pull_request_template.md` if it exists
    - run `git log main..HEAD --oneline` to see commits
    - run `git diff main...HEAD --stat` to see changed files
    - run `git diff main...HEAD` to read the full diff
    - find the associated issue in the project's tracker: `gh issue list` for GitHub, the tracker's CLI or connector otherwise, and an issue key in the branch name or commits
-5. **Audit the commits** (`/pr` opens a PR; it does not clean up history for you — fix it here):
+4. **Audit the commits** (`/pr` opens a PR; it does not clean up history for you — fix it here):
    - every commit follows the project's commit conventions (`AGENTS.md` / `CONTRIBUTING` / the `git`
      skill), including **one logical change per commit**
    - if any commit violates, **stop and fix the history first** (split/reword per the `git` skill),
      then re-audit — do not open the PR on non-compliant commits
-6. **Draft the PR**:
+5. **Draft the PR**:
    - infer a title from the commits and diff
    - fill in the template body (or use a sensible default structure)
    - render the title and body in the conversation and wait for approval — do not push before sign-off
    - if the branch has a throwaway name, rename it first: `git branch -m <topic>`
-7. **Push if needed**:
+6. **Push if needed**:
    - check remote tracking: `git status -sb`
    - if not pushed: `git push -u origin HEAD`
-8. **Create the PR**:
+7. **Create the PR**:
    - `gh pr create --title "..." --body "..."`
-9. **Return only the PR URL**
+8. **Return only the PR URL**
 
 ## See also
 

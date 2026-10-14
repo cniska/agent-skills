@@ -82,7 +82,7 @@ Start a task with `/task <task>`. The route for that kind of task loads each ski
   → the repo's checks → review → land as the repo's rule says
 ```
 
-`<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a handoff from an earlier session. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
+`<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a brief from a coordinating agent. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
 ```text
 /task fix issue #25                          → Bug fix
@@ -140,9 +140,6 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - The ledger holds open work, owner decisions, questions waiting on the owner and running agents.
   - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
   - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
-- **Context check:** runs on each prompt and, once the session's context passes the threshold in [`hooks/context-size.sh`](hooks/context-size.sh), tells the agent to offer a handoff at the next step boundary, once per session.
-  - Where a ledger exists, it stays quiet and lets autocompaction run instead. Set Claude Code's `autoCompactWindow` to the same threshold, so compaction starts where the handoff would have been offered.
-  - It reads the size from Claude Code's session transcript. If that format changes, the check warns on stderr and stays silent.
 - **Coach agent (`cniska-skills:coach`):** finds where the workflow failed me and proposes fixes.
   - It runs [workflow-review](skills/workflow-review/SKILL.md) over past sessions: my corrections, the questions I had to ask and the friction sessions reported.
   - It proposes only the changes that repeat across sessions.
@@ -164,7 +161,7 @@ flowchart LR
   ledger[("Ledger<br/>a local file, or a repo you choose")]
   agent(["Agent"])
   subgraph S["cniska-skills plugin"]
-    hook["Session hooks<br/>start, context size, ledger"]
+    hook["Session hooks<br/>start, ledger"]
     skills["Skills<br/>coordinate, task and its routes"]
     rev["Reviewer agent"]
     gate["Commit gate"]
@@ -281,7 +278,6 @@ Grouped by where the routes use them.
 
 | Skill | Description |
 |-------|------------|
-| [handoff](skills/handoff/SKILL.md) | Brief the next session on the next move, offered at a clean break |
 | [why](skills/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
 | [search-sessions](skills/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited; asks [agent-record](https://github.com/cniska/agent-record) first where it is installed |
 | [audit](skills/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
