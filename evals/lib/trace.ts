@@ -18,9 +18,9 @@ const ToolUseBlock = z.looseObject({ type: z.literal("tool_use"), name: z.string
 type LineBlocks = Readonly<z.infer<typeof Blocks>>;
 
 function parseLine(json: string, source: string, index: number): LineBlocks {
-  let raw: unknown;
+  let value: unknown;
   try {
-    raw = JSON.parse(json);
+    value = JSON.parse(json);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
     throw new CodedError("input_invalid", {
@@ -28,12 +28,17 @@ function parseLine(json: string, source: string, index: number): LineBlocks {
       problem: `line ${index + 1} is not JSON: ${error.message}`,
     });
   }
-  if (parseWith(Line, raw, source, index).type !== "assistant") return [];
-  return parseWith(AssistantLine, raw, source, index).message.content;
+  if (parseWith(Line, value, source, index).type !== "assistant") return [];
+  return parseWith(AssistantLine, value, source, index).message.content;
 }
 
-function parseWith<T extends z.ZodType>(schema: T, raw: unknown, source: string, index: number): z.infer<T> {
-  const result = schema.safeParse(raw);
+function parseWith<T extends z.ZodType>(
+  schema: T,
+  value: unknown,
+  source: string,
+  index: number,
+): z.infer<T> {
+  const result = schema.safeParse(value);
   if (!result.success) {
     throw new CodedError("input_invalid", {
       path: source,
