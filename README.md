@@ -141,7 +141,9 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 - **Time to land:** from my request to the commit on the remote.
 - **Review loops:** reviewer returns per commit, and rounds to accept.
 - **Stranded work:** accepted commits not landed when the repo's rule would land them.
-- **False stops (planned):** a gate or check that refused correct work. Until agent-record counts it, the coach finds false stops by reading the sessions.
+- **False stops:** a gate that refused work which then went on with nothing the gate checks changed.
+
+[agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines each signal exactly.
 
 Ideas and evidence come from different places. Upstreams, the repos and people I follow, bring ideas. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. An idea becomes a proposal only when the record shows the friction it answers, or the ledger names the gap.
 
