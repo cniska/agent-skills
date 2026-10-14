@@ -26,7 +26,7 @@
         "url": "cniska/agent-gates",
         "path": "plugin"
       },
-      "description": "Tells the agent which comments each edit added, in agent-gates' no-comments words, before it commits."
+      "description": "Tells the agent which comments each edit added, in agent-gates' no-comments words, before it commits, and refuses a git command that skips the gates: --no-verify, or a core.hooksPath override."
     },
     {
       "name": "cniska-worktree",

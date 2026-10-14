@@ -145,6 +145,7 @@ It gives each task its own checkout through the [agent-worktree](https://github.
 
 It reports the comments each edit adds, in the words of the [agent-gates](https://github.com/cniska/agent-gates) no-comments gate, before the commit hook refuses them.
 
+- Before each shell command, it denies a git command that would skip the gates: `--no-verify` on a commit or push, or `core.hooksPath` pointed elsewhere.
 - The committed git hooks still gate every contributor.
 - It does nothing in a repo without the gate.
 - Install it with `claude plugin install cniska-gates@cniska`.
