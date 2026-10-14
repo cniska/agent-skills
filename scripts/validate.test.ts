@@ -295,6 +295,10 @@ describe("validate", () => {
       expect(validate(kinds(`## See also\n\n- \`demo\` for the steps\n\n${RED_FLAGS}`)).code).toBe(0);
     });
 
+    test("passes a span that only starts with a workflow skill's name", () => {
+      expect(validate(kinds(`Run \`demo log\` and \`demo-x\`.\n\n${RED_FLAGS}`)).code).toBe(0);
+    });
+
     test("passes an expertise skill that names another expertise skill", () => {
       const root = kinds(`Use \`rules\` and \`other\` here.\n\n${RED_FLAGS}`);
       expect(validate(root).code).toBe(0);
