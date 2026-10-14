@@ -3,7 +3,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/ledger-path.sh"
-source "$HERE/subagent-report.sh"
+source "$HERE/transcript.sh"
 
 warn() {
   printf 'task-coach.sh: %s\n' "$1" >&2
