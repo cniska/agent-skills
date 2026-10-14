@@ -14,7 +14,7 @@ Builds on [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills);
 ## Two loops
 
 - **The inner loop is one task.** [task](skills/task/SKILL.md) takes it from request to landed commit, step by step, as [how a task runs](#how-a-task-runs) shows.
-- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what needs me. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
+- **The outer loop is all the work.** [coordinate](skills/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, asks me only what needs me, and [reports](skills/coordinate/references/report.md) what is in flight. It keeps its state in a [ledger](#the-plugin), so one long session can run on autocompaction.
 
 ```mermaid
 flowchart TB
