@@ -1,8 +1,8 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { z } from "zod";
+import { EVALS_DIR } from "../../lib/paths";
 import { readJson } from "../../lib/read-file";
-import { EVALS_DIR } from "./cases";
 
 export const RESULTS_DIR = join(EVALS_DIR, "results");
 

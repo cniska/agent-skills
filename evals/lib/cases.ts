@@ -3,8 +3,8 @@ import { join } from "node:path";
 import { z } from "zod";
 import { CodedError } from "../../lib/coded-error";
 import { readFrontmatter } from "../../lib/frontmatter";
+import { EVALS_DIR } from "../../lib/paths";
 
-export const EVALS_DIR = join(import.meta.dir, "..");
 const SCENARIOS_DIR = join(EVALS_DIR, "scenarios");
 
 export type EvalCase = { readonly name: string; readonly dir: string; readonly tags: readonly string[] };

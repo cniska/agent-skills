@@ -4,10 +4,9 @@ import { z } from "zod";
 import { reportProblems, runMain } from "../../lib/cli";
 import { CodedError } from "../../lib/coded-error";
 import { readFrontmatter } from "../../lib/frontmatter";
-import { SKILLS_DIR } from "../../lib/paths";
+import { EVALS_DIR, SKILLS_DIR } from "../../lib/paths";
 import { readJson } from "../../lib/read-file";
 import { skillDirs } from "../../lib/skills";
-import { EVALS_DIR } from "./cases";
 
 const TRIGGERS_DIR = join(EVALS_DIR, "triggers");
 const COLLISION_LIMIT = 0.5;
