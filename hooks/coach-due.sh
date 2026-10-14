@@ -22,7 +22,7 @@ ask_remote() {
   GIT_TERMINAL_PROMPT=0 exec git ls-remote "https://github.com/$1" HEAD
 }
 
-upstream_note() {
+upstream_note() (
   local list
   list="$(dirname -- "$(ledger_path)")/upstreams.json"
   [ -f "$list" ] || return 0
@@ -31,13 +31,13 @@ upstream_note() {
     warn "$list is not a list of upstreams with a repo and a reviewed commit, so the upstream count is skipped"
     return 0
   fi
-  local repo reviewed count=0
+  local answers repo reviewed count=0
   local -a pids=() reviews=()
-  upstream_answers="$(mktemp -d)"
-  trap 'rm -rf -- "$upstream_answers"' EXIT
+  answers="$(mktemp -d)"
+  trap 'rm -rf -- "$answers"' EXIT
   while IFS=$'\t' read -r repo reviewed; do
     [[ $repo =~ $REPO_PATTERN ]] || continue
-    (ask_remote "$repo") >"$upstream_answers/$count" 2>/dev/null </dev/null &
+    (ask_remote "$repo") >"$answers/$count" 2>/dev/null </dev/null &
     pids+=("$!")
     reviews+=("$reviewed")
     count=$((count + 1))
@@ -52,7 +52,7 @@ upstream_note() {
   wait "$watchdog" 2>/dev/null || true
   local i head answered=0 moved=0
   for ((i = 0; i < count; i++)); do
-    head="$(cat -- "$upstream_answers/$i" 2>/dev/null)" || head=""
+    head="$(cat -- "$answers/$i" 2>/dev/null)" || head=""
     head="${head%%[[:space:]]*}"
     [[ $head =~ ^[0-9a-f]{40}$ ]] || continue
     answered=$((answered + 1))
@@ -63,7 +63,7 @@ upstream_note() {
   if ((moved > 0)); then
     printf 'Upstreams moved since their last review: %d of the %d that answered.\n' "$moved" "$answered"
   fi
-}
+)
 
 main() {
   if [ -z "${CLAUDE_PLUGIN_DATA:-}" ]; then
