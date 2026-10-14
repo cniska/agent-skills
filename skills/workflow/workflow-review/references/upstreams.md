@@ -16,7 +16,7 @@ The upstream list the brief names: an array, one entry per upstream.
 ## Read
 
 1. **Take every entry in list order**, whatever its `for`.
-2. **Read only what changed** between `reviewed` and the remote's head, under `path` and within `only`: new or changed skills, hooks, agents and checks. Skip formatting, renames and churn.
+2. **Read only what changed** between `reviewed` and the remote's head, under `path` and within `only`: new or changed skills, hooks, agents and checks, or for an entry with `for`, changes to what that repo does. Skip formatting, renames and churn.
 3. **Note the head read up to** for each entry, even when nothing clears the bar.
 
 ## The bar
