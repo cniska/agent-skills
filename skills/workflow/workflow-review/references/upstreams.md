@@ -7,7 +7,7 @@ Upstreams bring ideas; the session record brings the evidence. An upstream chang
 The upstream list the brief names: an array, one entry per upstream.
 
 - `repo`: `owner/name` on GitHub.
-- `for`: optional; `owner/name` of the repo the upstream's ideas are for, whose sessions and ledger gaps its changes are weighed against and where a proposal from it lands. Absent means the repo the review is for.
+- `for`: optional; `owner/name` of the repo the upstream's ideas are for, whose sessions and ledger gaps its changes are weighed against, in scope for that evidence even when the brief does not name it, and where a proposal from it lands. Absent means the repo the review is for.
 - `path`: optional; the read takes only changes under it. The session-start count ignores it, so an upstream can count as moved with nothing to read.
 - `only`: optional; `new-skills` limits the read to skills the upstream added.
 - `taken`: what the owner took from it.
