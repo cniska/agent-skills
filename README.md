@@ -151,6 +151,10 @@ This repo is also `cniska-skills`, a Claude Code plugin. It bundles every skill,
   - A run counts once its report ends with `Proposals: <n>`.
   - When the coach is due and `upstreams.json` sits beside the ledger, it also says how many upstreams moved since their last reviewed commit and where the list is, asking each with `git ls-remote` and skipping any that do not answer.
   - The agent applies the proposals at the next break and brings me only conflicts.
+- **Event log:** the hooks append what a session transcript does not show plainly to `events.jsonl` in the plugin's data directory, for [agent-record](https://github.com/cniska/agent-record) to archive.
+  - It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict, each permission prompt and each auto-mode denial.
+  - A hook that cannot write the line says so on stderr and decides as it would have.
+  - [`hooks/events.md`](hooks/events.md) is the format.
 
 The hooks need `jq`.
 

@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 set -eEuo pipefail
-trap 'printf "commit-gate.sh failed on line %s, so the commit is refused until the gate runs cleanly\n" "$LINENO" >&2; exit 2' ERR
+trap 'gate_failed "$LINENO"' ERR
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-state.sh"
+source "$HERE/event-log.sh"
+
+INPUT=""
 
 readonly QUOTES="'\""
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
@@ -20,7 +23,7 @@ readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git co
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...'."
 readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."
 
-commit_head() {
+commit_command() {
   local command="$1"
   [[ $command =~ $GIT_COMMIT_PATTERN ]]
   local match="${BASH_REMATCH[0]}"
@@ -28,10 +31,10 @@ commit_head() {
 }
 
 named_dir() {
-  local head="$1"
-  if [[ $head =~ $GIT_DIR_PATTERN ]]; then
+  local prefix="$1"
+  if [[ $prefix =~ $GIT_DIR_PATTERN ]]; then
     printf '%s\n' "${BASH_REMATCH[1]}"
-  elif [[ $head =~ $LEADING_CD_PATTERN ]]; then
+  elif [[ $prefix =~ $LEADING_CD_PATTERN ]]; then
     printf '%s\n' "${BASH_REMATCH[1]}"
   fi
 }
@@ -71,8 +74,27 @@ unresolved_reason() {
   printf 'Commit blocked: %s is not a repository, so the reviewer verdict for this commit cannot be checked. Name the repository by an absolute path in cd.' "$1"
 }
 
+record() {
+  event_log "$INPUT" gate --arg gate commit --arg decision "$1" --arg reason "$2" \
+    --arg repo "${3:-}" --arg head "${4:-}" --arg fingerprint "${5:-}"
+}
+
+gate_failed() {
+  trap - ERR
+  printf 'commit-gate.sh failed on line %s, so the commit is refused until the gate runs cleanly\n' "$1" >&2
+  if [ "$BASH_SUBSHELL" -eq 0 ]; then
+    record deny gate_error
+  fi
+  exit 2
+}
+
 deny() {
+  record deny "$2" "${3:-}" "${4:-}" "${5:-}"
   jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
+}
+
+head_commit() {
+  git -C "$1" rev-parse --verify --quiet HEAD || true
 }
 
 main() {
@@ -81,46 +103,55 @@ main() {
     exit 2
   fi
   : "${CLAUDE_PLUGIN_DATA:?CLAUDE_PLUGIN_DATA is required}"
-  local input command cwd
-  input="$(cat)"
-  command="$(jq -r '.tool_input.command // empty' <<<"$input")"
-  cwd="$(jq -r '.cwd // empty' <<<"$input")"
+  local command cwd
+  INPUT="$(cat)"
+  command="$(jq -r '.tool_input.command // empty' <<<"$INPUT")"
+  cwd="$(jq -r '.cwd // empty' <<<"$INPUT")"
   if ! grep -Eq "$GIT_COMMIT_PATTERN" <<<"$command"; then
     return
   fi
 
-  local head named changes repo
-  head="$(commit_head "$command")"
-  if grep -Eq "$GIT_COMMIT_PATTERN" <<<"${command#"$head"}"; then
-    deny "$MULTIPLE_REASON"
+  local prefix named changes repo
+  prefix="$(commit_command "$command")"
+  if grep -Eq "$GIT_COMMIT_PATTERN" <<<"${command#"$prefix"}"; then
+    deny "$MULTIPLE_REASON" multiple_commits
     return
   fi
-  if grep -Eq "$REPO_CREATE_PATTERN" <<<"$head"; then
-    deny "$CREATE_REASON"
+  if grep -Eq "$REPO_CREATE_PATTERN" <<<"$prefix"; then
+    deny "$CREATE_REASON" repo_created
     return
   fi
-  named="$(named_dir "$head")"
-  changes="$(repo_changes "$head")"
+  named="$(named_dir "$prefix")"
+  changes="$(repo_changes "$prefix")"
   if [ "$changes" -eq 0 ]; then
-    repo="$(repo_root "$cwd")" || return 0
-    [ -n "$repo" ] || return 0
+    if ! repo="$(repo_root "$cwd")" || [ -z "$repo" ]; then
+      record allow outside_repo
+      return
+    fi
   elif [ "$changes" -gt 1 ] || [ -z "$named" ]; then
-    deny "$AMBIGUOUS_REASON"
+    deny "$AMBIGUOUS_REASON" repo_unclear
     return
   elif ! repo="$(repo_root "$(expanded_dir "$named" "$cwd")")" || [ -z "$repo" ]; then
-    deny "$(unresolved_reason "$named")"
+    deny "$(unresolved_reason "$named")" repo_not_found
     return
   fi
+  local head
+  head="$(head_commit "$repo")"
   if ! touches_code "$repo"; then
+    record allow no_code_change "$repo" "$head"
     return
   fi
 
-  local state
+  local state fingerprint
   state="$(review_state_file "$repo")"
-  if [ -f "$state" ] && [ "$(cat "$state")" = "$(diff_fingerprint "$repo")" ]; then
-    return
+  fingerprint="$(diff_fingerprint "$repo")"
+  if [ ! -f "$state" ]; then
+    deny "$DENY_REASON" not_accepted "$repo" "$head" "$fingerprint"
+  elif [ "$(cat "$state")" = "$fingerprint" ]; then
+    record allow accepted "$repo" "$head" "$fingerprint"
+  else
+    deny "$DENY_REASON" changed_since_accept "$repo" "$head" "$fingerprint"
   fi
-  deny "$DENY_REASON"
 }
 
 main "$@"

@@ -4,6 +4,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-state.sh"
 source "$HERE/subagent-report.sh"
+source "$HERE/event-log.sh"
 
 readonly MISSING_VERDICT_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
 readonly MISSING_REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
@@ -13,8 +14,14 @@ die() {
   exit 1
 }
 
-block() {
-  jq -cn --arg reason "$1" '{decision: "block", reason: $reason}'
+malformed_report() {
+  local input="$1" stop_hook_active="$2" code="$3" reason="$4" decision=deny
+  if [ "$stop_hook_active" = "true" ]; then
+    decision=allow
+  fi
+  event_log "$input" gate --arg gate verdict --arg decision "$decision" --arg reason "$code" \
+    --arg repo "" --arg head "" --arg fingerprint ""
+  [ "$decision" = allow ] || jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
 }
 
 verdict_of() {
@@ -39,32 +46,33 @@ main() {
   verdict="$(verdict_of <<<"$report")"
   named="$(named_repo <<<"$report")"
   if [ -z "$verdict" ]; then
-    [ "$stop_hook_active" = "true" ] || block "$MISSING_VERDICT_REASON"
+    malformed_report "$input" "$stop_hook_active" missing_verdict "$MISSING_VERDICT_REASON"
     return
   fi
 
-  local repo reason=""
+  local repo
   if [ -z "$named" ]; then
-    reason="$MISSING_REPO_REASON"
+    malformed_report "$input" "$stop_hook_active" missing_repo "$MISSING_REPO_REASON"
+    return
   elif [[ $named != /* ]]; then
-    reason="'$named' is not an absolute path. $MISSING_REPO_REASON"
+    malformed_report "$input" "$stop_hook_active" repo_relative "'$named' is not an absolute path. $MISSING_REPO_REASON"
+    return
   elif ! repo="$(repo_root "$named")" || [ -z "$repo" ]; then
-    reason="'$named' is not a repository. $MISSING_REPO_REASON"
-  fi
-  if [ -n "$reason" ]; then
-    [ "$stop_hook_active" = "true" ] || block "$reason"
+    malformed_report "$input" "$stop_hook_active" repo_not_found "'$named' is not a repository. $MISSING_REPO_REASON"
     return
   fi
 
-  local state
+  local state fingerprint
   state="$(review_state_file "$repo")"
+  fingerprint="$(diff_fingerprint "$repo")"
   if [ "$verdict" = "return" ]; then
     rm -f "$state"
-    return
+  else
+    mkdir -p "$(dirname "$state")"
+    printf '%s\n' "$fingerprint" >"$state.tmp"
+    mv "$state.tmp" "$state"
   fi
-  mkdir -p "$(dirname "$state")"
-  diff_fingerprint "$repo" >"$state.tmp"
-  mv "$state.tmp" "$state"
+  event_log "$input" verdict --arg verdict "$verdict" --arg repo "$repo" --arg fingerprint "$fingerprint"
 }
 
 main "$@"

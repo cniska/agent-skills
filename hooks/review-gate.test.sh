@@ -164,5 +164,90 @@ assert "recording a verdict without plugin data names the script and the variabl
 
 assert "the verdict recorder listens to the reviewer agent" "$(grep -c '"matcher": "^cniska-skills:reviewer$"' "$HERE/hooks.json")" 1
 
+log="$CLAUDE_PLUGIN_DATA/events.jsonl"
+logged="$scratch/logged"
+mkdir -p "$logged"
+(cd "$logged" && git init -q -b main && printf 'n = 1\n' >n.py && printf '# n\n' >NOTES.md && git add -A && git commit -q -m base)
+logged_head="$(git -C "$logged" rev-parse HEAD)"
+logged_repo="$(git -C "$logged" rev-parse --show-toplevel)"
+
+gate_logged() {
+  jq -cn --arg command "$1" --arg cwd "${2:-$logged}" \
+    '{session_id: "s1", agent_id: "a1", hook_event_name: "PreToolUse", tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | "$GATE" 2>/dev/null
+}
+
+record_logged() {
+  jq -cn --arg cwd "$logged" --arg message "$1" --arg active "${2:-false}" \
+    '{session_id: "s1", agent_id: "r1", hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message, stop_hook_active: ($active == "true")}' | "$RECORD" 2>/dev/null
+}
+
+lines() { if [ -f "$log" ]; then wc -l <"$log" | tr -d ' '; else echo 0; fi; }
+new_lines() { tail -n +"$(($1 + 1))" "$log" 2>/dev/null; }
+
+decided() {
+  local before
+  before="$(lines)"
+  "$@" >/dev/null
+  new_lines "$before" | jq -c 'del(.ts, .v, .session, .agent, .cwd, .event)'
+}
+
+fingerprint_of() { (source "$HERE/review-state.sh" && diff_fingerprint "$1"); }
+
+before="$(lines)"
+gate_logged 'git status' >/dev/null
+assert "a command that is not a commit logs nothing" "$(new_lines "$before")" ""
+
+(cd "$logged" && printf 'n = 2\n' >n.py)
+fp="$(fingerprint_of "$logged")"
+before="$(lines)"
+gate_logged 'git commit -am x' >/dev/null
+assert "a gate decision logs one line with the common fields" \
+  "$(new_lines "$before" | jq -c --arg cwd "$logged" '[.v, .event, .session, .agent, .cwd == $cwd, (.ts | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"))]')" \
+  '[1,"gate","s1","a1",true,true]'
+assert "an unreviewed commit logs a deny with the diff it judged" \
+  "$(new_lines "$before" | jq -c 'del(.ts, .v, .session, .agent, .cwd, .event)')" \
+  "$(jq -cn --arg repo "$logged_repo" --arg head "$logged_head" --arg fp "$fp" '{gate: "commit", decision: "deny", reason: "not_accepted", repo: $repo, head: $head, fingerprint: $fp}')"
+
+assert "an accepting verdict logs the verdict and the diff it accepted" \
+  "$(decided record_logged "$(report "$logged" accept)")" \
+  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp}')"
+assert "the verdict line names the reviewer's agent id" "$(tail -n 1 "$log" | jq -r .agent)" r1
+assert "the accepted commit logs an allow with the same fingerprint" \
+  "$(decided gate_logged 'git commit -am x')" \
+  "$(jq -cn --arg repo "$logged_repo" --arg head "$logged_head" --arg fp "$fp" '{gate: "commit", decision: "allow", reason: "accepted", repo: $repo, head: $head, fingerprint: $fp}')"
+(cd "$logged" && printf 'n = 3\n' >n.py)
+assert "an edit after the accept logs changed_since_accept" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" changed_since_accept
+assert "a returning verdict logs the return" "$(decided record_logged "$(report "$logged" return)" | jq -r --arg repo "$logged_repo" '[.verdict, .repo == $repo] | @tsv')" "return	true"
+assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" not_accepted
+
+(cd "$logged" && git checkout -q n.py && printf 'more\n' >>NOTES.md)
+assert "a Markdown-only commit logs an allow" "$(decided gate_logged 'git commit -am x' | jq -c '[.decision, .reason, .fingerprint]')" '["allow","no_code_change",null]'
+assert "a commit outside any repository logs an allow" "$(decided gate_logged 'git commit -am x' "$scratch" | jq -c '[.decision, .reason, .repo]')" '["allow","outside_repo",null]'
+assert "two commits in one command log multiple_commits" "$(decided gate_logged 'git commit -m x && git commit -m y' | jq -r .reason)" multiple_commits
+assert "a commit that creates its repo logs repo_created" "$(decided gate_logged 'git init -q && git commit -m x' | jq -r .reason)" repo_created
+assert "a commit reaching its repo unclearly logs repo_unclear" "$(decided gate_logged '(cd ~/project && git commit -am x)' | jq -r .reason)" repo_unclear
+assert "a commit naming no repository logs repo_not_found" "$(decided gate_logged 'cd ~/nowhere && git commit -am x' | jq -r .reason)" repo_not_found
+assert "a gate that fails logs gate_error" "$(decided sh -c "printf 'not json' | '$GATE' 2>/dev/null" | jq -r '[.decision, .reason] | @tsv')" "deny	gate_error"
+
+assert "a report with no verdict logs a deny" "$(decided record_logged 'No verdict.' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_verdict"
+assert "the second stop without a verdict logs an allow" "$(decided record_logged 'No verdict.' true | jq -r '[.decision, .reason] | @tsv')" "allow	missing_verdict"
+assert "a report with no Repo line logs missing_repo" "$(decided record_logged $'Fine.\nVerdict: accept' | jq -r .reason)" missing_repo
+assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(report logged accept)" | jq -r .reason)" repo_relative
+assert "a Repo path that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
+
+(cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)
+mv "$log" "$log.kept"
+mkdir "$log"
+assert "an unwritable log leaves a deny unchanged" "$(gate_logged 'git commit -am x')" "$DENIED"
+assert "an unwritable log leaves the deny's exit code at 0" "$(gate_logged 'git commit -am x' >/dev/null; echo "$?")" 0
+assert "an unwritable log warns on stderr" \
+  "$(jq -cn --arg cwd "$logged" '{tool_input: {command: "git commit -am x"}, cwd: $cwd}' | { "$GATE" >/dev/null; } 2>&1 | grep -c '^commit-gate.sh: the event log was not written')" 1
+assert "an unwritable log still records an accept" "$(record_logged "$(report "$logged" accept)")" ""
+assert "an unwritable log leaves an allow unchanged" "$(gate_logged 'git commit -am x')" ""
+rmdir "$log"
+mv "$log.kept" "$log"
+assert "every logged line is one JSON object" "$(jq -s 'all(type == "object")' "$log")" true
+assert "every line of a kind has the same fields" "$(jq -s 'group_by(.event) | all(map(keys) | unique | length == 1)' "$log")" true
+
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
