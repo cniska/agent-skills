@@ -31,7 +31,7 @@ Check the entire project against the preconditions below. Never push; the last h
    - **minor** — any commit subject is `feat(...)` or `feat:`
    - **patch** — everything else
 4. **Report** using the output format below, then **ask for confirmation**.
-5. **Cut the release**: if the project has a release entry point, run it with the chosen level; otherwise take the manual path — record the version where the project keeps it, write the changelog entry, and create the commit and annotated tag `v<version>`.
+5. **Cut the release**: if the project has a release entry point, run it with the chosen level, or the first-release version; otherwise take the manual path — record the version where the project keeps it, write the changelog entry, and create the commit and annotated tag `v<version>`.
 6. **Print the push commands** and stop. Do not push.
 
 ## Output format

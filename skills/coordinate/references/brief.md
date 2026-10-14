@@ -15,6 +15,6 @@ Leave out what the repo or `git log` already holds; link it.
 
 ## How to deliver it
 
-- **In-process subagent**: the brief is the Agent tool's prompt.
-- **Local session, on this machine or under Remote Control**: send it with SendMessage, or the remote `send_message`.
-- **Cloud session**: send it with `send_message`, and say the session cannot reach this machine's files, so the brief carries what it needs and the worker pushes before it stops.
+- **A subagent of this session**: the brief is its whole prompt.
+- **Another session on this machine**: the brief is the message that starts it; it reads this machine's files, so link them rather than paste them.
+- **A cloud session**: it cannot reach this machine's files, so the brief carries what it needs, and the worker pushes before it stops.

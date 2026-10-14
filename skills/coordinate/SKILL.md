@@ -12,7 +12,7 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 
 1. **Delegate each task to a subagent that loads the `task` skill with the Skill tool**, briefed as [the brief](references/brief.md) says.
 2. **Run reviewers as in-process subagents** that did not write the work, never as new cloud sessions.
-3. **Follow each repo's push rule.** A worker pushes or lands each accepted commit before starting its next, as `task` says, so a return strands nothing stacked on it.
+3. **Follow each repo's push rule.** A worker lands accepted commits as `task` says.
 4. **Keep a ledger** at `$AGENT_LEDGER`, or else `agent-skills/ledger.md` under `$XDG_STATE_HOME`, or under `~/.local/state` when that is unset or not absolute, creating its directory. It holds open work per repo, owner decisions, questions waiting on the owner, running agents, and any plan that spans sessions or agents. Rewrite it at every report; where the file sits in a git checkout, commit and push that file alone, under that repo's rules.
 5. **Keep every plan in the ledger or a repo**, never only in a message or a temp path another machine cannot reach.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
@@ -36,7 +36,7 @@ After compaction or in a fresh session, read the ledger first, then each open re
 
 - A task worked in the coordinator's own context instead of delegated
 - A reviewer started as a new cloud session
-- A worker's commit stacked on one still awaiting review
+- A worker's commit stacked on one not yet accepted
 - A plan held only in a message or a temp path
 - A report that leaves the ledger stale
 - An owner question about a choice a repo's rules or a default settle
