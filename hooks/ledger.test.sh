@@ -97,14 +97,14 @@ old ledger"
 repo="$(setup_ledger_repo diverged)"
 commit_ledger "$repo" "local ledger"
 assert "a diverged ledger branch is not pulled and says so" "$(run_in "$repo")" \
-  "Ledger not pulled: its branch has diverged from origin/main; it is 1 commits behind.
+  "Ledger not pulled: its branch has diverged from origin/main; it is 1 commits behind and 1 ahead.
 
 local ledger"
 
 repo="$(setup_ledger_repo offline)"
 git -C "$repo" remote set-url origin "$scratch/offline/missing.git"
 assert "an unreachable remote is named and the ledger still prints" "$(run_in "$repo")" \
-  "Ledger not pulled: could not fetch origin/main (offline or unreachable); it is at least 0 commits behind as of the last fetch.
+  "Ledger not pulled: could not fetch origin/main; it is at least 0 commits behind as of the last fetch.
 
 old ledger"
 
@@ -113,12 +113,14 @@ git -C "$repo" remote set-url origin "ssh://ledger.invalid/remote.git"
 printf '#!/bin/sh\nsleep 20\n' >"$scratch/slow-ssh"
 chmod +x "$scratch/slow-ssh"
 started="$(date +%s)"
-slow="$(GIT_SSH="$scratch/slow-ssh" AGENT_LEDGER="$repo/ledger.md" "$HOOK" </dev/null 2>/dev/null)"
+slow="$(GIT_SSH="$scratch/slow-ssh" AGENT_LEDGER="$repo/ledger.md" "$HOOK" </dev/null 2>"$scratch/slow-stderr")"
 assert "a fetch past the deadline is stopped and named" "$slow" \
   "Ledger not pulled: fetching origin/main took over 5s; it is at least 0 commits behind as of the last fetch.
 
 old ledger"
 assert "a fetch past the deadline returns within it" "$((($(date +%s) - started) <= 8))" 1
+assert "a fetch past the deadline writes nothing to stderr" "$(cat "$scratch/slow-stderr")" ""
+assert "a fetch past the deadline leaves no transport running" "$(pgrep -f "$scratch/slow-ssh" | wc -l | tr -d ' ')" 0
 
 repo="$(setup_ledger_repo local)"
 git -C "$repo" branch -q --unset-upstream

@@ -35,6 +35,7 @@ upstream_note() (
   local -a pids=() reviews=()
   answers="$(mktemp -d)"
   trap 'rm -rf -- "$answers"' EXIT
+  set -m
   while IFS=$'\t' read -r repo reviewed; do
     [[ $repo =~ $REPO_PATTERN ]] || continue
     (ask_remote "$repo") >"$answers/$count" 2>/dev/null </dev/null &
@@ -45,10 +46,11 @@ upstream_note() (
   if ((count == 0)); then
     return 0
   fi
-  { sleep "$UPSTREAM_DEADLINE_SECONDS" && kill "${pids[@]}"; } >/dev/null 2>&1 </dev/null &
+  { sleep "$UPSTREAM_DEADLINE_SECONDS" && kill -- "${pids[@]/#/-}"; } >/dev/null 2>&1 </dev/null &
   local watchdog="$!"
+  set +m
   wait "${pids[@]}" 2>/dev/null || true
-  kill "$watchdog" 2>/dev/null || true
+  kill -- "-$watchdog" 2>/dev/null || true
   wait "$watchdog" 2>/dev/null || true
   local i head answered=0 moved=0
   for ((i = 0; i < count; i++)); do

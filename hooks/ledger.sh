@@ -8,18 +8,29 @@ readonly FETCH_DEADLINE_SECONDS=5
 readonly KILLED_STATUS=143
 
 fetch_within_deadline() {
+  set -m
   GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null &
   local fetch="$!"
-  { sleep "$FETCH_DEADLINE_SECONDS" && kill "$fetch"; } >/dev/null 2>&1 </dev/null &
+  { sleep "$FETCH_DEADLINE_SECONDS" && kill -- "-$fetch"; } >/dev/null 2>&1 </dev/null &
   local watchdog="$!" status=0
+  set +m
   wait "$fetch" 2>/dev/null || status=$?
-  kill "$watchdog" 2>/dev/null || true
+  kill -- "-$watchdog" 2>/dev/null || true
   wait "$watchdog" 2>/dev/null || true
   return "$status"
 }
 
-behind_count() {
-  git -C "$1" rev-list --count 'HEAD..@{upstream}' 2>/dev/null || printf 'an unknown number of'
+commits_between() {
+  git -C "$1" rev-list --count "$2" 2>/dev/null
+}
+
+stale_since_last_fetch() {
+  local behind
+  if behind="$(commits_between "$1" 'HEAD..@{upstream}')"; then
+    printf 'it is at least %s commits behind as of the last fetch.' "$behind"
+  else
+    printf 'how far behind it is is unknown.'
+  fi
 }
 
 not_pulled() {
@@ -39,16 +50,21 @@ pull_ledger() {
   local status=0
   fetch_within_deadline "$dir" || status=$?
   if ((status == KILLED_STATUS)); then
-    not_pulled "fetching $upstream took over ${FETCH_DEADLINE_SECONDS}s; it is at least $(behind_count "$dir") commits behind as of the last fetch."
+    not_pulled "fetching $upstream took over ${FETCH_DEADLINE_SECONDS}s; $(stale_since_last_fetch "$dir")"
     return 0
   fi
   if ((status != 0)); then
-    not_pulled "could not fetch $upstream (offline or unreachable); it is at least $(behind_count "$dir") commits behind as of the last fetch."
+    not_pulled "could not fetch $upstream; $(stale_since_last_fetch "$dir")"
     return 0
   fi
-  local behind
-  behind="$(behind_count "$dir")"
-  if [ "$behind" = 0 ]; then
+  local behind ahead
+  behind="$(commits_between "$dir" 'HEAD..@{upstream}')"
+  ahead="$(commits_between "$dir" '@{upstream}..HEAD')"
+  if ((behind == 0)); then
+    return 0
+  fi
+  if ((ahead > 0)); then
+    not_pulled "its branch has diverged from $upstream; it is $behind commits behind and $ahead ahead."
     return 0
   fi
   if [ -n "$(git -C "$dir" status --porcelain --untracked-files=no 2>/dev/null)" ]; then
@@ -56,7 +72,7 @@ pull_ledger() {
     return 0
   fi
   if ! git -C "$dir" merge --ff-only --quiet '@{upstream}' >/dev/null 2>&1; then
-    not_pulled "its branch has diverged from $upstream; it is $behind commits behind."
+    not_pulled "could not fast-forward to $upstream; it is $behind commits behind."
   fi
 }
 
