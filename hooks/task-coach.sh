@@ -20,7 +20,7 @@ ran_coach() {
 
 past_due_note() {
   local record
-  record="$(dirname -- "$(ledger_path)")/experiments.jsonl"
+  record="$(ledger_dir)/experiments.jsonl"
   [ -f "$record" ] || return 0
   local today past
   today="$(date -u '+%Y-%m-%d')"

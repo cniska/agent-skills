@@ -15,11 +15,13 @@ assert() {
   fi
 }
 
-scratch="$(mktemp -d)"
+scratch="$(cd "$(mktemp -d)" && pwd -P)"
 trap 'rm -rf "$scratch"' EXIT
-export HOME="$scratch/home"
-unset XDG_STATE_HOME AGENT_LEDGER
-mkdir -p "$HOME"
+export HOME="$scratch/home" CLAUDE_PROJECT_DIR="$scratch/project"
+export GIT_CONFIG_NOSYSTEM=1 GIT_CEILING_DIRECTORIES="$scratch"
+unset XDG_DATA_HOME XDG_STATE_HOME AGENT_LEDGER
+mkdir -p "$HOME" "$CLAUDE_PROJECT_DIR"
+default="$HOME/.local/share/agent-skills/${CLAUDE_PROJECT_DIR//\//-}/ledger.md"
 
 run() { "$HOOK" </dev/null 2>/dev/null; }
 code() {
@@ -30,35 +32,66 @@ write_ledger() {
   mkdir -p "${1%/*}"
   printf '%s\n' "$2" >"$1"
 }
+path_fn() { bash -c 'source "$1"; "$2"' _ "$HERE/ledger-path.sh" "$1"; }
 
-assert "no ledger at the default path prints nothing" "$(run)" ""
+assert "no ledger names the path it would be read from" "$(run)" "No ledger yet: a coordinating session creates it at $default"
 assert "no ledger exits 0" "$(code)" 0
 
-write_ledger "$HOME/.local/state/agent-skills/ledger.md" "default ledger"
-assert "the default path is under HOME's .local/state" "$(run)" "default ledger"
+write_ledger "$HOME/.local/state/agent-skills/ledger.md" "old state ledger"
+write_ledger "$HOME/.local/share/agent-skills/ledger.md" "old top-level ledger"
+assert "the old top-level ledgers are not read" "$(run)" "No ledger yet: a coordinating session creates it at $default"
+
+write_ledger "$default" "default ledger"
+assert "the default path is the project's folder under HOME's .local/share" "$(run)" "default ledger"
 assert "a printed ledger exits 0" "$(code)" 0
 
-write_ledger "$scratch/state/agent-skills/ledger.md" "xdg ledger"
-assert "an absolute XDG_STATE_HOME holds the ledger" "$(XDG_STATE_HOME="$scratch/state" run)" "xdg ledger"
-assert "a relative XDG_STATE_HOME falls back to HOME" "$(XDG_STATE_HOME="state" run)" "default ledger"
-assert "an empty XDG_STATE_HOME falls back to HOME" "$(XDG_STATE_HOME="" run)" "default ledger"
-assert "an XDG_STATE_HOME with no ledger prints nothing" "$(XDG_STATE_HOME="$scratch/empty" run)" ""
+write_ledger "$scratch/data/agent-skills/${CLAUDE_PROJECT_DIR//\//-}/ledger.md" "xdg ledger"
+assert "an absolute XDG_DATA_HOME holds the ledger" "$(XDG_DATA_HOME="$scratch/data" run)" "xdg ledger"
+assert "a relative XDG_DATA_HOME falls back to HOME" "$(XDG_DATA_HOME="data" run)" "default ledger"
+assert "an empty XDG_DATA_HOME falls back to HOME" "$(XDG_DATA_HOME="" run)" "default ledger"
+assert "XDG_STATE_HOME no longer moves the ledger" "$(XDG_STATE_HOME="$scratch/data" run)" "default ledger"
 
 write_ledger "$scratch/repo/ledger.md" "override ledger"
-assert "AGENT_LEDGER overrides the XDG path" "$(AGENT_LEDGER="$scratch/repo/ledger.md" XDG_STATE_HOME="$scratch/state" run)" "override ledger"
-assert "AGENT_LEDGER naming a missing file prints nothing" "$(AGENT_LEDGER="$scratch/missing.md" run)" ""
+assert "AGENT_LEDGER overrides the project path" "$(AGENT_LEDGER="$scratch/repo/ledger.md" XDG_DATA_HOME="$scratch/data" run)" "override ledger"
+assert "AGENT_LEDGER naming a missing file names it" "$(AGENT_LEDGER="$scratch/missing.md" run)" "No ledger yet: a coordinating session creates it at $scratch/missing.md"
 assert "AGENT_LEDGER naming a missing file exits 0" "$(AGENT_LEDGER="$scratch/missing.md" code)" 0
-assert "an empty AGENT_LEDGER uses the XDG path" "$(AGENT_LEDGER="" run)" "default ledger"
+assert "an empty AGENT_LEDGER uses the project path" "$(AGENT_LEDGER="" run)" "default ledger"
 
 real_home="$(
   unset HOME
   printf '%s' ~
 )"
 assert "a blank HOME falls back to the account's home" \
-  "$(HOME="  " bash -c 'source "$1"; ledger_path' _ "$HERE/ledger-path.sh")" "$real_home/.local/state/agent-skills/ledger.md"
+  "$(HOME="  " path_fn ledger_path)" "$real_home/.local/share/agent-skills/${CLAUDE_PROJECT_DIR//\//-}/ledger.md"
+
+mkdir -p "$scratch/a" "$scratch/b"
+assert "two project dirs resolve to two ledgers" \
+  "$(CLAUDE_PROJECT_DIR="$scratch/a" path_fn ledger_path) $(CLAUDE_PROJECT_DIR="$scratch/b" path_fn ledger_path)" \
+  "$HOME/.local/share/agent-skills/${scratch//\//-}-a/ledger.md $HOME/.local/share/agent-skills/${scratch//\//-}-b/ledger.md"
+assert "without CLAUDE_PROJECT_DIR the working directory is the project" \
+  "$(cd "$scratch/a" && unset CLAUDE_PROJECT_DIR && path_fn ledger_path)" \
+  "$HOME/.local/share/agent-skills/${scratch//\//-}-a/ledger.md"
+ln -s "$scratch/a" "$scratch/a-link"
+assert "a non-git dir resolves by its own real path" \
+  "$(CLAUDE_PROJECT_DIR="$scratch/a-link" path_fn ledger_path)" "$HOME/.local/share/agent-skills/${scratch//\//-}-a/ledger.md"
+
+git init -q -b main "$scratch/main"
+git -C "$scratch/main" -c user.name=t -c user.email=t@example.com commit -q --allow-empty -m init
+git -C "$scratch/main" worktree add -q "$scratch/linked" 2>/dev/null
+mkdir -p "$scratch/main/sub"
+main_ledger="$HOME/.local/share/agent-skills/${scratch//\//-}-main/ledger.md"
+assert "a repo resolves by its top level from a subdirectory" "$(CLAUDE_PROJECT_DIR="$scratch/main/sub" path_fn ledger_path)" "$main_ledger"
+assert "a linked worktree resolves to its main checkout's ledger" "$(CLAUDE_PROJECT_DIR="$scratch/linked" path_fn ledger_path)" "$main_ledger"
+
+assert "a missing ledger's directory is its own" "$(AGENT_LEDGER="$scratch/none/ledger.md" path_fn ledger_dir)" "$scratch/none"
+write_ledger "$scratch/plain/ledger.md" "plain ledger"
+assert "a ledger linking nothing keeps its own directory" "$(AGENT_LEDGER="$scratch/plain/ledger.md" path_fn ledger_dir)" "$scratch/plain"
+write_ledger "$scratch/linking/ledgers/loop.md" "[Shared](../LEDGER.md)"
+assert "a ledger linking a shared file takes the shared file's directory" \
+  "$(AGENT_LEDGER="$scratch/linking/ledgers/loop.md" path_fn ledger_dir)" "$scratch/linking/ledgers/.."
 
 export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com
-unset AGENT_LEDGER XDG_STATE_HOME GIT_SSH_COMMAND
+unset AGENT_LEDGER XDG_DATA_HOME GIT_SSH_COMMAND
 
 commit_ledger() {
   printf '%s\n' "$2" >"$1/ledger.md"

@@ -4,7 +4,7 @@ A workflow change stays only if it moves what it was meant to move. Every change
 
 ## The record
 
-`experiments.jsonl`, in the ledger's directory, is the one place experiments are recorded. Append one JSON line per event and never rewrite a line. The ledger names no experiment itself; it points at this file.
+`experiments.jsonl`, in the ledger's folder as rule 4 of the skill defines it, is the one place experiments are recorded. Append one JSON line per event and never rewrite a line. The ledger names no experiment itself; it points at this file.
 
 | Field | Value |
 |---|---|

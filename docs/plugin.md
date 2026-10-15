@@ -85,13 +85,14 @@ It blocks a commit until the reviewer has accepted that exact diff, in the workt
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds what coordinate's ledger step lists, its briefs filed beside it.
+- The ledger holds what coordinate's ledger step lists, its briefs filed in the ledger's folder: beside the shared file it links, else beside the ledger.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
 - When the ledger's first line links a shared file, it prints that file after the ledger, pulled the same way, so the owner's standing rules survive compaction too.
-- Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
-- It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
-- Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.
+- Experiments go in `experiments.jsonl` in the ledger's folder, one line each time one opens or closes, so agent-record can archive them.
+- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.md` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the repo's main checkout path, slashes as dashes, so all of a repo's worktrees read one ledger. The old single `agent-skills/ledger.md` under the state directory is no longer read.
+- When the ledger is missing, it prints the path it would read, so a coordinating session creates the ledger there.
+- Set `AGENT_LEDGER` in a project's local settings to keep its ledger elsewhere, such as a file in a repo you choose, so it outlives the machine; never in user settings, which every project reads.
 
 ## Coach agent
 
@@ -101,7 +102,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - It reads the task's trace from agent-record first where it is installed, and the transcripts only at the steps that show friction; without the record it reads the transcripts whole.
 - It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
 - It proposes changes only to what I commit to, as workflow-review says.
-- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` beside the ledger, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
+- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` in the ledger's folder, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
 - It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
 - It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
 - Signals and the experiment checks that need agent-record say so and are skipped without it.
@@ -113,7 +114,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 A hand-back hook runs the coach at the end of every delegated task.
 
 - When a subagent that loaded `task` hands back, the hook refuses the hand-back once and asks it to run the coach over its own task first, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back.
-- It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits beside the ledger.
+- It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits in the ledger's folder.
 - It skips a subagent that already ran the coach.
 - The worker hands back the coach's report with its own, and its caller applies the proposals, opening an experiment for each change a signal can read, and brings me only conflicts.
 - No hook sees a task end in the main session, so `task` runs the coach there as its last step.

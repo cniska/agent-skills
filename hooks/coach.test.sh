@@ -107,6 +107,12 @@ experiments="$scratch/ledger/experiments.jsonl"
 assert "the ask names the open experiments past their check date and the record" "$(reason)" \
   "${ASK/ you started./ you started. Brief it with the experiments past their check date, a1 (owner interrupts), d4 (stranded work), in the record at $experiments.}"
 
+mkdir -p "$scratch/split/ledgers"
+printf '[Shared](../LEDGER.md)\n' >"$scratch/split/ledgers/loop.md"
+jq -cn '{v: 1, event: "open", sha: "e5", signal: "split", check: "2020-01-01"}' >"$scratch/split/experiments.jsonl"
+assert "the record sits beside the shared file the ledger links" "$(AGENT_LEDGER="$scratch/split/ledgers/loop.md" reason)" \
+  "${ASK/ you started./ you started. Brief it with the experiments past their check date, e5 (split), in the record at $scratch/split/ledgers/../experiments.jsonl.}"
+
 jq -cn '{v: 1, event: "open", sha: "b2", check: "2999-01-01"}' >"$experiments"
 assert "no experiment past its check date leaves the ask as it is" "$(reason)" "$ASK"
 

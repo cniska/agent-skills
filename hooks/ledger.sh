@@ -7,7 +7,6 @@ source "$HERE/deadline.sh"
 
 readonly FETCH_DEADLINE_SECONDS=5
 readonly KILLED_STATUS=143
-readonly LINK_PATTERN='\[[^]]*\]\(([^)[:space:]]+)\)'
 
 fetch_within_deadline() {
   start_in_group env GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null
@@ -73,18 +72,6 @@ pull_file() {
   fi
 }
 
-linked_shared_file() {
-  local first
-  first="$(head -n 1 -- "$1")"
-  [[ "$first" =~ $LINK_PATTERN ]] || return 0
-  local target="${BASH_REMATCH[1]%%#*}"
-  case "$target" in
-    "" | *:*) ;;
-    /*) printf '%s\n' "$target" ;;
-    *) printf '%s/%s\n' "$(dirname -- "$1")" "$target" ;;
-  esac
-}
-
 repo_root() {
   git -C "$(dirname -- "$1")" rev-parse --show-toplevel 2>/dev/null
 }
@@ -109,7 +96,10 @@ print_shared_file() {
 main() {
   local ledger
   ledger="$(ledger_path)"
-  [ -f "$ledger" ] || return 0
+  if [ ! -f "$ledger" ]; then
+    printf 'No ledger yet: a coordinating session creates it at %s\n' "$ledger"
+    return 0
+  fi
   pull_file "$ledger" "Ledger"
   cat -- "$ledger"
   local shared
