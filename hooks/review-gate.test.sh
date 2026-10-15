@@ -218,6 +218,44 @@ land
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff -M HEAD)")" >/dev/null
 assert "an accept of git's own diff of an edited move covers both paths" "$(gate 'git commit -m x')" ""
 land
+(cd "$repo" && chmod +x other.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff HEAD)")" >/dev/null
+assert "an accept of git's own diff of a mode change covers its path" "$(gate 'git commit -am x')" ""
+mode_only="$(git -C "$repo" diff HEAD)"
+edit other.py 'y = 4'
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$mode_only")" >/dev/null
+assert "a diff that shows only a mode change does not approve its path once its content changed" "$(gate 'git commit -am x')" "$(outside other.py)"
+land
+(cd "$repo" && ln -s app.py link.py && git add link.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff HEAD)")" >/dev/null
+assert "an accept of git's own diff of a new symlink covers its path" "$(gate 'git commit -m x')" ""
+land
+(cd "$repo" && ln -s nowhere.py dangling.py && git add dangling.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff HEAD)")" >/dev/null
+(cd "$repo" && ln -sfn elsewhere.py dangling.py && git add dangling.py)
+assert "retargeting an added symlink after the accept blocks the commit" "$(gate 'git commit -m x')" "$DENIED"
+(cd "$repo" && git rm -q --cached dangling.py && rm dangling.py && printf 'z = 1\n' >added.py && git add added.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff HEAD)")" >/dev/null
+(cd "$repo" && chmod +x added.py)
+assert "a mode change to an added file after the accept blocks the commit" "$(gate 'git commit -m x')" "$DENIED"
+land
+(cd "$repo" && git rm -q added.py)
+deleted="$(git -C "$repo" diff HEAD)"
+(cd "$repo" && ln -s nowhere.py added.py && git add added.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$deleted")" >/dev/null
+assert "a diff deleting a path does not approve a dangling symlink put there" "$(gate 'git commit -m x')" "$(outside added.py)"
+land
+(cd "$repo" && printf 'w = 1\n' >fresh.py && git add fresh.py)
+before_chmod="$(git -C "$repo" diff HEAD)"
+(cd "$repo" && chmod +x fresh.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$before_chmod")" >/dev/null
+assert "a diff of a new file taken before a chmod does not approve the executable file" "$(gate 'git commit -m x')" "$(outside fresh.py)"
+(cd "$repo" && git rm -q -f fresh.py && printf 'app.py' >linked.py && git add linked.py)
+as_file="$(git -C "$repo" diff HEAD)"
+(cd "$repo" && rm linked.py && ln -s app.py linked.py && git add linked.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$as_file")" >/dev/null
+assert "a diff of a file holding a link's target text does not approve the symlink" "$(gate 'git commit -m x')" "$(outside linked.py)"
+land
 edit app.py 'print(31)'
 
 record_handback "$(report "$repo" accept)" >/dev/null

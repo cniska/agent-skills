@@ -48,6 +48,26 @@ accepted_paths() {
   tail -n +2 "$1"
 }
 
+working_blob() {
+  local repo="$1" path="$2"
+  if [ -L "$repo/$path" ]; then
+    readlink "$repo/$path" | tr -d '\n' | git -C "$repo" hash-object --stdin
+    return
+  fi
+  git -C "$repo" hash-object -- "$path" 2>/dev/null
+}
+
+working_mode() {
+  local repo="$1" path="$2"
+  if [ -L "$repo/$path" ]; then
+    printf '120000\n'
+  elif [ -x "$repo/$path" ]; then
+    printf '100755\n'
+  else
+    printf '100644\n'
+  fi
+}
+
 diff_fingerprint() {
   (
     cd "$1" || exit 1
@@ -59,7 +79,8 @@ diff_fingerprint() {
       git ls-files --others --exclude-standard -z
     } | sort -z | while IFS= read -r -d '' path; do
       printf '%s\0' "$path"
-      git hash-object -- "$path"
+      working_mode . "$path"
+      working_blob . "$path"
     done
   ) | shasum -a 256 | cut -d ' ' -f 1
 }

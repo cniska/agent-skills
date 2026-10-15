@@ -100,9 +100,11 @@ cited_worktrees() {
 diff_paths() {
   awk '
     function flush() {
-      if (path != "" && from != "") print path "\t@" from
+      if (path != "" && from != "") print path "\t@" from "\t" mode
+      else if (path != "" && mode != "") print path "\t@" path "\t" mode
       path = ""
       from = ""
+      mode = ""
     }
     /^diff --git a\// {
       flush()
@@ -114,11 +116,13 @@ diff_paths() {
     /^rename from / { from = substr($0, 13); print from "\t0"; next }
     /^copy from / { from = substr($0, 11); next }
     /^(rename|copy) to / { sub(/^(rename|copy) to /, ""); path = $0; next }
+    /^new (file )?mode [0-7]+$/ { mode = $NF; next }
     path != "" && /^index [0-9a-f]+\.\.[0-9a-f]+/ {
       split($2, ids, /\.\./)
-      print path "\t" ids[2]
+      print path "\t" ids[2] "\t" (NF > 2 ? $3 : mode)
       path = ""
       from = ""
+      mode = ""
     }
     END { flush() }'
 }
@@ -139,15 +143,17 @@ reviewed_paths() {
 }
 
 current_paths() {
-  local repo="$1" path post blob
-  while IFS=$'\t' read -r path post; do
+  local repo="$1" path post mode blob head_entry_mode
+  while IFS=$'\t' read -r path post mode; do
     [ -n "$path" ] || continue
     if [[ $post == @* ]]; then
-      post="$(git -C "$repo" rev-parse --verify --quiet "HEAD:${post#@}")" || continue
+      read -r head_entry_mode _ post _ < <(git --literal-pathspecs -C "$repo" ls-tree HEAD -- "${post#@}") || true
+      [ -n "$post" ] || continue
+      [ -n "$mode" ] || mode="$head_entry_mode"
     fi
     if [[ $post =~ ^0+$ ]]; then
-      [ -e "$repo/$path" ] || printf '%s\n' "$path"
-    elif blob="$(git -C "$repo" hash-object -- "$path" 2>/dev/null)" && [[ $blob == "$post"* ]]; then
+      [ -e "$repo/$path" ] || [ -L "$repo/$path" ] || printf '%s\n' "$path"
+    elif blob="$(working_blob "$repo" "$path")" && [[ $blob == "$post"* ]] && [ "$(working_mode "$repo" "$path")" = "$mode" ]; then
       printf '%s\n' "$path"
     fi
   done
