@@ -1,6 +1,6 @@
 # Proven able to fail
 
-A check that cannot fail is worse than none: it reports safety that does not exist. Before trusting a test, gate, hook, lint rule or health check, break what it guards once, watch it go red, and put it back.
+A check that cannot fail is worse than none: it reports safety that does not exist. Before trusting a test, gate, hook, lint rule or health check, break what it guards once, watch it go red, and put it back from git, or from a copy in your own temp folder.
 
 - A test claiming an invariant fails when the invariant's code is removed.
 - A gate or hook blocks the case it exists to block, shown with a real attempt, alongside a case it admits.
