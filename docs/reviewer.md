@@ -6,7 +6,7 @@ A fresh agent that did not write the work runs [design-review](../skills/experti
 - **On a whole branch it checks correctness and tests**, and each other area the diff touches, as `review` says.
 - **For each problem it states what is wrong and what it should be instead**, so its findings steer the work toward the shape I would have given it.
 - **On how code is built, its verdict wins** over other reviewers.
-- **It leaves what the checks enforce to them**: the worker runs validate, test, lint and the commit hooks, so its report never claims one passed.
+- **It leaves what the checks enforce to them**: the worker runs validate, test, lint and the commit hooks, so its report never claims one passed and still flags a change that weakens or removes one.
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts.
 
