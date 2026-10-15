@@ -51,7 +51,7 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 - `.claude-plugin/` holds the plugin and marketplace manifests for the [plugin](plugin.md).
 - `evals/scenarios/` holds the eval cases, `evals/triggers/` the trigger prompts, and `evals/lib/` the eval tooling; `lib/` is the code it shares with the repo scripts in `scripts/`.
 - `docs/` holds these pages, and no skill reads from it, since `npx skills add` copies only skill directories.
-- A new worktree runs [`scripts/worktree-setup.sh`](../scripts/worktree-setup.sh) under [agent-worktree](https://github.com/cniska/agent-worktree) to trust and install the mise tools and install dependencies, and it needs no teardown.
+- A new worktree runs the [`.worktree-hooks/setup`](../.worktree-hooks/setup) hook under [agent-worktree](https://github.com/cniska/agent-worktree) to trust and install the mise tools and install dependencies, and it needs no teardown.
 - In Claude Code cloud sessions the proxy blocks mise.run and GitHub release downloads, so [`.claude/hooks/session-start.sh`](../.claude/hooks/session-start.sh) installs mise from npm and shellcheck from PyPI, and turns off mise's own shellcheck.
 - That cloud hook also installs dependencies, and installs the `cniska-skills` plugin that [`.claude/settings.json`](../.claude/settings.json) enables, since a cloud session does not install it from the settings alone.
 
