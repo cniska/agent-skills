@@ -14,6 +14,8 @@ readonly REPORT_SHAPE="The report is three sections, '## Findings', '## Conflict
 readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
 readonly SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff; this one returned it.' above your verdict."
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
+readonly MAX_COUNT=1000
+readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
 
 die() {
   printf 'review-record.sh: %s\n' "$1" >&2
@@ -29,16 +31,53 @@ malformed_report() {
     --arg repo "" --arg head "" --arg fingerprint ""
 }
 
+parse_report() {
+  jq -cRs '
+    def bullet($name): "^- \\*\\*" + $name + ":\\*\\*";
+    def value($name): sub(bullet($name); "") | sub("^\\s+|\\s+$"; ""; "g");
+    def severity: value("Severity") | ascii_downcase | (capture("^(?<kind>critical|major|minor)\\b").kind // "unrated");
+    def blank: test("^\\s*$");
+    def none: test("^none\\.?$"; "i");
+    def last_finding(f): .findings[(.findings | length) - 1] |= f;
+    reduce (split("\n")[]) as $line ({headings: [], section: null, findings_lines: 0, findings_none: 0, findings: [], conflicts: 0, prose: false};
+      if ($line | test("^## ")) then .section = $line[3:] | .headings += [.section]
+      elif ($line | blank) then .
+      elif .section == "Findings" then
+        .findings_lines += 1
+        | if ($line | none) then .findings_none += 1
+          elif ($line | test(bullet("Where"))) then .findings += [{severity: "unrated", rule: null}]
+          elif (.findings | length) == 0 then .prose = true
+          elif ($line | test(bullet("Severity"))) then last_finding(.severity = ($line | severity))
+          elif ($line | test(bullet("Rule"))) then last_finding(.rule = ($line | value("Rule") | if . == "" then null else . end))
+          else . end
+      elif .section == "Conflicts" then
+        if ($line | none) then .
+        elif ($line | test(bullet("Where"))) then .conflicts += 1
+        elif .conflicts == 0 then .prose = true
+        else . end
+      else . end)
+    | {headings, findings_empty: (.findings_lines == 1 and .findings_none == 1), findings, conflicts, prose}'
+}
+
 has_sections() {
-  local report heading
-  report="$(cat)"
-  for heading in Findings Conflicts Clean; do
-    grep -qx "## $heading" <<<"$report" || return 1
-  done
+  jq -e '["Findings", "Conflicts", "Clean"] - .headings == []' >/dev/null
 }
 
 findings_empty() {
-  awk '/^## /{inside = ($0 == "## Findings"); next} inside && NF {n++; if (tolower($0) !~ /^none\.?$/) found = 1} END {exit !(n == 1 && !found)}'
+  jq -e .findings_empty >/dev/null
+}
+
+verdict_counts() {
+  local repos="$1" parsed="$2"
+  if [ "$repos" -ne 1 ]; then
+    printf '%s\n' "$UNCOUNTED"
+    return
+  fi
+  jq -c --argjson max "$MAX_COUNT" --argjson uncounted "$UNCOUNTED" '
+    ({critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}
+      + (.findings | group_by(.severity) | map({key: .[0].severity, value: length}) | from_entries)) as $findings
+    | if .prose or ([$findings[], .conflicts] | max) > $max then $uncounted
+      else {findings: $findings, conflicts, rules: [.findings[].rule | select(. != null)]} end' <<<"$parsed"
 }
 
 verdict_pairs() {
@@ -141,15 +180,21 @@ main() {
     return
   fi
 
-  if ! has_sections <<<"$report"; then
+  local parsed
+  parsed="$(parse_report <<<"$report")" || die "jq could not read the reviewer's report"
+  if ! has_sections <<<"$parsed"; then
     malformed_report "$input" missing_findings "$MISSING_FINDINGS_REASON"
     return
-  elif [ "$accepts" -gt 0 ] && ! findings_empty <<<"$report"; then
+  elif [ "$accepts" -gt 0 ] && ! findings_empty <<<"$parsed"; then
     malformed_report "$input" accept_with_findings "$ACCEPT_WITH_FINDINGS_REASON"
     return
   fi
 
-  local i state fingerprint
+  local i state fingerprint counts findings conflicts rules
+  counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"
+  findings="$(jq -c .findings <<<"$counts")"
+  conflicts="$(jq -c .conflicts <<<"$counts")"
+  rules="$(jq -c .rules <<<"$counts")"
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
     fingerprint="$(diff_fingerprint "${repos[$i]}")"
@@ -159,7 +204,8 @@ main() {
       mv "$state.tmp" "$state"
     fi
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
-      --arg reason "${reasons[$i]}"
+      --arg reason "${reasons[$i]}" --argjson findings "$findings" \
+      --argjson conflicts "$conflicts" --argjson rules "$rules"
   done
 }
 

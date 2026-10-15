@@ -106,7 +106,7 @@ record_last_message() {
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>/dev/null
 }
 
-sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\nnone\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}"; }
+sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\n%s\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}" "${2:-none}"; }
 report() { printf '%s\nRepo: %s\nVerdict: %s' "$(sections)" "$1" "$2"; }
 finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Severity:** minor\n- **Why:** unused.\n- **Instead:** delete it.'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
@@ -485,7 +485,7 @@ assert "an unreviewed commit logs a deny with the diff it judged" \
 
 assert "an accepting verdict logs the verdict and the diff it accepted" \
   "$(decided record_logged "$(report "$logged" accept)")" \
-  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null}')"
+  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null, findings: {critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}, conflicts: 0, rules: []}')"
 assert "the verdict line names the reviewer's agent id" "$(tail -n 1 "$log" | jq -r .agent)" r1
 assert "the accepted commit logs an allow with the same fingerprint" \
   "$(decided gate_logged 'git commit -am x')" \
@@ -494,6 +494,58 @@ assert "the accepted commit logs an allow with the same fingerprint" \
 reviewer=r2
 assert "an edit after the accept logs changed_since_accept" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" changed_since_accept
 assert "a returning verdict logs the return" "$(decided record_logged "$(report "$logged" return)" | jq -r --arg repo "$logged_repo" '[.verdict, .repo == $repo] | @tsv')" "return	true"
+counts() { decided record_logged "$(sections "$1" "$2")"$'\nRepo: '"$logged"$'\nVerdict: return' | jq -c '[.findings, .conflicts, .rules]'; }
+readonly EVERY_SEVERITY='- **Where:** n.py:1
+- **Rule:** No dead structure
+- **Severity:** critical
+- **Why:** a.
+- **Instead:** b.
+
+- **Where:** n.py:2
+- **Rule:** Named constants
+- **Severity:** Major.
+- **Why:** a.
+- **Instead:** b.
+
+- **Where:** n.py:3
+- **Rule:** No dead structure
+- **Severity:** minor
+- **Why:** a.
+- **Instead:** b.
+
+- **Where:** n.py:4
+- **Severity:** severe
+- **Why:** a.
+- **Instead:** b.
+
+- **Where:** n.py:5
+- **Rule:** Names
+- **Why:** a.
+- **Instead:** b.'
+readonly TWO_CONFLICTS='- **Where:** n.py:6
+- **Rule:** A settled decision
+- **Severity:** major
+- **Why:** a.
+- **Instead:** b.
+
+- **Where:** n.py:7
+- **Rule:** Another
+- **Severity:** minor
+- **Why:** a.
+- **Instead:** b.'
+assert "a return counts its findings by severity, its conflicts and each finding's rule" \
+  "$(counts "$EVERY_SEVERITY" "$TWO_CONFLICTS")" \
+  '[{"critical":1,"major":1,"minor":1,"fix":0,"consider":0,"unrated":2},2,["No dead structure","Named constants","No dead structure","Names"]]'
+assert "findings in prose rather than bullets leave the verdict uncounted" \
+  "$(counts 'The constant on line 2 is unused.' none)" '[null,null,null]'
+assert "a conflict in prose rather than bullets leaves the verdict uncounted" \
+  "$(counts "$(finding)" 'The brief settles this the other way.')" '[null,null,null]'
+assert "an uncounted return is still logged" "$(tail -n 1 "$log" | jq -r .verdict)" return
+many="$(for _ in $(seq 1001); do printf -- '- **Where:** n.py:1\n- **Severity:** minor\n'; done)"
+assert "more than 1000 findings of a kind leave the verdict uncounted" "$(counts "$many" none)" '[null,null,null]'
+assert "a report naming two repositories leaves each verdict uncounted" \
+  "$(decided record_logged "$(sections)"$'\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: return' | jq -sc 'map([.findings, .conflicts, .rules])')" \
+  '[[null,null,null],[null,null,null]]'
 assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" not_accepted
 
 (cd "$logged" && git checkout -q n.py && printf 'more\n' >>NOTES.md)
