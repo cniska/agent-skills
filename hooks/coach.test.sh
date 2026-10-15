@@ -70,7 +70,7 @@ stop_worker() {
 reason() { stop_worker "$@" | jq -r '.reason // empty'; }
 decision() { stop_worker | jq -r '.decision // empty'; }
 
-readonly ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a1 of session s1, with its transcript at $worker, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
+readonly ASK="Before you hand back, write your report to a file in your temp folder, so a run cut short keeps it, then run cniska-skills:coach in the foreground over this task alone: your own run, agent a1 of session s1, with its transcript at $worker, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
 
 { tool_use Skill '{"skill": "cniska-skills:task"}' && done_line; } >"$worker"
 assert "a worker that ran a task is asked to run the coach over it before handing back" "$(reason)" "$ASK"
@@ -131,7 +131,7 @@ hand_back() {
   jq -cn --arg transcript "$session_transcript" \
     '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: "Done."}, session_id: "s2", agent_id: "a2", agent_type: "general-purpose", transcript_path: $transcript}' | "$TASK_COACH" 2>/dev/null
 }
-HANDBACK_ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a2 of session s2, with its transcript at $handback_transcript, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
+HANDBACK_ASK="Before you hand back, write your report to a file in your temp folder, so a run cut short keeps it, then run cniska-skills:coach in the foreground over this task alone: your own run, agent a2 of session s2, with its transcript at $handback_transcript, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
 assert "a worker's hand-back is refused with the ask, naming the transcript found from the session's" \
   "$(hand_back)" "$(jq -cn --arg reason "$HANDBACK_ASK" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}')"
 assert "the worker's second hand-back goes through" "$(hand_back again)" ""
@@ -144,7 +144,7 @@ waiter_event() {
   jq -cn --arg event "$1" --arg transcript "$waiter" \
     '{hook_event_name: $event, tool_name: "SubagentHandback", tool_input: {message: "Done."}, session_id: "s3", agent_id: "a3", agent_type: "general-purpose", agent_transcript_path: $transcript, last_assistant_message: "Waiting."}' | "$TASK_COACH" 2>/dev/null
 }
-WAITER_ASK="Before you hand back, run cniska-skills:coach in the foreground over this task alone: your own run, agent a3 of session s3, with its transcript at $waiter, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
+WAITER_ASK="Before you hand back, write your report to a file in your temp folder, so a run cut short keeps it, then run cniska-skills:coach in the foreground over this task alone: your own run, agent a3 of session s3, with its transcript at $waiter, and the subagents you started. Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
 fresh_bound
 assert "a stop before any coach run reminds the worker once" "$(waiter_event SubagentStop)" "$(jq -cn --arg reason "$WAITER_ASK" '{decision: "block", reason: $reason}')"
 assert "a second stop is let through by the reminder's bound" "$(waiter_event SubagentStop)" ""
