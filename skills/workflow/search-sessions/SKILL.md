@@ -12,7 +12,7 @@ Transcripts sit one JSON object per line at `~/.claude/projects/<slug>/<session-
 
 Search before deciding something that may already be settled.
 
-Where `agent-record` (github.com/cniska/agent-record) is installed, ask it first: it indexes every session and the commits they led to. Run `agent-record sync` before the first query, so the record holds the latest sessions. If it fails with `error.code` `lock_held`, another sync is running: search anyway, say the record may lag one sync, and do not retry. `agent-record query search "<words>"` finds a message, `agent-record query thread <session> --at <at>` reads the exchange a hit sits in, `agent-record query prior-art "<path fragment>"` finds where a shape already exists on disk, and `agent-record sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
+Ask `agent-record` (github.com/cniska/agent-record) first, where installed: it indexes every session and the commits they led to. Run `agent-record sync` before the first query, so the record holds the latest sessions. If it fails with `error.code` `lock_held`, another sync is running: search anyway, say the record may lag one sync, and do not retry. `agent-record query search "<words>"` finds a message, `agent-record query thread <session> --at <at>` reads the exchange a hit sits in, `agent-record query prior-art "<path fragment>"` finds where a shape already exists on disk, and `agent-record sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
 
 ## Workflow
 
@@ -35,7 +35,7 @@ Say plainly what the search did not find — an absence you looked for is a find
 
 ## Red flags
 
-- Querying `agent-record` without syncing first, or retrying a sync the lock refused
+- Querying `agent-record`, where installed, without syncing first, or retrying a sync the lock refused
 - Searching the current directory's slug alone, so another worktree's conversation reads as never having happened
 - Paraphrasing a decision instead of quoting it
 - Parsing every transcript instead of grepping for candidates first
