@@ -24,9 +24,9 @@ Size the area so each reader can read its relevant paths in full. Divide a large
 
 ## Output
 
-State the revision and inspected scope, then report in the review report shape from `principles`. Each finding's **Rule** names its dimension and the rule it breaks, and its **Why** the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
+State the revision and inspected scope, and each dimension that is `not_applicable` or `incomplete` with its reason, then report in the review report shape from `principles`. Each finding's **Rule** names its dimension and the rule it breaks, and its **Why** the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
 
-`## Clean` lists every dimension, each as `clear`, `not_applicable` or `incomplete`; the last two each need a reason. `clear` requires reading the relevant paths in full, not a search. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
+`## Clean` lists only the dimensions that are clear. Clear requires reading the relevant paths in full, not a search. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
 
 ## See also
 
