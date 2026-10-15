@@ -59,7 +59,7 @@ Each row is one side: the mean score, each run's score, and the graders that fai
 }
 ```
 
-`mise run test:triggers` scores every prompt against every skill description by word similarity, with no model, and reports each skill's first-place rate, the prompts it loses and to which skill, and descriptions so alike a model could not tell them apart. It fails when two descriptions are 50% alike or more, a limit set well above the closest pair when it was introduced. Word similarity is only a proxy for how a model picks a skill: a lost prompt points at a description worth rewording, and a triggering case run by the model settles it.
+`mise run test:triggers` scores every prompt against every skill description by word similarity, with no model, and reports each skill's first-place rate, the prompts it loses and to which skill, and descriptions so alike a model could not tell them apart. It fails when a positive prompt loses first place, when a skill comes first for a prompt that belongs to another, and when two descriptions are 50% alike or more, a limit set well above the closest pair when it was introduced. Word similarity is only a proxy for how a model picks a skill: a lost prompt fails the run until the description of the skill it should load is reworded, and a triggering case run by the model settles which wording a model picks.
 
 ## Saved traces
 

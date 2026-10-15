@@ -129,8 +129,10 @@ runMain(() => {
     firsts += result.hit;
     const wrongly = result.wrong.length ? `  wrongly first for ${result.wrong.length}` : "";
     console.log(`${skill}  first for ${result.hit}/${result.total}${wrongly}`);
-    for (const line of [...result.misses, ...result.wrong]) console.log(line);
-    for (const w of result.wrong) problems.push(`${skill}: ${w.trim()}`);
+    for (const line of [...result.misses, ...result.wrong]) {
+      console.log(line);
+      problems.push(`${skill}: ${line.trim()}`);
+    }
   }
 
   const rate = positives ? Math.round((firsts / positives) * 100) : 100;
@@ -138,6 +140,6 @@ runMain(() => {
   problems.push(...collisions(skills));
   reportProblems(
     problems,
-    "reword the description of the skill a prompt loads wrongly, or of two descriptions that collide; fix a trigger file named for no skill",
+    "reword the description of the skill a prompt loses first place for or loads wrongly, or of two descriptions that collide; fix a trigger file named for no skill",
   );
 });
