@@ -20,7 +20,7 @@ readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WOR
 readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
 readonly COMMIT_DIR_PATTERN='[[:space:]]-C[[:space:]]+([^[:space:]]+)'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
-readonly MKTEMP_PATTERN='\$\(mktemp[[:space:]]+-d\)'
+readonly LEADING_MKTEMP_CD_PATTERN='^([[:space:]]*cd[[:space:]]+)"\$\(mktemp[[:space:]]+-d\)"'
 readonly MKTEMP_NAME="tmp.XXXXXXXXXX"
 readonly CHAIN_BREAK_PATTERN="[;&|"$'\n'"]"
 readonly REPO_OVERRIDE_PATTERN="--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
@@ -218,19 +218,17 @@ under_temp() {
   return 1
 }
 
-with_temp_dirs() {
+with_leading_temp_dir() {
   local root="${TMPDIR:-/tmp}"
   if ! [ -d "$root" ] || ! [ -w "$root" ]; then
     printf '%s\n' "$1"
     return
   fi
-  local rest="$1" out="" match
-  while [[ $rest =~ $MKTEMP_PATTERN ]]; do
-    match="${BASH_REMATCH[0]}"
-    out+="${rest%%"$match"*}${root%/}/$MKTEMP_NAME"
-    rest="${rest#*"$match"}"
-  done
-  printf '%s\n' "$out$rest"
+  local command="$1"
+  if [[ $command =~ $LEADING_MKTEMP_CD_PATTERN ]]; then
+    command="${BASH_REMATCH[1]}\"${root%/}/$MKTEMP_NAME\"${command#"${BASH_REMATCH[0]}"}"
+  fi
+  printf '%s\n' "$command"
 }
 
 only_and_chain() {
@@ -268,7 +266,7 @@ scratch_dir() {
 
 creates_scratch_repo() {
   local prefix cwd="$2" dir targets target count=0
-  prefix="$(with_temp_dirs "$1")"
+  prefix="$(with_leading_temp_dir "$1")"
   ! grep -qE -- "$REPO_OVERRIDE_PATTERN" <<<"$prefix" || return 1
   dir="$(scratch_dir "$prefix" "$cwd")" || return 1
   targets="$(repo_targets "$prefix")"

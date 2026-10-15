@@ -418,6 +418,9 @@ for command in \
   "cd \"\$(mktemp -d /tmp/gate-missing/w.XXXXXX)\" && git init -q && git commit -m x" \
   "D=\$(mktemp -d) && cd \$D && git init -q && git commit -m x" \
   "cd \"\$(mktemp -d)\"; git init -q && git commit -m x" \
+  "cd \$(mktemp -d) && git init -q && git commit -m x" \
+  "git init -q \"\$(mktemp -d)\" && git -C \"\$(mktemp -d)\" commit -m x" \
+  "git init -q \"\$(mktemp -d)\"; git -C \"\$(mktemp -d)\" commit -m x" \
   'git clone -q ~/project copy && git -C copy commit -m x'; do
   assert "a repo created from a checkout whose commit may land outside the temp directories [$command] is refused" "$(gate_from "$command" "$checkout")" "$CREATE"
 done
