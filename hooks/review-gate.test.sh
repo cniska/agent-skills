@@ -39,6 +39,13 @@ MISSING="$(refused "$MISSING_REASON")"
 MISSING_AT_STOP="$(blocked "$MISSING_REASON")"
 readonly MISSING MISSING_AT_STOP
 readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
+REFERENCE="$HERE/../skills/expertise/principles/references/review-report.md"
+labels="$(awk '/^```/ { inside = !inside; next } inside && /^(## |- \*\*[A-Z][a-z]*:\*\*)/' "$REFERENCE" | sed -E 's/^(- \*\*[A-Za-z]+:\*\*).*/\1/')"
+assert "the review report reference holds three sections and five finding bullets" "$(printf '%s\n' "$labels" | wc -l | tr -d ' ')" 8
+while IFS= read -r label; do
+  case "$SHAPE" in *"'$label"*) named=yes ;; *) named=no ;; esac
+  assert "the refusal names the review report's $label" "$named" yes
+done <<<"$labels"
 NO_SECTIONS="$(refused "The report lacks a section. $SHAPE")"
 WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE")"
 readonly REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
