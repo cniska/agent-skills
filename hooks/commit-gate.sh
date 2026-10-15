@@ -20,6 +20,8 @@ readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WOR
 readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
 readonly COMMIT_DIR_PATTERN='[[:space:]]-C[[:space:]]+([^[:space:]]+)'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
+readonly MKTEMP_PATTERN='\$\(mktemp[[:space:]]+-d\)'
+readonly MKTEMP_NAME="tmp.XXXXXXXXXX"
 readonly CHAIN_BREAK_PATTERN="[;&|"$'\n'"]"
 readonly REPO_OVERRIDE_PATTERN="--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
 readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|${REPO_OVERRIDE_PATTERN}"
@@ -42,7 +44,7 @@ readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
 readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...'."
-readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."
+readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff. A scratch repo passes when the command starts with cd <temp path> && or cd \"\$(mktemp -d)\" && and joins every step with &&."
 
 heredoc_delimiters() {
   local rest="$1"
@@ -216,6 +218,21 @@ under_temp() {
   return 1
 }
 
+with_temp_dirs() {
+  local root="${TMPDIR:-/tmp}"
+  if ! [ -d "$root" ] || ! [ -w "$root" ]; then
+    printf '%s\n' "$1"
+    return
+  fi
+  local rest="$1" out="" match
+  while [[ $rest =~ $MKTEMP_PATTERN ]]; do
+    match="${BASH_REMATCH[0]}"
+    out+="${rest%%"$match"*}${root%/}/$MKTEMP_NAME"
+    rest="${rest#*"$match"}"
+  done
+  printf '%s\n' "$out$rest"
+}
+
 only_and_chain() {
   local joined="${1//&&/}"
   ! [[ $joined =~ $CHAIN_BREAK_PATTERN ]]
@@ -250,7 +267,8 @@ scratch_dir() {
 }
 
 creates_scratch_repo() {
-  local prefix="$1" cwd="$2" dir targets target count=0
+  local prefix cwd="$2" dir targets target count=0
+  prefix="$(with_temp_dirs "$1")"
   ! grep -qE -- "$REPO_OVERRIDE_PATTERN" <<<"$prefix" || return 1
   dir="$(scratch_dir "$prefix" "$cwd")" || return 1
   targets="$(repo_targets "$prefix")"
@@ -272,11 +290,13 @@ record() {
 }
 
 gate_failed() {
+  local status=$?
+  if [ "$BASH_SUBSHELL" -gt 0 ]; then
+    exit "$status"
+  fi
   trap - ERR
   printf 'commit-gate.sh failed on line %s, so the commit is refused until the gate runs cleanly\n' "$1" >&2
-  if [ "$BASH_SUBSHELL" -eq 0 ]; then
-    record deny gate_error
-  fi
+  record deny gate_error
   exit 2
 }
 
@@ -306,11 +326,7 @@ main() {
   local prefix span named changes repo
   walk_commits "$command"
   prefix="${COMMIT_PARTS[0]}"
-  if [[ $prefix =~ $REPO_CLONE_PATTERN ]]; then
-    deny "$CREATE_REASON" repo_created
-    return
-  fi
-  if [[ $prefix =~ $REPO_INIT_PATTERN ]]; then
+  if [[ $prefix =~ $REPO_CLONE_PATTERN || $prefix =~ $REPO_INIT_PATTERN ]]; then
     span="$(printf '%s' "${COMMIT_PARTS[@]}")"
     if creates_scratch_repo "$span" "$cwd"; then
       record allow scratch_repo

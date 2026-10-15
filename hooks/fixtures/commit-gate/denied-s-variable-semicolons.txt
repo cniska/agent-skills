@@ -1,0 +1,19 @@
+set -u; S=@S@/gitlab; rm -rf "$S"; mkdir -p "$S"; cd "$S"
+export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
+git init -q --bare -b main origin.git
+git init -q -b main work && cd work && git remote add origin ../origin.git
+echo a > a && git add a && git commit -q -m base && git push -q origin main
+git checkout -q -b topic && echo b > b && git add b && git commit -q -m b1 && echo c > c && git add c && git commit -q -m b2 && git push -q -u origin topic
+git checkout -q main
+echo '=== 1 ls-remote --symref HEAD and heads (one round)'; git ls-remote --symref origin HEAD 'refs/heads/*'
+echo '=== 2 ls-remote --exit-code for a missing head'; git ls-remote --exit-code --heads origin nope; echo "exit $?"
+echo '=== 3 squash topic into main on the remote via a clone'; cd .. && git clone -q origin.git other && cd other && git merge -q --squash origin/topic && git commit -q -m squash && git push -q origin main && git push -q origin --delete topic && cd ../work
+echo '=== 4 fetch only main; does the tracking ref move and does origin/HEAD appear?'; git fetch -q origin main; git rev-parse --verify -q refs/remotes/origin/HEAD && echo HEAD-present || echo HEAD-absent; git log --oneline -1 refs/remotes/origin/main; git for-each-ref --format='%(refname:short) %(upstream:short) %(upstream:track)' refs/heads/topic
+echo '=== 5 prune fetch of main only: is stale origin/topic pruned?'; git fetch -q --prune origin main; git rev-parse --verify -q refs/remotes/origin/topic && echo topic-tracking-still-present || echo topic-tracking-pruned
+echo '=== 6 fetch --prune with default refspec'; git fetch -q --prune origin; git rev-parse --verify -q refs/remotes/origin/topic >/dev/null && echo topic-tracking-still-present || echo topic-tracking-pruned; git rev-parse --verify -q refs/remotes/origin/HEAD >/dev/null && echo "HEAD-present $(git symbolic-ref refs/remotes/origin/HEAD)" || echo HEAD-absent; git for-each-ref --format='%(upstream:track) %(upstream:remotename) %(upstream:remoteref)' refs/heads/topic
+echo '=== 7 squash detection via commit-tree + cherry'; MB=$(git merge-base refs/remotes/origin/main topic); SQ=$(git commit-tree "topic^{tree}" -p "$MB" -m squash); git cherry refs/remotes/origin/main "$SQ"
+echo '=== 8 same after an extra local commit on topic'; git checkout -q topic && echo d > d && git add d && git commit -q -m b3 && git checkout -q main; SQ=$(git commit-tree "topic^{tree}" -p "$MB" -m squash); git cherry refs/remotes/origin/main "$SQ"
+echo '=== 9 push --delete of a remote branch that is gone'; git push origin --delete topic; echo "exit $?"
+echo '=== 10 fetch by sha from a file remote'; git fetch origin $(git rev-parse refs/remotes/origin/main) 2>&1 | tail -1; echo "exit $?"
+echo '=== 11 delete-merged available?'; git branch -h 2>&1 | grep -c delete-merged
+echo '=== 12 ls-remote on an unreachable remote'; git ls-remote --symref file:///nonexistent/x.git HEAD 2>&1 | head -2; echo "exit $?"

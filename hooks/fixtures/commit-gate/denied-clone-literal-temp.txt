@@ -1,0 +1,1 @@
+cd /tmp/lbt.EF30wo && git clone -q origin.git other && cd /tmp/lbt.EF30wo/other && echo z > z && git add z && git -c user.name=t -c user.email=t@t -c commit.gpgsign=false commit -qm unrelated && echo ok

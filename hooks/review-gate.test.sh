@@ -31,8 +31,9 @@ readonly DENIED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permission
 readonly UNRESOLVED='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: ~/nowhere is not a repository, so the reviewer verdict for this commit cannot be checked. Name the repository by an absolute path in cd."}}'
 readonly MULTIPLE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."}}'
 readonly AMBIGUOUS='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with '"'"'cd <absolute path> && git commit ...'"'"'."}}'
-readonly CREATE='{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff."}}'
 refused() { jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'; }
+CREATE="$(refused "Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff. A scratch repo passes when the command starts with cd <temp path> && or cd \"\$(mktemp -d)\" && and joins every step with &&.")"
+readonly CREATE
 blocked() { jq -cn --arg reason "$1" '{decision: "block", reason: $reason}'; }
 readonly MISSING_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
 MISSING="$(refused "$MISSING_REASON")"
@@ -387,12 +388,14 @@ for command in \
 done
 assert "a scratch repo under a home outside the temp directories is refused" "$(HOME=/usr gate_from 'git init -q ~/r && cd ~/r && git commit -m x' "$scratch")" "$CREATE"
 assert "a repo created from a cwd outside the temp directories with a relative cd is refused" "$(gate_from 'git init -q r && cd r && git commit -m x' /)" "$CREATE"
-assert "a commit after cloning in the same command is refused" "$(gate_from 'git clone -q ~/project copy && git -C copy commit -m x' "$scratch")" "$CREATE"
+assert "a commit after cloning into a temp directory passes" "$(gate_from 'git clone -q ~/project copy && git -C copy commit -m x' "$scratch")" ""
 checkout="$(cd "$HERE/.." && pwd)"
 for command in \
   "cd $scratch/x && git init -q && git commit -m x" \
   "cd $scratch/y && git init -q && git commit -m a && git commit -m b" \
-  "git -C $scratch/w init -q && git -C $scratch/w commit -m a && git -C $scratch/w commit -m b"; do
+  "git -C $scratch/w init -q && git -C $scratch/w commit -m a && git -C $scratch/w commit -m b" \
+  "cd \"\$(mktemp -d)\" && git init -q && git commit -m x" \
+  'cd /tmp && git clone -q ~/project copy && git -C copy commit -m x'; do
   assert "a scratch repo reached from a checkout as [$command] passes" "$(gate_from "$command" "$checkout")" ""
 done
 for command in \
@@ -406,8 +409,40 @@ for command in \
   "git -C $scratch/w init -q && git -C $scratch/w commit -m a && git commit -m b" \
   "git init -q $scratch/w && git -C w commit -m x" \
   "git init -q $scratch/w && echo \"git -C $scratch/w commit\" && git commit -m x" \
-  "(cd $scratch/z) && git init -q && git commit -m x"; do
+  "(cd $scratch/z) && git init -q && git commit -m x" \
+  "cd \"\$(mktemp)\" && git init -q && git commit -m x" \
+  "cd \"\$(mktemp -d /usr/gate.XXXXXX)\" && git init -q && git commit -m x" \
+  "cd \$(mktemp -d /tmp/gate.XXXXXX)/w && git init -q && git commit -m x" \
+  "cd \"\$(mktemp -dp /tmp)\" && git init -q && git commit -m x" \
+  "cd \"\$(mktemp -d /tmp/gate)\" && git init -q && git commit -m x" \
+  "cd \"\$(mktemp -d /tmp/gate-missing/w.XXXXXX)\" && git init -q && git commit -m x" \
+  "D=\$(mktemp -d) && cd \$D && git init -q && git commit -m x" \
+  "cd \"\$(mktemp -d)\"; git init -q && git commit -m x" \
+  'git clone -q ~/project copy && git -C copy commit -m x'; do
   assert "a repo created from a checkout whose commit may land outside the temp directories [$command] is refused" "$(gate_from "$command" "$checkout")" "$CREATE"
+done
+recorded() { local command; command="$(<"$HERE/fixtures/commit-gate/denied-$1.txt")" || return; printf '%s' "${command//@S@/$scratch}"; }
+mktemp_sh_c_newlines="$(recorded mktemp-sh-c-newlines)" || exit 1
+clone_literal_temp="$(recorded clone-literal-temp)" || exit 1
+s_variable_semicolons="$(recorded s-variable-semicolons)" || exit 1
+d_variable="$(recorded d-variable)" || exit 1
+set_e_semicolons="$(recorded set-e-semicolons)" || exit 1
+assert "a denied scratch command that commits inside sh -c across newlines is still refused" "$(gate_from "$mktemp_sh_c_newlines" "$checkout")" "$CREATE"
+assert "a denied scratch command that clones under a literal temp path joined by && passes" "$(gate_from "$clone_literal_temp" "$checkout")" ""
+assert "a denied scratch command that reaches its directory through S= and ; is still refused" "$(gate_from "$s_variable_semicolons" "$checkout")" "$CREATE"
+assert "a denied scratch command that reaches its directory through D= is still refused" "$(gate_from "$d_variable" "$checkout")" "$CREATE"
+assert "a denied scratch command that runs set -e; S= and ; is still refused" "$(gate_from "$set_e_semicolons" "$checkout")" "$CREATE"
+mkdir -p "$scratch/locked"
+chmod 555 "$scratch/locked"
+assert "a mktemp -d under a TMPDIR it cannot write to is refused" "$(TMPDIR="$scratch/locked" gate_from "cd \"\$(mktemp -d)\" && git init -q && git commit -m x" "$checkout")" "$CREATE"
+chmod 755 "$scratch/locked"
+gate_stderr() { jq -cn --arg command "$1" --arg cwd "$2" '{tool_name: "Bash", tool_input: {command: $command}, cwd: $cwd}' | { "$GATE" >/dev/null; } 2>&1; }
+for command in \
+  'cd /usr/x && git init -q && git commit -m x' \
+  'git init -q && git commit -m x' \
+  'cd /usr && git commit -am x' \
+  'git commit -am x'; do
+  assert "a commit outside the temp directories [$command] says nothing on stderr" "$(gate_stderr "$command" /)" ""
 done
 record_handback "$(report "$repo" accept)" >/dev/null
 assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$home_repo")" "$DENIED"

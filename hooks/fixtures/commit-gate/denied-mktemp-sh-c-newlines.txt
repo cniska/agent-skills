@@ -1,0 +1,21 @@
+cd "$(mktemp -d)" && export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t && git --version && rtk proxy sh -c '
+set -e
+git init -q -b main origin.git --bare
+git init -q -b main work && cd work && git remote add origin ../origin.git
+echo a > a && git add a && git commit -qm init && git push -q -u origin main
+git checkout -qb feat && echo b > b && git add b && git commit -qm feat1 && echo c > c && git add c && git commit -qm feat2 && git push -q -u origin feat
+echo "--- ls-remote symref:"; git ls-remote --symref origin HEAD refs/heads/feat refs/heads/nope
+echo "--- exit for unreachable:"; git ls-remote ../missing.git >/dev/null 2>err.txt; echo "exit $?"; cat err.txt
+echo "--- squash merge on origin from another clone"
+cd .. && git clone -q origin.git other && cd other && git checkout -q main && echo z > z && git add z && git commit -qm unrelated && git merge --squash -q origin/feat && git commit -qm "feat squashed" && git push -q origin main && git push -q origin --delete feat && cd ../work
+echo "--- fetch origin main updates tracking ref?"; before=$(git rev-parse refs/remotes/origin/main); git fetch -q origin main; after=$(git rev-parse refs/remotes/origin/main); echo "$before -> $after"
+echo "--- tracking ref for feat still present after plain fetch:"; git rev-parse --verify -q refs/remotes/origin/feat && echo yes
+echo "--- is-ancestor:"; git merge-base --is-ancestor feat origin/main && echo yes || echo no
+echo "--- git cherry per commit:"; git cherry origin/main feat
+base=$(git merge-base origin/main feat); syn=$(git commit-tree feat^{tree} -p $base -m _); echo "--- synthetic cherry:"; git cherry origin/main $syn
+echo "--- push --delete missing:"; git push origin --delete feat 2>err.txt; echo "exit $?"; cat err.txt
+echo "--- fetch --prune drops tracking ref:"; git fetch -q --prune origin; git rev-parse --verify -q refs/remotes/origin/feat || echo gone
+echo "--- reflog of deleted ref:"; ls .git/logs/refs/remotes/origin/ 2>/dev/null; echo "---"
+echo "--- branch -d with gone upstream:"; git checkout -q main; git branch -d feat 2>&1; echo "exit $?"
+echo "--- GIT_TERMINAL_PROMPT doc check skipped"
+'
