@@ -66,14 +66,13 @@ For a new or changed test, identify the behavior, a regression it would catch, a
 
 ## Output
 
-For each finding: **label** (`Restore` | `Must-add` | `Should-add` | `Optional` | `Remove`), **source file + test file**, **what is untested**, **why it matters** (the concrete bug the test would catch), **fix direction**. When a full review collects these findings, map Restore → Critical, Must-add → Critical/Fix, Should-add → Fix, Optional/Remove → Consider.
-
-Group the summary by those labels. Report every Must-add and Should-add with its label — the caller filters by severity, not you; fold Optional items into one line or omit them. If nothing clears the threshold, say "No test findings".
+Give each finding as the review report in `principles` lays out: **Where** names the source file and test file, **Rule** its label (`Restore`, `Must-add`, `Should-add` or `Remove`), **Why** what is untested and the concrete bug a test would catch, and **Instead** the fix direction. Severity follows the label: `Restore` is critical, `Must-add` major, `Should-add` and `Remove` minor. An optional test is not a finding. If nothing clears the threshold, Findings is `none`.
 
 ## See also
 
 - `tdd` for implementation-time test discipline
-- `review` for multi-axis merge decisions
+- `review`, which runs this review on every branch
+- `principles` for the review report each test gap takes
 
 ## Red flags
 

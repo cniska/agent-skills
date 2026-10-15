@@ -41,21 +41,22 @@ An evidenced pattern is not automatically a defect. Reads through an injected co
 2. Compare implementation against that map. For large diffs or audits spanning many modules, fan out **fast-tier** readers — one per module or boundary — to collect raw evidence. Verify findings in this session before reporting.
 3. Run a cycle and dependency-direction pass on core entrypoints.
 4. Check whether the change increases coupling or creates contract drift.
-5. Report findings ordered by severity.
+5. Report each finding with its evidence.
 
 ## Output
 
-For each boundary breach: **label** (Critical / Fix / Consider / Nit), **impacted files**, **violated pattern**, **evidence**, **fix direction**.
+Report each boundary breach in the review report shape `principles` holds: **Where** lists the impacted files, **Rule** the violated pattern, **Why** its evidence and **Instead** the fix direction.
 
-- Bad: "Consider: UserService is doing a lot; could be more decoupled." (taste, no contract, no evidence)
-- Good: **Fix** — `src/api/client.ts` imports `src/auth/session.ts` which imports it back (runtime cycle), violating the api→auth dependency direction in `docs/architecture.md`. Move `TokenStore` into `auth`.
+- Bad: "UserService is doing a lot; could be more decoupled." (taste, no contract, no evidence)
+- Good: **Why:** `src/api/client.ts` imports `src/auth/session.ts`, which imports it back (runtime cycle), against the api→auth dependency direction in `docs/architecture.md`.
 
-Group as **Confirmed issues** | **Open questions** | **Optional refactors** (max 3, one line each; omit if empty). "No architectural findings" is a valid, complete result.
+Findings `none` is a valid, complete result.
 
 ## See also
 
 - `design-review` for indirection, YAGNI, cohesion and duplication, judged against the owner's rules rather than the repo's
 - `simplify` for performing the moves this review identifies
+- `principles` for the review report each breach is written in
 
 ## Red flags
 

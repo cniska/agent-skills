@@ -35,6 +35,7 @@ For each violation, give:
 
 - **Where:** `file:line`, and every other place with the same violation.
 - **Rule:** the rule's heading.
+- **Severity:** critical, major or minor.
 - **Why:** why it is wrong here, in one sentence about this code, not a restatement of the rule.
 - **Instead:** the shape the code should take, concrete enough to build from. When the answer is to delete the code, say delete.
 
@@ -48,26 +49,7 @@ Order the findings by reach: first a design every new case of the same kind, suc
 
 ## Report
 
-These three sections, in this order, each saying `none` when it is empty, and after them only the closing lines the caller asks for, such as `Repo:` and `Verdict:`:
-
-```
-## Findings
-
-- **Where:** `file:line`, and every other place with the same violation
-- **Rule:** the rule's heading
-- **Why:** one sentence
-- **Instead:** the shape to build
-
-## Conflicts
-
-Findings that clash with a decision the owner settled, in the same four bullets.
-
-## Clean
-
-- **<the rule's heading>:** the places it was checked in
-```
-
-A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph.
+Report in the shape the review report in `principles` gives, each finding as the Judge bullets above.
 
 ## See also
 

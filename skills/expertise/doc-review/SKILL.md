@@ -23,17 +23,18 @@ Read the diff, then the affected doc files. For changes touching many docs, fan 
 
 ## Output
 
-For each drift: **label** (Critical / Fix / Consider / Nit), **affected file**, **what drifted or is missing**, **fix direction**.
+Report each drift as `principles`' review report says: **Where** is the affected file, **Why** what drifted or is missing, and **Instead** the fix direction.
 
 - Bad: "README could explain the retry architecture in more depth."
-- Good: **Fix** — `docs/config.md` still says `maxRetries` defaults to 3; this diff changes it to 5 in `src/client.ts`.
+- Good: **Why:** `docs/config.md` still says `maxRetries` defaults to 3, and this diff changes it to 5 in `src/client.ts`.
 
-Group as **Canonical updates needed** | **Optional cleanup** (max 3, each tied to a file the diff touched; omit if empty). If nothing drifted, say "No doc findings".
+If nothing drifted, Findings is `none`.
 
 ## See also
 
 - `review` for cross-dimension merge decisions
 - `pr` for change summaries and issue linkage
+- `principles` for the review report shape a drift takes
 
 ## Red flags
 

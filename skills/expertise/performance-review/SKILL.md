@@ -42,18 +42,19 @@ Flag a performance issue only with a concrete trigger: name the input, request p
 1. Identify the changed path and its expected workload from project docs, callers, and tests.
 2. Trace queries, requests, loops, allocations, retries, and external calls across the path.
 3. Quantify repeated or unbounded work where possible; distinguish measurements from source-only hypotheses.
-4. Report concrete findings ordered by severity, with the trigger and fix direction.
+4. Report concrete findings, with the trigger and fix direction.
 
 ## Output
 
-For each hot spot: **label** (Critical / Fix / Consider / Nit), **file**, **triggering workload**, **performance impact**, **evidence**, and **fix direction**.
+Write each hot spot in the `principles` review report: **Why** carries the triggering workload, its impact and the evidence, and **Instead** the fix direction.
 
-If nothing clears the threshold, report "No performance findings" — don't pad.
+With nothing over the threshold, Findings is `none`.
 
 ## See also
 
 - `correctness-review` for behavior changes caused by timeouts, limits, or concurrency
 - `architecture-review` for boundary and ownership changes behind performance fixes
+- `principles` for the review report a hot spot goes in
 
 ## Red flags
 

@@ -24,22 +24,16 @@ Size the area so each reader can read its relevant paths in full. Divide a large
 
 ## Output
 
-State the revision and inspected scope. Per finding: dimension, `file:line`, the concrete consequence, source evidence, and fix direction, labeled with `review`'s severity scale read without merge: **Critical** is a security hole, data loss, or broken behavior now; **Fix** is a real defect or convention violation. For each unresolved case, say what would settle it.
+State the revision and inspected scope, then report in the review report shape from `principles`. Each finding's **Rule** names its dimension and the rule it breaks, and its **Why** the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
 
-End with one row per dimension:
-
-| Dimension | Status | Findings | Reason |
-|-----------|--------|----------|--------|
-| Design | findings / clear / not_applicable / incomplete | 0 | |
-| Correctness | findings / clear / not_applicable / incomplete | 0 | |
-
-`clear` requires reading the relevant paths in full, not a search. `not_applicable` and `incomplete` each need a reason. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
+`## Clean` lists every dimension, each as `clear`, `not_applicable` or `incomplete`; the last two each need a reason. `clear` requires reading the relevant paths in full, not a search. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
 
 ## See also
 
 - `review` for judging a diff or PR
 - the dimension skills step 2 spawns, for each dimension's depth
 - `simplify` for acting on structural findings once the user requests the work
+- `principles` for the review report the audit's findings follow
 
 ## Red flags
 

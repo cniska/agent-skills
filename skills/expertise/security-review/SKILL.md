@@ -59,20 +59,21 @@ Only report findings with a concrete attack path, trust-boundary failure, or uns
 2. Classify each: local-only, authenticated, remote-accessible, privileged.
 3. Check validation, authorization, safe defaults at each boundary. For large audits, fan out **fast-tier** readers — one per boundary or subsystem — to collect raw candidates. Verify each against the code before reporting.
 4. Identify exploitable paths (read, write, execute, network, persist).
-5. Report findings by severity, Critical first.
+5. Report each exploitable path found.
 
 ## Output
 
-For each attack path: **label** (Critical / Fix / Consider / Nit), **affected files**, **attack/failure path** (who can reach it), **why risky**, **fix**, **test idea**. Severity follows reachability: Critical = reachable by remote unauthenticated input; Fix = authenticated or same-network; Consider/Nit = requires local access or defense-in-depth.
+Report each attack path in the review report shape from `principles`: **Where** lists the affected files, **Why** the attack or failure path and who can reach it, and **Instead** the fix and a test that would prove it. Severity follows reachability: **critical** is reachable by remote unauthenticated input, **major** needs authentication or the same network, **minor** needs local access or is defense-in-depth.
 
 - Reject: "The WebSocket uses WS not WSS — should be encrypted." (no reachable attack path)
-- Report: **Critical** — `server.ts:42` binds `0.0.0.0` with `auth:false` by default; any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).
+- Report, as critical: **Why:** `server.ts:42` binds `0.0.0.0` with `auth:false` by default, so any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).
 
-Group as **Confirmed findings** | **Open questions** | **Optional hardening** (max 3, one line each, only where an abuse path is plausible; omit if empty). "No security findings" is a valid result.
+Findings `none` is a valid result.
 
 ## See also
 
-- `review` for merge gating and severity framing
+- `review`, which runs this review on a branch beside the others
+- `principles` for the review report an attack path is written in
 
 ## Red flags
 

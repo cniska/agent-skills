@@ -45,17 +45,18 @@ Flag a bug only with a concrete trigger: name the input or sequence and the wron
 
 ## Output
 
-For each bug: **label** (Critical / Fix / Consider / Nit), **file**, **the bug**, **triggering input → wrong result**, **fix direction**.
+Use the review report from `principles`. Each bug's **Rule** is its Scope bucket, its **Why** the triggering input and the wrong result it gives, and its **Instead** the fix direction.
 
 - Bad: "This function looks fragile and could misbehave." (no trigger)
-- Good: **Critical** — `pricing.ts:40` `applyDiscount` uses `>` not `>=`, so an order exactly at the threshold gets nothing (total 100, threshold 100 → 0% instead of 10%).
+- Good: **Why:** `pricing.ts:40` `applyDiscount` uses `>` not `>=`, so an order exactly at the threshold gets nothing (total 100, threshold 100 → 0% instead of 10%).
 
-Order Critical → Fix → Consider → Nit. If nothing breaks under a concrete input, report "No correctness findings" — don't invent worries.
+If nothing breaks under a concrete input, Findings is `none` — don't invent worries.
 
 ## See also
 
 - `test-review` for whether the bug's absence is guarded by a test
 - `debug` for reproducing and root-causing a confirmed bug
+- `principles` for the review report a bug is filed in
 
 ## Red flags
 

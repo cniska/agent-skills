@@ -38,7 +38,7 @@ readonly MISSING_REASON="End your report with a last line that is exactly 'Verdi
 MISSING="$(refused "$MISSING_REASON")"
 MISSING_AT_STOP="$(blocked "$MISSING_REASON")"
 readonly MISSING MISSING_AT_STOP
-readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is four bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
+readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 NO_SECTIONS="$(refused "The report lacks a section. $SHAPE")"
 WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE")"
 readonly REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
@@ -101,7 +101,7 @@ record_last_message() {
 
 sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\nnone\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}"; }
 report() { printf '%s\nRepo: %s\nVerdict: %s' "$(sections)" "$1" "$2"; }
-finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Why:** unused.\n- **Instead:** delete it.'; }
+finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Severity:** minor\n- **Why:** unused.\n- **Instead:** delete it.'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
 land() { (cd "$repo" && git add -A && git commit -q -m land); }
 

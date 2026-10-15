@@ -43,30 +43,31 @@ Check where the codebase already has a clear local pattern:
 
 ## Evidence threshold
 
-Sections 1 and 3 require evidence of a local convention — cite the nearby code that establishes it. Sections 2 and 4 are default checks that apply without repo evidence, but cap them at **Consider** unless a documented convention elevates them. Never report a default check as must-fix.
+Sections 1 and 3 require evidence of a local convention — cite the nearby code that establishes it. Sections 2 and 4 are default checks that apply without repo evidence, but rate them **minor** unless a documented convention raises them.
 
-A suppression comment is the exception: the comment rule refuses it, so label it **Fix**.
+A suppression comment is the exception: the comment rule refuses it, so rate it **major**.
 
 ## Workflow
 
 1. Identify local style conventions from nearby code.
 2. Compare against repo-wide documented conventions.
 3. Find concrete deviations with evidence.
-4. Report findings ordered by severity.
+4. Report each deviation with its evidence.
 
 ## Output
 
-For each departure from convention: **label** (Critical / Fix / Consider / Nit), **file**, **violated convention**, **evidence** (cite both the offending line and the code that establishes the convention), **fix direction**.
+Follow the review report in `principles`. For each departure from convention, **Rule** names the convention, **Why** cites both the offending line and the code that establishes the convention, and **Instead** gives the fix direction.
 
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
-- Good: **Fix** — `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`). Rename to `fetchUserData`.
+- Good: **Why:** `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`).
 
-Order Critical → Fix → Consider → Nit. If nothing clears the threshold, report "No maintainability findings" — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
+If nothing clears the threshold, Findings is `none` — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
 
 ## See also
 
 - `design-review` and `code-writing` for the rules that hold regardless of local convention
 - `simplify` for performing the cleanups this review identifies
+- `principles` for the review report every departure is given in
 
 ## Red flags
 
