@@ -30,12 +30,15 @@ not_pulled() {
   printf '%s not pulled: %s\n\n' "$1" "$2"
 }
 
+tracked() {
+  git -C "$(dirname -- "$1")" ls-files --error-unmatch -- "$(basename -- "$1")" >/dev/null 2>&1
+}
+
 pull_file() {
   local label="$2"
-  local dir name
+  tracked "$1" || return 0
+  local dir
   dir="$(dirname -- "$1")"
-  name="$(basename -- "$1")"
-  git -C "$dir" ls-files --error-unmatch -- "$name" >/dev/null 2>&1 || return 0
   local upstream
   if ! upstream="$(git -C "$dir" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
     not_pulled "$label" "its branch tracks no remote branch, so the remote may hold a newer copy."
@@ -76,6 +79,13 @@ repo_root() {
   git -C "$(dirname -- "$1")" rev-parse --show-toplevel 2>/dev/null
 }
 
+pulled_with() {
+  tracked "$1" || return 1
+  local root
+  root="$(repo_root "$2")" || return 1
+  [ "$root" = "$(repo_root "$1")" ]
+}
+
 print_shared_file() {
   local ledger="$1" shared="$2"
   if [ ! -f "$shared" ]; then
@@ -86,8 +96,7 @@ print_shared_file() {
     return 0
   fi
   printf '\n'
-  local root
-  if ! root="$(repo_root "$shared")" || [ "$root" != "$(repo_root "$ledger")" ]; then
+  if ! pulled_with "$ledger" "$shared"; then
     pull_file "$shared" "Shared file"
   fi
   cat -- "$shared"

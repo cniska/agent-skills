@@ -90,6 +90,21 @@ write_ledger "$scratch/linking/ledgers/loop.md" "[Shared](../LEDGER.md)"
 assert "a ledger linking a shared file takes the shared file's directory" \
   "$(AGENT_LEDGER="$scratch/linking/ledgers/loop.md" path_fn ledger_dir)" "$scratch/linking/ledgers/.."
 
+git init -q --bare -b main "$scratch/x.git"
+git init -q --bare -b main "$scratch/y.git"
+git --git-dir="$scratch/x.git" -c user.name=t -c user.email=t@example.com commit-tree -m init "$(git --git-dir="$scratch/x.git" mktree </dev/null)" >"$scratch/x-root"
+git --git-dir="$scratch/x.git" update-ref refs/heads/main "$(cat "$scratch/x-root")"
+git --git-dir="$scratch/x.git" worktree add -q "$scratch/x-work" main 2>/dev/null
+assert "bare repos side by side resolve to two ledgers" \
+  "$(CLAUDE_PROJECT_DIR="$scratch/x.git" path_fn ledger_path) $(CLAUDE_PROJECT_DIR="$scratch/y.git" path_fn ledger_path)" \
+  "$HOME/.local/share/agent-skills/${scratch//\//-}-x.git/ledger.md $HOME/.local/share/agent-skills/${scratch//\//-}-y.git/ledger.md"
+assert "a bare repo's worktree resolves to the bare repo's ledger" \
+  "$(CLAUDE_PROJECT_DIR="$scratch/x-work" path_fn ledger_path)" "$HOME/.local/share/agent-skills/${scratch//\//-}-x.git/ledger.md"
+
+git -C "$scratch/main" -c protocol.file.allow=always -c user.name=t -c user.email=t@example.com submodule -q add "$scratch/main" mod 2>/dev/null
+assert "a submodule resolves to a ledger of its own" \
+  "$(CLAUDE_PROJECT_DIR="$scratch/main/mod" path_fn ledger_path)" "$HOME/.local/share/agent-skills/${scratch//\//-}-main-.git-modules-mod/ledger.md"
+
 export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com
 unset AGENT_LEDGER XDG_DATA_HOME GIT_SSH_COMMAND
 
@@ -216,17 +231,40 @@ commit_split() {
   git -C "$1" commit -qm "$2"
 }
 
-root="$scratch/split-repo"
-git init -q --bare -b main "$root/remote.git"
-git clone -q "$root/remote.git" "$root/ledger" 2>/dev/null
-commit_split "$root/ledger" "old loop" "old rules"
-git -C "$root/ledger" push -q origin main 2>/dev/null
-git clone -q "$root/remote.git" "$root/other" 2>/dev/null
-commit_split "$root/other" "new loop" "new rules"
-git -C "$root/other" push -q origin main 2>/dev/null
+split_repo() {
+  local root="$scratch/$1"
+  git init -q --bare -b main "$root/remote.git"
+  git clone -q "$root/remote.git" "$root/ledger" 2>/dev/null
+  commit_split "$root/ledger" "old loop" "old rules"
+  git -C "$root/ledger" push -q origin main 2>/dev/null
+  git clone -q "$root/remote.git" "$root/other" 2>/dev/null
+  commit_split "$root/other" "new loop" "new rules"
+  git -C "$root/other" push -q origin main 2>/dev/null
+  printf '%s\n' "$root/ledger"
+}
+
+repo="$(split_repo split-repo)"
 assert "a shared file in the ledger's repo is pulled with it" \
-  "$(AGENT_LEDGER="$root/ledger/ledgers/loop.md" run)" "[Shared](../LEDGER.md)
+  "$(AGENT_LEDGER="$repo/ledgers/loop.md" run)" "[Shared](../LEDGER.md)
 new loop
+
+new rules"
+
+repo="$(split_repo split-offline)"
+git -C "$repo" remote set-url origin "$scratch/split-offline/missing.git"
+assert "a shared file in the ledger's unpulled repo is not fetched again" \
+  "$(AGENT_LEDGER="$repo/ledgers/loop.md" run)" "Ledger not pulled: could not fetch origin/main; it is at least 0 commits behind as of the last fetch.
+
+[Shared](../LEDGER.md)
+old loop
+
+old rules"
+
+repo="$(split_repo split-untracked)"
+printf '[Shared](../LEDGER.md)\nfresh loop\n' >"$repo/ledgers/fresh.md"
+assert "an untracked ledger still has its repo's shared file pulled" \
+  "$(AGENT_LEDGER="$repo/ledgers/fresh.md" run)" "[Shared](../LEDGER.md)
+fresh loop
 
 new rules"
 

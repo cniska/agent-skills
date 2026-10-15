@@ -90,7 +90,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
 - When the ledger's first line links a shared file, it prints that file after the ledger, pulled the same way, so the owner's standing rules survive compaction too.
 - Experiments go in `experiments.jsonl` in the ledger's folder, one line each time one opens or closes, so agent-record can archive them.
-- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.md` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the repo's main checkout path, slashes as dashes, so all of a repo's worktrees read one ledger. The old single `agent-skills/ledger.md` under the state directory is no longer read.
+- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.md` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the git common directory, minus `/.git`, slashes as dashes: the main checkout for a normal repo, the git directory under `.git/modules/` for a submodule, or outside git the project's directory, so all of a repo's worktrees read one ledger. The old single `agent-skills/ledger.md` under the state directory is no longer read.
 - When the ledger is missing, it prints the path it would read, so a coordinating session creates the ledger there.
 - Set `AGENT_LEDGER` in a project's local settings to keep its ledger elsewhere, such as a file in a repo you choose, so it outlives the machine; never in user settings, which every project reads.
 

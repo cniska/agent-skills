@@ -23,7 +23,10 @@ ledger_project_root() {
   local dir="${CLAUDE_PROJECT_DIR:-$PWD}"
   local common
   if common="$(git -C "$dir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
-    dirname -- "$common"
+    case "$common" in
+      */.git) dirname -- "$common" ;;
+      *) printf '%s\n' "$common" ;;
+    esac
     return
   fi
   if ! (cd -- "$dir" 2>/dev/null && pwd -P); then
