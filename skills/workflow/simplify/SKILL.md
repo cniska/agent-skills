@@ -1,6 +1,6 @@
 ---
 name: simplify
-description: Simplify code by reducing complexity while preserving exact behavior. Use when a review finding names a move, or in the cleanup pass of build or tdd.
+description: Simplify code by reducing complexity while preserving exact behavior. Use when a review finding names a move, or in the refactor step of tdd.
 ---
 
 # Simplify
