@@ -97,6 +97,77 @@ cited_worktrees() {
   done | sort -u
 }
 
+diff_paths() {
+  awk '
+    function flush() {
+      if (path != "" && from != "") print path "\t@" from
+      path = ""
+      from = ""
+    }
+    /^diff --git a\// {
+      flush()
+      rest = substr($0, 14)
+      half = (length(rest) - 3) / 2
+      if (half == int(half) && substr(rest, half + 1, 3) == " b/" && substr(rest, half + 4) == substr(rest, 1, half)) path = substr(rest, 1, half)
+      next
+    }
+    /^rename from / { from = substr($0, 13); print from "\t0"; next }
+    /^copy from / { from = substr($0, 11); next }
+    /^(rename|copy) to / { sub(/^(rename|copy) to /, ""); path = $0; next }
+    path != "" && /^index [0-9a-f]+\.\.[0-9a-f]+/ {
+      split($2, ids, /\.\./)
+      print path "\t" ids[2]
+      path = ""
+      from = ""
+    }
+    END { flush() }'
+}
+
+reviewed_paths() {
+  local transcript file
+  transcript="$(agent_transcript "$1")"
+  [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
+  jq -nrR '
+    [inputs | fromjson? | objects] as $lines
+    | ([$lines[] | select(.type == "user")][0].message.content // ""
+      | if type == "string" then . else [.[]? | .text? // empty] | join("\n") end) as $brief
+    | [$lines[] | select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Read")
+      | .input.file_path? | select(type == "string" and . != "") | select(. as $path | $brief | contains($path))]
+    | unique[]' "$transcript" | while IFS= read -r file; do
+    [ ! -f "$file" ] || diff_paths <"$file"
+  done | sort -u
+}
+
+current_paths() {
+  local repo="$1" path post blob
+  while IFS=$'\t' read -r path post; do
+    [ -n "$path" ] || continue
+    if [[ $post == @* ]]; then
+      post="$(git -C "$repo" rev-parse --verify --quiet "HEAD:${post#@}")" || continue
+    fi
+    if [[ $post =~ ^0+$ ]]; then
+      [ -e "$repo/$path" ] || printf '%s\n' "$path"
+    elif blob="$(git -C "$repo" hash-object -- "$path" 2>/dev/null)" && [[ $blob == "$post"* ]]; then
+      printf '%s\n' "$path"
+    fi
+  done
+}
+
+record_accept() {
+  local state="$1" fingerprint="$2" paths="$3"
+  mkdir -p "$(dirname "$state")"
+  {
+    printf '%s\n' "$fingerprint"
+    {
+      if [ -f "$state" ] && [ "$(accepted_fingerprint "$state")" = "$fingerprint" ]; then
+        accepted_paths "$state"
+      fi
+      printf '%s\n' "$paths"
+    } | sed '/^$/d' | sort -u
+  } >"$state.tmp"
+  mv "$state.tmp" "$state"
+}
+
 returns_file() {
   printf '%s.returns\n' "$(review_state_file "$1")"
 }
@@ -190,7 +261,8 @@ main() {
     return
   fi
 
-  local i state fingerprint counts findings conflicts rules
+  local i state fingerprint counts findings conflicts rules reviewed
+  reviewed="$(reviewed_paths "$input")"
   counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"
   findings="$(jq -c .findings <<<"$counts")"
   conflicts="$(jq -c .conflicts <<<"$counts")"
@@ -199,9 +271,7 @@ main() {
     state="$(review_state_file "${repos[$i]}")"
     fingerprint="$(diff_fingerprint "${repos[$i]}")"
     if [ "${verdicts[$i]}" = accept ]; then
-      mkdir -p "$(dirname "$state")"
-      printf '%s\n' "$fingerprint" >"$state.tmp"
-      mv "$state.tmp" "$state"
+      record_accept "$state" "$fingerprint" "$(current_paths "${repos[$i]}" <<<"$reviewed")"
     fi
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
       --arg reason "${reasons[$i]}" --argjson findings "$findings" \

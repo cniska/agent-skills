@@ -278,6 +278,12 @@ creates_scratch_repo() {
   [ "$count" -eq "$(repo_changes "$prefix")" ]
 }
 
+outside_reason() {
+  local named="$1" pronoun=it
+  [ "$(wc -l <<<"$named")" -eq 1 ] || pronoun=them
+  printf "Commit blocked: the diff cniska-skills:reviewer accepted does not name %s, which this commit carries. Hand the reviewer a diff file that names %s and commit once it ends with 'Verdict: accept', with no edits since." "$(paste -sd ' ' - <<<"$named")" "$pronoun"
+}
+
 unresolved_reason() {
   printf 'Commit blocked: %s is not a repository, so the reviewer verdict for this commit cannot be checked. Name the repository by an absolute path in cd.' "$1"
 }
@@ -362,15 +368,21 @@ main() {
     return
   fi
 
-  local state fingerprint
+  local state fingerprint outside
   state="$(review_state_file "$repo")"
   fingerprint="$(diff_fingerprint "$repo")"
   if [ ! -f "$state" ]; then
     deny "$DENY_REASON" not_accepted "$repo" "$head" "$fingerprint"
-  elif [ "$(cat "$state")" = "$fingerprint" ]; then
-    record allow accepted "$repo" "$head" "$fingerprint"
-  else
+    return
+  elif [ "$(accepted_fingerprint "$state")" != "$fingerprint" ]; then
     deny "$DENY_REASON" changed_since_accept "$repo" "$head" "$fingerprint"
+    return
+  fi
+  outside="$(code_paths "$paths" | sort -u | grep -vxF -f <(accepted_paths "$state") || true)"
+  if [ -n "$outside" ]; then
+    deny "$(outside_reason "$outside")" outside_accept "$repo" "$head" "$fingerprint"
+  else
+    record allow accepted "$repo" "$head" "$fingerprint"
   fi
 }
 

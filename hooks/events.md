@@ -24,12 +24,13 @@ Only a command that runs `git commit` gets a line; the commit gate is silent on 
 
 | Gate | Decision | Reason | When |
 |---|---|---|---|
-| `commit` | `allow` | `accepted` | the diff is the one the reviewer accepted |
+| `commit` | `allow` | `accepted` | the diff is the one the reviewer accepted, and a diff file its reviewers read names every code path it carries with that path's current content |
 | `commit` | `allow` | `no_code_change` | the diff changes only Markdown, or nothing |
 | `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` or `git clone` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |
 | `commit` | `deny` | `changed_since_accept` | an accept is recorded, for another diff |
+| `commit` | `deny` | `outside_accept` | the accepted diff is this one, but the commit carries a changed code path that no diff file its reviewers read names with the path's current content |
 | `commit` | `deny` | `multiple_commits` | the command runs more than one commit |
 | `commit` | `deny` | `repo_created` | the command creates the repository it commits to, by `git init` or `git clone`, with a commit that may land outside a temp directory |
 | `commit` | `deny` | `repo_unclear` | the command reaches its repository in a way the gate cannot follow |

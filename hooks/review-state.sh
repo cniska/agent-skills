@@ -32,8 +32,20 @@ carried_paths() {
   )
 }
 
+code_paths() {
+  printf '%s\n' "$1" | grep -v -e '\.md$' -e '^$' || true
+}
+
 touches_code() {
-  printf '%s' "$1" | grep -v '\.md$' >/dev/null
+  [ -n "$(code_paths "$1")" ]
+}
+
+accepted_fingerprint() {
+  head -n 1 "$1"
+}
+
+accepted_paths() {
+  tail -n +2 "$1"
 }
 
 diff_fingerprint() {

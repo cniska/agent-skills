@@ -80,6 +80,42 @@ handback_line() { assistant_line "$(jq -cn --arg message "$1" '{type: "tool_use"
 read_line() { assistant_line '{"type": "tool_use", "name": "Read", "input": {"file_path": "/x"}}'; }
 text_line() { assistant_line "$(jq -cn --arg text "$1" '{type: "text", text: $text}')"; }
 
+diffs="$scratch/diffs"
+mkdir -p "$diffs"
+changed_in() { git -C "$1" diff --name-only --no-renames HEAD -- 2>/dev/null; git -C "$1" ls-files --others --exclude-standard; }
+diff_in() {
+  local root="$1" path post
+  shift
+  for path in "$@"; do
+    post="$(git -C "$root" hash-object -- "$path" 2>/dev/null)" || post=0000000
+    printf 'diff --git a/%s b/%s\nindex 0000000..%s 100644\n' "$path" "$path" "${post:0:7}"
+  done
+}
+diff_of() {
+  local named root path
+  sed -n 's/^Repo: //p' <<<"$1" | while IFS= read -r named; do
+    root="$(cd "$named" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null)" || continue
+    local paths=()
+    while IFS= read -r path; do paths+=("$path"); done < <(changed_in "$root" | sort -u)
+    diff_in "$root" ${paths[@]+"${paths[@]}"}
+  done
+}
+brief_line() { jq -cn --arg brief "Review the diff in $1." '{type: "user", message: {content: $brief}}'; }
+read_of() { assistant_line "$(jq -cn --arg path "$1" '{type: "tool_use", name: "Read", input: {file_path: $path}}')"; }
+briefed() {
+  local file
+  file="$(mktemp "$diffs/XXXXXX")"
+  printf '%s\n' "$1" >"$file"
+  brief_line "$file"
+  read_of "$file"
+}
+transcript_of() {
+  local file
+  file="$(mktemp "$diffs/XXXXXX")"
+  printf '%s\n' "$1" >"$file"
+  printf '%s\n' "$file"
+}
+
 fresh_agent() {
   local count
   count="$(cat "$scratch/agents" 2>/dev/null || printf '0')"
@@ -88,9 +124,13 @@ fresh_agent() {
   printf 'reviewer-%s\n' "$count"
 }
 
+record_reading() {
+  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${4:-cniska-skills:reviewer}" --arg transcript "$(transcript_of "$3")" \
+    '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: $type, agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
+}
+
 record_as() {
-  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${3:-cniska-skills:reviewer}" \
-    '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: $type, agent_id: $agent, cwd: $cwd}' | "$RECORD" 2>/dev/null
+  record_reading "$1" "$2" "$(briefed "$(diff_of "$2")")" "${3:-}"
 }
 
 record_handback() {
@@ -103,8 +143,10 @@ record_handback() {
 }
 
 record_last_message() {
-  jq -cn --arg cwd "$repo" --arg message "$1" --arg agent "$(fresh_agent)" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>/dev/null
+  local transcript
+  transcript="$(transcript_of "$(briefed "$(diff_of "$1")" && text_line "$1")")"
+  jq -cn --arg cwd "$repo" --arg message "$1" --arg agent "$(fresh_agent)" --arg transcript "$transcript" \
+    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 
 sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\n%s\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}" "${2:-none}"; }
@@ -132,6 +174,51 @@ assert "an accepting verdict records nothing to say" "$(record_handback "$(repor
 assert "an accepted diff commits" "$(gate 'git commit -am x')" ""
 edit app.py 'print(3)'
 assert "an edit after the accept blocks the commit" "$(gate 'git commit -am x')" "$DENIED"
+
+land
+(cd "$repo" && printf 'y = 1\n' >other.py && git add other.py && git commit -q -m other)
+edit app.py 'print(30)'
+edit other.py 'y = 2'
+outside() {
+  local pronoun=it
+  [ "$#" -eq 1 ] || pronoun=them
+  refused "Commit blocked: the diff cniska-skills:reviewer accepted does not name $*, which this commit carries. Hand the reviewer a diff file that names $pronoun and commit once it ends with 'Verdict: accept', with no edits since."
+}
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
+assert "an accept of one file's diff does not let a commit carry another changed file" "$(gate 'git commit -am x')" "$(outside other.py)"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
+assert "a second accept of the same tree adds the paths of the diff it read" "$(gate 'git commit -am x')" ""
+edit app.py 'print(32)'
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff")" >/dev/null
+assert "an accept by a reviewer that read no diff file approves no code" "$(gate 'git commit -am x')" "$(outside app.py other.py)"
+edit app.py 'print(33)'
+diff_in "$repo" app.py other.py >"$diffs/unbriefed.diff"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff" && read_of "$diffs/unbriefed.diff")" >/dev/null
+assert "a diff file the reviewer read that the brief does not name approves no code" "$(gate 'git commit -am x')" "$(outside app.py other.py)"
+stale="$(diff_in "$repo" app.py other.py)"
+edit app.py 'print(34)'
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")" >/dev/null
+assert "a diff file whose new content is not the path's content now does not approve that path" "$(gate 'git commit -am x')" "$(outside app.py)"
+first="$(transcript_of "$(diff_in "$repo" app.py other.py)")"
+record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$first" && read_of "$first")" >/dev/null
+edit app.py 'print(35)'
+fix="$(transcript_of "$(diff_in "$repo" app.py)")"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix" && read_of "$fix")" >/dev/null
+assert "a re-review that read only the fix's diff does not cover the rest of the commit" "$(gate 'git commit -am x')" "$(outside other.py)"
+edit app.py 'print(36)'
+fix="$(transcript_of "$(diff_in "$repo" app.py)")"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix $first" && read_of "$fix" && read_of "$first")" >/dev/null
+assert "a re-review that read the fix's diff and the commit's earlier one lets the commit through" "$(gate 'git commit -am x')" ""
+land
+(cd "$repo" && git mv other.py renamed.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff -M HEAD)")" >/dev/null
+assert "an accept of git's own diff of an unedited move covers both paths" "$(gate 'git commit -m x')" ""
+land
+(cd "$repo" && git mv renamed.py other.py && printf 'y = 3\n' >>other.py && git add other.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff -M HEAD)")" >/dev/null
+assert "an accept of git's own diff of an edited move covers both paths" "$(gate 'git commit -m x')" ""
+land
+edit app.py 'print(31)'
 
 record_handback "$(report "$repo" accept)" >/dev/null
 (cd "$repo" && printf 'x = 1\n' >new.py)
@@ -219,7 +306,7 @@ assert "a text end after a block is judged by the text, not the earlier hand-bac
 assert "a text end after a resume is judged by the text, not the earlier hand-back" "$(stop_late 'Looking again.' text_line 'Looking again.')" "$MISSING_AT_STOP"
 
 record_handback "$(report "$repo" return)" >/dev/null
-text_line "$(report "$repo" accept)" >"$transcript"
+{ briefed "$(diff_of "$(report "$repo" accept)")" && text_line "$(report "$repo" accept)"; } >"$transcript"
 assert "a text end with no last message is judged by its final text" "$(stop_on)" ""
 assert "that text accept lets the diff commit" "$(gate 'git commit -am x')" ""
 
@@ -487,8 +574,8 @@ gate_logged() {
 }
 
 record_logged() {
-  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" \
-    '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: "cniska-skills:reviewer", cwd: $cwd}' | "$RECORD" 2>/dev/null
+  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" --arg transcript "$(transcript_of "$(briefed "$(diff_of "$1")")")" \
+    '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 reviewer=r1
 
