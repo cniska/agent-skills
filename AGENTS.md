@@ -12,7 +12,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 - Name capability tiers (`fast` / `balanced` / `powerful`), never specific models.
 - The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, `## Red flags`, every link resolving inside the skill's own directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
 - Add guidance only for friction that repeats in real use; prefer trimming to growing.
-- After a material change to a skill, dry-run it on unlike real repos (the `skill-writing` skill) before pushing.
+- After a material change to a skill, dry-run it on unlike real repos (the `skill-writing` skill) before landing.
 
 ## Code
 
@@ -27,6 +27,7 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 
 ## Commits
 
-- Commit directly to `main` — no branch or PR.
-- Push each commit to `main` once validate, test and lint pass and a fresh reviewer accepts it; that accept is the owner's standing sign-off, so no push waits on them.
+- Work on a topic branch in its own worktree, never on `main`; no pull request in this repo.
+- Commit each slice once validate, test and lint pass and a fresh reviewer accepts it, and push the branch after each commit.
+- Land by rebasing on `origin/main` and fast-forwarding `main` to the branch once `review` accepts the whole branch, then push `main`; that accept is the owner's standing sign-off, so no landing waits on them.
 - Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, under 50 characters.

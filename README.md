@@ -13,11 +13,11 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 
 ## Three loops
 
-- **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed commit, step by step.
+- **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
 - **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment where a signal can read it, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
 
-One task's life, from my request through its landed commit to the workflow changes its coach proposes:
+One task's life, from my request through its landed branch to the workflow changes its coach proposes:
 
 ```mermaid
 flowchart LR

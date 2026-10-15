@@ -14,7 +14,7 @@ This installs dependencies, whose `prepare` script points Git at the `.githooks/
 
 ## Development loop
 
-Maintainers with push access commit directly to `main` (see `AGENTS.md`); outside contributors branch and open a PR.
+Maintainers with push access work on a topic branch and fast-forward `main` once it is reviewed (see `AGENTS.md`); outside contributors branch and open a PR.
 
 1. Create a branch from `main`.
 2. Make focused, slice-based changes.

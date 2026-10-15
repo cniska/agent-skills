@@ -19,7 +19,7 @@ These must always hold; break them and the system breaks — often silently.
 2. When behavior and tests diverge, fix the implementation — update expectations only if explicitly asked.
 3. Commit only when explicitly requested.
 4. Keep the spec/canonical doc current — it never lags the code; requirement changes land in the same change.
-5. <Branch/PR vs direct-to-`main` policy: what lands via branch + review, what commits straight to `main`.>
+5. <Landing route: how a reviewed task branch lands — a pull request, or straight onto `main` by fast-forward or merge.>
 
 ## Commits
 

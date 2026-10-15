@@ -22,7 +22,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - working directory is clean (`git status`)
    - branch has commits ahead of `main` (`git log main..HEAD --oneline`)
    - project verification passes (run the project's test/lint/typecheck command)
-2. **Run the review skill** (if available):
+2. **Have `review` accept the branch** as it stands, by a fresh agent, unless it already has:
    - if it returns any finding, stop and report them — do not create the PR
 3. **Gather context**:
    - read `.github/pull_request_template.md` if it exists

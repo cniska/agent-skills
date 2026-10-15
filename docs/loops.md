@@ -4,7 +4,7 @@ The workflow runs in three loops. The [README chart](../README.md#three-loops) f
 
 ## The inner loop
 
-One agent runs one task, from its route to a landed commit.
+One agent runs one task, from its route to a landed branch.
 
 ```mermaid
 flowchart LR
@@ -41,10 +41,10 @@ flowchart TD
   lead -- "a line per worker, its brief" --> ledger[("Ledger")]
   lead -- "batched questions, report" --> you
   lead -- "the brief" --> worker["Worker runs the task route"]
-  worker -- "each commit's diff" --> reviewer["Fresh reviewer"]
+  worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
   reviewer -- "accept, or return with findings" --> worker
-  worker -- "accepted commit" --> push["Push to the remote"]
-  push -- "the landed task's sessions" --> coach["Coach"]
+  worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
+  land -- "the landed task's sessions" --> coach["Coach"]
   coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
   lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
   exp -- "past its check date: signals before and after, in the coach's next brief" --> coach

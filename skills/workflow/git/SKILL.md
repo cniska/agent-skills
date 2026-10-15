@@ -7,7 +7,7 @@ description: Manage commits, branches, and change history. Use when committing, 
 
 Commits are save points, branches are disposable, history is read later by people who weren't there. Treat them accordingly.
 
-The project's own conventions override everything below, and that includes cadence and branching, not just message format. `AGENTS.md` or a contributing guide states them; where neither mentions the subject, `git log` is the authority — read the recent subjects and match what the project does, including whether it branches at all and whether an agent may run write commands unasked.
+The project's own conventions override everything below on message format, cadence, branch naming and how a branch lands; a topic branch per task, landed whole, holds in every project. `AGENTS.md` or a contributing guide states them; where neither mentions the subject, `git log` is the authority — read the recent subjects and match what the project does, including how a branch lands and whether an agent may run write commands unasked.
 
 ## Commit messages
 
@@ -28,7 +28,7 @@ Separate refactoring from feature work. Separate formatting from behavior change
 
 ## Branch workflow
 
-- Branch when the change needs review or outlives a sitting. Where the project states nothing either way, its log answers: a history of squash-merged pull requests means branch; a history of direct commits to the integration branch means a small fix can go straight there.
+- Every task gets a topic branch of its own and lands whole, never commit by commit. How it lands is the project's: where its rules say nothing, its log answers, squash-merged pull requests meaning a pull request and a linear run of direct commits meaning straight onto the base.
 - Start task branches from the current integration base; `git symbolic-ref refs/remotes/origin/HEAD` names it, and on a project with release lines it is often not `main`. Fetch first rather than updating a shared primary checkout.
 - Name a topic branch for the work, with dashes and no type or ticket prefix, e.g. `signal-toolkit`, not `feat/signal-toolkit` or `PROJ-12-signal-toolkit`.
 - Keep branches short-lived — merge within days, not weeks.
@@ -38,11 +38,11 @@ Separate refactoring from feature work. Separate formatting from behavior change
 - Use `--force-with-lease` over `--force`.
 - Never use `git -C <path>` — always `cd` into the target first. It hides the real working directory and risks operating on the wrong repo.
 - Land PRs with the repo's configured merge method. When none is set, default to squash — keeps history linear, one merge commit per PR.
-- After a PR merges, prune the branch locally and on the remote, then `git fetch --prune` to clear stale tracking refs.
+- After a branch lands, by pull request or straight onto the base, prune it on the remote and here, then `git fetch --prune` to clear stale tracking refs.
 
 ## Worktrees
 
-Where a project uses them: a worktree is a throwaway checkout for one branch, created fresh per task, run from its own directory, and removed once the branch merges or is abandoned — never with uncommitted changes in it. Follow repository-specific worktree commands when they exist; they determine the task's base. `git worktree list` before creating or removing one, and `git worktree prune` when one is gone outside Git and has left stale metadata behind.
+A worktree is a throwaway checkout for one branch, created fresh per task, run from its own directory, and removed once the branch merges or is abandoned — never with uncommitted changes in it. Follow repository-specific worktree commands when they exist; they determine the task's base. `git worktree list` before creating or removing one, and `git worktree prune` when one is gone outside Git and has left stale metadata behind.
 
 ## See also
 
