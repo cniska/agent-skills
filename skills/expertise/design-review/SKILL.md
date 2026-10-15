@@ -31,13 +31,7 @@ Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b
 
 ## Judge
 
-For each violation, give:
-
-- **Where:** `file:line`, and every other place with the same violation.
-- **Rule:** the rule's heading.
-- **Severity:** critical, major or minor.
-- **Why:** why it is wrong here, in one sentence about this code, not a restatement of the rule.
-- **Instead:** the shape the code should take, concrete enough to build from. When the answer is to delete the code, say delete.
+Give each violation as a finding in the review report shape `principles` holds. Its **Why** says why the code is wrong here, in one sentence about this code, not a restatement of the rule; its **Instead** is the shape the code should take, concrete enough to build from, and says delete when deleting the code is the answer.
 
 When the fix can be a structure, it is one, preferred in this order: a type that cannot hold the bad state, a check that fails the build, one shared helper, a runtime assertion. Agents copy what the surrounding code does, so a weaker guard becomes the next template.
 
@@ -49,7 +43,7 @@ Order the findings by reach: first a design every new case of the same kind, suc
 
 ## Report
 
-Report in the shape the review report in `principles` gives, each finding as the Judge bullets above.
+Report in the review report shape from `principles`.
 
 ## See also
 
