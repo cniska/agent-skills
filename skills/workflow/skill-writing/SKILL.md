@@ -1,6 +1,6 @@
 ---
 name: skill-writing
-description: Create, fix or update a skill, matching the conventions of the set it belongs to, and dry-run it on unlike real repos. Use when authoring a new skill, amending an existing one, or testing a changed skill before landing it.
+description: Create, fix or update a skill, matching the conventions of the set it belongs to. Use when authoring a new skill, amending an existing one, or checking whether a skill is needed or missing a rule.
 ---
 
 # Skill writing
@@ -19,14 +19,15 @@ Two modes, inferred from the request:
 3. **Write to the conventions**: imperative body, terse, `description` starts with a verb and says when to use it; reference other skills by bare name, never by path; match the sibling's section order and lead-in style. Keep only what changes what the model does: for each line, ask whether the model would act differently without it, and cut what it already knows, such as a standard catalog or a textbook method. Keep project specifics out: a skill states what holds in any repo and defers the rest to the repo's own rules.
 4. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate what changed, and, where the repo has a trigger check, that skill's trigger prompts ([evals](references/evals.md)).
 5. **Validate** with the repo's validator.
-6. **Dry-run before landing**: for any material change, read and run [the dry run](references/dry-run.md) on unlike real repos, and fold convergent fixes back in. A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) can skip the dry-run.
-7. **Score on evals**, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md).
-8. **Commit** the way the repo's rules say, only once the user gives the go.
+6. **Score on evals** for any material change, where the repo has cases for the skill: the committed skill as champion against the change as challenger, and a new case when the change adds a rule a model breaks without the skill. Read [evals](references/evals.md). A change is material if it alters what the skill detects, flags, or produces — even one bullet — not if it merely reads that way; a wording-only fix with no behavioral change (typo, link, terminology) needs no scoring.
+7. **Commit** the way the repo's rules say, only once the user gives the go.
+8. **Check it in real use** once it lands, where the host has the signals: the session record's skill loads by version, and a coach's experiment record with a check date for the change. `workflow-review` judges the change by them; where neither exists, the evals are the only check.
 
 ## See also
 
 - `principles` — no drift, for the description, index and siblings a change leaves stale
 - `search-sessions` — evidence that a friction repeats across sessions before adding guidance for it
+- `workflow-review` — keeps or reverts a landed change by its real-use signals
 
 ## Red flags
 
@@ -34,13 +35,7 @@ Two modes, inferred from the request:
 - A project's commands, paths, branches or names written into a skill
 - Inventing a new structure instead of cloning the closest sibling
 - Blind-appending a rule on update instead of merging and trimming duplicates
-- Landing a materially changed skill without the dry run, or because it reads well
-- Treating a small diff as automatically non-material — a single new bullet can change what a skill flags
-- Dry-run repos that rhyme — same stack, same shape, same conventions
-- A dry-run prompt that says it is a test or names the skill to load
-- Grading a run from what the runner reports rather than from the files its log shows it opened
-- Judging the new version with no baseline, or under labels that say which version is new
-- A dry run in a checkout that can push, an output landed from it, or the version under test installed where other sessions read skills
-- Growing a skill with rules for one-off friction instead of trimming, or leaving friction that converged across repos unfixed
+- Treating a small diff as automatically non-material, so it skips eval scoring — a single new bullet can change what a skill flags
+- Growing a skill with rules for one-off friction instead of trimming, or leaving friction that repeats in real use unfixed
 - Restating what the model already knows, such as a smell catalog or a well-known method, where it would act the same without it
 - Referencing another skill by path instead of bare name
