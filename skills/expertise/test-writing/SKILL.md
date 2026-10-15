@@ -13,7 +13,7 @@ Write each test against a bug it would catch, in the repo's own suite, and watch
 2. **Read the existing suite.** Use its runner, layout, fixtures, helpers, and naming. Add a new helper or fixture only when none fits.
 3. **Pick the lowest level that observes the behavior** through the interface its caller uses. Go up a level only when the behavior lives in the wiring between parts.
 4. **Write it.** One behavior per test, named for that behavior in plain terms.
-5. **Prove it can fail.** Break the code the test guards — delete the check, flip the condition — and watch it go red for the reason named in step 1. Restore and watch it pass. A test that passes either way documents the behavior without holding it.
+5. **Prove it can fail**, as proven able to fail in `principles` says: watch it go red for the reason named in step 1, then pass on the change. A test that passes either way documents the behavior without holding it.
 6. **Run the repo's own check** — what CI runs, or its test, typecheck, and lint scripts when there is no CI. Report any test that could not be run, and any failure unrelated to the tests as separate from them.
 
 ## Existing behavior
@@ -54,6 +54,7 @@ Use synthetic data, never production records, personal data, real credentials, o
 - `tdd` for driving new behavior test-first
 - `test-review` for judging whether tests are adequate
 - `debug` for reproducing a defect before writing its regression test
+- `principles` for proven able to fail
 
 ## Red flags
 

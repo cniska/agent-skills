@@ -11,7 +11,7 @@ A principle that more than one skill needs lives here once, so every skill that 
 |---|---|---|
 | No comments | The why lives in names, tests, tool config or the owning doc, never in a comment | [no-comments.md](references/no-comments.md) |
 | Chesterton's Fence | Find out why something exists before removing or changing it | [chestertons-fence.md](references/chestertons-fence.md) |
-| Proven able to fail | Break a check once and watch it go red before trusting it | [proven-able-to-fail.md](references/proven-able-to-fail.md) |
+| Proven able to fail | Watch a check go red once before trusting it; prove a test in a temporary worktree, never the working tree | [proven-able-to-fail.md](references/proven-able-to-fail.md) |
 | Fix the cause | Remove the state that causes a failure, never guard in front of it | [fix-the-cause.md](references/fix-the-cause.md) |
 | No transitional architecture | Replace, migrate and remove; never keep the old path alive beside the new | [no-transitional-architecture.md](references/no-transitional-architecture.md) |
 | Rules as checks | A mechanical rule is a type, lint, test or hook, not a sentence | [rules-as-checks.md](references/rules-as-checks.md) |
@@ -25,7 +25,7 @@ A principle only one skill uses stays in that skill. It moves here when a second
 
 - `design-review`, which cites these principles behind its findings
 - the other review skills and `audit`, which report in the review report shape
-- `code-writing`, `simplify`, `debug`, `deprecation`, `docs`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply
+- `code-writing`, `simplify`, `debug`, `test-writing`, `deprecation`, `docs`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply
 
 ## Red flags
 

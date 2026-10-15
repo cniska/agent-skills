@@ -26,6 +26,6 @@ A test in the project's suite reads the spec and the acceptance test files, and 
 - a criterion cites no requirement, or one the spec does not hold;
 - an FR, NF or domain-family requirement is cited by no criterion.
 
-Before relying on it, break the spec once for each condition above and watch the check fail.
+Before relying on it, break the spec once for each condition above inside a temporary worktree and watch the check fail there.
 
 With the check in place, IDs follow SKILL.md's rule for a spec that has one.

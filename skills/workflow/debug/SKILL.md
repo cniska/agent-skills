@@ -14,7 +14,7 @@ When something breaks, stop building. Preserve evidence, diagnose the root cause
 3. **Localize.** Which layer, which change (`git bisect` where some command tells a good commit from a bad one), and whether the test, the code, or the environment is wrong — where behavior and a test diverge, the implementation is fixed unless the owner says the test is wrong; check the runtime and toolchain against what the project declares before blaming the code, and check what the tools you call actually promise. For bugs that span multiple files, spawn a **fast-tier** reader to collect raw evidence — the failing test, the relevant code paths, recent git log for affected files — then analyze in this session. For non-obvious root causes, switch to a **powerful-tier** model before the analysis pass.
 4. **Reduce.** Strip to the minimal failing case.
 5. **Fix the root cause**, as fix the cause in `principles` says.
-6. **Guard against recurrence (Prove-It).** Write a test that fails without the fix and passes with it; confirm both. Where the guard is not a test — a lint rule, a CI step, a config check — say so and add that instead. Standing up a test harness the project lacks is its own change, not part of this one.
+6. **Guard against recurrence (Prove-It).** Write a test that passes with the fix and is proven able to fail without it, as `principles` says. Where the guard is not a test — a lint rule, a CI step, a config check — say so and add that instead. Standing up a test harness the project lacks is its own change, not part of this one.
 7. **Verify end-to-end.** Run the project's own commands, the ones CI runs: the specific test, then the full suite. Where there is no suite, or running it costs real money, network, or hardware you don't have, name the cheaper check you ran in its place rather than claiming verification you skipped.
 
 ## Treating error output as data
@@ -27,7 +27,7 @@ If root cause turns out to be "this whole approach is wrong" — stop debugging 
 
 ## See also
 
-- `principles` — fix the cause
+- `principles` — fix the cause, and proven able to fail
 - `tdd` — the Prove-It pattern here is red-green-refactor applied to a bug fix rather than new behavior
 - `correctness-review` and `explain-diff` — reach for this skill when either surfaces a bug that needs root-causing rather than just flagging
 - `plan` — when the root cause is design-level, stop debugging and invoke this instead
