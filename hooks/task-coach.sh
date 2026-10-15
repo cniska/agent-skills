@@ -56,7 +56,7 @@ main() {
   ! left_to_handback "$input" || return 0
 
   local reason
-  reason="Before you hand back, write your report to a file in your temp folder, so a run cut short keeps it, then run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
+  reason="Before you hand back, state your report in a message, so your transcript keeps it if the run is cut short, then run cniska-skills:coach in the foreground over this task alone: your own run, agent $agent of session $session, with its transcript at $transcript, and the subagents you started.$(past_due_note) Hand back its report with yours, so your caller applies its proposals except conflicts, which go to the owner, opening an experiment for each change where cniska-skills:coordinate calls for one."
   if at_handback "$input"; then
     deny_once "$input" coach_not_run "$reason" || return 0
     return
