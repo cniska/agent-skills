@@ -10,7 +10,7 @@ Each finding costs one of these:
 |---|---|
 | Waiting | The owner answers a question a repo rule already settles; a worker idles on a reviewer |
 | Rework | A return, a revert, a commit redone |
-| Stranded work | An accepted commit not landed when the repo's rule would land it |
+| Stranded work | A branch `review` accepted, not landed when the repo's rule would land it |
 | Needless step | A step that runs on every change and finds nothing; an eval case or check that cannot fail |
 | Lost context | Files read again after compaction because the plan lived only in a message |
 | Escaped defect | A bug found after landing that a review or check should have caught |
