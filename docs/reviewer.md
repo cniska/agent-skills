@@ -10,10 +10,9 @@ The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [c
 
 ## Findings
 
-Its report has three sections: Findings, Conflicts with a decision I settled, and the rules it checked and found Clean.
+Its report takes the shape every review in the plugin uses, the [review report](../skills/expertise/principles/references/review-report.md) in `principles`.
 
 - Every finding is fixed, so any finding returns the change; it accepts only when Findings is empty.
-- Each finding carries a severity, critical, major or minor, to count how well a change was built the first time; it never decides whether a finding is fixed.
 - The re-review is another fresh agent, given only the fix to judge.
 - A finding about neighboring code also returns the change, so it is fixed in that change, never left in a backlog.
 - A brief that gives it no diff to read is returned as `no_diff`, never accepted on a read of something else.
