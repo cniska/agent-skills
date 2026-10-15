@@ -34,7 +34,7 @@ Every route that changes code runs its own steps between these, and names them w
 
 - **Open:** the task's own worktree and branch, named as the repo names branches, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface.
 - **Challenge:** `second-opinion` on the design the agent proposed, by a `researcher` agent where the host can start one, then `design-review` of the result by a fresh agent.
-- **Close:** `design-review` by a fresh agent on each commit before it is made on the branch; the repo's checks, and its running-app proof where it has one; `review` on the whole branch by one fresh agent, each finding it returns fixed in a commit of its own through the per-commit `design-review`; then land as the repo's rules say.
+- **Close:** `design-review` by a fresh agent on each commit before it is made on the branch; the repo's checks, and its running-app proof where it has one; `review` on the whole branch by one fresh agent, each finding it returns fixed in a commit of its own through the per-commit `design-review`; then land as the repo's rules say, and once the branch has landed, delete it on the remote, remove its worktree, then delete the local branch.
 
 ## Routes
 
