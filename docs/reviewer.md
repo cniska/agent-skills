@@ -2,7 +2,8 @@
 
 A fresh agent that did not write the work runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit, and on the design wherever its shape is open; before a branch lands, another fresh one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built.
 
-- **It judges the way I would in review**, against my design rules: architecture, patterns and code smells.
+- **On each commit it judges the way I would in review**, against my design rules: architecture, patterns and code smells.
+- **On a whole branch it checks correctness and tests**, and each other area the diff touches, as `review` says.
 - **For each problem it states what is wrong and what it should be instead**, so its findings steer the work toward the shape I would have given it.
 - **On how code is built, its verdict wins** over other reviewers.
 
