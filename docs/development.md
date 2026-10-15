@@ -43,6 +43,7 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 - [`format.yml`](../.github/workflows/format.yml) refuses unformatted files in CI.
 - The `pre-commit` hook refuses comments in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang.
 - [`no-comments.yml`](../.github/workflows/no-comments.yml) refuses the same comments in CI.
+- The `pre-push` hook refuses a push carrying a bad subject, a leftover `fixup!`, `squash!` or `amend!` commit, or an added comment, through `.githooks/judge-push`, the script [`commits.yml`](../.github/workflows/commits.yml) and [`no-comments.yml`](../.github/workflows/no-comments.yml) run in CI.
 
 ## Layout
 

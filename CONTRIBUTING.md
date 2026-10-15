@@ -10,7 +10,7 @@ After cloning, run bootstrap once:
 ./scripts/bootstrap.sh
 ```
 
-This installs dependencies, whose `prepare` script points Git at the `.githooks/` commit hooks (commit subject, format and no comments), and runs full validation (`mise run validate`).
+This installs dependencies, whose `prepare` script points Git at the `.githooks/` commit and push hooks (commit subject, format and no comments), and runs full validation (`mise run validate`).
 
 ## Development loop
 
