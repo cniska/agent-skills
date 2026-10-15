@@ -10,7 +10,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 - **Each limit with what it still allows**: a limit such as "stay out of other repos" names what it leaves open, such as reading them for a sibling to clone, so it cuts no step the work needs.
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **Where it works**: a worktree of its own, never a primary checkout, and a temp folder of its own named for its task, never a shared scratchpad's root, so parallel workers cannot overwrite each other's files.
-- **The open obstacles that touch the work**, from the ledger: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
+- **The open obstacles that touch the work**, from the ledger as it stands when the worker starts, not when the brief was written: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
 - **How reviews get recorded**: who runs the reviewer, and what a commit gate needs before the worker may commit.
 - **How the work lands**: the task's branch, landed whole by the repo's own route, and whether the worker or the coordinator lands it.
 - **What to report, and how short**: the outcome, commits, checks, choices the owner did not make, and anything left open, in a line budget.
