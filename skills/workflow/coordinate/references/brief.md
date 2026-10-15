@@ -5,7 +5,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 ## What it holds
 
 - **The repo and the goal**, and every decision the owner settled, stated as the rule, not its history.
-- **The repo's rules to follow**: point at its `AGENTS.md` or `CLAUDE.md` and name only the rules this task is likely to trip.
+- **The repo's rules to follow**: point at its `AGENTS.md` or `CLAUDE.md` and name only the rules this task is likely to trip. For a repo other than the one this session started in, name its instruction file and each of its project skills by path, and tell the worker to read them: a worker starts in this session's project and loads neither.
 - **Each limit with what it still allows**: a limit such as "stay out of other repos" names what it leaves open, such as reading them for a sibling to clone, so it cuts no step the work needs.
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **Where it works**: a worktree of its own, never a primary checkout, and a temp folder of its own named for its task, never a shared scratchpad's root, so parallel workers cannot overwrite each other's files.
