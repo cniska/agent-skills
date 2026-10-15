@@ -242,7 +242,7 @@ record_handback "$(report "$repo" accept)" >/dev/null
 record_handback "$(report "$repo" return)" >/dev/null
 assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$DENIED"
 
-SAME_REVIEWER="$(refused "This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff; this one returned it.' above your verdict.")"
+SAME_REVIEWER="$(refused "This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read as context; this one returned it.' above your verdict.")"
 record_as returner "$(report "$repo" return)" >/dev/null
 assert "an accept from the reviewer that returned keeps it running" "$(record_as returner "$(report "$repo" accept)")" "$SAME_REVIEWER"
 assert "an accept from the reviewer that returned on its second hand-back lets it hand back" "$(record_as returner "$(report "$repo" accept)")" ""
