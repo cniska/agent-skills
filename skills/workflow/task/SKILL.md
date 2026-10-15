@@ -1,6 +1,6 @@
 ---
 name: task
-description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order (a feature plans the design, validates it, then builds). Use at the start of any task that changes code or reviews a change, and again to re-enter its route after context compaction or a host resume or fork. A skill, loaded with the Skill tool; not a host's Task tool.
+description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — on its own branch, loading each step's skill in order (a feature plans the design, validates it, then builds). Use at the start of any task that changes code or reviews a change, and again to re-enter its route after a host resume or fork. A skill, loaded with the Skill tool; not a host's Task tool.
 argument-hint: "<task>"
 ---
 
@@ -10,15 +10,15 @@ A skill runs only when something loads it, and this one is a skill: load it with
 
 ## Pick the route
 
-1. **Read the request and the repo's `AGENTS.md` or `CLAUDE.md`.** The repo's rules win over any step: how it branches, checks and lands. Push or land each accepted commit, as the repo says, before starting the next, so a return strands no commit stacked on one not yet accepted. Where landing waits on the owner's approval, keep going: stack the next accepted commit on the same branch or pull request, and the owner approves the stack. Where the repo lands each commit once accepted, `review` runs on the whole change after the last one lands. A repo skill that covers the task or a step takes its place.
-2. **Match the route by what the task changes**, read from the code it names, not by its wording. A code change always has a route. A change to a skill or agent goes through `skill-writing`, then the per-commit step, `design-review` by a fresh agent, and landing. A task that changes no code, such as a question or a doc edit, goes straight to its own skill.
+1. **Read the request and the repo's rules and conventions**: its `AGENTS.md` or `CLAUDE.md`, `CONTRIBUTING`, recent history and merged pull requests. This skill fixes only three things: a task works on its own branch in its own worktree, commits each slice there once `design-review` accepts it, and lands only after `review` has run on the whole branch in one fresh agent. The repo supplies the rest, and wins over any step: branch naming, whether and when the branch is pushed, rebase or merge onto the default branch, the landing route (a direct merge, a pull request through `pr`, or none) and commit style. Where those leave a choice open, ask the user once instead of guessing; a worker asks whoever coordinates it. A repo skill that covers the task or a step takes its place.
+2. **Match the route by what the task changes**, read from the code it names, not by its wording. A code change always has a route. A change to a skill or agent goes through `skill-writing`, then Close. A task that changes no code, such as a question or a doc edit, goes straight to its own skill.
 3. **Load each step's skill with the Skill tool when the step starts**: this set's skill, not a host skill or tool that shares its name. Skip a step only when its work does not arise, such as `second-opinion` on a design the owner's brief decided rather than one the agent proposed, or one already challenged; a change that looks small still takes every step its work reaches.
-4. **`design-review` runs in a fresh agent that did not write the work**, briefed with the diff or design in a file it reads, written to the worker's own temp folder so a parallel worker cannot overwrite it, and every decision the owner settled, a plan included. Wait for its verdict before going on. A return's findings are all fixed and re-reviewed until accept, which comes only when no finding stands; each re-review is another fresh agent given only the fix's diff, in a new file, never a message to the agent that returned, for `review` as for `design-review`, and the whole-change review stands. On how the code is built, `design-review` wins over other reviewers; any other disagreement, such as a finding that clashes with a settled decision, goes to the owner as a conflict, not a finding.
+4. **`design-review` runs in a fresh agent that did not write the work**, briefed with the diff or design in a file it reads, written to the worker's own temp folder so a parallel worker cannot overwrite it, and every decision the owner settled, a plan included. Wait for its verdict before going on. A return's findings are all fixed and re-reviewed until accept, which comes only when no finding stands; each re-review is another fresh agent given only the fix's diff, in a new file, never a message to the agent that returned, for `review` as for `design-review`, and the earlier review of the whole branch stands. After a third return on one commit, stop and report to whoever coordinates you, or else the owner, rather than fixing again. On how the code is built, `design-review` wins over other reviewers; any other disagreement, such as a finding that clashes with a settled decision, goes to the owner as a conflict, not a finding.
 5. **Re-route when the task changes kind**, and say so.
 6. **Fix every finding in reach rather than filing it**: a review's finding about neighboring code is fixed in the change it returned, and neighboring code found any other way lands in its own commit, through the same commit steps. Another agent's work on the owner's machine is in reach. Only an owner decision, or a change another person owns, goes to the report. Scope decides where a fix lands, inside the change or in its own commit or branch started at once, never whether it lands.
 7. **Stop at a defect in a tool, hook or gate** rather than working around it: when one refuses correct work or misbehaves, report it, with the command and what it said, to whoever coordinates you, or else the owner, and go on only with work it does not block. Rewording a command until a check stops matching it, or reshaping a change to slip past a gate, is a workaround.
 8. **Coach the task once it lands.** A fresh agent always runs `workflow-review` scoped to this task's sessions, yours and your subagents'. A delegated worker hands that review back with its report, for its caller to apply. Otherwise apply its proposals except conflicts, which go to the owner, opening an experiment for each change where `coordinate` calls for one.
-9. **Re-enter the route after context compaction, or when the host resumes or forks the session**: the session still holds its own context, so load `task` again, rebuild the route and step from the checkout (`git worktree list`, `git status`, `git log`), then load the current step's skill, and `code-writing` before any further edit. A plan that lives only in a message goes to the repo first. Picking up another session's work is `coordinate`'s resume, not this.
+9. **Re-enter the route when the host resumes or forks the session**: the session still holds its own context, so load `task` again, rebuild the route and step from the checkout (`git worktree list`, `git status`, `git log`), then load the current step's skill, and `code-writing` before any further edit. A plan that lives only in a message goes to the repo first. Picking up another session's work is `coordinate`'s resume, not this.
 
 ## Report
 
@@ -32,9 +32,9 @@ A skill runs only when something loads it, and this one is a skill: load it with
 
 Every route that changes code runs its own steps between these, and names them where they fall:
 
-- **Open:** the branch or worktree the repo prescribes, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface.
+- **Open:** the task's own worktree and branch, named as the repo names branches, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface.
 - **Challenge:** `second-opinion` on the design the agent proposed, by a `researcher` agent where the host can start one, then `design-review` of the result by a fresh agent.
-- **Close:** `design-review` by a fresh agent on each commit; the repo's checks, and its running-app proof where it has one; `review` on the whole change; then land as the repo's rule says.
+- **Close:** `design-review` by a fresh agent on each commit before it is made on the branch; the repo's checks, and its running-app proof where it has one; `review` on the whole branch by one fresh agent; then land as the repo's rules say.
 
 ## Routes
 
@@ -59,7 +59,7 @@ Every route that changes code runs its own steps between these, and names them w
 - The session that wrote a change running its `design-review`
 - A re-review asked of the reviewer that returned, or a diff file another worker can overwrite
 - Landing past a repo rule that asks the owner first
-- A return left partly fixed, or review stopped before an accept
+- A return left partly fixed, or review stopped before an accept, except to report a third return on one commit
 - A fixable finding left in the report or a backlog
 - Working around a defect in a tool, hook or gate instead of stopping and reporting it
 - Picking up another session's work through this skill instead of `coordinate`'s resume
