@@ -1,20 +1,20 @@
 ---
 name: review
-description: Run all review dimensions against a diff. Use when reviewing a feature branch before merge, a change whose commits already landed, or someone else's PR.
+description: Review a whole change, always for correctness and tests and in each other area only when the diff touches it, and return the findings to whoever ran the review. Use when a feature branch is ready to land, on a change whose commits already landed, or on someone else's PR.
 argument-hint: "[pr-url-or-number | commit-range]"
 ---
 
 # Review
 
-Run all review dimensions against the current branch and produce one unified review. Approve when a change improves overall code health, even if it isn't perfect.
+Review a whole change and return one report of its findings to whoever ran the review. `correctness-review` and `test-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes what it finds.
 
-Two modes: **Self** (no argument, or a commit range) — the current branch's diff against `main`, or, where accepted commits land on `main` one by one, the range of the change's commits; **PR** (URL or number) — someone else's PR. Code already on `main` with no change to bound it is `audit`.
+Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff file the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
 
 ## Scope
 
 Review only the diff, but read enough surrounding code and docs to understand conventions and boundaries.
 
-Do not duplicate the same issue across categories. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
+Do not duplicate the same issue across areas. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
 
 ## Change sizing
 
@@ -26,37 +26,37 @@ Before reviewing, check the diff size:
 
 Refactoring mixed with feature work is two changes. Flag it.
 
+## Areas
+
+| Area | Skill | Runs when |
+|------|-------|-----------|
+| Correctness | `correctness-review` | always |
+| Tests | `test-review` | always |
+| Security | `security-review` | the diff touches hooks, gates, auth, permissions, secrets or input from outside the process |
+| Documentation | `doc-review` | docs change, or behavior a doc describes changes |
+| Performance | `performance-review` | the diff adds work on a hot path, a loop over unbounded data, a query or a network call |
+| Maintainability | `maintainability-review` | the diff changes code |
+| Design | `design-review` | the commits had no per-commit `design-review`, such as someone else's PR |
+| Architecture | `architecture-review` | as Design |
+
 ## Workflow
 
 ### Self
 
-1. Determine diff scope: `git log main..HEAD --oneline` and `git diff main...HEAD --stat`, or `git log` and `git diff --stat` over the given range. If the scope holds no commit, report and stop.
-2. **Get an independent second opinion first.** Spawn a fresh subagent to review the diff independently — it isn't anchored to the author's mental model. Give it the diff, intent, and specific failure modes to probe. Ask for concrete findings with evidence only. Withhold your own read of the diff — hand over conclusions and what comes back is agreement with them. Run it on a **balanced-tier** model.
-3. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
-4. When the diff is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
-5. Run every dimension pass in this session — load each skill (`design-review`, `correctness-review`, `maintainability-review`, `architecture-review`, `doc-review`, `security-review`, `performance-review`, `test-review`) and apply its criteria to the diff, one pass per dimension. Run Design first; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so in that category's output rather than improvising.
-6. Fold in the second opinion's findings. Verify each; discard false positives.
-7. Merge findings: deduplicate, keep strongest framing per root issue.
-8. Label every finding by severity (see below). Fix all findings by default — commit each fix as its own subject-scoped commit.
+1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, or the diff file named. If the scope holds no commit, report and stop.
+2. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
+3. Pick the areas from the table, reading each "Runs when" against the diff.
+4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
+5. Load each picked area's skill and apply its criteria to the diff, one pass per area. Run Design first when it runs; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so under that area rather than improvising.
+6. Merge findings: deduplicate, keep the strongest framing per root issue.
+7. Return the report to whoever ran the review.
 
 ### PR (URL or number)
 
 1. `gh pr view <N>` for metadata; `gh pr diff <N>` for the diff. Read repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
-2. When the PR is wider than you can hold in one read, fan out **fast-tier** sub-agents — one per independent question. Verify findings yourself.
-3. Run every dimension pass (as in Self step 5). Attach evidence to every finding.
-
-## Severity
-
-Label every finding explicitly — an unlabeled finding is ambiguous. This scale is canonical; dimension skills map their labels onto it.
-
-| Label | Meaning |
-|-------|---------|
-| **Critical:** | Blocks merge — security, data loss, broken functionality |
-| **Fix:** | A real defect or convention violation; address before merge |
-| **Consider:** | Does not block merge |
-| **Nit:** | Style preference, minor improvement |
-
-Order output Critical → Fix → Consider → Nit.
+2. Fan out as in Self step 4. Verify findings yourself.
+3. Pick and run the areas as in Self steps 3 and 5. Attach evidence to every finding.
+4. Return the report; post it with `gh pr review` only when asked.
 
 ## Review checks
 
@@ -78,43 +78,28 @@ If the change adds a dependency, check:
 
 ## Migration review
 
-If the change includes database migrations, load `database-design` and check the migration against its rules, filing findings under the dimensions above — a schema defect is a correctness or security finding, not a category of its own. Trace every view and function that joins a changed table.
+If the change includes database migrations, load `database-design` and check the migration against its rules, filing findings under the areas above — a schema defect is a correctness or security finding, not an area of its own. Trace every view and function that joins a changed table.
 
-## Fix policy
+## Report
 
-- **Self:** fix every finding, trivial ones and neighboring code included, each as its own subject-scoped commit, never a backlog entry. Small issues left unfixed accumulate into tech debt. Where a finding is structural rather than a defect — complexity, misplaced logic, indirection — load `simplify` and apply its named moves, one per commit.
-- **PR:** never commit to someone else's branch. Deliver findings as a review (`gh pr review`), or a comment block if asked.
-
-## Output
-
-One section per review dimension (Design, Correctness, Maintainability, Architecture, Documentation, Security, Performance, Tests), noting dimensions with no findings. Always end with this summary table — one row per dimension, counts of findings per severity (Consider and Nit both count as Non-blocking):
-
-| Category | Critical | Fix | Non-blocking |
-|----------|----------|-----|----------|
-| Design | 0 | 0 | 0 |
-| Correctness | 0 | 0 | 0 |
-| Maintainability | 0 | 0 | 0 |
-| Architecture | 0 | 0 | 0 |
-| Documentation | 0 | 0 | 0 |
-| Security | 0 | 0 | 0 |
-| Performance | 0 | 0 | 0 |
-| Tests | 0 | 0 | 0 |
+One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. `## Clean` names every area that ran and what it checked; an area the table skipped is not listed.
 
 ## See also
 
-- the dimension skills step 5 loads, for each dimension's depth
+- the area skills step 5 loads, for each area's depth
 - `audit` for a read-only sweep of code already on the default branch
 - `database-design` for the schema rules a migration is checked against
-- `simplify` for acting on structural findings
+- `principles` for the review report this skill returns
 - `explain-diff` for building the understanding this skill judges against, on a complex or unfamiliar change
 
 ## Red flags
 
 - Reviewing only the diff without reading touched files in context
-- Duplicating the same root issue across categories
+- Skipping correctness or tests, or running an area the diff does not touch
+- Duplicating the same root issue across areas
+- Editing or committing during a review, in any mode
 - Generic cleanup wishlists
 - Speculative issues without evidence
 - Broad rewrite suggestions out of scope
-- "LGTM" without evidence of review
+- An accept while any finding stands, or "LGTM" without evidence of review
 - Softening real issues — if it's a bug, say so directly
-- Accepting "I'll fix it later" — require cleanup before merge

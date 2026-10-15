@@ -54,7 +54,7 @@ Report in the shape the review report in `principles` gives, each finding as the
 ## See also
 
 - `principles` holds the shared principles findings cite
-- `review` runs correctness, tests, docs and security on the same change; run it alongside this review
+- `review` runs correctness, tests and each other area a whole branch touches, and this review too where its commits had none
 - `test-review` for how the tests are written, and whether they adapt to the change
 - `simplify` for the named move that fixes a local smell
 - `second-opinion` to challenge a module redesign

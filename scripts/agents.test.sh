@@ -39,7 +39,7 @@ assert "the plugin is named cniska-skills" "$(grep -c '^  "name": "cniska-skills
 assert "the marketplace is cniska and lists cniska-skills" "$(grep -c -e '^  "name": "cniska",$' -e '^      "name": "cniska-skills",$' "$PLUGIN/marketplace.json")" 2
 assert "the agents are coach, researcher and reviewer" "$(find "$AGENTS" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort | tr '\n' ' ')" "coach.md researcher.md reviewer.md "
 assert "reviewer preloads design-review and principles" "$(frontmatter_list "$AGENTS/reviewer.md" skills | tr '\n' ' ')" "cniska-skills:design-review cniska-skills:principles "
-assert "reviewer has only read-only tools" "$(frontmatter_value "$AGENTS/reviewer.md" tools)" "Read, Grep, Glob"
+assert "reviewer reads files and loads the review skills, nothing more" "$(frontmatter_value "$AGENTS/reviewer.md" tools)" "Read, Grep, Glob, Skill"
 assert "coach preloads workflow-review, search-sessions and principles" "$(frontmatter_list "$AGENTS/coach.md" skills | tr '\n' ' ')" "cniska-skills:workflow-review cniska-skills:search-sessions cniska-skills:principles "
 assert "coach reads files and runs the record queries" "$(frontmatter_value "$AGENTS/coach.md" tools)" "Read, Grep, Glob, Bash"
 assert "researcher preloads second-opinion, search-sessions and principles" "$(frontmatter_list "$AGENTS/researcher.md" skills | tr '\n' ' ')" "cniska-skills:second-opinion cniska-skills:search-sessions cniska-skills:principles "

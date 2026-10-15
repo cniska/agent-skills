@@ -32,7 +32,7 @@ If nothing drifted, Findings is `none`.
 
 ## See also
 
-- `review` for cross-dimension merge decisions
+- `review`, which runs this review when docs or the behavior they describe change
 - `pr` for change summaries and issue linkage
 - `principles` for the review report shape a drift takes
 

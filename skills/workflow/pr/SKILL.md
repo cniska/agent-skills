@@ -23,7 +23,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - branch has commits ahead of `main` (`git log main..HEAD --oneline`)
    - project verification passes (run the project's test/lint/typecheck command)
 2. **Run the review skill** (if available):
-   - if there are must-fix findings, stop and report them — do not create the PR
+   - if it returns any finding, stop and report them — do not create the PR
 3. **Gather context**:
    - read `.github/pull_request_template.md` if it exists
    - run `git log main..HEAD --oneline` to see commits
@@ -51,7 +51,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 
 - `writing` — voice and plain wording for the description
 - `git` for commit conventions and rewriting history before push
-- `review` for severity and gating decisions
+- `review` for the findings that hold a PR back
 - `doc-review` for user-facing drift checks before merge
 
 ## Red flags
