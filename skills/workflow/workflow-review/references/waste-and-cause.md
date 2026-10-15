@@ -24,7 +24,7 @@ Ask why the waste happened, then why that happened, until the answer is somethin
 
 ## False stops
 
-A gate that refuses correct work is a defect of the gate, not of the work. The fix goes to the gate, narrowing what it matches or letting it see what it missed, never to a skill line that teaches the agent to work around it.
+A gate that refuses correct work is a defect of the gate, not of the work. The fix goes to the gate, narrowing what it matches or letting it see what it missed, never to a skill line that teaches the agent to work around it. For a gate that fails closed on input it cannot read exactly, such as shell text, reading more of that input is a new way to fail open: keep the refusal and make its message name a form the gate accepts.
 
 ## Missing tools
 
