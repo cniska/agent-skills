@@ -1,22 +1,9 @@
 # Hook events
 
-The plugin's hooks append one JSON object per line to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly. [agent-record](https://github.com/cniska/agent-record) archives the file as a source of its own; the hooks never read the file back. [agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines the signals counted from these lines and how a stop is judged.
+The plugin's hooks append to `events.jsonl` in the plugin's data directory (`$CLAUDE_PLUGIN_DATA`), for the events a session transcript does not show plainly, in the format [agent-record defines](https://github.com/cniska/agent-record/blob/main/SPEC.md#213-hook-events): its fields, kinds and versioning are there, and the hooks write regardless of any reader. This page says only what this plugin writes and when. [agent-record](https://github.com/cniska/agent-record), where installed, archives the file and counts its signals from it; the hooks never read the file back.
 
-- The file is only appended to, one line per decision, and never rewritten.
 - A write fails open: a hook that cannot write the line says so on stderr and decides exactly as it would have.
-- A line never holds a command, a prompt, a tool's input or a report: only the fields below.
-- A field that is unknown is `null`, never missing. A new field may be added to a kind without a new version; a field changes meaning or goes away only with a new `v`.
-
-## Every line
-
-| Field | Value |
-|---|---|
-| `v` | `1`, the format version |
-| `ts` | UTC time, ISO 8601 to the second |
-| `event` | the kind, below |
-| `session` | the session id |
-| `agent` | the id of the subagent the hook fired in, or `null` in the main agent; at `SubagentStop`, the stopping subagent; at `PreToolUse` on `SubagentHandback`, the subagent handing back |
-| `cwd` | the working directory the hook was given |
+- `agent` at `SubagentStop` is the stopping subagent, and at `PreToolUse` on `SubagentHandback` the subagent handing back.
 
 ## Kinds
 
@@ -70,6 +57,11 @@ The reviewer handed back a well-formed verdict, or ended its run with one, and t
 | `repo` | the repository's absolute top level |
 | `fingerprint` | the fingerprint of the diff as it stood when the verdict was recorded |
 | `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
+| `findings` | the findings under `## Findings`, each counted by its `Severity:` as `critical`, `major` or `minor`, and as `unrated` when it has no readable one; `fix` and `consider` are always 0, since the report has no such kinds |
+| `conflicts` | the `- **Where:**` bullets under `## Conflicts` |
+| `rules` | each finding's `**Rule:**` under `## Findings`, one entry per finding that names one |
+
+Finding counts and the rules a review cites are written, so a reader sums them without parsing the report. A report the hook cannot count leaves all three `null`: findings or conflicts written as prose rather than bullets, a count over 1000, or a report naming more than one repository, whose findings no line can claim alone.
 
 ### `permission_prompt`
 
@@ -92,10 +84,18 @@ Auto mode refused a tool call (`PermissionDenied`).
 | `reason` | `rule` (a classifier rule), `unevaluated` (auto mode could not judge the call), `classifier_unavailable` or `other` |
 | `rule` | the classifier rule's name for `rule`, otherwise `null` |
 
+### `tag`
+
+A Read of one of this plugin's own route files, `skills/<kind>/task/references/<route>.md`, tags the task with the route it took (`PostToolUse` on `Read`).
+
+| Field | Value |
+|---|---|
+| `key` | `route` |
+| `value` | the route file's name without `.md`, such as `feature` or `bug-fix` |
+
 ## Left out
 
 - **Pushes.** Git already records each one, from any shell: every push moves the remote-tracking ref and appends `update by push` with its time to that ref's reflog (`git reflog show --date=iso refs/remotes/origin/<branch>`), shared by every worktree of the clone. agent-record reads it there; a hook would have to parse each command for a push and would miss pushes made outside a session.
 - **Token use per agent.** agent-record's `usage` table already holds tokens per session, from the transcripts.
-- **Finding counts and the rules a review cites.** They are in the reviewer's report, which the transcript holds whole.
 - **The coach's report check and the task coach hook.** They only ask for a count line or a coach run; the transcript shows the block.
 - **The answer to a permission prompt.** No hook fires on it, and the transcript holds it.
