@@ -182,7 +182,7 @@ edit other.py 'y = 2'
 outside() {
   local pronoun=it
   [ "$#" -eq 1 ] || pronoun=them
-  refused "Commit blocked: the diff cniska-skills:reviewer accepted does not name $*, which this commit carries. Hand the reviewer a diff file that names $pronoun and commit once it ends with 'Verdict: accept', with no edits since."
+  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers $*, which this commit carries. A diff file covers a path only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is still the path's content. Write the current diff of $pronoun to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept', with no edits since."
 }
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
 assert "an accept of one file's diff does not let a commit carry another changed file" "$(gate 'git commit -am x')" "$(outside other.py)"

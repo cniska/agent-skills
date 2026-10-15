@@ -281,7 +281,7 @@ creates_scratch_repo() {
 outside_reason() {
   local named="$1" pronoun=it
   [ "$(wc -l <<<"$named")" -eq 1 ] || pronoun=them
-  printf "Commit blocked: the diff cniska-skills:reviewer accepted does not name %s, which this commit carries. Hand the reviewer a diff file that names %s and commit once it ends with 'Verdict: accept', with no edits since." "$(paste -sd ' ' - <<<"$named")" "$pronoun"
+  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit carries. A diff file covers a path only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is still the path's content. Write the current diff of %s to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept', with no edits since." "$(paste -sd ' ' - <<<"$named")" "$pronoun"
 }
 
 unresolved_reason() {
