@@ -84,15 +84,6 @@ Auto mode refused a tool call (`PermissionDenied`).
 | `reason` | `rule` (a classifier rule), `unevaluated` (auto mode could not judge the call), `classifier_unavailable` or `other` |
 | `rule` | the classifier rule's name for `rule`, otherwise `null` |
 
-### `tag`
-
-A Read of one of this plugin's own route files, `skills/<kind>/task/references/<route>.md`, tags the task with the route it took (`PostToolUse` on `Read`).
-
-| Field | Value |
-|---|---|
-| `key` | `route` |
-| `value` | the route file's name without `.md`, such as `feature` or `bug-fix` |
-
 ## Left out
 
 - **Pushes.** Git already records each one, from any shell: every push moves the remote-tracking ref and appends `update by push` with its time to that ref's reflog (`git reflog show --date=iso refs/remotes/origin/<branch>`), shared by every worktree of the clone. agent-record reads it there; a hook would have to parse each command for a push and would miss pushes made outside a session.

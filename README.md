@@ -67,7 +67,7 @@ npx skills add cniska/agent-skills
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
 | Coach agent | Coaches each task once it lands, proposing the workflow changes that repeat. |
 | Task coach hook | Runs the coach when a delegated task ends. |
-| Event log | Records gate decisions, verdicts with their finding counts, permission prompts and the route each task took, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
+| Event log | Records gate decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
 ## Skills
 

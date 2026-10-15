@@ -124,7 +124,7 @@ A hand-back hook runs the coach at the end of every delegated task.
 
 The hooks append what a session transcript does not show plainly to `events.jsonl` in the plugin's data directory, in the format [agent-record](https://github.com/cniska/agent-record) defines, for it to archive where installed.
 
-- It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict with its finding counts, each permission prompt, each auto-mode denial and the route each task took.
+- It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict with its finding counts, each permission prompt and each auto-mode denial.
 - A hook that cannot write the line says so on stderr and decides as it would have.
 - [`hooks/events.md`](../hooks/events.md) says what each hook writes.
 
