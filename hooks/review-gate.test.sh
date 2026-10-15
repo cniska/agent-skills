@@ -410,6 +410,9 @@ assert "an accept citing files in both the main checkout and a worktree records"
   "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py and '"$repo"$'/app.py.\nRepo: '"$repo"$'\nVerdict: accept')" ""
 assert "an accept naming the worktree it cites records" \
   "$(record_handback "$(sections)"$'\nRead '"$worktree"$'/app.py.\nRepo: '"$worktree"$'\nVerdict: accept')" ""
+(cd "$repo" && git tag v0.1.0)
+assert "an accept for a worktree citing the repository's git dir records" \
+  "$(record_handback "$(sections)"$'\nRead '"$repo"$'/.git/refs/tags/v0.1.0.\nRepo: '"$worktree"$'\nVerdict: accept')" ""
 
 two_repos() { printf '%s\nRepo: %s\nVerdict: %s\nRepo: %s\n\nVerdict: %s' "$(sections)" "$1" "$2" "$3" "$4"; }
 record_handback "$(two_repos "$worktree" accept "$other" accept)" >/dev/null

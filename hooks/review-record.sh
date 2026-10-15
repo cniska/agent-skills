@@ -85,14 +85,17 @@ verdict_pairs() {
 }
 
 cited_worktrees() {
-  local repo="$1" worktrees path dir
+  local repo="$1" worktrees common path dir
   worktrees="$(git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p')"
+  common="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)"
+  common="$(cd "$common" && pwd -P)"
   { grep -v '^Repo: ' | grep -Eo "/[^[:space:]\`'\"():,]+" || true; } | sort -u | while IFS= read -r path; do
     dir="$path"
     while [ ! -d "$dir" ]; do
       dir="$(dirname "$dir")"
     done
     dir="$(cd "$dir" && pwd -P)" || continue
+    case "$dir/" in "$common"/*) continue ;; esac
     awk -v dir="$dir/" 'index(dir, $0 "/") == 1 && length($0) > length(best) {best = $0} END {if (best != "") print best}' <<<"$worktrees"
   done | sort -u
 }
