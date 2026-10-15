@@ -32,7 +32,7 @@ A skill runs only when something loads it, and this one is a skill: load it with
 
 Every route that changes code runs its own steps between these, and names them where they fall:
 
-- **Open:** the task's own worktree and branch, named as the repo names branches, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface.
+- **Open:** the task's own worktree and branch, named as the repo names branches, and `code-writing` before the first edit, with `database-design` or `ui-design` when the change touches a schema or an interface, and `writing` before the first edit to a doc, spec or rules file.
 - **Challenge:** `second-opinion` on the design the agent proposed, by a `researcher` agent where the host can start one, then `design-review` of the result by a fresh agent.
 - **Close:** `design-review` by a fresh agent on each commit before it is made on the branch; the branch brought current with the remote branch it lands on, by rebase or merge as the repo does it; the repo's checks, and its running-app proof where it has one; `review` on the whole branch by one fresh agent, each finding it returns fixed in a commit of its own, whose one fresh re-review judges the fix against the finding and is that commit's `design-review`; then land as the repo's rules say, stopping for the owner when the change meets a condition those rules set for the owner's approval, and naming it; once the branch has landed, remove its worktree, then delete the branch on the remote if it remains, then the local branch if it remains.
 

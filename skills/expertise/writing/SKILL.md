@@ -22,6 +22,7 @@ Preserve the intended meaning and level of confidence. Remove words or structure
 - Cut marketing language, vague enthusiasm, filler transitions, corporate padding, and summary lines that sound wise but state nothing a reader could check.
 - Name the source behind an attribution or remove the claim. Replace vague claims with a concrete mechanism, result, or example.
 - Prefer plain words and active actors. Split dense sentences; repeat the same term instead of cycling through synonyms.
+- After an edit, re-read each "it", "its", "either", "both" and "above" against what its own sentence and the neighboring sentences now name, and name the thing where more than one fits.
 - Remove forced groups of three, false ranges, ornate metaphors, stock framing phrases, and human traits given to a tool, rule or document ("a sandbox does not skim", "confidently wrong"). Agents and models are real actors.
 - Expand shorthand that drops articles or verbs, and rewrite phrasing bent to stay short ("the test it is failing" for "a failing test"). A concise sentence should still read naturally.
 - Use emphasis, headings, and bullets when they help the reader scan. Avoid emphasis that adds no meaning.
