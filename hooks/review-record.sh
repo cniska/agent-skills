@@ -113,6 +113,13 @@ diff_paths() {
       if (half == int(half) && substr(rest, half + 1, 3) == " b/" && substr(rest, half + 4) == substr(rest, 1, half)) path = substr(rest, 1, half)
       next
     }
+    /^diff --git "a\// {
+      flush()
+      rest = substr($0, 12)
+      half = (length(rest) - 9) / 2
+      if (half == int(half) && half > 0 && substr(rest, half + 4, 5) == "\" \"b/" && substr(rest, half + 9, half) == substr(rest, 4, half) && substr(rest, length(rest)) == "\"") path = "\"" substr(rest, 4, half) "\""
+      next
+    }
     /^rename from / { from = substr($0, 13); print from "\t0"; next }
     /^copy from / { from = substr($0, 11); next }
     /^(rename|copy) to / { sub(/^(rename|copy) to /, ""); path = $0; next }
@@ -142,12 +149,34 @@ reviewed_paths() {
   done | sort -u
 }
 
+unquote_path() {
+  local path="$1"
+  if [[ $path != \"*\" ]]; then
+    printf '%s\n' "$path"
+    return
+  fi
+  path="${path:1:${#path}-2}"
+  printf '%b\n' "$(printf '%s\n' "$path" | awk '{
+    out = ""
+    for (i = 1; i <= length($0); i++) {
+      c = substr($0, i, 1)
+      next_char = substr($0, i + 1, 1)
+      if (c != "\\") out = out c
+      else if (next_char ~ /[0-7]/) { out = out "\\0" substr($0, i + 1, 3); i += 3 }
+      else if (next_char == "\"") { out = out "\""; i++ }
+      else { out = out "\\" next_char; i++ }
+    }
+    print out
+  }')"
+}
+
 current_paths() {
   local repo="$1" path post mode blob head_entry_mode
   while IFS=$'\t' read -r path post mode; do
     [ -n "$path" ] || continue
+    path="$(unquote_path "$path")"
     if [[ $post == @* ]]; then
-      read -r head_entry_mode _ post _ < <(git --literal-pathspecs -C "$repo" ls-tree HEAD -- "${post#@}") || true
+      read -r head_entry_mode _ post _ < <(git --literal-pathspecs -C "$repo" ls-tree HEAD -- "$(unquote_path "${post#@}")") || true
       [ -n "$post" ] || continue
       [ -n "$mode" ] || mode="$head_entry_mode"
     fi

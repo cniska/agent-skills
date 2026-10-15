@@ -18,18 +18,18 @@ diff_base() {
 }
 
 carried_paths() {
+  case "$2" in
+    added | tracked_only) ;;
+    *)
+      printf 'carried_paths: unknown untracked mode %s\n' "$2" >&2
+      return 1
+      ;;
+  esac
   (
     cd "$1" || exit 1
-    git diff --name-only --no-renames "$(diff_base)"
-    case "$2" in
-      added) git ls-files --others --exclude-standard ;;
-      tracked_only) ;;
-      *)
-        printf 'carried_paths: unknown untracked mode %s\n' "$2" >&2
-        exit 1
-        ;;
-    esac
-  )
+    git diff --name-only --no-renames -z "$(diff_base)"
+    [ "$2" = tracked_only ] || git ls-files --others --exclude-standard -z
+  ) | tr '\0' '\n'
 }
 
 code_paths() {

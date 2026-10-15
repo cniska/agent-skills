@@ -256,6 +256,18 @@ as_file="$(git -C "$repo" diff HEAD)"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$as_file")" >/dev/null
 assert "a diff of a file holding a link's target text does not approve the symlink" "$(gate 'git commit -m x')" "$(outside linked.py)"
 land
+(cd "$repo" && printf 'v = 1\n' >"$(printf 'caf\303\251 "q".py')" && git add -A)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" -c core.quotePath=true diff HEAD)")" >/dev/null
+assert "an accept of git's own quoted diff of a non-ASCII path covers it" "$(gate 'git commit -m x')" ""
+land
+(cd "$repo" && git mv "$(printf 'caf\303\251 "q".py')" "$(printf 'd\303\251j\303\240.py')")
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" -c core.quotePath=true diff -M HEAD)")" >/dev/null
+assert "an accept of git's own quoted diff of a non-ASCII move covers both paths" "$(gate 'git commit -m x')" ""
+land
+(cd "$repo" && printf 'u = 1\n' >"$(printf 'a\\101 %% \303\251.py')" && git add -A)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" -c core.quotePath=true diff HEAD)")" >/dev/null
+assert "an accept of git's own quoted diff of a name with a backslash before digits covers it" "$(gate 'git commit -m x')" ""
+land
 edit app.py 'print(31)'
 
 record_handback "$(report "$repo" accept)" >/dev/null
