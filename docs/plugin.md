@@ -88,6 +88,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - The ledger holds what coordinate's ledger step lists, its briefs filed beside it.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
+- When the ledger's first line links a shared file, it prints that file after the ledger, pulled the same way, so the owner's standing rules survive compaction too.
 - Experiments go in `experiments.jsonl` beside it, one line each time one opens or closes, so agent-record can archive them.
 - It lives at `~/.local/state/agent-skills/ledger.md` by default (under `$XDG_STATE_HOME` when that is set to an absolute path).
 - Set `AGENT_LEDGER` to keep it elsewhere, such as a file in a repo you choose, so it outlives the machine.

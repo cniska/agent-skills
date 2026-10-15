@@ -4,7 +4,7 @@ A report tells the owner what is in flight, in the order they act on it. Build i
 
 ## Sources
 
-- **The ledger**, found as rule 4 says.
+- **The ledger**, found as rule 4 says, and the shared file it links, for the owner's decisions and standing rules. Running, landed and at-risk work is this coordinator's own; another coordinator's workers are not in its report.
 - **Each repo the ledger names**: `git status`, `git worktree list`, the commits since the last report, and the commits on each branch its remote lacks, compared against `git ls-remote` rather than a tracking ref that may be stale.
 - **Every agent the host can list**, and the latest output of each.
 

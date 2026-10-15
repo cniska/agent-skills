@@ -125,7 +125,7 @@ assert "a fetch past the deadline leaves no transport running" "$(pgrep -f "$scr
 repo="$(setup_ledger_repo local)"
 git -C "$repo" branch -q --unset-upstream
 assert "a branch with no upstream says the remote may be newer" "$(run_in "$repo")" \
-  "Ledger not pulled: its branch tracks no remote branch, so the remote may hold a newer ledger.
+  "Ledger not pulled: its branch tracks no remote branch, so the remote may hold a newer copy.
 
 old ledger"
 
@@ -140,6 +140,89 @@ old ledger"
 git init -q "$scratch/untracked"
 printf 'untracked ledger\n' >"$scratch/untracked/ledger.md"
 assert "a ledger git does not track prints with no pull" "$(run_in "$scratch/untracked")" "untracked ledger"
+
+write_ledger "$scratch/split/LEDGER.md" "shared rules"
+write_ledger "$scratch/split/ledgers/loop.md" "[Shared](../LEDGER.md)
+loop ledger"
+assert "a ledger linking a shared file on its first line prints both" \
+  "$(AGENT_LEDGER="$scratch/split/ledgers/loop.md" run)" "[Shared](../LEDGER.md)
+loop ledger
+
+shared rules"
+
+write_ledger "$scratch/absolute/ledger.md" "See [the rules]($scratch/split/LEDGER.md#rules) first."
+assert "an absolute link with an anchor names the shared file" \
+  "$(AGENT_LEDGER="$scratch/absolute/ledger.md" run)" "See [the rules]($scratch/split/LEDGER.md#rules) first.
+
+shared rules"
+
+write_ledger "$scratch/later/ledger.md" "later ledger
+[Shared](../split/LEDGER.md)"
+assert "a link below the first line names no shared file" \
+  "$(AGENT_LEDGER="$scratch/later/ledger.md" run)" "later ledger
+[Shared](../split/LEDGER.md)"
+
+write_ledger "$scratch/web/ledger.md" "[Shared](https://example.com/LEDGER.md)"
+assert "a web link names no shared file" "$(AGENT_LEDGER="$scratch/web/ledger.md" run)" "[Shared](https://example.com/LEDGER.md)"
+
+write_ledger "$scratch/self/ledger.md" "[Self](ledger.md)"
+assert "a ledger linking itself prints once" "$(AGENT_LEDGER="$scratch/self/ledger.md" run)" "[Self](ledger.md)"
+
+write_ledger "$scratch/broken/ledgers/loop.md" "[Shared](../LEDGER.md)"
+assert "a linked shared file that is missing is named" \
+  "$(AGENT_LEDGER="$scratch/broken/ledgers/loop.md" run)" "[Shared](../LEDGER.md)
+
+Shared file not found: $scratch/broken/ledgers/../LEDGER.md"
+assert "a missing shared file exits 0" "$(AGENT_LEDGER="$scratch/broken/ledgers/loop.md" code)" 0
+
+commit_split() {
+  mkdir -p "$1/ledgers"
+  printf '[Shared](../LEDGER.md)\n%s\n' "$2" >"$1/ledgers/loop.md"
+  printf '%s\n' "$3" >"$1/LEDGER.md"
+  git -C "$1" add ledgers/loop.md LEDGER.md
+  git -C "$1" commit -qm "$2"
+}
+
+root="$scratch/split-repo"
+git init -q --bare -b main "$root/remote.git"
+git clone -q "$root/remote.git" "$root/ledger" 2>/dev/null
+commit_split "$root/ledger" "old loop" "old rules"
+git -C "$root/ledger" push -q origin main 2>/dev/null
+git clone -q "$root/remote.git" "$root/other" 2>/dev/null
+commit_split "$root/other" "new loop" "new rules"
+git -C "$root/other" push -q origin main 2>/dev/null
+assert "a shared file in the ledger's repo is pulled with it" \
+  "$(AGENT_LEDGER="$root/ledger/ledgers/loop.md" run)" "[Shared](../LEDGER.md)
+new loop
+
+new rules"
+
+shared="$(setup_ledger_repo shared-clean)"
+write_ledger "$scratch/own/ledger.md" "[Shared]($shared/ledger.md)"
+assert "a shared file in another repo is pulled the same way" \
+  "$(AGENT_LEDGER="$scratch/own/ledger.md" run)" "[Shared]($shared/ledger.md)
+
+new ledger"
+
+shared="$(setup_ledger_repo shared-dirty)"
+printf 'edited\n' >>"$shared/notes.md"
+write_ledger "$scratch/own-dirty/ledger.md" "[Shared]($shared/ledger.md)"
+assert "a shared file that could not be pulled says so under its own name" \
+  "$(AGENT_LEDGER="$scratch/own-dirty/ledger.md" run)" "[Shared]($shared/ledger.md)
+
+Shared file not pulled: its repo has uncommitted changes; it is 1 commits behind origin/main.
+
+old ledger"
+
+shared="$(setup_ledger_repo shared-local)"
+git -C "$shared" branch -q --unset-upstream
+write_ledger "$scratch/own-local/ledger.md" "[Shared]($shared/ledger.md)"
+assert "a shared file with no upstream says the remote may be newer under its own name" \
+  "$(AGENT_LEDGER="$scratch/own-local/ledger.md" run)" "[Shared]($shared/ledger.md)
+
+Shared file not pulled: its branch tracks no remote branch, so the remote may hold a newer copy.
+
+old ledger"
 
 hooks="$HERE/hooks.json"
 runs_ledger() {

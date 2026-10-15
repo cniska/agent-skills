@@ -7,6 +7,7 @@ source "$HERE/deadline.sh"
 
 readonly FETCH_DEADLINE_SECONDS=5
 readonly KILLED_STATUS=143
+readonly LINK_PATTERN='\[[^]]*\]\(([^)[:space:]]+)\)'
 
 fetch_within_deadline() {
   start_in_group env GIT_TERMINAL_PROMPT=0 git -C "$1" fetch --quiet >/dev/null 2>&1 </dev/null
@@ -27,57 +28,94 @@ stale_since_last_fetch() {
 }
 
 not_pulled() {
-  printf 'Ledger not pulled: %s\n\n' "$1"
+  printf '%s not pulled: %s\n\n' "$1" "$2"
 }
 
-pull_ledger() {
+pull_file() {
+  local label="$2"
   local dir name
   dir="$(dirname -- "$1")"
   name="$(basename -- "$1")"
   git -C "$dir" ls-files --error-unmatch -- "$name" >/dev/null 2>&1 || return 0
   local upstream
   if ! upstream="$(git -C "$dir" rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
-    not_pulled "its branch tracks no remote branch, so the remote may hold a newer ledger."
+    not_pulled "$label" "its branch tracks no remote branch, so the remote may hold a newer copy."
     return 0
   fi
   local status=0
   fetch_within_deadline "$dir" || status=$?
   if ((status == KILLED_STATUS)); then
-    not_pulled "fetching $upstream took over ${FETCH_DEADLINE_SECONDS}s; $(stale_since_last_fetch "$dir")"
+    not_pulled "$label" "fetching $upstream took over ${FETCH_DEADLINE_SECONDS}s; $(stale_since_last_fetch "$dir")"
     return 0
   fi
   if ((status != 0)); then
-    not_pulled "could not fetch $upstream; $(stale_since_last_fetch "$dir")"
+    not_pulled "$label" "could not fetch $upstream; $(stale_since_last_fetch "$dir")"
     return 0
   fi
   local behind ahead
   if ! behind="$(commits_between "$dir" 'HEAD..@{upstream}')" || ! ahead="$(commits_between "$dir" '@{upstream}..HEAD')"; then
-    not_pulled "after fetching, git could not compare it with $upstream."
+    not_pulled "$label" "after fetching, git could not compare it with $upstream."
     return 0
   fi
   if ((behind == 0)); then
     return 0
   fi
   if ((ahead > 0)); then
-    not_pulled "its branch has diverged from $upstream; it is $behind commits behind and $ahead ahead."
+    not_pulled "$label" "its branch has diverged from $upstream; it is $behind commits behind and $ahead ahead."
     return 0
   fi
   if [ -n "$(git -C "$dir" status --porcelain --untracked-files=no 2>/dev/null)" ]; then
-    not_pulled "its repo has uncommitted changes; it is $behind commits behind $upstream."
+    not_pulled "$label" "its repo has uncommitted changes; it is $behind commits behind $upstream."
     return 0
   fi
   if ! git -C "$dir" merge --ff-only --quiet '@{upstream}' >/dev/null 2>&1; then
-    not_pulled "could not fast-forward to $upstream; it is $behind commits behind."
+    not_pulled "$label" "could not fast-forward to $upstream; it is $behind commits behind."
   fi
+}
+
+linked_shared_file() {
+  local first
+  first="$(head -n 1 -- "$1")"
+  [[ "$first" =~ $LINK_PATTERN ]] || return 0
+  local target="${BASH_REMATCH[1]%%#*}"
+  case "$target" in
+    "" | *:*) ;;
+    /*) printf '%s\n' "$target" ;;
+    *) printf '%s/%s\n' "$(dirname -- "$1")" "$target" ;;
+  esac
+}
+
+repo_root() {
+  git -C "$(dirname -- "$1")" rev-parse --show-toplevel 2>/dev/null
+}
+
+print_shared_file() {
+  local ledger="$1" shared="$2"
+  if [ ! -f "$shared" ]; then
+    printf '\nShared file not found: %s\n' "$shared"
+    return 0
+  fi
+  if [ "$shared" -ef "$ledger" ]; then
+    return 0
+  fi
+  printf '\n'
+  local root
+  if ! root="$(repo_root "$shared")" || [ "$root" != "$(repo_root "$ledger")" ]; then
+    pull_file "$shared" "Shared file"
+  fi
+  cat -- "$shared"
 }
 
 main() {
   local ledger
   ledger="$(ledger_path)"
-  if [ -f "$ledger" ]; then
-    pull_ledger "$ledger"
-    cat -- "$ledger"
-  fi
+  [ -f "$ledger" ] || return 0
+  pull_file "$ledger" "Ledger"
+  cat -- "$ledger"
+  local shared
+  shared="$(linked_shared_file "$ledger")"
+  [ -n "$shared" ] || return 0
+  print_shared_file "$ledger" "$shared"
 }
 
 main "$@"

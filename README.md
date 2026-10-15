@@ -64,7 +64,7 @@ npx skills add cniska/agent-skills
 | Session-start hook | Routes a plain prompt the way `/task` would. |
 | Reviewer agent | Judges each commit it did not write against the design rules, runs `review` on a whole branch before it lands, and ends with accept or return. |
 | Commit gate | Holds each commit for the reviewer's accept. |
-| Ledger hook | Prints the coordinator's ledger into each session, so coordinating work survives restarts and compaction. |
+| Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
 | Coach agent | Coaches each task once it lands, proposing the workflow changes that repeat. |
 | Task coach hook | Runs the coach when a delegated task ends. |
 | Event log | Records gate decisions, verdicts and permission prompts for [agent-record](https://github.com/cniska/agent-record) to archive. |
