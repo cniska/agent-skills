@@ -14,7 +14,7 @@ run = "bun scripts/validate.ts"
 
 [tasks.test]
 description = "Run the bash and TypeScript tests (offline, no API)"
-run = 'bun run test && for t in $(find . -name "*.test.sh" -not -path "./node_modules/*" -not -path "./.claude/*" | sort); do echo "== $t =="; bash "$t" || exit 1; done'
+run = "bun run test && ./scripts/test-shell.sh"
 
 [tasks.lint]
 description = "Shellcheck shell scripts, then lint, typecheck and check the TypeScript for unused code"
