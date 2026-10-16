@@ -1,6 +1,6 @@
 ---
 name: docs-writing
-description: Create or update project documentation. Use when creating architecture docs, runtime docs, reference docs, or design documents that explain what the system does.
+description: Create or update project documentation in the house style of the docs beside it, each claim checked at its source and each fact in the doc that owns it. Use before the first edit to a README, architecture, runtime, reference or design doc, or when a behavior change leaves docs to update.
 ---
 
 # Docs writing
@@ -14,14 +14,14 @@ Two modes, inferred from the request:
 
 ## Conventions this skill enforces
 
-- Apply `writing`'s rules for documents that last: each fact in one place, within the page as across docs; current state only; no volatile numbers.
+- Apply `writing`'s rules for documents that last: each fact in one place, within the page as across docs; current state only; no volatile numbers; each page in the structure, depth and voice of its neighbors. The formatting conventions and the template below hold only where the repo's docs set none of their own.
+- The repo's own doc map decides which doc owns a fact, wherever the repo keeps it: a docs index, the spec or the agent rules file. The fact lives in that doc, and every other doc links to it. Set no split between the README, the docs and the spec of your own; where the repo has no map, the doc that already holds the fact owns it.
 - One H1 per doc. H1 is the topic in title case. H2+ are sentence case.
 - First sentence is the summary. One line. The reader knows what this doc covers without scrolling.
 - Flow diagrams use ```text blocks with `→` arrows and `|` branches.
 - Tables are for structured data — column definitions, severity matrices, index lists, test tiers. Not prose.
 - Bullets start with a bold label or a capital letter.
 - Business terminology wins over technical terms when they differ.
-- Mark features as live, planned, or deferred. A doc that doesn't reflect what's shipped is misleading.
 - No marketing language. State what it does.
 - No speculative future work. If it's not shipped or actively being built, it doesn't belong.
 
@@ -48,9 +48,9 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 ### New mode
 
 1. **Read the code.** The doc describes what the code does, not what you think it should do. Read source files, contracts, and tests before writing anything.
-2. **Read adjacent docs.** Understand what's already documented. Identify the owner for any overlapping detail.
+2. **Read adjacent docs and the doc map.** Understand what's already documented, match the adjacent docs' structure and voice, and put each fact in the doc the map says owns it.
 3. **Determine the doc type.** Architecture, design, security, runtime, reference, or comparison — different types emphasize different sections.
-4. **Fill the template** under the conventions above, cross-referencing docs that own adjacent context.
+4. **Fill the structure the adjacent docs of this type share**, or the template where they share none, cross-referencing docs that own adjacent context.
 5. **Add to the docs index.** (e.g. `docs/README.md`)
 6. **Verify.** Read the doc against the code, and apply verify at the source from `principles`.
 
@@ -58,11 +58,12 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 
 1. **Read the current doc.** Understand its structure and conventions before changing anything.
 2. **Read the code that changed.** The doc must reflect what the code does now.
-3. **Find the section.** Match the doc's existing vocabulary and structure.
+3. **Find the owning section.** The doc map names the doc; match its existing vocabulary and structure.
 4. **Merge, don't append.** If an existing bullet overlaps, rewrite it. If a new concept is introduced, give it its own subsection.
-5. **Sweep for drift.** Apply no drift from `principles`: cross-references and any other doc the change made stale.
+5. **Sweep every mention.** For each changed behavior, search the README, the docs folder, the spec and the agent rules file for its name, command and flags, and fix each hit, as no drift in `principles` says; a mention outside the owning doc becomes a link to it.
 6. **Update the docs index.** If the doc's scope changed.
-7. **Verify.** Read the doc against the code, and apply verify at the source from `principles`. If the code and doc disagree, the code wins.
+7. **Check each claim at its source.** For every claim the change adds or alters, read the file and line it rests on, such as the script, config or test, or run the command it describes, and apply verify at the source from `principles`. If the code and doc disagree, the code wins.
+8. **Hand the sources to the reviewer.** List each changed claim with the file and line it rests on, and put that list in the review brief, so the reviewer reads the source rather than the doc's word for it.
 
 ## Doc types
 
@@ -84,7 +85,9 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 ## Red flags
 
 - Writing a doc without reading the code first
-- Repeating detail that another doc already owns
+- A changed claim committed without its source read, or a review brief that leaves out where each claim rests
+- A behavior change that fixes the doc it was asked about and leaves its other mentions stale
+- A fact restated in a second doc instead of linked from the doc that owns it
 - Creating a new doc when an existing one should be edited
 - Adding speculative "future work" sections
 - Writing prose where a table or flow diagram would be clearer

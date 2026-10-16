@@ -1,0 +1,10 @@
+{
+  "positive": [
+    { "prompt": "now write the doc against all this and make sure it matches the other design docs in style and depth" },
+    { "prompt": "fold this into a @docs/design/ doc?" },
+    { "prompt": "make sure the docs follows the house style" }
+  ],
+  "negative": [
+    { "prompt": "we should also document the coach and we should optimize the readme for humans using /cniska-skills:writing", "owner": "writing" }
+  ]
+}

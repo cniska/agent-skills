@@ -98,7 +98,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [why](skills/workflow/why/SKILL.md) | Trace recorded design rationale and check whether it still applies |
 | [search-sessions](skills/workflow/search-sessions/SKILL.md) | Find what a past session said and decided, quoted and cited; asks [agent-record](https://github.com/cniska/agent-record) first where it is installed |
 | [adr](skills/workflow/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
-| [docs-writing](skills/workflow/docs-writing/SKILL.md) | Create or update project documentation |
+| [docs-writing](skills/workflow/docs-writing/SKILL.md) | Create or update project documentation: each claim checked at its source, each fact in the doc that owns it, every mention of a changed behavior swept |
 | [agents-md](skills/workflow/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
 | [skill-writing](skills/workflow/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, score on eval cases where the repo has them, then check it in real use |
 | [routine-writing](skills/workflow/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
