@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Run pre-release checks, choose the version bump, and cut the release. Use when a new version is ready to tag and publish.
+description: Run pre-release checks, choose the version bump, cut the release, and verify it reached every channel. Use when a new version is ready to tag and publish, or once its tag is pushed.
 ---
 
 # Ship
@@ -19,20 +19,21 @@ Check the entire project against the preconditions below. Never push; the last h
    - on the release branch (`main` unless the project says otherwise)
    - working directory is clean
    - commits exist since the last release tag — a tag over no new commits releases nothing
-   - the project's verification passes (its verify command per `AGENTS.md`)
+   - the project's verification passes (its verify command per `AGENTS.md`), and where the project has a spec, that command runs the spec check and it passes over a complete acceptance suite: no criterion left a todo or a skipped test
+   - user-facing docs, and `SPEC.md` where the project has one, reflect the user-visible features since the last tag — cross-reference `feat` subjects and run `doc-review` over them; any drift it finds fails this check
    - no secrets in tracked files — grep tracked, non-`.env` files for common key shapes (`sk-`, `Bearer `, `-----BEGIN`, provider API-key env names)
 2. **Run quality checks** (warn, don't block):
    - no `TODO` / `FIXME` left in non-test source
-   - user-facing docs and changelog reflect the user-visible features since the last tag — cross-reference `feat` subjects; defer drift detail to `doc-review`
 3. **Determine the version bump** from commits since the last tag (SemVer + Conventional Commits). With no `v*` tag yet, this is the first release: the version is the one the project records, or its release entry point chooses, no bump is computed, and the output reads `none → <version>`.
    - previous tag: `git describe --tags --abbrev=0 --match 'v[0-9]*'`
    - commits: `git log <prev_tag>..HEAD --oneline --no-merges`
-   - **major** — any commit has `BREAKING CHANGE` in the body or `!` before the colon in the subject
+   - **major** — any commit has `BREAKING CHANGE` in the body or `!` before the colon in the subject; before 1.0, such a commit bumps **minor** instead
    - **minor** — any commit subject is `feat(...)` or `feat:`
    - **patch** — everything else
 4. **Report** using the output format below, then **ask for confirmation**.
 5. **Cut the release**: if the project has a release entry point, run it with the chosen level, or the first-release version; otherwise take the manual path — record the version where the project keeps it, write the changelog entry, and create the commit and annotated tag `v<version>`.
 6. **Print the push commands** and stop. Do not push.
+7. **Verify the release** when the owner says the tag is pushed, or when `ship` runs again against a pushed tag, which skips steps 1-6. Wait for the release run the tag started to finish, then check that it passed and that every channel serves the new version: each publish target of the release entry point, such as a package registry or a download page, and each channel the project's `AGENTS.md` lists. This run reports only the Release and Verdict sections.
 
 ## Output format
 
@@ -48,17 +49,23 @@ Check the entire project against the preconditions below. Never push; the last h
 ### Version
 - previous → proposed (`<level>` — reason)
 
+### Release (step 7)
+- pass / fail for the release run and for each channel, with the version each channel serves
+
 ### Verdict
 - **Ship it** — preconditions pass, no warnings
 - **Ship with caution** — preconditions pass, warnings present
 - **Fix first** — a precondition fails
+- **Released** — after step 7: the release run passed and every channel serves the new version
+- **Release incomplete** — after step 7: each run that failed and each channel that does not serve the new version
 
 ## See also
 
-- `agents-md` — where the project's verify and release commands are declared
+- `agents-md` — where the project's verify and release commands, and the channels a release publishes to, are declared
 - `review` — the quality gate that runs before ship; ship assumes it passed
 - `git` — commit conventions the version bump reads from
-- `doc-review` — user-facing drift before the tag
+- `doc-review` — drift in user-facing docs and the spec before the tag
+- `spec` — the acceptance suite and the check a release waits on
 
 ## Red flags
 
@@ -66,3 +73,4 @@ Check the entire project against the preconditions below. Never push; the last h
 - Guessing the version bump without reading the commits
 - Pushing without user confirmation
 - Skipping quality checks because preconditions passed
+- Calling a release done before its run passes and every channel serves the new version

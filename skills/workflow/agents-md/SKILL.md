@@ -32,7 +32,7 @@ A menu of common dimensions, not a required skeleton. Shape the actual sections 
 
 - **Architecture** — module boundaries, entry points, what depends on what. Usually long and rarely needed in full — the clearest case for the placement principle above: keep a load-bearing pointer to a dedicated architecture doc here, not the map itself.
 - **Invariants** — rules that must never break; the non-negotiables.
-- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag). The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
+- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag), and the channels a release publishes to. The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
 - **Process** — development and agent-behavior rules that are neither code contracts nor commands: branching and PR-vs-direct policy, worktrees, when to commit, autonomous-execution and sign-off expectations. Distinct from Workflow (commands) and Invariants (code contracts).
 - **Commits** — message format and discipline (defer to the `git` skill's Conventional Commits only where the log shows no established format of its own).
 - **Pull requests** — when to open one, the review gate, title and body rules (omit if the project doesn't use PRs).
@@ -90,7 +90,7 @@ AGENTS.md is the hub that gives the other skills their project-specific groundin
 - `pr` — the Pull requests section states the review gate and title/body rules the `pr` skill fills in.
 - `review` — the Invariants section is the checklist this skill verifies. An invariant with no test and no review coverage is incomplete.
 - `doc-review` — the Docs section states when to update canonical docs; the `doc-review` skill enforces it.
-- `ship` — the Workflow section's release command is the entry point the `ship` skill invokes to cut a release; the script it names owns the pre-release gates.
+- `ship` — the Workflow section's release command is the entry point the `ship` skill invokes to cut a release, and the channels it lists are the ones `ship` checks serve the new version; the script it names owns the pre-release gates.
 
 ## Red flags
 
