@@ -19,7 +19,7 @@ Every claim about existing code, repo state or a file's wording goes in only onc
 
 ## How to deliver it
 
-File the brief in the ledger's folder under the name rule 4 gives and start its task before the worker starts, as rule 4 says; the delivered brief is that file's text.
+File the brief in the ledger's folder under the name rule 4 gives, and start its task where a task tool keeps the in-flight list, before the worker starts, as rule 4 says; the delivered brief is that file's text.
 
 - **A subagent of this session**: the brief is its whole prompt.
 - **Another session on this machine**: the brief is the message that starts it; it reads this machine's files, so link them rather than paste them.
