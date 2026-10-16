@@ -56,7 +56,7 @@ Three modes, inferred from the request:
 ## See also
 
 - `writing` — the prose rules a record shares with every lasting doc: link the owner, no volatile numbers
-- `docs` — the owning doc a record links to
+- `docs-writing` — the owning doc a record links to
 - `spec` — product requirements, which are not records
 - `agents-md` — conventions, which are not records
 - `search-sessions` — mining past discussion for reasons and alternatives

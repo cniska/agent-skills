@@ -1,9 +1,9 @@
 ---
-name: docs
+name: docs-writing
 description: Create or update project documentation. Use when creating architecture docs, runtime docs, reference docs, or design documents that explain what the system does.
 ---
 
-# Docs
+# Docs writing
 
 A doc explains what the system does. One owner, one H1, one job. Written for agents and developers to read once and reference forever.
 

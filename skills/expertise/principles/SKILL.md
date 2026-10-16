@@ -25,7 +25,7 @@ A principle only one skill uses stays in that skill. It moves here when a second
 
 - `design-review`, which cites these principles behind its findings
 - the other review skills and `audit`, which report in the review report shape
-- `code-writing`, `simplify`, `debug`, `test-writing`, `deprecation`, `docs`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply
+- `code-writing`, `simplify`, `debug`, `test-writing`, `deprecation`, `docs-writing`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply
 
 ## Red flags
 
