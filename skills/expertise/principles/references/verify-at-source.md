@@ -1,6 +1,6 @@
 # Verify at the source
 
-Check every factual claim where it is defined, and cite it: `file:line` for code, a pinned revision or a dated URL outside the repo. This binds hardest on text that ships, such as a prompt, a tool description, a doc or an error message.
+Check every factual claim where it is defined, and cite it: for code, a quote, heading or symbol, since line numbers move with each edit, or `path:line` only in a review of a fixed diff or session; outside the repo, a pinned revision or a dated URL. This binds hardest on text that ships, such as a prompt, a tool description, a doc or an error message.
 
 - A sentence that cannot be verified is deleted, not replaced with a better-sounding one.
 - A quantifier such as `only`, `never` or `every` needs an exhaustive sweep, or the claim is weakened to what was checked.
