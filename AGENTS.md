@@ -30,5 +30,5 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 - Work on a topic branch in its own worktree, never on `main`; no pull request in this repo.
 - Commit each slice once validate, test and lint pass and a fresh reviewer accepts it, and push the branch after each commit.
 - Land by rebasing on `origin/main` and fast-forwarding `main` to the branch once `review` accepts the whole branch, then push `main`; that accept is the owner's standing sign-off, so no landing waits on them.
-- After `main` is pushed, run `mise run plugin:update` and tell the owner to restart, since a running session keeps the plugin it started with.
+- After `main` is pushed, a worker names `mise run plugin:update` as due in its hand-back and never runs it; the coordinator runs it once no agent is running and asks the owner to restart, since a running session keeps the plugin it started with.
 - Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, under 50 characters.

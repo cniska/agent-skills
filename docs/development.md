@@ -13,7 +13,7 @@ mise run bootstrap
 - Installing runs the `prepare` script, which points Git at [`.githooks/`](../.githooks/): the [agent-gates](https://github.com/cniska/agent-gates) `commit-subject`, `format` and `no-comments` gates.
 - `mise tasks` lists every command.
 
-To work on the skills in Claude Code, add this checkout as the marketplace and update the plugin after each landing on `main`, as [`AGENTS.md`](../AGENTS.md) says:
+To work on the skills in Claude Code, add this checkout as the marketplace and update the plugin when [`AGENTS.md`](../AGENTS.md) says it is due:
 
 ```
 claude plugin marketplace add <path>
