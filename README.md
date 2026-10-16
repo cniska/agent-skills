@@ -1,8 +1,8 @@
 # Agent Skills
 
-Engineering skills for AI coding agents, compatible with [agentskills.io](https://agentskills.io).
+Engineering skills for coding agents: the workflow from brief to release, compatible with [agentskills.io](https://agentskills.io).
 
-I do all my engineering with coding agents, and these skills encode the workflow I follow. They are opinionated, based on 15+ years of building production software.
+I do all my engineering with coding agents, and this is the workflow I follow. The skills are opinionated, based on 15+ years of building production software.
 
 Two parts carry the workflow:
 
