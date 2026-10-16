@@ -14,7 +14,7 @@ Two modes, inferred from the request:
 
 A spec need not arrive complete. It may start with a handful of FRs and grow one change at a time — the ID rules below make later growth safe.
 
-When the source is an existing codebase rather than a design conversation, you are reverse-engineering the *what* from the *how*: the code says what the system does, never what the author intended. State each requirement as observed behavior and flag the ones you can't confirm as deliberate — a stopgap or a tuned default frozen as contract will drive future work toward preserving it. Mark the draft reverse-engineered and unverified against intent until a human confirms.
+When the source is an existing codebase rather than a design conversation, you are reverse-engineering the *what* from the *how*: the code says what the system does, never what the author intended. State each requirement as observed behavior and flag the ones you can't confirm as deliberate — a stopgap or a tuned default frozen as contract will drive future work toward preserving it. Mark the draft reverse-engineered and unverified against intent, and remove the mark once a reviewer accepts the spec and the acceptance suite proves every criterion. Where the owner has made a reviewer's accept their standing sign-off, that accept is their confirmation, so no spec says a requirement awaits the owner's confirmation.
 
 ## Labelled requirements
 
@@ -71,6 +71,7 @@ Stable IDs and retire-in-place keep that delta legible in the git diff itself; u
 - Renumbering IDs no check ties to their citations, or reusing a retired one
 - A sub-numbered ID such as `FR-21a`
 - Acceptance criteria that cite no requirement, or requirements no criterion verifies
+- A criterion whose test is still a todo or skipped once its work lands
 - Edge cases written as aspirations instead of labelled requirements
 - Fixed constraints and open decisions blended into the same prose
 - A requirement stated so vaguely no test could prove it met
