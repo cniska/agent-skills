@@ -46,6 +46,7 @@ Use synthetic data, never production records, personal data, real credentials, o
 ## Isolation
 
 - **Hermetic.** Each test builds its own scratch directory, data and environment, and depends on nothing the machine holds: not the network, the real home directory, a tool's own data, or what another test left behind.
+- **A tool's config emptied.** A tool the test runs reads the machine's user and system config and the variables it inherits, so point that config at an empty one and drop the tool's own inherited variables. For git, that is an empty global and system config and every `GIT_*` key dropped: a hook exports `GIT_DIR`, so a test run from one acts on the real repo, and a global `commit.gpgsign true` signs every test commit.
 - **Safe to run at once.** No mutable global, fixed port, fixed path or assumed order shared between tests, so the suite passes under the runner's concurrent mode and across parallel workers.
 - **No real time.** A test never waits on the wall clock: no sleep, and no real timeout left to elapse. Control time and randomness through the code's own seams or the runner's fakes. A wait the fakes cannot reach, such as a native library's lock timeout honored in another process, is passed in as a dependency the way the clock is: production passes the real value through the same parameter, and the test passes 0. Order steps across processes by handshake: the child prints a line and the test waits for that line.
 
@@ -64,6 +65,7 @@ Use synthetic data, never production records, personal data, real credentials, o
 - A sleep, a real clock, or unseeded randomness in a test
 - A per-test timeout raised to fit a real wait
 - A test that reads the real home directory, a tool's own data or the network, or relies on another test's leftovers
+- A tool run in a test on the machine's own config, or with the tool's variables the test inherited
 - A fixed port, fixed path or mutable global shared between tests
 - Production records, personal data, or real credentials in a fixture
 - A fake secret with a real provider's prefix or length
