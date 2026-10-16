@@ -6,7 +6,7 @@ import { readText } from "../lib/read-file";
 
 const GUARDED_DIRS = ["skills", "agents"] as const;
 const HOOKS_DIR = "hooks";
-const TOOL = /\b(?:agent|cniska)-(?:record|gates|worktree)\b/;
+const TOOL = /\b(?:agent|cniska)-(?:record|gates|worktree|task)\b/;
 const OPTIONAL = /where installed|optional|without it/i;
 
 function filesUnder(dir: string): readonly string[] {

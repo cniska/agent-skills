@@ -36,6 +36,15 @@
         "path": "plugin"
       },
       "description": "Sends every session's task worktrees through agent-worktree."
+    },
+    {
+      "name": "cniska-task",
+      "source": {
+        "source": "git-subdir",
+        "url": "cniska/agent-task",
+        "path": "plugin"
+      },
+      "description": "Keeps a running agent-task brief from changing under its task, and puts the running tasks in the context of a session whose directory holds one of their briefs."
     }
   ]
 }

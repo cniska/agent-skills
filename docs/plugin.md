@@ -4,7 +4,7 @@ This repo is also `cniska-skills`, a Claude Code plugin; the [README](../README.
 
 ## How the parts fit
 
-The optional [agent-record](https://github.com/cniska/agent-record), [agent-worktree](https://github.com/cniska/agent-worktree) and [agent-gates](https://github.com/cniska/agent-gates) sit beside the plugin.
+The optional [agent-record](https://github.com/cniska/agent-record), [agent-worktree](https://github.com/cniska/agent-worktree), [agent-task](https://github.com/cniska/agent-task) and [agent-gates](https://github.com/cniska/agent-gates) sit beside the plugin.
 
 What an agent starts with:
 
@@ -158,3 +158,12 @@ It reports the comments each edit adds, in the words of the [agent-gates](https:
 - The committed git hooks still gate every contributor.
 - It does nothing in a repo without the gate.
 - Install it with `claude plugin install cniska-gates@cniska`.
+
+### cniska-task
+
+It keeps the brief of a task the [agent-task](https://github.com/cniska/agent-task) CLI runs from changing under that task.
+
+- Before each edit, it denies an edit to a running task's brief, naming the steps that change it: `agent-task drop`, the edit, then `agent-task start` under a name the store has never held.
+- Whenever a session starts, resumes, clears or compacts in a directory that holds a running task's brief, it adds the running tasks, as `agent-task list` prints them, to the session's context.
+- It needs `jq` and `realpath`, and does nothing unless the agent-task CLI is on PATH.
+- Install it with `claude plugin install cniska-task@cniska`.
