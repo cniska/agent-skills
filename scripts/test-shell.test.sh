@@ -67,28 +67,37 @@ assert "a test reading stdin gets end of input" "$(run stdin)" 0
 assert "a test reading stdin reads nothing" "$(<"$scratch/stdin.out")" "== ./a.test.sh ==
 read-done"
 
-fixture stopped a.test.sh <<'EOF'
+stopped_by() {
+  local signal="$1" code="$2" dir="$scratch/stopped-$1" runner child_pid status
+  fixture "stopped-$signal" a.test.sh <<'EOF'
 sleep 30 &
-printf '%s\n' "$!" >../stopped.pid
+printf '%s\n' "$!" >../child.pid
 wait
 EOF
-(cd "$scratch/stopped" && exec "$RUNNER" >/dev/null 2>&1) &
-runner=$!
-for _ in $(seq 50); do
-  [ -s "$scratch/stopped.pid" ] && break
-  sleep 0.1
-done
-child_pid="$(cat "$scratch/stopped.pid" 2>/dev/null)"
-assert "a stopped run had started its test's child" "${child_pid:+started}" started
-kill -TERM "$runner"
-wait "$runner"
-assert "a stopped run exits 143" "$?" 143
-for _ in $(seq 50); do
-  kill -0 "$child_pid" 2>/dev/null || break
-  sleep 0.1
-done
-assert "stopping the run stops what its tests started" "$(kill -0 "$child_pid" 2>/dev/null && echo running || echo stopped)" stopped
-kill "$child_pid" 2>/dev/null
+  rm -f "$scratch/child.pid"
+  set -m
+  (cd "$dir" && exec "$RUNNER" >/dev/null 2>&1) &
+  runner=$!
+  set +m
+  for _ in $(seq 50); do
+    [ -s "$scratch/child.pid" ] && break
+    sleep 0.1
+  done
+  child_pid="$(cat "$scratch/child.pid" 2>/dev/null)"
+  assert "a run stopped by $signal had started its test's child" "${child_pid:+started}" started
+  kill -"$signal" "$runner"
+  wait "$runner"
+  status=$?
+  assert "a run stopped by $signal exits $code" "$status" "$code"
+  for _ in $(seq 50); do
+    kill -0 "$child_pid" 2>/dev/null || break
+    sleep 0.1
+  done
+  assert "stopping the run by $signal stops what its tests started" "$(kill -0 "$child_pid" 2>/dev/null && echo running || echo stopped)" stopped
+  kill "$child_pid" 2>/dev/null
+}
+stopped_by TERM 143
+stopped_by INT 130
 
 mkdir -p "$scratch/empty"
 assert "no test files exits 1" "$(run empty)" 1
