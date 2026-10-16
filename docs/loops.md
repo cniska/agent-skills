@@ -38,7 +38,7 @@ The coordinator runs all the work in one long session on autocompaction, from my
 ```mermaid
 flowchart TD
   you(["You"]) -- "a request" --> lead["Coordinator"]
-  lead -- "a line per worker, its brief" --> ledger[("Ledger")]
+  lead -- "state, and each worker's brief" --> ledger[("Ledger")]
   lead -- "batched questions, report" --> you
   lead -- "the brief" --> worker["Worker runs the task route"]
   worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]

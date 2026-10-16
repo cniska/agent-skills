@@ -1,10 +1,11 @@
 # Report
 
-A report tells the owner what is in flight, in the order they act on it. Build it from the ledger, each repo's git and the agents the host can list, never from the conversation, so a fresh session can give it too. Gathering it changes nothing; the ledger is rewritten as rule 4 says.
+A report tells the owner what is in flight, in the order they act on it. Build it from the ledger, the in-flight list rule 4 keeps, each repo's git and the agents the host can list, never from the conversation, so a fresh session can give it too. Gathering it changes nothing; the ledger is rewritten as rule 4 says.
 
 ## Sources
 
 - **The ledger**, found as rule 4 says, and the shared file it links, for the owner's decisions and standing rules. Running, landed and at-risk work is this coordinator's own; another coordinator's workers are not in its report.
+- **The in-flight list**, from the task tool where one is installed, or else the briefs in the ledger's folder, for this coordinator's running workers as rule 4 tells them apart.
 - **Each repo the ledger names**: `git status`, `git worktree list`, the commits since the last report, and the commits on each branch its remote lacks, compared against `git ls-remote` rather than a tracking ref that may be stale.
 - **Every agent the host can list**, and the latest output of each.
 
