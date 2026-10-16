@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-`mise` pins the runtime. Bun is the runtime, package manager and test runner unless the host pins Node, as a serverless platform does; then Node with pnpm. `tsc --noEmit` typechecks; Biome 2 lints and formats, with no ESLint or Prettier beside it. zod 4 validates boundaries.
+`mise` pins the runtime. Bun is the runtime, package manager and test runner unless the host pins Node, as a serverless platform does; then Node with pnpm. `tsc --noEmit` typechecks; Biome 2 lints and formats, with no ESLint or Prettier beside it. zod 4 is the schema library wherever **Schema first** below calls for one.
 
 Drift a model's memory gets wrong:
 
@@ -34,12 +34,12 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 ## Types
 
 - **`null` is the empty value.** A deliberately empty field, return or wire value is `T | null`, never `x?: T` or `T | undefined`: `undefined` also means unset, misspelled or never assigned. `undefined` stays where the language produces it — an optional parameter, an index read — and is checked there, not passed on. `tsc --strict` accepts `x !== undefined` on a `string | null`, and that branch runs for every value, empty or not.
-- **Schema first.** A string union or a shared type is a zod schema, and the type is inferred from it (`type Role = z.infer<typeof Role>`). `z.strictObject` for shapes you own, `z.looseObject` for shapes you don't.
+- **Schema first.** zod earns its place for a format another program defines and can change, such as an API response, another tool's file or a session log. Where a repo's own formats are small and fixed, a hand parser does instead, and its own SQLite rows go through a small checked helper. Where zod is in the runtime tree, every boundary parses through it, own rows included, and a string union or a shared type is a zod schema with the type inferred from it (`type Role = z.infer<typeof Role>`). `z.strictObject` for shapes you own, `z.looseObject` for shapes you don't, and never a bare `z.object`, which strips unknown keys silently, so a misspelled field neither fails nor survives the parse.
 - **Variants** are a union discriminated on one field: `{ kind: "loading" } | { kind: "ready"; diff: Diff } | { kind: "error"; error: string }`.
 - **Non-empty** is `[T, ...T[]]`.
 - **Brand primitives that must not be mixed** (`type UserId = string & { readonly __brand: "UserId" }`), built only by the parser that validates them.
 - **`unknown`, never `any`**, for external data. `JSON.parse` and `response.json()` return `any`, which satisfies every type it is assigned to; take the result as `unknown` and parse it.
-- **No `as` to silence the compiler.** Narrow with a check, assert with `invariant(condition, message)`, or fix the type. `as const` and `satisfies` check rather than claim.
+- **No `as` to silence the compiler.** Narrow with a check, assert with `invariant(condition, message)`, or fix the type. A type parameter that claims a shape nothing checks, such as `db.query<T>`, is a cast too: parse the row, or read it through a checked helper. `as const` and `satisfies` check rather than claim.
 - **A `switch` over a union** ends in `default: return unreachable(value)` with `value: never`. Find the repo's `invariant` / `unreachable` helpers, or add them, before reaching for `!` or `as`.
 - **`readonly`** on every field and array that crosses a module boundary.
 - **No barrel `index.ts`** and no `export * from`.
@@ -65,6 +65,8 @@ Without declared tasks: `bunx biome check --write .`, `bunx tsc --noEmit`, `bun 
 
 - `x !== undefined` on a value typed `T | null`, or an optional field standing for a deliberately empty value
 - `as T` on parsed data, `!`, `any`, or a `@ts-` or `biome-ignore` suppression
+- A type parameter such as `db.query<Row>` claiming a shape nothing checks
+- A bare `z.object`
 - `enum` or `namespace` in new code
 - A tsconfig option TypeScript 7 removed, or a zod 3 API in a zod 4 tree
 - ESLint or Prettier beside Biome
