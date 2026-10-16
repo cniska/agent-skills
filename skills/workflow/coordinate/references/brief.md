@@ -17,7 +17,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 
 Leave out what the repo or `git log` already holds; link it.
 
-Every claim about existing code, repo state or a file's wording goes in only once checked, as verify at the source in `principles` says, and is marked a guess otherwise.
+Every claim about existing code, repo state or a file's wording goes in only once checked, as verify at the source in `principles` says, and is marked a guess otherwise. A fact a researcher or a doc supplied goes in as its quote, with the citation, not reworded.
 
 ## How to deliver it
 
