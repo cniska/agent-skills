@@ -1,6 +1,9 @@
 # Agent Skills
 
-Engineering skills for coding agents: the workflow from brief to release, compatible with [agentskills.io](https://agentskills.io).
+> Engineering skills for coding agents: the workflow from brief to release, compatible with [agentskills.io](https://agentskills.io)
+
+[![CI](https://img.shields.io/github/actions/workflow/status/cniska/agent-skills/ci.yml?branch=main&style=flat&label=ci)](https://github.com/cniska/agent-skills/actions/workflows/ci.yml?query=branch%3Amain)
+[![License](https://img.shields.io/badge/license-MIT-blue?style=flat)](LICENSE)
 
 I do all my engineering with coding agents, and this is the workflow I follow. The skills are opinionated, based on 15+ years of building production software.
 
