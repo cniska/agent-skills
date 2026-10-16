@@ -85,10 +85,10 @@ verdict_pairs() {
 }
 
 cited_worktrees() {
-  local repo="$1" worktrees uncounted common path dir
+  local repo="$1" worktrees main_checkout common path dir
   worktrees="$(git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p')"
-  uncounted="$(head -n 1 <<<"$worktrees")"
-  [ "$uncounted" != "$repo" ] || uncounted=""
+  main_checkout="$(head -n 1 <<<"$worktrees")"
+  [ "$main_checkout" != "$repo" ] || main_checkout=""
   common="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)"
   common="$(cd "$common" && pwd -P)"
   { grep -v '^Repo: ' | grep -Eo "/[^[:space:]\`'\"():,]+" || true; } | sort -u | while IFS= read -r path; do
@@ -98,7 +98,7 @@ cited_worktrees() {
     done
     dir="$(cd "$dir" && pwd -P)" || continue
     case "$dir/" in "$common"/*) continue ;; esac
-    awk -v dir="$dir/" -v uncounted="$uncounted" 'index(dir, $0 "/") == 1 && length($0) > length(best) {best = $0} END {if (best != "" && best != uncounted) print best}' <<<"$worktrees"
+    awk -v dir="$dir/" -v main_checkout="$main_checkout" 'index(dir, $0 "/") == 1 && length($0) > length(best) {best = $0} END {if (best != "" && best != main_checkout) print best}' <<<"$worktrees"
   done | sort -u
 }
 
