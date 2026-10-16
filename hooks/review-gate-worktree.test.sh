@@ -35,6 +35,13 @@ assert "an accept naming the worktree it cites records" \
 (cd "$repo" && git tag v0.1.0)
 assert "an accept for a worktree citing the repository's git dir records" \
   "$(record_handback "$(sections)"$'\nRead '"$repo"$'/.git/refs/tags/v0.1.0.\nRepo: '"$worktree"$'\nVerdict: accept')" ""
+assert "an accept naming a worktree while citing only a main-checkout file records" \
+  "$(record_handback "$(sections)"$'\nRead '"$repo"$'/README.md.\nRepo: '"$worktree"$'\nVerdict: accept')" ""
+second="$scratch/second"
+(cd "$repo" && git worktree add -q -b second "$second")
+assert "an accept naming one linked worktree while citing only another's files keeps the reviewer running" \
+  "$(record_handback "$(sections)"$'\nRead '"$second"$'/app.py.\nRepo: '"$worktree"$'\nVerdict: accept')" \
+  "$(refused "The report cites files in '$(cd "$second" && pwd -P)', another worktree of '$worktree', and none in '$worktree'. Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository.")"
 
 two_repos() { printf '%s\nRepo: %s\nVerdict: %s\nRepo: %s\n\nVerdict: %s' "$(sections)" "$1" "$2" "$3" "$4"; }
 record_handback "$(two_repos "$worktree" accept "$other" accept)" >/dev/null
