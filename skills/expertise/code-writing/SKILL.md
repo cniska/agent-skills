@@ -104,7 +104,7 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 - Writing in a language without having read its reference
 - A cast on parsed JSON, env, rows or another program's output
 - A type parameter that claims a shape no parser checks
-- An object schema that drops unknown keys instead of rejecting or keeping them, such as zod's bare `z.object`
+- An owned shape whose schema drops unknown keys instead of rejecting them, such as zod's bare `z.object`
 - A hand-written guard where the repo's schema library could parse the shape
 - A state type built from a flag and optional fields
 - A deliberately empty value spelled as an absent field, or compared against the wrong empty value
