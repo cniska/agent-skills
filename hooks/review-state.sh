@@ -32,12 +32,44 @@ carried_paths() {
   ) | tr '\0' '\n'
 }
 
-code_paths() {
-  printf '%s\n' "$1" | grep -v -e '\.md$' -e '^$' || true
+local_attributes_set() {
+  local common status=0
+  common="$(git -C "$1" rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || return 0
+  [ -e "$common/info/attributes" ] || return 1
+  grep -qvE '^[[:space:]]*(#|$)' "$common/info/attributes" 2>/dev/null || status=$?
+  [ "$status" -ne 1 ]
 }
 
-touches_code() {
-  [ -n "$(code_paths "$1")" ]
+head_generated_paths() {
+  local repo="$1" candidates="$2" lines path _ value count=0
+  local -a generated
+  generated=()
+  ! local_attributes_set "$repo" || return 0
+  lines="$(printf '%s\n' "$candidates" | tr '\n' '\0' |
+    GIT_ATTR_NOSYSTEM=1 git -C "$repo" -c core.attributesFile=/dev/null check-attr --source=HEAD -z --stdin linguist-generated 2>/dev/null |
+    tr '\0' '\n')" || return 0
+  while IFS= read -r path && IFS= read -r _ && IFS= read -r value; do
+    count=$((count + 1))
+    case "$path" in
+      .gitattributes | */.gitattributes) continue ;;
+    esac
+    case "$value" in
+      set | true) generated+=("$path") ;;
+    esac
+  done <<<"$lines"
+  [ "$count" -eq "$(wc -l <<<"$candidates")" ] || return 0
+  printf '%s\n' ${generated[@]+"${generated[@]}"}
+}
+
+code_paths() {
+  local repo="$1" candidates generated
+  candidates="$(printf '%s\n' "$2" | grep -v -e '\.md$' -e '^$')" || return 0
+  generated="$(head_generated_paths "$repo" "$candidates")" || generated=""
+  if [ -z "$generated" ]; then
+    printf '%s\n' "$candidates"
+    return
+  fi
+  grep -vxF -f <(printf '%s\n' "$generated") <<<"$candidates" || true
 }
 
 accepted_fingerprint() {

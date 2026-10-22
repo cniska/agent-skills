@@ -357,13 +357,14 @@ main() {
     deny "$(unresolved_reason "$named")" repo_not_found
     return
   fi
-  local head untracked=tracked_only paths
+  local head untracked=tracked_only paths code
   head="$(head_commit "$repo")"
   if [[ $prefix =~ $GIT_ADD_PATTERN ]]; then
     untracked=added
   fi
   paths="$(carried_paths "$repo" "$untracked")"
-  if ! touches_code "$paths"; then
+  code="$(code_paths "$repo" "$paths")"
+  if [ -z "$code" ]; then
     record allow no_code_change "$repo" "$head"
     return
   fi
@@ -378,7 +379,7 @@ main() {
     deny "$DENY_REASON" changed_since_accept "$repo" "$head" "$fingerprint"
     return
   fi
-  outside="$(code_paths "$paths" | sort -u | grep -vxF -f <(accepted_paths "$state") || true)"
+  outside="$(printf '%s\n' "$code" | sort -u | grep -vxF -f <(accepted_paths "$state") || true)"
   if [ -n "$outside" ]; then
     deny "$(outside_reason "$outside")" outside_accept "$repo" "$head" "$fingerprint"
   else
