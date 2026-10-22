@@ -1,0 +1,4 @@
+{"type":"user","message":{"content":"added an export command with tests, it's in the working tree. review it"}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Agent","input":{"subagent_type":"cniska-skills:reviewer","description":"Review the export command","prompt":"Review the uncommitted change in /work."}}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"a1","content":[{"type":"text","text":"## Findings\n\n- **Where:** src/export.ts exportNotes\n- **Rule:** Parse at the boundary\n- **Why:** the title goes into a heading unescaped.\n- **Instead:** escape the title.\n\n## Conflicts\n\nnone\n\n## Clean\n\nnone\n\nRepo: /work\nVerdict: return"}]}]}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"Returned over the unescaped title."}]}}

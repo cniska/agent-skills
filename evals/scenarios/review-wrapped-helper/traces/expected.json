@@ -1,0 +1,34 @@
+{
+  "good.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "returned": "pass",
+      "names-fixture": "pass"
+    }
+  },
+  "bad.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "pass",
+      "returned": "fail",
+      "names-fixture": "fail"
+    }
+  },
+  "near-miss.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-fixture": "fail"
+    }
+  },
+  "parent-only.jsonl": {
+    "expect": {
+      "returned": "fail",
+      "names-fixture": "fail"
+    }
+  },
+  "wrong-agent.jsonl": {
+    "expect": {
+      "reviewer-dispatched": "fail",
+      "returned": "fail"
+    }
+  }
+}
