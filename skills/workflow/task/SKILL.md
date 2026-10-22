@@ -59,7 +59,7 @@ Every route that changes code runs its own steps between these, and names them w
 - A code edit made outside a route
 - Skipping a step because the change looks small
 - The session that wrote a change running its `design-review`
-- A re-review asked of the reviewer that returned, or a diff file another worker can overwrite
+- A diff file another worker can overwrite
 - Landing past a repo rule that asks the owner first
 - A task reported as landed while a CI run on its landed commit is red or still running, or once a run from another branch passed in place of the landed one
 - A return left partly fixed, or review stopped before an accept, except to park a commit after its third return: its diff saved, the commits that do not depend on it carried on, and it reported with each return's findings

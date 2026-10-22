@@ -1,11 +1,24 @@
 MISSING_MODE=000000
 MISSING_BLOB=0
 
+fresh_reviewer_step() {
+  printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read as context"
+}
+
+data_key() {
+  printf '%s' "$1" | shasum -a 256 | cut -d ' ' -f 1
+}
+
 review_state_file() {
-  local repo="$1"
   local key
-  key="$(printf '%s' "$repo" | shasum -a 256 | cut -d ' ' -f 1)"
+  key="$(data_key "$1")"
   printf '%s/verdicts/%s\n' "$CLAUDE_PLUGIN_DATA" "$key"
+}
+
+reviewer_marker() {
+  local key
+  key="$(data_key "$1")"
+  printf '%s/reviewers/%s\n' "$CLAUDE_PLUGIN_DATA" "$key"
 }
 
 repo_root() {

@@ -72,6 +72,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - It runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit read-only, with its skills preloaded, since a subagent starts without the parent's, and loads [review](../skills/workflow/review/SKILL.md) for the review of a whole branch.
 - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
 - Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, or an accept with any finding, is sent back to it once before it may stop.
+- A `SendMessage` to a reviewer that gave a verdict is refused every time, since a message resumes the reviewer that already judged the change, and a re-review is a fresh reviewer; the refusal tells the sender to start one.
 
 ## Researcher agent
 

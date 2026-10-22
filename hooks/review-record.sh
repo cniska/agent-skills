@@ -13,7 +13,8 @@ readonly WORKTREE_MISMATCH_REASON="Put the path of the worktree the change is in
 readonly REPO_REPEATED_REASON="Give each repository one verdict: name it in one 'Repo:' line only."
 readonly REPORT_SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
-readonly SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read as context; this one returned it.' above your verdict."
+SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line '$(fresh_reviewer_step); this one returned it.' above your verdict."
+readonly SAME_REVIEWER_REASON
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
 readonly MAX_COUNT=1000
 readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
@@ -196,8 +197,16 @@ current_entries() {
   done
 }
 
+mark_reviewer() {
+  local marker
+  marker="$(reviewer_marker "$1")"
+  mkdir -p "$(dirname "$marker")"
+  : >"$marker"
+}
+
 record_accept() {
-  local repo="$1" state="$2" entries="$3" head
+  local repo="$1" state="$2" entries="$3" agent="$4" head
+  mark_reviewer "$agent"
   head="$(git -C "$repo" rev-parse --verify --quiet HEAD)" || head=-
   mkdir -p "$(dirname "$state")"
   {
@@ -217,6 +226,7 @@ returns_file() {
 
 record_return() {
   local repo="$1" agent="$2" returns
+  mark_reviewer "$agent"
   returns="$(returns_file "$repo")"
   mkdir -p "$(dirname "$returns")"
   printf '%s\n' "$agent" >>"$returns"
@@ -313,7 +323,7 @@ main() {
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
     if [ "${verdicts[$i]}" = accept ]; then
-      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")"
+      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")" "$agent"
     fi
     fingerprint="$(accept_fingerprint "$state")"
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
