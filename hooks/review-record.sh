@@ -3,6 +3,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-state.sh"
+source "$HERE/hook-output.sh"
 source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 

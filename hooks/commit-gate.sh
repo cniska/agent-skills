@@ -5,6 +5,7 @@ trap 'gate_failed "$LINENO"' ERR
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-state.sh"
 source "$HERE/event-log.sh"
+source "$HERE/hook-output.sh"
 
 INPUT=""
 COMMIT_PARTS=()
@@ -321,7 +322,7 @@ gate_failed() {
 
 deny() {
   record deny "$2" "${3:-}" "${4:-}" "${5:-}"
-  jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
+  pre_tool_deny "$1"
 }
 
 honoured() {

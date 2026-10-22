@@ -115,7 +115,7 @@ deny_once() {
     return 1
   fi
   if at_handback "$input"; then
-    jq -cn --arg reason "$reason" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
+    pre_tool_deny "$reason"
     return
   fi
   jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'

@@ -4,6 +4,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/ledger-path.sh"
 source "$HERE/transcript.sh"
+source "$HERE/hook-output.sh"
 source "$HERE/subagent-gate.sh"
 
 warn() {
