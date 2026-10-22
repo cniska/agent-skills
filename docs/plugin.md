@@ -58,6 +58,13 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - A resumed or forked session is told to load `coordinate` again and resume its ledger and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - A compacted session is told nothing: the host re-attaches the skills it loaded after the summary, and the hook runs before that re-attachment is written, so it cannot tell when one was dropped.
 
+## Worker agent
+
+`cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
+
+- It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
+- It inherits every tool, since it edits, commits and starts the reviewer, researcher and coach agents, and its model is the one the coordinator picks for the brief.
+
 ## Reviewer agent
 
 `cniska-skills:reviewer` judges a design or a change it did not write, as [the reviewer](reviewer.md) says.
@@ -117,7 +124,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 
 A hand-back hook runs the coach at the end of every delegated task.
 
-- When a subagent that loaded `task` hands back, the hook refuses the hand-back once and asks it to state its report in a message first, so its transcript keeps it, then run the coach over its own task, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back.
+- When the worker agent, or another subagent that loaded `task` with the Skill tool, hands back, the hook refuses the hand-back once and asks it to state its report in a message first, so its transcript keeps it, then run the coach over its own task, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back.
 - It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits in the ledger's folder.
 - It skips a subagent that already ran the coach.
 - What the caller does with the coach's report, and where it finds a worker's report when no hand-back carries one, is rule 8 of [coordinate](../skills/workflow/coordinate/SKILL.md).
