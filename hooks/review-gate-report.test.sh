@@ -29,25 +29,25 @@ assert "a missing verdict on the second hand-back lets the reviewer hand back" "
 
 assert "a report without the three sections keeps the reviewer running" "$(record_handback $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
 assert "a report missing one section keeps the reviewer running" "$(record_handback "$(sections | grep -v '^## Clean$')"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
-assert "an accept without the sections approves nothing" "$(gate 'git commit -am x')" "$(denied)"
+assert "an accept without the sections approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 assert "an accept with a finding keeps the reviewer running" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
 assert "an accept with 'none' and a finding keeps the reviewer running" "$(record_handback "$(sections "none"$'\n'"$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
 assert "an accept with a finding on the second hand-back lets the reviewer hand back" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept' again)" ""
-assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$(denied)"
+assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 assert "an accept whose Findings says 'None.' counts" "$(record_handback "$(sections 'None.')"$'\nRepo: '"$repo"$'\nVerdict: accept')" ""
 assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
 assert "a return with a finding records nothing to say" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: return')" ""
-assert "that return clears the accept" "$(gate 'git commit -am x')" "$(denied)"
+assert "that return clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 record_handback "$(report "$repo" accept)" >/dev/null
 assert "a return without the sections on the second hand-back still clears the accept" \
-  "$(record_handback $'Bad.\nRepo: '"$repo"$'\nVerdict: return' again; gate 'git commit -am x')" "$(denied)"
+  "$(record_handback $'Bad.\nRepo: '"$repo"$'\nVerdict: return' again; gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
 assert "a hand-back from an agent other than the reviewer is not judged" "$(record_as worker 'No verdict.' general-purpose)" ""
 edit app.py 'print(5)'
-assert "an accept handed back by another agent approves nothing" "$(record_as worker "$(report "$repo" accept)" general-purpose; gate 'git commit -am x')" "$(denied)"
+assert "an accept handed back by another agent approves nothing" "$(record_as worker "$(report "$repo" accept)" general-purpose; gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 transcript="$scratch/late.jsonl"
 stop_as() {
@@ -85,7 +85,7 @@ text_line 'No verdict.' >"$transcript"
 assert "a run that then ends in text with the same fault stops through the same bound" "$(stop_as texter 'No verdict.')" ""
 text_line $'Fine.\nRepo: '"$repo"$'\nVerdict: accept' >"$transcript"
 assert "a text end with a fault not yet denied keeps the reviewer running" "$(stop_as texter $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$(blocked "The report lacks a section. $SHAPE")"
-assert "neither end approves anything" "$(gate 'git commit -am x')" "$(denied)"
+assert "neither end approves anything" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 assert "a text stop after an accepting handback is judged by the text alone" "$(stop_on 'Looking again.')" "$MISSING_AT_STOP"
 
@@ -93,12 +93,12 @@ land
 edit README.md 'more docs'
 assert "a Markdown-only change commits without a verdict" "$(gate 'git commit -am docs')" ""
 (cd "$repo" && printf 'x = 1\n' >scratch.py && git add README.md)
-assert "a staged Markdown-only change commits beside an untracked code file" "$(gate 'git commit -m docs')" ""
-assert "a same-command add of an untracked code file needs a verdict" "$(gate 'git add -A && git commit -m docs')" "$(denied)"
+assert "an untracked code file blocks a staged Markdown-only commit" "$(gate 'git commit -m docs')" "$(denied 'scratch.py (working tree)')"
+assert "a same-command add of an untracked code file needs a verdict" "$(gate 'git add -A && git commit -m docs')" "$(denied 'scratch.py (working tree)')"
 (cd "$repo" && rm scratch.py)
 land
 (cd "$repo" && git mv app.py app.md)
-assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$(denied)"
+assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$(denied 'app.py (staged and working tree)')"
 (cd "$repo" && git mv app.md app.py)
 
 finish

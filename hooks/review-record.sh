@@ -175,8 +175,8 @@ unquote_path() {
   }')"
 }
 
-current_paths() {
-  local repo="$1" path post mode blob head_entry_mode
+current_entries() {
+  local repo="$1" path post mode content head_entry_mode
   while IFS=$'\t' read -r path post mode; do
     [ -n "$path" ] || continue
     path="$(unquote_path "$path")"
@@ -185,27 +185,28 @@ current_paths() {
       [ -n "$post" ] || continue
       [ -n "$mode" ] || mode="$head_entry_mode"
     fi
+    content="$(worktree_content "$repo" "$path")"
     if [[ $post =~ ^0+$ ]]; then
-      [ -e "$repo/$path" ] || [ -L "$repo/$path" ] || printf '%s\n' "$path"
-    elif blob="$(working_blob "$repo" "$path")" && [[ $blob == "$post"* ]] && [ "$(working_mode "$repo" "$path")" = "$mode" ]; then
-      printf '%s\n' "$path"
+      [ "$content" != "$MISSING_MODE $MISSING_BLOB" ] || printf '%s\t%s\n' "$content" "$path"
+    elif [[ $content == "$mode $post"* ]]; then
+      printf '%s\t%s\n' "$content" "$path"
     fi
   done
 }
 
 record_accept() {
-  local state="$1" fingerprint="$2" paths="$3"
+  local repo="$1" state="$2" entries="$3" head
+  head="$(git -C "$repo" rev-parse --verify --quiet HEAD)" || head=-
   mkdir -p "$(dirname "$state")"
   {
-    printf '%s\n' "$fingerprint"
-    {
-      if [ -f "$state" ] && [ "$(accepted_fingerprint "$state")" = "$fingerprint" ]; then
-        accepted_paths "$state"
-      fi
-      printf '%s\n' "$paths"
-    } | sed '/^$/d' | sort -u
-  } >"$state.tmp"
+    [ ! -f "$state" ] || cat "$state"
+    accept_entries "$head" <<<"$entries"
+  } | sort -u >"$state.tmp"
   mv "$state.tmp" "$state"
+}
+
+accept_fingerprint() {
+  { [ ! -f "$1" ] || cat "$1"; } | set_fingerprint
 }
 
 returns_file() {
@@ -309,10 +310,10 @@ main() {
   rules="$(jq -c .rules <<<"$counts")"
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
-    fingerprint="$(diff_fingerprint "${repos[$i]}")"
     if [ "${verdicts[$i]}" = accept ]; then
-      record_accept "$state" "$fingerprint" "$(current_paths "${repos[$i]}" <<<"$reviewed")"
+      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")"
     fi
+    fingerprint="$(accept_fingerprint "$state")"
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
       --arg reason "${reasons[$i]}" --argjson findings "$findings" \
       --argjson conflicts "$conflicts" --argjson rules "$rules"

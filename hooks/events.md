@@ -18,19 +18,21 @@ A plugin gate decided whether work goes on.
 | `reason` | a code from the table below |
 | `repo` | the repository's absolute top level, or `null` |
 | `head` | `commit` only: the commit `HEAD` named, so the new commit is its child; otherwise `null` |
-| `fingerprint` | `commit` only: the diff fingerprint the gate compared with the accepted one, the same value a `verdict` line carries; otherwise `null` |
+| `fingerprint` | `commit` only, where the commit carries code: a SHA-256 of the sorted set of code-path sides the gate judged, each a line of the side (`staged` or `working`), its mode and blob (`000000 0` for a deleted side), and its path; otherwise `null` |
 
 Only a command that runs `git commit` gets a line; the commit gate is silent on every other command.
 
+The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it judges and what entry covers one.
+
 | Gate | Decision | Reason | When |
 |---|---|---|---|
-| `commit` | `allow` | `accepted` | the diff is the one the reviewer accepted, and a diff file its reviewers read names every code path it carries with that path's current content |
-| `commit` | `allow` | `no_code_change` | the diff changes only Markdown and paths `HEAD` marks `linguist-generated`, or nothing |
+| `commit` | `allow` | `accepted` | every judged side of every code path matches an accepted entry for that path |
+| `commit` | `allow` | `no_code_change` | no code path differs from `HEAD` in the index or the working tree: only Markdown, paths `HEAD` marks `linguist-generated`, or nothing |
 | `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` or `git clone` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |
-| `commit` | `deny` | `changed_since_accept` | an accept is recorded, for another diff |
-| `commit` | `deny` | `outside_accept` | the accepted diff is this one, but the commit carries a changed code path that no diff file its reviewers read names with the path's current content |
+| `commit` | `deny` | `changed_since_accept` | a judged side matches no accepted entry, and an uncovered path has an accepted entry for other content, or one a commit since its accept touched |
+| `commit` | `deny` | `outside_accept` | a judged side matches no accepted entry, and no uncovered path has an accepted entry at all |
 | `commit` | `deny` | `multiple_commits` | the command runs more than one commit |
 | `commit` | `deny` | `repo_created` | the command creates the repository it commits to, by `git init` or `git clone`, with a commit that may land outside a temp directory |
 | `commit` | `deny` | `repo_unclear` | the command reaches its repository in a way the gate cannot follow |
@@ -56,7 +58,7 @@ The reviewer handed back a well-formed verdict, or ended its run with one, and t
 |---|---|
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
-| `fingerprint` | the fingerprint of the diff as it stood when the verdict was recorded |
+| `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, and its path; a return clears the set, so it carries the hash of the empty set |
 | `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
 | `findings` | the findings under `## Findings`, each counted by its `Severity:` as `critical`, `major` or `minor`, and as `unrated` when it has no readable one; `fix` and `consider` are always 0, since the report has no such kinds |
 | `conflicts` | the `- **Where:**` bullets under `## Conflicts` |

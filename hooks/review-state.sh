@@ -1,3 +1,6 @@
+MISSING_MODE=000000
+MISSING_BLOB=0
+
 review_state_file() {
   local repo="$1"
   local key
@@ -17,19 +20,14 @@ diff_base() {
   git hash-object -t tree /dev/null
 }
 
-carried_paths() {
-  case "$2" in
-    added | tracked_only) ;;
-    *)
-      printf 'carried_paths: unknown untracked mode %s\n' "$2" >&2
-      return 1
-      ;;
-  esac
-  (
-    cd "$1" || exit 1
-    git diff --name-only --no-renames -z "$(diff_base)"
-    [ "$2" = tracked_only ] || git ls-files --others --exclude-standard -z
-  ) | tr '\0' '\n'
+judged_paths() {
+  local repo="$1" base
+  base="$(cd "$repo" && diff_base)"
+  {
+    git -C "$repo" diff --cached --name-only --no-renames -z "$base"
+    git -C "$repo" diff --name-only --no-renames -z "$base"
+    git -C "$repo" ls-files --others --exclude-standard -z
+  } | tr '\0' '\n' | sort -u
 }
 
 local_attributes_set() {
@@ -72,14 +70,6 @@ code_paths() {
   grep -vxF -f <(printf '%s\n' "$generated") <<<"$candidates" || true
 }
 
-accepted_fingerprint() {
-  head -n 1 "$1"
-}
-
-accepted_paths() {
-  tail -n +2 "$1"
-}
-
 working_blob() {
   local repo="$1" path="$2"
   if [ -L "$repo/$path" ]; then
@@ -100,19 +90,56 @@ working_mode() {
   fi
 }
 
-diff_fingerprint() {
-  (
-    cd "$1" || exit 1
-    local base
-    base="$(diff_base)"
-    git diff --binary --no-renames --diff-filter=a "$base"
-    {
-      git diff --name-only --no-renames --diff-filter=A -z "$base"
-      git ls-files --others --exclude-standard -z
-    } | sort -z | while IFS= read -r -d '' path; do
-      printf '%s\0' "$path"
-      working_mode . "$path"
-      working_blob . "$path"
-    done
-  ) | shasum -a 256 | cut -d ' ' -f 1
+tree_content() {
+  local repo="$1" tree="$2" path="$3" mode="" blob=""
+  read -r mode _ blob _ < <(git --literal-pathspecs -C "$repo" ls-tree "$tree" -- "$path") || true
+  printf '%s %s\n' "${mode:-$MISSING_MODE}" "${blob:-$MISSING_BLOB}"
+}
+
+index_content() {
+  local repo="$1" path="$2" mode="" blob=""
+  read -r mode blob _ < <(git --literal-pathspecs -C "$repo" ls-files -s -- "$path") || true
+  printf '%s %s\n' "${mode:-$MISSING_MODE}" "${blob:-$MISSING_BLOB}"
+}
+
+worktree_content() {
+  local repo="$1" path="$2"
+  if [ ! -e "$repo/$path" ] && [ ! -L "$repo/$path" ]; then
+    printf '%s %s\n' "$MISSING_MODE" "$MISSING_BLOB"
+    return
+  fi
+  printf '%s %s\n' "$(working_mode "$repo" "$path")" "$(working_blob "$repo" "$path")"
+}
+
+judged_sides() {
+  local repo="$1" base path head staged working
+  base="$(cd "$repo" && diff_base)"
+  while IFS= read -r path; do
+    [ -n "$path" ] || continue
+    head="$(tree_content "$repo" "$base" "$path")"
+    staged="$(index_content "$repo" "$path")"
+    working="$(worktree_content "$repo" "$path")"
+    [ "$staged" = "$head" ] || printf '%s\t%s\t%s\n' staged "$staged" "$path"
+    [ "$working" = "$head" ] || printf '%s\t%s\t%s\n' working "$working" "$path"
+  done <<<"$2"
+}
+
+set_fingerprint() {
+  sort | shasum -a 256 | cut -d ' ' -f 1
+}
+
+accept_entries() {
+  awk -v head="$1" 'NF { print head "\t" $0 }'
+}
+
+path_entries() {
+  awk -F '\t' 'NR == FNR { wanted[$0]; next } substr($0, length($1) + length($2) + 3) in wanted { print $1 "\t" $2 }' - "$1"
+}
+
+accepted_heads() {
+  path_entries "$1" <<<"$3" | CONTENT="$2" awk -F '\t' '$2 == ENVIRON["CONTENT"] { print $1 }'
+}
+
+accepted_any() {
+  [ -n "$(path_entries "$1" <<<"$2")" ]
 }

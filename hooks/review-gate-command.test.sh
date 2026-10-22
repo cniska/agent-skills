@@ -13,14 +13,14 @@ readonly CREATE
 home_repo="$HOME/project"
 mkdir -p "$home_repo"
 (cd "$home_repo" && git init -q -b main && printf 'a = 1\n' >lib.py && git add -A && git commit -q -m base && printf 'a = 2\n' >>lib.py)
-assert "a commit after cd into a ~ path is gated against that repo" "$(gate_from 'cd ~/project && git commit -am x' "$scratch")" "$(denied)"
-assert "a commit through git -C with a ~ path is gated" "$(gate_from 'git -C ~/project commit -am x' "$scratch")" "$(denied)"
-assert "a commit after cd into a \$HOME path is gated" "$(gate_from "cd \$HOME/project && git commit -am x" "$scratch")" "$(denied)"
-assert "a commit after cd into a quoted path is gated" "$(gate_from "cd \"$home_repo\" && git commit -am x" "$scratch")" "$(denied)"
-assert "a commit after cd into a \${HOME} path is gated" "$(gate_from "cd \${HOME}/project && git commit -am x" "$scratch")" "$(denied)"
-assert "a commit after cd into a bare ~ is gated against the home repo" "$(HOME="$home_repo" gate_from 'cd ~ && git commit -am x' "$scratch")" "$(denied)"
-assert "a commit after cd and ; is gated against that repo" "$(gate_from 'cd ~/project; git commit -am x' "$scratch")" "$(denied)"
-assert "a commit message that mentions cd does not hide the repo" "$(gate_from "cd ~/project && git commit -am 'cd into place'" "$scratch")" "$(denied)"
+assert "a commit after cd into a ~ path is gated against that repo" "$(gate_from 'cd ~/project && git commit -am x' "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit through git -C with a ~ path is gated" "$(gate_from 'git -C ~/project commit -am x' "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit after cd into a \$HOME path is gated" "$(gate_from "cd \$HOME/project && git commit -am x" "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit after cd into a quoted path is gated" "$(gate_from "cd \"$home_repo\" && git commit -am x" "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit after cd into a \${HOME} path is gated" "$(gate_from "cd \${HOME}/project && git commit -am x" "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit after cd into a bare ~ is gated against the home repo" "$(HOME="$home_repo" gate_from 'cd ~ && git commit -am x' "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit after cd and ; is gated against that repo" "$(gate_from 'cd ~/project; git commit -am x' "$scratch")" "$(denied 'lib.py (working tree)')"
+assert "a commit message that mentions cd does not hide the repo" "$(gate_from "cd ~/project && git commit -am 'cd into place'" "$scratch")" "$(denied 'lib.py (working tree)')"
 assert "a commit naming a directory that is not a repository is refused" "$(gate_from 'cd ~/nowhere && git commit -am x' "$scratch")" "$UNRESOLVED"
 assert "a commit from outside any repository naming none passes to git, which refuses it" "$(gate_from 'git commit -am x' "$scratch")" ""
 for command in \
@@ -50,7 +50,7 @@ for command in \
   "grep -n 'git commit' notes.txt && git -C ~/project commit -am x" \
   "grep -n 'git init' notes.txt && git -C ~/project commit -am x" \
   "jq -r 'select(.command | test(\"git commit\"))' log.jsonl; git -C ~/project commit -am x"; do
-  assert "one commit beside commit text in [$command] is gated as one" "$(gate_from "$command" "$scratch")" "$(denied)"
+  assert "one commit beside commit text in [$command] is gated as one" "$(gate_from "$command" "$scratch")" "$(denied 'lib.py (working tree)')"
 done
 for command in \
   $'cat <<EOF\ngit commit -m a\nEOF' \
@@ -66,7 +66,7 @@ for command in \
   "echo \"a && git -C ~/project commit -am x\" 'unbalanced" \
   "bash -lc 'git status && git -C ~/project commit -am x'" \
   "cd '$home_repo' && git commit -am x"; do
-  assert "a commit in quotes that still run, or after an unbalanced quote, [$command] is gated" "$(gate_from "$command" "$scratch")" "$(denied)"
+  assert "a commit in quotes that still run, or after an unbalanced quote, [$command] is gated" "$(gate_from "$command" "$scratch")" "$(denied 'lib.py (working tree)')"
 done
 assert "two commits on separate lines are refused" "$(gate_from $'git -C ~/project commit -am x\ngit -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
 assert "a commit after a closed heredoc is still counted" "$(gate_from $'cat <<EOF\nx\nEOF\ngit -C ~/project commit -am x && git -C ~/project commit -am y' "$scratch")" "$MULTIPLE"
@@ -152,8 +152,8 @@ for command in \
   assert "a commit outside the temp directories [$command] says nothing on stderr" "$(gate_stderr "$command" /)" ""
 done
 record_handback "$(report "$repo" accept)" >/dev/null
-assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$home_repo")" "$(denied)"
-assert "a look-alike in a heredoc leaves a commit gated" "$(gate_from $'cat >notes.txt <<EOF\n'"$LOOK_ALIKE"$'\nEOF\ngit -C ~/project commit -am x' "$scratch")" "$(denied)"
+assert "a git -C commit quoted in echo does not name the commit's repo" "$(gate_from "echo \"git -C $repo commit\" && git commit -am x" "$home_repo")" "$(denied 'lib.py (working tree)')"
+assert "a look-alike in a heredoc leaves a commit gated" "$(gate_from $'cat >notes.txt <<EOF\n'"$LOOK_ALIKE"$'\nEOF\ngit -C ~/project commit -am x' "$scratch")" "$(denied 'lib.py (working tree)')"
 assert "a look-alike in a heredoc adds no commit" "$(gate_from $'cat >notes.txt <<\'EOF\'\n'"$LOOK_ALIKE"$'\nEOF\ngit status' "$scratch")" ""
 
 finish

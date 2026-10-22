@@ -17,7 +17,6 @@ readonly COMMAND_START="(^|[;&|(\`]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=
 readonly GIT_COMMAND="${COMMAND_START}([^[:space:];&|()${QUOTES}]*/)?git"
 readonly GIT_OPTIONS="([[:space:]]+(-[Cc]|--git-dir|--work-tree|--namespace)[[:space:]]+[^[:space:]]+|[[:space:]]+--?[^[:space:]]+)*"
 readonly GIT_COMMIT_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+commit${WORD_END}"
-readonly GIT_ADD_PATTERN="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+(add|stage)${WORD_END}"
 readonly COMMIT_DIR_PATTERN='[[:space:]]-C[[:space:]]+([^[:space:]]+)'
 readonly LEADING_CD_PATTERN='^[[:space:]]*cd[[:space:]]+([^[:space:];&|]+)[[:space:]]*(&&|;)'
 readonly LEADING_MKTEMP_CD_PATTERN='^([[:space:]]*cd[[:space:]]+)"\$\(mktemp[[:space:]]+-d\)"'
@@ -41,7 +40,6 @@ readonly SHELL_CODE="(ba|da|k|z)?sh([[:space:]]+-[A-Za-z]+)*[[:space:]]+-[A-Za-z
 readonly KEPT_QUOTE_PATTERN="(${REPO_DIR_ARG}|${HEREDOC_OPEN}|${WORD_START}(${SHELL_CODE})[[:space:]]+)\$"
 readonly SUBSTITUTION_PATTERN='\$\(|`'
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
-readonly DENY_REASON="Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with 'Verdict: accept', with no edits since."
 readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...'."
 readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff. A scratch repo passes when the command starts with cd <temp path> && or cd \"\$(mktemp -d)\" && and joins every step with &&."
@@ -278,10 +276,27 @@ creates_scratch_repo() {
   [ "$count" -eq "$(repo_changes "$prefix")" ]
 }
 
-outside_reason() {
-  local named="$1" pronoun=it
-  [ "$(wc -l <<<"$named")" -eq 1 ] || pronoun=them
-  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit carries. A diff file covers a path only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is still the path's content. Write the current diff of %s to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept', with no edits since." "$(paste -sd ' ' - <<<"$named")" "$pronoun"
+uncovered_items() {
+  awk -F '\t' '
+    {
+      side = $1 == "staged" ? "staged" : "working tree"
+      path = substr($0, length($1) + 2)
+      if (path == last) {
+        side = "staged and working tree"
+      } else if (last != "") {
+        print item
+      }
+      last = path
+      item = path " (" side ")"
+    }
+    END { if (last != "") print item }'
+}
+
+uncovered_reason() {
+  local items pronoun=it
+  items="$(uncovered_items <<<"$1")"
+  [ "$(wc -l <<<"$items")" -eq 1 ] || pronoun=them
+  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff file covers a path's staged or working-tree content only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is that content, and only until a later commit changes the path. An edit this commit is not meant to carry can be set aside with git stash, or git stash -u for an untracked file, and restored after the commit without voiding any accept. Otherwise write the current diff of %s to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept'." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
 }
 
 unresolved_reason() {
@@ -307,6 +322,33 @@ gate_failed() {
 deny() {
   record deny "$2" "${3:-}" "${4:-}" "${5:-}"
   jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'
+}
+
+honoured() {
+  local repo="$1" since="$2" path="$3" range=HEAD touched
+  if [ "$since" != - ]; then
+    git -C "$repo" merge-base --is-ancestor "$since" HEAD 2>/dev/null || return 1
+    range="$since..HEAD"
+  elif ! git -C "$repo" rev-parse --verify --quiet HEAD >/dev/null; then
+    return 0
+  fi
+  touched="$(git --literal-pathspecs -C "$repo" rev-list -1 "$range" -- "$path")" || return 1
+  [ -z "$touched" ]
+}
+
+covered() {
+  local repo="$1" state="$2" content="$3" path="$4" since
+  while IFS= read -r since; do
+    ! honoured "$repo" "$since" "$path" || return 0
+  done < <(accepted_heads "$state" "$content" "$path")
+  return 1
+}
+
+uncovered_sides() {
+  local repo="$1" state="$2" side content path
+  while IFS=$'\t' read -r side content path; do
+    covered "$repo" "$state" "$content" "$path" || printf '%s\t%s\n' "$side" "$path"
+  done <<<"$3"
 }
 
 head_commit() {
@@ -357,34 +399,32 @@ main() {
     deny "$(unresolved_reason "$named")" repo_not_found
     return
   fi
-  local head untracked=tracked_only paths code
+  local head code sides fingerprint
   head="$(head_commit "$repo")"
-  if [[ $prefix =~ $GIT_ADD_PATTERN ]]; then
-    untracked=added
-  fi
-  paths="$(carried_paths "$repo" "$untracked")"
-  code="$(code_paths "$repo" "$paths")"
-  if [ -z "$code" ]; then
+  code="$(code_paths "$repo" "$(judged_paths "$repo")")"
+  sides=""
+  [ -z "$code" ] || sides="$(judged_sides "$repo" "$code")"
+  if [ -z "$sides" ]; then
     record allow no_code_change "$repo" "$head"
     return
   fi
+  fingerprint="$(set_fingerprint <<<"$sides")"
 
-  local state fingerprint outside
+  local state uncovered reason=outside_accept
   state="$(review_state_file "$repo")"
-  fingerprint="$(diff_fingerprint "$repo")"
-  if [ ! -f "$state" ]; then
-    deny "$DENY_REASON" not_accepted "$repo" "$head" "$fingerprint"
-    return
-  elif [ "$(accepted_fingerprint "$state")" != "$fingerprint" ]; then
-    deny "$DENY_REASON" changed_since_accept "$repo" "$head" "$fingerprint"
+  if [ ! -s "$state" ]; then
+    deny "$(uncovered_reason "$(cut -f 1,3- <<<"$sides")")" not_accepted "$repo" "$head" "$fingerprint"
     return
   fi
-  outside="$(printf '%s\n' "$code" | sort -u | grep -vxF -f <(accepted_paths "$state") || true)"
-  if [ -n "$outside" ]; then
-    deny "$(outside_reason "$outside")" outside_accept "$repo" "$head" "$fingerprint"
-  else
+  uncovered="$(uncovered_sides "$repo" "$state" "$sides")"
+  if [ -z "$uncovered" ]; then
     record allow accepted "$repo" "$head" "$fingerprint"
+    return
   fi
+  if accepted_any "$state" "$(cut -f 2- <<<"$uncovered")"; then
+    reason=changed_since_accept
+  fi
+  deny "$(uncovered_reason "$uncovered")" "$reason" "$repo" "$head" "$fingerprint"
 }
 
 main "$@"

@@ -42,9 +42,9 @@ sequenceDiagram
   A->>R: the fix's diff in a new file, the earlier one as context
   Note over R: judges only the fix, not the whole diff again
   R-->>A: Verdict: accept
-  Note over R: the accept is recorded for this diff
+  Note over R: the accept is recorded for each path's content
   A->>P: git commit
-  P->>G: allowed (diff unchanged since accept)
+  P->>G: allowed (each changed path's content accepted)
   G-->>A: the project's commit checks pass
   A->>C: push, as the repo's rule says
   C-->>A: same checks again
@@ -72,13 +72,14 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 ## Commit gate
 
-It blocks a commit until the reviewer has accepted that exact diff, in the worktree the commit targets.
+It blocks a commit until the reviewer has accepted the content of every changed code path, in the worktree the commit targets.
 
-- An edit after the accept, or a `Verdict: return`, blocks it again.
-- An accept covers only the code paths in the diff files its reviewer read that the brief names by absolute path, each only while its content is still the diff's new side, so a commit carrying any other changed code is blocked. A later accept of the same tree adds the paths its reviewer read, and a re-review covers the whole change when its brief also names the change's earlier diff files by absolute path: it judges the fix, and a disagreement with lines an earlier review of those diffs read and left unflagged is a conflict, which never blocks.
+- It judges each code path whose index entry or working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A side is covered while its mode and content are the new side of that path in a diff file a reviewer read that the brief names by absolute path, and a deleted side only by an accepted deletion. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
+- The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, so accepted content landed again after a later change needs a fresh accept, and a `Verdict: return` clears every accept for the repo.
+- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its brief also names the change's earlier diff files by absolute path: it judges the fix, and a disagreement with lines an earlier review of those diffs read and left unflagged is a conflict, which never blocks.
 - An accept from a reviewer that returned the same repo earlier is discarded, so a re-review is always a fresh reviewer.
 - A finding about code outside every diff of the change is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths.
-- Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: a diff that changes only such paths needs no accept, and an accept need not cover them, though an edit to them after the accept still blocks the commit. Untracked files count only when the commit command adds them.
+- Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
 - Only a marking committed in `HEAD` counts, so a `.gitattributes` change exempts paths from the next commit on, and a `.gitattributes` file is never exempt. No path counts as generated while the repo's `info/attributes` holds a rule, before the first commit, or when `git check-attr` fails.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
 - A command that creates its repo with `git init` or `git clone` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else blocks the commit. A command run from outside a temp directory reaches one with `-C` and a literal temp path on every commit, or with a leading `cd` to a literal temp path or to `"$(mktemp -d)"`, joined to every later step by `&&`; on the `cd` route, a target named through a variable, or a `;` or newline before the last commit, blocks the command.

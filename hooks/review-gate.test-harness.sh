@@ -24,7 +24,12 @@ repo="$scratch/repo"
 mkdir -p "$repo"
 (cd "$repo" && git init -q -b main && printf 'print(1)\n' >app.py && printf '# readme\n' >README.md && git add -A && git commit -q -m base)
 
-denied() { printf '%s' '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"Commit blocked: cniska-skills:reviewer has not accepted this diff. Hand the change to cniska-skills:reviewer with the absolute path of its repo and commit once it ends with '"'"'Verdict: accept'"'"', with no edits since."}}'; }
+denied() {
+  local items pronoun=it
+  [ "$#" -eq 1 ] || pronoun=them
+  items="$(printf '%s, ' "$@")"
+  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers ${items%, }, which this commit can carry. A diff file covers a path's staged or working-tree content only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is that content, and only until a later commit changes the path. An edit this commit is not meant to carry can be set aside with git stash, or git stash -u for an untracked file, and restored after the commit without voiding any accept. Otherwise write the current diff of $pronoun to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept'."
+}
 refused() { jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'; }
 blocked() { jq -cn --arg reason "$1" '{decision: "block", reason: $reason}'; }
 repo_refusal() { refused "${1:+$1 }Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."; }

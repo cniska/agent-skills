@@ -21,7 +21,7 @@ assert "recording a verdict without an agent id fails" \
   "$(jq -cn --arg cwd "$repo" --arg message "$(report "$repo" accept)" '{agent_type: "cniska-skills:reviewer", cwd: $cwd, last_assistant_message: $message}' | "$RECORD" 2>&1 >/dev/null; echo "$?")" \
   "review-record.sh: agent_id is required to tell reviewers apart
 1"
-assert "a verdict without an agent id approves nothing" "$(gate 'git commit -am x')" "$(denied)"
+assert "a verdict without an agent id approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 assert "a stop of an agent other than the reviewer is not judged" \
   "$(jq -cn --arg cwd "$repo" '{hook_event_name: "SubagentStop", agent_type: "general-purpose", agent_id: "w1", cwd: $cwd, last_assistant_message: "No verdict."}' | "$RECORD" 2>/dev/null)" ""
@@ -57,16 +57,16 @@ decided() {
   new_lines "$before" | jq -c 'del(.ts, .v, .session, .agent, .cwd, .event)'
 }
 
-fingerprint_of() { (source "$HERE/review-state.sh" && diff_fingerprint "$1"); }
-carried_of() { (source "$HERE/review-state.sh" && carried_paths "$1" "$2"); }
-assert "listing carried paths in an unknown untracked mode fails" "$(carried_of "$logged" bogus >/dev/null 2>&1; echo "$?")" 1
+sha() { shasum -a 256 | cut -d ' ' -f 1; }
 
 before="$(lines)"
 gate_logged 'git status' >/dev/null
 assert "a command that is not a commit logs nothing" "$(new_lines "$before")" ""
 
 (cd "$logged" && printf 'n = 2\n' >n.py)
-fp="$(fingerprint_of "$logged")"
+blob="$(git -C "$logged" hash-object n.py)"
+fp="$(printf 'working\t100644 %s\tn.py\n' "$blob" | sha)"
+accepted_fp="$(printf '%s\t100644 %s\tn.py\n' "$logged_head" "$blob" | sha)"
 before="$(lines)"
 gate_logged 'git commit -am x' >/dev/null
 assert "a gate decision logs one line with the common fields" \
@@ -76,17 +76,18 @@ assert "an unreviewed commit logs a deny with the diff it judged" \
   "$(new_lines "$before" | jq -c 'del(.ts, .v, .session, .agent, .cwd, .event)')" \
   "$(jq -cn --arg repo "$logged_repo" --arg head "$logged_head" --arg fp "$fp" '{gate: "commit", decision: "deny", reason: "not_accepted", repo: $repo, head: $head, fingerprint: $fp}')"
 
-assert "an accepting verdict logs the verdict and the diff it accepted" \
+assert "an accepting verdict logs the verdict and the accept set it recorded" \
   "$(decided record_logged "$(report "$logged" accept)")" \
-  "$(jq -cn --arg repo "$logged_repo" --arg fp "$fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null, findings: {critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}, conflicts: 0, rules: []}')"
+  "$(jq -cn --arg repo "$logged_repo" --arg fp "$accepted_fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null, findings: {critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}, conflicts: 0, rules: []}')"
 assert "the verdict line names the reviewer's agent id" "$(tail -n 1 "$log" | jq -r .agent)" r1
-assert "the accepted commit logs an allow with the same fingerprint" \
+assert "the accepted commit logs an allow with the fingerprint of the sides it judged" \
   "$(decided gate_logged 'git commit -am x')" \
   "$(jq -cn --arg repo "$logged_repo" --arg head "$logged_head" --arg fp "$fp" '{gate: "commit", decision: "allow", reason: "accepted", repo: $repo, head: $head, fingerprint: $fp}')"
 (cd "$logged" && printf 'n = 3\n' >n.py)
 reviewer=r2
 assert "an edit after the accept logs changed_since_accept" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" changed_since_accept
-assert "a returning verdict logs the return" "$(decided record_logged "$(report "$logged" return)" | jq -r --arg repo "$logged_repo" '[.verdict, .repo == $repo] | @tsv')" "return	true"
+assert "a returning verdict logs the return with the fingerprint of the cleared accept set" \
+  "$(decided record_logged "$(report "$logged" return)" | jq -r --arg repo "$logged_repo" '[.verdict, .repo == $repo, .fingerprint] | @tsv')" "return	true	$(printf '' | sha)"
 counts() { decided record_logged "$(sections "$1" "$2")"$'\nRepo: '"$logged"$'\nVerdict: return' | jq -c '[.findings, .conflicts, .rules]'; }
 readonly EVERY_SEVERITY='- **Where:** n.py:1
 - **Rule:** No dead structure
@@ -173,7 +174,7 @@ assert "a Repo path that is not a repository logs repo_not_found" "$(decided rec
 (cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)
 mv "$log" "$log.kept"
 mkdir "$log"
-assert "an unwritable log leaves a deny unchanged" "$(gate_logged 'git commit -am x')" "$(denied)"
+assert "an unwritable log leaves a deny unchanged" "$(gate_logged 'git commit -am x')" "$(denied 'n.py (working tree)')"
 assert "an unwritable log leaves the deny's exit code at 0" "$(gate_logged 'git commit -am x' >/dev/null; echo "$?")" 0
 assert "an unwritable log warns on stderr" \
   "$(jq -cn --arg cwd "$logged" '{tool_input: {command: "git commit -am x"}, cwd: $cwd}' | { "$GATE" >/dev/null; } 2>&1 | grep -c '^commit-gate.sh: the event log was not written')" 1
