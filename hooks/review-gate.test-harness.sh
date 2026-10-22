@@ -15,6 +15,8 @@ assert() {
 
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
+source "$HERE/jq-past-shims.test-harness.sh"
+link_jq_past_shims "$scratch"
 export HOME="$scratch/home" GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 GIT_CEILING_DIRECTORIES="$scratch"
 export GIT_AUTHOR_NAME=test GIT_AUTHOR_EMAIL=test@example.com GIT_COMMITTER_NAME=test GIT_COMMITTER_EMAIL=test@example.com
 export CLAUDE_PLUGIN_DATA="$scratch/data"

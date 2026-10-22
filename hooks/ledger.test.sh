@@ -17,6 +17,8 @@ assert() {
 
 scratch="$(cd "$(mktemp -d)" && pwd -P)"
 trap 'rm -rf "$scratch"' EXIT
+source "$HERE/jq-past-shims.test-harness.sh"
+link_jq_past_shims "$scratch"
 export HOME="$scratch/home" CLAUDE_PROJECT_DIR="$scratch/project"
 export GIT_CONFIG_NOSYSTEM=1 GIT_CEILING_DIRECTORIES="$scratch"
 unset XDG_DATA_HOME XDG_STATE_HOME AGENT_LEDGER
