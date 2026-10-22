@@ -31,7 +31,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` or `git clone` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |
-| `commit` | `deny` | `changed_since_accept` | a judged side matches no accepted entry, and an uncovered path has an accepted entry for other content, or one a commit since its accept touched |
+| `commit` | `deny` | `changed_since_accept` | a judged side matches no accepted entry, and an uncovered path has an accepted entry for other content, one whose accept commit is no longer an ancestor of `HEAD`, or one a commit since its accept touched |
 | `commit` | `deny` | `outside_accept` | a judged side matches no accepted entry, and no uncovered path has an accepted entry at all |
 | `commit` | `deny` | `multiple_commits` | the command runs more than one commit |
 | `commit` | `deny` | `repo_created` | the command creates the repository it commits to, by `git init` or `git clone`, with a commit that may land outside a temp directory |

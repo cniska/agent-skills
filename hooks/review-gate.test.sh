@@ -125,4 +125,22 @@ accept_of gen.js
 assert "a generated-only change commits with an accept" "$(gate 'git commit -am x')" ""
 assert "that generated commit still needs no code accept" "$(last_reason)" no_code_change
 
+(cd "$repo" && printf 'd = 1\n' >d.py && git add d.py && git commit -q -m d)
+edit d.py 'd = 2'
+(cd "$repo" && git add d.py)
+edit d.py 'd = 3'
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff --cached HEAD)")" >/dev/null
+(cd "$repo" && git stash push -q --keep-index)
+assert "an accepted staged part commits once the rest of its path is stashed" "$(gate 'git commit -m x')" ""
+(cd "$repo" && git stash drop -q && git reset -q --hard)
+
+edit README.md 'later'
+land
+edit d.py 'd = 4'
+accepted="$(cat "$repo/d.py")"
+accept_of d.py
+(cd "$repo" && git reset -q --hard HEAD~ && printf '%s\n' "$accepted" >d.py)
+assert "an accept recorded on a commit no longer behind HEAD is refused" "$(gate 'git commit -am x')" "$(denied 'd.py (working tree)')"
+assert "that refusal says the path changed since its accept" "$(last_reason)" changed_since_accept
+
 finish

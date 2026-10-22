@@ -72,7 +72,7 @@ land
 before_chmod="$(git -C "$repo" diff HEAD)"
 (cd "$repo" && chmod +x fresh.py)
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$before_chmod")" >/dev/null
-assert "a diff of a new file taken before a chmod does not approve the executable file" "$(gate 'git commit -m x')" "$(denied 'fresh.py (staged and working tree)')"
+assert "a diff of a new file taken before a chmod does not approve the executable file" "$(gate 'git commit -m x')" "$(denied 'fresh.py (working tree)')"
 (cd "$repo" && git rm -q -f fresh.py && printf 'app.py' >linked.py && git add linked.py)
 as_file="$(git -C "$repo" diff HEAD)"
 (cd "$repo" && rm linked.py && ln -s app.py linked.py && git add linked.py)

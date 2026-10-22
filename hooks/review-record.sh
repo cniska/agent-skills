@@ -185,12 +185,13 @@ current_entries() {
       [ -n "$post" ] || continue
       [ -n "$mode" ] || mode="$head_entry_mode"
     fi
-    content="$(worktree_content "$repo" "$path")"
-    if [[ $post =~ ^0+$ ]]; then
-      [ "$content" != "$MISSING_MODE $MISSING_BLOB" ] || printf '%s\t%s\n' "$content" "$path"
-    elif [[ $content == "$mode $post"* ]]; then
-      printf '%s\t%s\n' "$content" "$path"
-    fi
+    for content in "$(index_content "$repo" "$path")" "$(worktree_content "$repo" "$path")"; do
+      if [[ $post =~ ^0+$ ]]; then
+        [ "$content" != "$MISSING_MODE $MISSING_BLOB" ] || printf '%s\t%s\n' "$content" "$path"
+      elif [[ $content == "$mode $post"* ]]; then
+        printf '%s\t%s\n' "$content" "$path"
+      fi
+    done
   done
 }
 
