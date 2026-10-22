@@ -33,11 +33,15 @@ diff_base() {
   git hash-object -t tree /dev/null
 }
 
+staged_paths() {
+  git -C "$1" diff --cached --name-only --no-renames -z "$2"
+}
+
 judged_paths() {
   local repo="$1" base
   base="$(cd "$repo" && diff_base)"
   {
-    git -C "$repo" diff --cached --name-only --no-renames -z "$base"
+    staged_paths "$repo" "$base"
     git -C "$repo" diff --name-only --no-renames -z "$base"
     git -C "$repo" ls-files --others --exclude-standard -z
   } | tr '\0' '\n' | sort -u
@@ -125,14 +129,16 @@ worktree_content() {
 }
 
 judged_sides() {
-  local repo="$1" base path head staged working
+  local repo="$1" base staged path head working
   base="$(cd "$repo" && diff_base)"
+  staged="$(staged_paths "$repo" "$base" | tr '\0' '\n')"
   while IFS= read -r path; do
     [ -n "$path" ] || continue
     head="$(tree_content "$repo" "$base" "$path")"
-    staged="$(index_content "$repo" "$path")"
     working="$(worktree_content "$repo" "$path")"
-    [ "$staged" = "$head" ] || printf '%s\t%s\t%s\n' staged "$staged" "$path"
+    if grep -qxF -- "$path" <<<"$staged"; then
+      printf '%s\t%s\t%s\n' staged "$(index_content "$repo" "$path")" "$path"
+    fi
     [ "$working" = "$head" ] || printf '%s\t%s\t%s\n' working "$working" "$path"
   done <<<"$2"
 }

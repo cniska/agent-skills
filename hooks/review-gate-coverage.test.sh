@@ -79,6 +79,10 @@ as_file="$(git -C "$repo" diff HEAD)"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$as_file")" >/dev/null
 assert "a diff of a file holding a link's target text does not approve the symlink" "$(gate 'git commit -m x')" "$(denied 'linked.py (staged and working tree)')"
 land
+(cd "$repo" && printf 'z = 1\n' >ita.py && git add -N ita.py)
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff HEAD)")" >/dev/null
+assert "an accept of the working diff of an intent-to-add file covers its path" "$(gate 'git add -A && git commit -m x')" ""
+land
 (cd "$repo" && printf 'v = 1\n' >"$(printf 'caf\303\251 "q".py')" && git add -A)
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" -c core.quotePath=true diff HEAD)")" >/dev/null
 assert "an accept of git's own quoted diff of a non-ASCII path covers it" "$(gate 'git commit -m x')" ""
