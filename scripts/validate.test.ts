@@ -179,6 +179,93 @@ describe("validate", () => {
     );
   });
 
+  describe("paths into another skill", () => {
+    const OTHER = "name: other\ndescription: Review a change. Use when reviewing.";
+
+    function withOther(demoBody: string): string {
+      const root = fixture();
+      write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `${demoBody}\n\n${RED_FLAGS}`));
+      write(root, "skills/expertise/other/SKILL.md", skill(OTHER, RED_FLAGS));
+      write(root, "skills/expertise/other/references/x.md", "# X\n");
+      write(root, "skills/expertise/other/references/y.md", "# Y\n");
+      return root;
+    }
+
+    test("fails a backticked path in SKILL.md that exists only under another skill", () => {
+      const run = validate(withOther("Read `references/x.md` beside it."));
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "skills/workflow/demo/SKILL.md names 'references/x.md', a path inside the other skill's directory",
+      );
+    });
+
+    test("fails the same path in a reference file", () => {
+      const root = withOther("One line.");
+      write(root, "skills/workflow/demo/references/notes.md", "# Notes\n\nRead `references/x.md`.\n");
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "skills/workflow/demo/references/notes.md names 'references/x.md', a path inside the other skill's directory",
+      );
+    });
+
+    test("fails a path through another skill's directory", () => {
+      const run = validate(withOther("Read `skills/expertise/other/references/z.md`."));
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "names 'skills/expertise/other/references/z.md', a path inside the other skill's directory",
+      );
+    });
+
+    test("names the skill a relative path climbs into, not a sibling it climbs out of", () => {
+      const root = withOther("Read `../../expertise/other/references/x.md`.");
+      write(root, "skills/workflow/alpha/SKILL.md", skill(REVIEW.replace("demo", "alpha"), RED_FLAGS));
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "names '../../expertise/other/references/x.md', a path inside the other skill's directory",
+      );
+      expect(run.output).not.toContain("alpha skill's directory");
+    });
+
+    test("fails a reference file's relative path that climbs into another skill", () => {
+      const root = withOther("One line.");
+      write(
+        root,
+        "skills/workflow/demo/references/notes.md",
+        "# Notes\n\nRead `../../../expertise/other/references/x.md`.\n",
+      );
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(
+        "skills/workflow/demo/references/notes.md names '../../../expertise/other/references/x.md', a path inside the other skill's directory",
+      );
+    });
+
+    test("passes the skill's own references/x.md", () => {
+      const root = withOther("Read `references/x.md`.");
+      write(root, "skills/workflow/demo/references/x.md", "# X\n");
+      expect(validate(root).code).toBe(0);
+    });
+
+    test("passes a reference file naming SKILL.md", () => {
+      const root = withOther("One line.");
+      write(root, "skills/workflow/demo/references/notes.md", "# Notes\n\nSee `SKILL.md`.\n");
+      expect(validate(root).code).toBe(0);
+    });
+
+    test("passes a reference file naming its own skill's references/y.md", () => {
+      const root = withOther("One line.");
+      write(root, "skills/workflow/demo/references/notes.md", "# Notes\n\nSee `references/y.md`.\n");
+      write(root, "skills/workflow/demo/references/y.md", "# Y\n");
+      expect(validate(root).code).toBe(0);
+    });
+
+    test("passes project paths no skill holds", () => {
+      expect(validate(withOther("Read `AGENTS.md` and `docs/architecture.md` first.")).code).toBe(0);
+    });
+  });
+
   test("skips web, mail and in-page links", () => {
     const root = fixture();
     write(

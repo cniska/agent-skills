@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { z } from "zod";
 import { reportProblems, runMain } from "../lib/cli";
@@ -46,6 +46,9 @@ const SKILL_NAME = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
 const SEE_ALSO = /^## See also$/;
 const HEADING = /^## /;
 const LINKED_TEXT = /\[[^\]\n]*\]\([^)\n]+\)/g;
+const CODE_SPAN = /`([^`\n]+)`/g;
+const PATH_LIKE = /^[\w.-]+(?:\/[\w.-]*)*$/;
+const SKILL_PATH = /(?:^|\/)skills\/([a-z]+)\/([a-z0-9-]+)\//;
 const MANIFEST_SKILLS = SKILL_KINDS.map((kind) => `./skills/${kind}`);
 const KIND_FOLDERS = SKILL_KINDS.map((kind) => `skills/${kind}/`).join(" and ");
 const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL_KIND_RULES[kind]}`).join(
@@ -74,7 +77,11 @@ type Skill = {
 
 type NumberedLine = { readonly shown: string; readonly inSeeAlso: boolean };
 
-type SkillNames = { readonly all: ReadonlySet<string>; readonly workflow: ReadonlySet<string> };
+type RepoSkills = {
+  readonly all: ReadonlySet<string>;
+  readonly workflow: ReadonlySet<string>;
+  readonly dirs: readonly SkillDir[];
+};
 
 type Loaded =
   | { readonly kind: "skill"; readonly skill: Skill }
@@ -112,9 +119,16 @@ function firstWord(description: string): string {
   return (description.match(FIRST_WORD)?.[1] ?? description).toLowerCase();
 }
 
-function resolvesInside(skillRoot: string, doc: Doc, target: string): boolean {
-  const file = resolve(dirname(doc.file), target);
-  return existsSync(file) && realpathSync(file).startsWith(skillRoot + sep);
+function insideDir(dir: string, path: string): boolean {
+  return path === dir || path.startsWith(dir + sep);
+}
+
+function existsInside(dir: string, path: string): boolean {
+  return existsSync(path) && insideDir(realpathSync(dir), realpathSync(path));
+}
+
+function resolvesInside(dir: string, doc: Doc, target: string): boolean {
+  return existsInside(dir, resolve(dirname(doc.file), target));
 }
 
 function fieldProblems({ skillDoc, declaredName, description }: Skill): string[] {
@@ -147,14 +161,13 @@ function antiPatternsProblems({ skillDoc }: Skill): string[] {
 }
 
 function linkProblems({ name, dir, docs }: Skill): string[] {
-  const skillRoot = realpathSync(dir);
   return docs.flatMap((doc) =>
     [...doc.text.matchAll(LINK)]
       .map((match) => match[1] ?? "")
       .filter((link) => !EXTERNAL_LINK.test(link))
       .filter((link) => {
         const target = link.split("#")[0] ?? "";
-        return target !== "" && !resolvesInside(skillRoot, doc, target);
+        return target !== "" && !resolvesInside(dir, doc, target);
       })
       .map(
         (link) =>
@@ -210,6 +223,47 @@ function routeProblems({ kind, docs }: Skill, workflow: ReadonlySet<string>): st
   });
 }
 
+function codeSpanPaths(text: string): string[] {
+  const spans = [...text.matchAll(CODE_SPAN)].map((match) => (match[1] ?? "").split("#")[0] ?? "");
+  return [...new Set(spans.filter((span) => PATH_LIKE.test(span)))];
+}
+
+function isFile(path: string): boolean {
+  return statSync(path, { throwIfNoEntry: false })?.isFile() === true;
+}
+
+function ownsPath(dir: string, doc: Doc, target: string): boolean {
+  return [dirname(doc.file), dir].some((base) => existsInside(dir, resolve(base, target)));
+}
+
+function holderOf(target: string, doc: Doc, own: string, dirs: readonly SkillDir[]): SkillDir | null {
+  const through = target.match(SKILL_PATH);
+  const fromDoc = resolve(dirname(doc.file), target);
+  return (
+    dirs.find((other) => {
+      if (other.dir === own) return false;
+      const fromRoot = resolve(other.dir, target);
+      return (
+        (through?.[1] === other.kind && through[2] === other.name) ||
+        (isFile(fromRoot) && existsInside(other.dir, fromRoot)) ||
+        existsInside(other.dir, fromDoc)
+      );
+    }) ?? null
+  );
+}
+
+function otherSkillPathProblems({ dir, docs }: Skill, dirs: readonly SkillDir[]): string[] {
+  return docs.flatMap((doc) =>
+    codeSpanPaths(doc.text)
+      .filter((target) => !ownsPath(dir, doc, target))
+      .flatMap((target) => {
+        const holder = holderOf(target, doc, dir, dirs);
+        if (holder === null) return [];
+        return [`${doc.shown} names '${target}', a path inside the ${holder.name} skill's directory`];
+      }),
+  );
+}
+
 function namedModelProblems(docs: readonly Doc[]): string[] {
   return docs.flatMap((doc) => {
     const lines = modelLines(doc.text);
@@ -254,6 +308,9 @@ const SEE_ALSO_RESOLVE =
 const ROUTE_RESOLVE =
   "state the rule without loading or routing to the workflow skill, and name it under ## See also if a reader needs it";
 
+const OTHER_SKILL_PATH_RESOLVE =
+  "name the other skill by bare name and its principle or section in words, never a path into its directory";
+
 function load(root: string, { name, kind, dir }: SkillDir): Loaded {
   const skillFile = join(dir, "SKILL.md");
   if (!existsSync(skillFile)) {
@@ -291,11 +348,15 @@ function load(root: string, { name, kind, dir }: SkillDir): Loaded {
   };
 }
 
-function skillProblems(skill: Skill, names: SkillNames): Problem[] {
+function skillProblems(skill: Skill, repo: RepoSkills): Problem[] {
   return [
     ...CHECKS.flatMap(({ resolve, problems }) => problems(skill).map((message) => ({ message, resolve }))),
-    ...routeProblems(skill, names.workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
-    ...seeAlsoProblems(skill, names.all).map((message) => ({ message, resolve: SEE_ALSO_RESOLVE })),
+    ...routeProblems(skill, repo.workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
+    ...seeAlsoProblems(skill, repo.all).map((message) => ({ message, resolve: SEE_ALSO_RESOLVE })),
+    ...otherSkillPathProblems(skill, repo.dirs).map((message) => ({
+      message,
+      resolve: OTHER_SKILL_PATH_RESOLVE,
+    })),
   ];
 }
 
@@ -375,16 +436,17 @@ runMain((args) => {
   const skillsDir = join(root, "skills");
   if (!existsSync(skillsDir)) throw new CodedError("skills_missing", { dir: root });
   const skills = skillDirs(skillsDir);
-  const names: SkillNames = {
+  const repo: RepoSkills = {
     all: new Set(skills.map((skill) => skill.name)),
     workflow: new Set(skills.filter((skill) => skill.kind === "workflow").map((skill) => skill.name)),
+    dirs: skills,
   };
   const problems = [
     ...strayProblems(skillsDir),
     ...duplicateProblems(skills),
     ...skills.flatMap((skillDir) => {
       const loaded = load(root, skillDir);
-      return loaded.kind === "skill" ? skillProblems(loaded.skill, names) : [loaded.problem];
+      return loaded.kind === "skill" ? skillProblems(loaded.skill, repo) : [loaded.problem];
     }),
     ...manifestProblems(root),
     ...proseProblems(root),
