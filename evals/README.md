@@ -36,7 +36,7 @@ mise run eval:prove <case-dir> [--workspace <dir>] <trace>...   # grade any trac
 mise run eval:keep <head.json> <case> <run> <label>   # save a kept run's trace into the case
 ```
 
-To improve a skill: edit it, run `mise run eval --skill <name> --against HEAD --runs 5`, and read the two rows per case: base is the committed champion, head your challenger. If the head holds or beats the base across the runs, commit it and it becomes the champion; if it drops, `git restore` it. Repeat until every case scores where you want it.
+When a change's risk needs an eval and the owner approved the run: edit the skill, run `mise run eval --skill <name> --against HEAD --runs 5`, and read the two rows per case: base is the committed champion, head your challenger. If the head holds or beats the base across the runs, commit it and it becomes the champion; if it drops, `git restore` it.
 
 ## Reading the summary
 

@@ -103,7 +103,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [adr](skills/workflow/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
 | [docs-writing](skills/workflow/docs-writing/SKILL.md) | Create or update project documentation: each claim checked at its source, each fact in the doc that owns it, every mention of a changed behavior swept |
 | [agents-md](skills/workflow/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
-| [skill-writing](skills/workflow/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, score on eval cases where the repo has them, then check it in real use |
+| [skill-writing](skills/workflow/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, reach for an eval only when the change's risk needs one, then check it in real use |
 | [routine-writing](skills/workflow/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
 | [verification-setup](skills/workflow/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
 | [workflow-review](skills/workflow/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of quoted evidence and named by the waste it cost and its cause |

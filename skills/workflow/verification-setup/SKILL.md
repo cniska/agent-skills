@@ -53,7 +53,7 @@ Name the mode, the skill and files added or changed, the behavior driven, the ev
 ## See also
 
 - `task` for the Close step that runs this proof on each change
-- `skill-writing` for proving a changed skill on its evals and in real use
+- `skill-writing` for proving a changed skill in real use
 
 ## Red flags
 

@@ -63,7 +63,7 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 ## See also
 
 - `search-sessions` — finds the evidence
-- `skill-writing` — makes an accepted change to a skill or agent, eval scoring included
+- `skill-writing` — makes an accepted change to a skill or agent
 - `agents-md` — makes an accepted change to a repo's rules
 - `design-review` — the same judgment, applied to code
 - `principles` — rules as checks, no drift
