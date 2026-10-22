@@ -107,7 +107,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 
 ## Coach agent
 
-`cniska-skills:coach` is a task coach: once a task lands, it finds where the workflow failed me in that task and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
+`cniska-skills:coach` is a task coach: once a task lands or stops, it finds where the workflow failed me in that task and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
 
 - It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over the task's sessions, the worker's and its subagents': my corrections, the questions I had to ask, gate stops, review returns, retries and the friction the sessions reported.
 - It reads the task's trace from agent-record first where it is installed, and the transcripts only at the steps that show friction; without the record it reads the transcripts whole.

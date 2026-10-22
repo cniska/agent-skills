@@ -45,6 +45,7 @@ flowchart TD
   reviewer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
   land -- "the landed task's sessions" --> coach["Coach"]
+  worker -- "a stopped task's sessions" --> coach
   coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
   lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
   exp -- "past its check date: signals before and after, in the coach's next brief" --> coach
@@ -57,11 +58,11 @@ flowchart TD
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
+The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands or stops to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
 
 ```mermaid
 flowchart LR
-  task["Landed task"] -- "its sessions" --> coach["Coach"]
+  task["Landed or stopped task"] -- "its sessions" --> coach["Coach"]
   rec[("agent-record")] -- "earlier sessions, signals" --> coach
   coach -- "proposals, keep, revert or trim" --> lead["Coordinator"]
 ```

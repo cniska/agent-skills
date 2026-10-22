@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task lands, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task lands or stops, or when asked what should change in the workflow.
 ---
 
 # Workflow review

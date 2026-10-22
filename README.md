@@ -18,16 +18,16 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** the coach reviews each task once it lands, and the coordinator applies each change it proposes as an experiment where a signal can read it, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
+- **The improvement loop changes the workflow:** the coach reviews each task once it lands or stops, and the coordinator applies each change it proposes as an experiment where a signal can read it, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
 
-One task's life, from my request through its landed branch to the workflow changes its coach proposes:
+One task's life, from my request through its landed branch, or its stop, to the workflow changes its coach proposes:
 
 ```mermaid
 flowchart LR
   you(["You"]) -- "request" --> coord["Coordinator"]
   coord -- "brief" --> worker["Worker"]
   worker <-- "diff, verdict" --> reviewer["Reviewer"]
-  worker -- "lands" --> coach["Coach"]
+  worker -- "lands or stops" --> coach["Coach"]
   coach -- "proposals" --> coord
   coord -- "report" --> you
 ```
@@ -69,7 +69,7 @@ npx skills add cniska/agent-skills
 | Reviewer agent | Judges each commit it did not write against the design rules, runs `review` on a whole branch before it lands, and ends with accept or return. |
 | Commit gate | Holds each commit for the reviewer's accept. |
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
-| Coach agent | Coaches each task once it lands, proposing the workflow changes that repeat. |
+| Coach agent | Coaches each task once it lands or stops, proposing the workflow changes that repeat. |
 | Task coach hook | Runs the coach when a delegated task ends. |
 | Event log | Records gate decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
