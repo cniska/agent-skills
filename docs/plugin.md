@@ -63,7 +63,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
 
 - It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
-- It inherits every tool, since it edits, commits and starts the reviewer, researcher and coach agents, and its model is the one the coordinator picks for the brief.
+- It inherits every tool, since it edits, commits and starts the reviewer, researcher and coach agents.
 
 ## Reviewer agent
 
