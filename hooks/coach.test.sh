@@ -80,6 +80,9 @@ assert "the ask is made once" "$(reason general-purpose again)" ""
 { tool_use Skill '{"skill": "task"}' && done_line; } >"$worker"
 assert "a task skill installed without the plugin prefix counts" "$(decision)" block
 
+done_line >"$worker"
+assert "a worker agent, which preloads task, is asked with no Skill use" "$(reason cniska-skills:worker)" "$ASK"
+
 tool_use Skill '{"skill": "cniska-skills:review"}' >"$worker"
 assert "a subagent that never loaded task is not asked" "$(reason)" ""
 

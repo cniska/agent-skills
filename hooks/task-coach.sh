@@ -51,7 +51,7 @@ main() {
   session="$(jq -r '.session_id // empty' <<<"$input")"
   transcript="$(agent_transcript "$input")"
   [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
-  loaded_task "$transcript" || return 0
+  judges "$input" cniska-skills:worker || loaded_task "$transcript" || return 0
   ran_coach "$transcript" && return
   ! left_to_handback "$input" || return 0
 
