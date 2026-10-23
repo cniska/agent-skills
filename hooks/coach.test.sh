@@ -19,6 +19,8 @@ assert() {
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 export AGENT_LEDGER="$scratch/ledger/ledger.md" CLAUDE_PLUGIN_DATA="$scratch/data"
+source "$HERE/jq-past-shims.test-harness.sh"
+require_jq
 mkdir -p "$scratch/ledger"
 
 readonly PROPOSALS_REASON="End your report with a last line that is exactly 'Proposals: <n>', counting the proposals other than one-offs."

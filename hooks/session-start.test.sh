@@ -17,6 +17,8 @@ assert() {
 
 run() { "$HOOK" "$@" 2>/dev/null; }
 code() { "$HOOK" "$@" >/dev/null 2>&1; echo "$?"; }
+source "$HERE/jq-past-shims.test-harness.sh"
+require_jq
 
 assert "start tells the session to load task first" \
   "$(run start | grep -c 'Start each task with the cniska-skills:task skill, loaded with the Skill tool, and')" 1

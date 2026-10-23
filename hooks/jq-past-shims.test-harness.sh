@@ -14,3 +14,10 @@ link_jq_past_shims() {
   ln -s "$found" "$bin/jq"
   export PATH="$bin:$PATH"
 }
+
+require_jq() {
+  if ! jq -n 1 >/dev/null; then
+    printf 'jq does not run: jq -n 1 failed\n' >&2
+    exit 1
+  fi
+}

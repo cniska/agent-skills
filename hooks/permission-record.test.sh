@@ -18,6 +18,8 @@ assert() {
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 export CLAUDE_PLUGIN_DATA="$scratch/data"
+source "$HERE/jq-past-shims.test-harness.sh"
+require_jq
 log="$CLAUDE_PLUGIN_DATA/events.jsonl"
 readonly HOOK_COMMAND="\"\${CLAUDE_PLUGIN_ROOT}\"/hooks/permission-record.sh"
 

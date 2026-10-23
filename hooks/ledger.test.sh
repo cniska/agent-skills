@@ -22,6 +22,7 @@ link_jq_past_shims "$scratch"
 export HOME="$scratch/home" CLAUDE_PROJECT_DIR="$scratch/project"
 export GIT_CONFIG_NOSYSTEM=1 GIT_CEILING_DIRECTORIES="$scratch"
 unset XDG_DATA_HOME XDG_STATE_HOME AGENT_LEDGER
+require_jq
 mkdir -p "$HOME" "$CLAUDE_PROJECT_DIR"
 default="$HOME/.local/share/agent-skills/${CLAUDE_PROJECT_DIR//\//-}/ledger.md"
 
