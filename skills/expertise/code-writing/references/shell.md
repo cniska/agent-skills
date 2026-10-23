@@ -114,6 +114,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - `$(...)` does not inherit `-e` before bash 4.4's `inherit_errexit`.
 - `exit`, or a `die` helper, run as a pipeline stage or inside `( … )` ends only that subshell, and the script runs on. Assign its output in a statement of its own, then pipe the variable.
 - `jq` exits 2 and 3 for its own usage and compile errors, so a script whose statuses overlap cannot tell its failure from jq's.
+- On bash 5.2 under load, `wait` in a signal handler on the child that sent the signal can block until some other child exits; the handler ends that child's group with `kill` and does not wait on it.
 
 ## Red flags
 

@@ -50,10 +50,7 @@ end_group() {
 finish() {
   trap '' ALRM INT TERM
   {
-    if [ -n "$timer" ]; then
-      kill -TERM -- -"$timer"
-      wait "$timer"
-    fi
+    [ -n "$timer" ] && kill -TERM -- -"$timer"
     end_group
   } 2>/dev/null
   exit "$1"
