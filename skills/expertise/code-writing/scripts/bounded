@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+GRACE_SECONDS=2
+POLL_SECONDS=0.1
+POLLS_IN_GRACE=$((GRACE_SECONDS * 10))
+
+seconds=""
+child=""
+timer=""
+
+usage() {
+  printf '%s\n' \
+    'Usage: bounded <seconds> <command> [args...]' \
+    'Runs the command as a direct child in its own process group and ends the whole group once <seconds> have passed.' \
+    'Needs bash.' \
+    'Exit status: the command'"'"'s own; 124 on the deadline; 130 on INT; 143 on TERM; 2 on a usage error.'
+}
+
+usage_error() {
+  printf 'bounded: usage: bounded <seconds> <command> [args...]\n' >&2
+  usage >&2
+  exit 2
+}
+
+group_gone() { ! kill -0 -- -"$child" 2>/dev/null; }
+
+end_group() {
+  [ -n "$child" ] || return 0
+  group_gone && return 0
+  local killer i
+  kill -TERM -- -"$child"
+  set -m
+  {
+    sleep "$GRACE_SECONDS"
+    kill -KILL -- -"$child"
+  } </dev/null >/dev/null 2>&1 &
+  killer=$!
+  set +m
+  kill -0 "$child" 2>/dev/null && wait "$child"
+  for ((i = 0; i < POLLS_IN_GRACE; i++)); do
+    group_gone && break
+    sleep "$POLL_SECONDS"
+  done
+  group_gone || kill -KILL -- -"$child"
+  kill -KILL -- -"$killer"
+  wait "$killer"
+}
+
+finish() {
+  trap '' ALRM INT TERM
+  {
+    if [ -n "$timer" ]; then
+      kill -TERM -- -"$timer"
+      wait "$timer"
+    fi
+    end_group
+  } 2>/dev/null
+  exit "$1"
+}
+
+on_deadline() {
+  printf 'bounded: deadline: %ss\n' "$seconds" >&2
+  finish 124
+}
+
+on_int() {
+  printf 'bounded: interrupted: INT\n' >&2
+  finish 130
+}
+
+on_term() {
+  printf 'bounded: interrupted: TERM\n' >&2
+  finish 143
+}
+
+main() {
+  if [ "${1:-}" = --help ]; then
+    usage
+    exit 0
+  fi
+  case "${1:-}" in
+    '' | 0* | *[!0-9]*) usage_error ;;
+  esac
+  [ "$#" -ge 2 ] || usage_error
+  seconds="$1"
+  shift
+
+  trap on_deadline ALRM
+  trap on_int INT
+  trap on_term TERM
+
+  set -m
+  "$@" &
+  child=$!
+  {
+    sleep "$seconds"
+    kill -ALRM "$$"
+  } </dev/null >/dev/null 2>&1 &
+  timer=$!
+  set +m
+
+  wait "$child"
+  finish "$?"
+}
+
+main "$@"
