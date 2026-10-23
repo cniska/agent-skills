@@ -87,13 +87,6 @@ main_ledger="$HOME/.local/share/agent-skills/${scratch//\//-}-main/ledger.md"
 assert "a repo resolves by its top level from a subdirectory" "$(CLAUDE_PROJECT_DIR="$scratch/main/sub" path_fn ledger_path)" "$main_ledger"
 assert "a linked worktree resolves to its main checkout's ledger" "$(CLAUDE_PROJECT_DIR="$scratch/linked" path_fn ledger_path)" "$main_ledger"
 
-assert "a missing ledger's directory is its own" "$(AGENT_LEDGER="$scratch/none/ledger.md" path_fn ledger_dir)" "$scratch/none"
-write_ledger "$scratch/plain/ledger.md" "plain ledger"
-assert "a ledger linking nothing keeps its own directory" "$(AGENT_LEDGER="$scratch/plain/ledger.md" path_fn ledger_dir)" "$scratch/plain"
-write_ledger "$scratch/linking/ledgers/loop.md" "[Shared](../LEDGER.md)"
-assert "a ledger linking a shared file takes the shared file's directory" \
-  "$(AGENT_LEDGER="$scratch/linking/ledgers/loop.md" path_fn ledger_dir)" "$scratch/linking/ledgers/.."
-
 git init -q --bare -b main "$scratch/x.git"
 git init -q --bare -b main "$scratch/y.git"
 git --git-dir="$scratch/x.git" -c user.name=t -c user.email=t@example.com commit-tree -m init "$(git --git-dir="$scratch/x.git" mktree </dev/null)" >"$scratch/x-root"

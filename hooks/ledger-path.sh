@@ -56,10 +56,3 @@ linked_shared_file() {
     *) printf '%s/%s\n' "$(dirname -- "$1")" "$target" ;;
   esac
 }
-
-ledger_dir() {
-  local ledger shared
-  ledger="$(ledger_path)"
-  shared="$(linked_shared_file "$ledger")"
-  dirname -- "${shared:-$ledger}"
-}

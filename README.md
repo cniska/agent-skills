@@ -27,7 +27,8 @@ flowchart LR
   you(["You"]) -- "request" --> coord["Coordinator"]
   coord -- "brief" --> worker["Worker"]
   worker <-- "diff, verdict" --> reviewer["Reviewer"]
-  worker -- "lands or stops" --> coach["Coach"]
+  worker -- "hands back, or stops" --> coord
+  coord -- "the task's sessions" --> coach["Coach"]
   coach -- "proposals" --> coord
   coord -- "report" --> you
 ```
@@ -70,7 +71,6 @@ npx skills add cniska/agent-skills
 | Commit gate | Holds each commit for the reviewer's accept. |
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
 | Coach agent | Coaches each task once it lands or stops, proposing the workflow changes that repeat. |
-| Task coach hook | Runs the coach when a delegated task ends. |
 | Event log | Records gate decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
 ## Skills

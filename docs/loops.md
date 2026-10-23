@@ -44,8 +44,7 @@ flowchart TD
   worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
   reviewer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
-  land -- "the landed task's sessions" --> coach["Coach"]
-  worker -- "a stopped task's sessions" --> coach
+  lead -- "the landed or stopped task's sessions" --> coach["Coach"]
   coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
   lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
   exp -- "past its check date: signals before and after, in the coach's next brief" --> coach

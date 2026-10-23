@@ -63,7 +63,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
 
 - It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
-- It inherits every tool, since it edits, commits and starts the reviewer, researcher and coach agents.
+- It inherits every tool, since it edits, commits and starts the reviewer and researcher agents.
 
 ## Reviewer agent
 
@@ -114,22 +114,12 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - It reads the task's trace from agent-record first where it is installed, and the transcripts only at the steps that show friction; without the record it reads the transcripts whole.
 - It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
 - It proposes changes only to what I commit to, as workflow-review says.
-- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` in the ledger's folder, named by the task coach hook), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
+- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` in the ledger's folder, named by the coordinator's brief), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
 - It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
 - It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
 - Signals and the experiment checks that need agent-record say so and are skipped without it.
 - It changes nothing itself and runs only read commands and `agent-record sync`.
 - It ends each report with `Proposals: <n>`; a hook refuses its hand-back once until it does.
-
-## Task coach hook
-
-A hand-back hook runs the coach at the end of every delegated task.
-
-- When the worker agent, or another subagent that loaded `task` with the Skill tool, hands back, the hook refuses the hand-back once and asks it to state its report in a message first, so its transcript keeps it, then run the coach over its own task, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back. A stop while an `Agent`, `Bash` or `Monitor` task the run started in the background, a `Bash` moved there at its timeout included, has neither sent its completion notification nor been ended by `TaskStop` is a wait, not an end, and gets no ask; a launch refused before it started holds nothing.
-- It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits in the ledger's folder.
-- It skips a subagent that already ran the coach.
-- What the caller does with the coach's report, and where it finds a worker's report when no hand-back carries one, is rule 8 of [coordinate](../skills/workflow/coordinate/SKILL.md).
-- No hook sees a task end in the main session, so `task` runs the coach there as its last step.
 
 ## Event log
 
