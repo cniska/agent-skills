@@ -15,7 +15,7 @@ assert() {
   fi
 }
 
-scratch="$(mktemp -d)"
+scratch="$(mktemp -d)" || exit 1
 trap 'rm -rf "$scratch"' EXIT
 
 fixture() {

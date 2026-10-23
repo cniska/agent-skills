@@ -17,7 +17,7 @@ assert() {
   fi
 }
 
-tmp="$(mktemp -d)"
+tmp="$(mktemp -d)" || exit 1
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/bin" "$tmp/config/plugins"
 cat >"$tmp/bin/claude" <<EOF

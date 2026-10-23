@@ -16,7 +16,7 @@ assert() {
   fi
 }
 
-scratch="$(mktemp -d)"
+scratch="$(mktemp -d)" || exit 1
 trap 'rm -rf "$scratch"' EXIT
 export AGENT_LEDGER="$scratch/ledger/ledger.md" CLAUDE_PLUGIN_DATA="$scratch/data"
 source "$HERE/jq-past-shims.test-harness.sh"

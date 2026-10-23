@@ -16,7 +16,7 @@ assert() {
   fi
 }
 
-target="$(mktemp -d)"
+target="$(mktemp -d)" || exit 1
 trap 'rm -rf "$target"' EXIT
 run() { SKILLS_DIR="$target" "$LINK" "$@" >/dev/null 2>&1; echo "$?"; }
 

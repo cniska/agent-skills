@@ -13,7 +13,7 @@ assert() {
   fi
 }
 
-scratch="$(mktemp -d)"
+scratch="$(mktemp -d)" || exit 1
 trap 'rm -rf "$scratch"' EXIT
 source "$HERE/jq-past-shims.test-harness.sh"
 link_jq_past_shims "$scratch"
