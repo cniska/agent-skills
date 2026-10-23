@@ -159,38 +159,64 @@ assert "the hand-back after its refusal goes through" "$(waiter_event PreToolUse
 
 launch() {
   jq -cn --arg id "$1" --arg name "$2" --argjson input "$3" '{type: "assistant", message: {content: [{type: "tool_use", id: $id, name: $name, input: $input}]}}'
+  jq -cn --arg id "$1" --arg name "$2" --arg text "$4" \
+    '{type: "user", message: {role: "user", content: [{type: "tool_result", tool_use_id: $id, content: (if $name == "Agent" then [{type: "text", text: $text}] else $text end)}]}}'
 }
+readonly BASH_STARTED="Command running in background with ID: b2946a28k. Output is being written to: /tmp/tasks/b2946a28k.output. You will be notified when it completes."
+readonly BASH_TIMED_OUT="Command did not complete within its 120s timeout and was moved to the background (ID: be3b1esm9). Output is being written to: /tmp/tasks/be3b1esm9.output. You will be notified when it completes."
+readonly MONITOR_STARTED="Monitor started (task bsp25vlcg, expires in 30m unless the source ends first; you get one notice at expiry). You will be notified on each event."
+readonly AGENT_STARTED=$'Async agent launched successfully. (This tool result is internal metadata.)\nagentId: ae58bb545c2ac1df7 (internal ID - do not mention to user.)\nThe agent is working in the background.'
+readonly AGENT_FINISHED=$'The review accepts.\nagentId: a870a5293ec35de08 (use SendMessage with to: \'a870a5293ec35de08\' to continue this agent)'
 notification() {
   jq -cn --arg id "$1" '{type: "attachment", attachment: {type: "queued_command", commandMode: "task-notification", prompt: "<task-notification>\n<task-id>b1</task-id>\n<tool-use-id>\($id)</tool-use-id>\n<status>completed</status>\n<summary>Background command \"wait\" completed (exit code 0)</summary>\n</task-notification>"}}'
 }
+user_notification() {
+  jq -cn --arg id "$1" '{type: "user", message: {role: "user", content: "[SYSTEM NOTIFICATION - NOT USER INPUT]\n\n<task-notification>\n<task-id>bpg64sytw</task-id>\n<tool-use-id>\($id)</tool-use-id>\n<status>completed</status>\n<summary>Monitor \"ci\" stream ended</summary>\n</task-notification>"}}'
+}
 monitor_event() {
-  jq -cn '{type: "user", message: {role: "user", content: "<task-notification>\n<task-id>m1</task-id>\n<summary>Monitor event: \"ci\"</summary>\n<event>run: in_progress</event>\n</task-notification>"}}'
+  jq -cn '{type: "user", message: {role: "user", content: "<task-notification>\n<task-id>bsp25vlcg</task-id>\n<summary>Monitor event: \"ci\"</summary>\n<event>run: in_progress</event>\n</task-notification>"}}'
 }
 denials_of_waiter() { cat "$CLAUDE_PLUGIN_DATA/denials/"* 2>/dev/null; }
 WAITER_REMINDER="$(jq -cn --arg reason "$WAITER_ASK" '{decision: "block", reason: $reason}')"
 
-for pending in \
-  "Agent {\"subagent_type\":\"cniska-skills:reviewer\",\"prompt\":\"x\"}" \
-  "Agent {\"subagent_type\":\"cniska-skills:reviewer\",\"prompt\":\"x\",\"run_in_background\":true}" \
-  "Bash {\"command\":\"sleep 1\",\"run_in_background\":true}" \
-  "Monitor {\"command\":\"true\",\"description\":\"ci\",\"timeout_ms\":1000}"; do
-  { tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_bg "${pending%% *}" "${pending#* }" && done_line; } >"$waiter"
+waits_on() {
+  { tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_bg "$2" "$3" "$4" && done_line; } >"$waiter"
   fresh_bound
-  assert "a stop that waits on a background ${pending%% *} launch gets no reminder" "$(waiter_event SubagentStop)" ""
-  assert "a stop that waits on a background ${pending%% *} launch records no denial" "$(denials_of_waiter)" ""
-done
+  assert "a stop that waits on $1 gets no reminder" "$(waiter_event SubagentStop)" ""
+  assert "a stop that waits on $1 records no denial" "$(denials_of_waiter)" ""
+}
+waits_on "a background Agent" Agent '{"subagent_type":"cniska-skills:reviewer","prompt":"x"}' "$AGENT_STARTED"
+waits_on "an Agent asked for the background" Agent '{"subagent_type":"cniska-skills:reviewer","prompt":"x","run_in_background":true}' "$AGENT_STARTED"
+waits_on "a background Bash" Bash '{"command":"sleep 1","run_in_background":true}' "$BASH_STARTED"
+waits_on "a Bash moved to the background at its timeout" Bash '{"command":"sleep 1"}' "$BASH_TIMED_OUT"
+waits_on "a Monitor" Monitor '{"command":"true","description":"ci","timeout_ms":1000}' "$MONITOR_STARTED"
 
-{ tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_mon Monitor '{"command":"true","description":"ci","timeout_ms":1000}' && monitor_event && done_line; } >"$waiter"
+{ tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_mon Monitor '{"command":"true","description":"ci","timeout_ms":1000}' "$MONITOR_STARTED" && monitor_event && done_line; } >"$waiter"
 fresh_bound
 assert "a Monitor event short of its end leaves the launch pending" "$(waiter_event SubagentStop)" ""
+{ user_notification toolu_mon && done_line; } >>"$waiter"
+assert "a Monitor's end, notified in a user line, ends the wait" "$(waiter_event SubagentStop again)" "$WAITER_REMINDER"
 
-{ tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_fg Agent '{"subagent_type":"cniska-skills:reviewer","prompt":"x","run_in_background":false}' && launch toolu_sh Bash '{"command":"true"}' && done_line; } >"$waiter"
+{
+  tool_use Skill '{"skill": "cniska-skills:task"}'
+  launch toolu_fg Agent '{"subagent_type":"cniska-skills:reviewer","prompt":"x","run_in_background":false}' "$AGENT_FINISHED"
+  launch toolu_sh Bash '{"command":"true"}' "tasks/b2946a28k.output: $BASH_STARTED"
+  done_line
+} >"$waiter"
 fresh_bound
 assert "a stop after foreground launches only gets the reminder" "$(waiter_event SubagentStop)" "$WAITER_REMINDER"
 
 {
   tool_use Skill '{"skill": "cniska-skills:task"}'
-  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}'
+  launch toolu_bg Bash '{"command":"git commit -m x","run_in_background":true}' "PreToolUse:Bash hook error: Commit blocked: no accepted review"
+  done_line
+} >"$waiter"
+fresh_bound
+assert "a background launch refused before it started holds no reminder" "$(waiter_event SubagentStop)" "$WAITER_REMINDER"
+
+{
+  tool_use Skill '{"skill": "cniska-skills:task"}'
+  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}' "$BASH_STARTED"
   done_line
 } >"$waiter"
 fresh_bound
@@ -199,16 +225,11 @@ waiter_event SubagentStop >/dev/null
 assert "the stop after every launch's notification gets the reminder" "$(waiter_event SubagentStop again)" "$WAITER_REMINDER"
 assert "the reminder after the wait is made once" "$(waiter_event SubagentStop again)" ""
 
-launch_result() {
-  jq -cn --arg id "$1" --arg text "$2" '{type: "user", message: {role: "user", content: [{type: "tool_result", tool_use_id: $id, content: $text}]}}'
-}
 {
   tool_use Skill '{"skill": "cniska-skills:task"}'
-  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}'
-  launch_result toolu_bg "Command running in background with ID: b2946a28k. Output is being written to: /tmp/tasks/b2946a28k.output."
-  launch toolu_other Bash '{"command":"sleep 1","run_in_background":true}'
-  launch_result toolu_other "Command running in background with ID: b2946a28kx. Output is being written to: /tmp/tasks/b2946a28kx.output."
-  launch toolu_stop TaskStop '{"task_id":"b2946a28k"}'
+  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}' "$BASH_STARTED"
+  launch toolu_other Bash '{"command":"sleep 1","run_in_background":true}' "${BASH_STARTED//b2946a28k/b2946a28kx}"
+  launch toolu_stop TaskStop '{"task_id":"b2946a28k"}' "Successfully stopped task: b2946a28k"
   done_line
 } >"$waiter"
 fresh_bound
