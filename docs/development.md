@@ -34,7 +34,7 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 
 - `mise run validate` runs [`scripts/validate.ts`](../scripts/validate.ts).
 - `mise run test` runs the bash and TypeScript tests.
-- `mise run lint` runs Biome, `tsc`, knip (unused files, exports and dependencies) and the pinned `shellcheck`.
+- `mise run lint` runs Biome, `tsc`, knip (unused files, exports and dependencies) and [`scripts/lint-shell.sh`](../scripts/lint-shell.sh), the pinned `shellcheck` at warning severity over every tracked shell file, found by its `.sh` extension or its shebang.
 - `mise run test:evals` and `mise run test:triggers` are the eval checks that need no model, which [`evals/README.md`](../evals/README.md) describes.
 - [`ci.yml`](../.github/workflows/ci.yml) runs `validate`, `lint`, `test`, `test:evals` and `test:triggers` on pull requests and pushes to `main`.
 - The `commit-msg` hook refuses a commit subject that breaks the rule.

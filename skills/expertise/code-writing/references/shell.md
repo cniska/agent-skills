@@ -69,6 +69,12 @@ A developer-machine script that wants more than 3.2 offers should be written in 
 - Never `eval`, and never build a command string from input; pass values as quoted arguments.
 - Downloads use `curl -fsSL --max-time N`, and a checksum is verified before anything downloaded runs. Never pipe a download into a shell.
 
+## Child processes
+
+- A test suite or any command that may hang runs under [`scripts/bounded`](../scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` runs the command as its direct child in its own process group, ends the whole group at the deadline, TERM then KILL, and exits 124 as `timeout` does, or with the command's own status. `timeout` is GNU coreutils, absent from macOS, so the bound is bash.
+- A script that starts children traps INT and TERM, ends their process group and exits 130 or 143, so the group dies with the script instead of outliving it.
+- A background child gets explicit stdin (`</dev/null`) and its output redirected to a file or `/dev/null`; a child that keeps the caller's stdout holds a pipe or `$(...)` open until it exits, long after the script has.
+
 ## Reading other programs' output
 
 Parse structured output with the tool built for it: `jq` for JSON, a machine-readable mode for git (`--porcelain`, `-z`, `--format`). Check the shape of what comes back, since a parsing tool can exit 0 on input it could not read. When no such tool covers the format, the job belongs in another language.
@@ -118,6 +124,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - A `# shellcheck` directive in a script
 - A script that mutates before it has checked its inputs, or that fails on a second run
 - A fixed `/tmp/...` path, or scratch space with no cleanup trap
+- A hand-written watchdog where `bounded` does the job, or a background child left holding the caller's stdout
 - `${{ … }}` inside a workflow's `run:` block
 - A download piped into a shell, or `curl` without `-f`
 - Logic that outgrew a screenful and wants a real language

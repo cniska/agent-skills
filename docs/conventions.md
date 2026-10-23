@@ -4,7 +4,7 @@ How a skill is written, which models it asks for, and where each principle lives
 
 ## Skill conventions
 
-Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, where the kind is `workflow` or `expertise`, plus any `references/` files it loads only when a task needs them. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
+Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, where the kind is `workflow` or `expertise`, plus any `references/` files it loads only when a task needs them, and `scripts/` where the skill bundles an executable it names, reached by the path the skill loaded from. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
 
 - **Self-contained.** A skill depends on nothing outside its own directory, because `npx skills add` copies only that directory, so shared or repo-root files never ship. Every link resolves inside the skill.
 - **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path, so there are no cross-directory links to break.

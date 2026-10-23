@@ -33,6 +33,7 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - `design-review` — what the reviewers judge
 - `second-opinion` — the read to get before asking the owner
 - `principles` — verify at the source, for each claim a brief states
+- `code-writing` — bundles the bounded-run script a brief names for a worker's suite or long command
 - `workflow-review` — coaches each task, and checks each due experiment and proposes its outcome
 
 ## Red flags
@@ -43,6 +44,7 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - A worker's commit stacked on one not yet accepted
 - A new task started on files an unlanded branch in the same repo touches
 - A plan or brief held only in a message or a temp path
+- A brief that describes a watchdog or a bound instead of naming the tool
 - A worker started before its brief is committed in the ledger's folder and, where a task tool keeps the in-flight list, its task started, or working in a primary checkout
 - A resume that reads the ledger unpulled, trusts orphaned changes unreviewed, or reports before rewriting the ledger
 - A report from the session running the agents that leaves the ledger stale

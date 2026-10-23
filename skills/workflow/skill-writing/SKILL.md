@@ -5,7 +5,7 @@ description: Create, fix or update a skill, matching the conventions of the set 
 
 # Skill writing
 
-A skill is a self-contained instruction to a model — a directory holding a `SKILL.md` and any references it loads on demand. This skill carries the *how* of writing one; the repo that holds the set owns its mechanical rules (frontmatter, required sections, links, its validator), usually in its `AGENTS.md`. Read those first; don't restate them in the skill.
+A skill is a self-contained instruction to a model — a directory holding a `SKILL.md`, the references it reads when a step needs them, and the scripts it names, each reached under that directory. This skill carries the *how* of writing one; the repo that holds the set owns its mechanical rules (frontmatter, required sections, links, its validator), usually in its `AGENTS.md`. Read those first; don't restate them in the skill.
 
 Two modes, inferred from the request:
 

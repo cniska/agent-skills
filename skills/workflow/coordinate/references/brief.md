@@ -10,6 +10,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 - **Each limit with what it still allows**: a limit such as "stay out of other repos" names what it leaves open, such as reading them for a sibling to clone, so it cuts no step the work needs.
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **Its temp folder**: one of its own named for its task, never a shared scratchpad's root.
+- **The bound on a suite or a long command, by its tool**: the bounded-run script the `code-writing` skill bundles, named by that skill and in words, never by a path, since the worker reaches it through the skill it loads; a brief that describes a watchdog or a process-group bound instead leaves each worker to write its own.
 - **The open obstacles that touch the work and that `task` does not cover**, from the ledger as it stands when the worker starts, not when the brief was written: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
 - **What to report, and how short**: the outcome, commits, checks, choices the owner did not make, and anything left open, in a line budget.
 
