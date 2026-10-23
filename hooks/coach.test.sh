@@ -157,6 +157,65 @@ assert "the hand-back after those stops is still refused with the ask" \
   "$(waiter_event PreToolUse)" "$(jq -cn --arg reason "$WAITER_ASK" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}')"
 assert "the hand-back after its refusal goes through" "$(waiter_event PreToolUse)" ""
 
+launch() {
+  jq -cn --arg id "$1" --arg name "$2" --argjson input "$3" '{type: "assistant", message: {content: [{type: "tool_use", id: $id, name: $name, input: $input}]}}'
+}
+notification() {
+  jq -cn --arg id "$1" '{type: "attachment", attachment: {type: "queued_command", commandMode: "task-notification", prompt: "<task-notification>\n<task-id>b1</task-id>\n<tool-use-id>\($id)</tool-use-id>\n<status>completed</status>\n<summary>Background command \"wait\" completed (exit code 0)</summary>\n</task-notification>"}}'
+}
+monitor_event() {
+  jq -cn '{type: "user", message: {role: "user", content: "<task-notification>\n<task-id>m1</task-id>\n<summary>Monitor event: \"ci\"</summary>\n<event>run: in_progress</event>\n</task-notification>"}}'
+}
+denials_of_waiter() { cat "$CLAUDE_PLUGIN_DATA/denials/"* 2>/dev/null; }
+WAITER_REMINDER="$(jq -cn --arg reason "$WAITER_ASK" '{decision: "block", reason: $reason}')"
+
+for pending in \
+  "Agent {\"subagent_type\":\"cniska-skills:reviewer\",\"prompt\":\"x\"}" \
+  "Agent {\"subagent_type\":\"cniska-skills:reviewer\",\"prompt\":\"x\",\"run_in_background\":true}" \
+  "Bash {\"command\":\"sleep 1\",\"run_in_background\":true}" \
+  "Monitor {\"command\":\"true\",\"description\":\"ci\",\"timeout_ms\":1000}"; do
+  { tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_bg "${pending%% *}" "${pending#* }" && done_line; } >"$waiter"
+  fresh_bound
+  assert "a stop that waits on a background ${pending%% *} launch gets no reminder" "$(waiter_event SubagentStop)" ""
+  assert "a stop that waits on a background ${pending%% *} launch records no denial" "$(denials_of_waiter)" ""
+done
+
+{ tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_mon Monitor '{"command":"true","description":"ci","timeout_ms":1000}' && monitor_event && done_line; } >"$waiter"
+fresh_bound
+assert "a Monitor event short of its end leaves the launch pending" "$(waiter_event SubagentStop)" ""
+
+{ tool_use Skill '{"skill": "cniska-skills:task"}' && launch toolu_fg Agent '{"subagent_type":"cniska-skills:reviewer","prompt":"x","run_in_background":false}' && launch toolu_sh Bash '{"command":"true"}' && done_line; } >"$waiter"
+fresh_bound
+assert "a stop after foreground launches only gets the reminder" "$(waiter_event SubagentStop)" "$WAITER_REMINDER"
+
+{
+  tool_use Skill '{"skill": "cniska-skills:task"}'
+  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}'
+  done_line
+} >"$waiter"
+fresh_bound
+waiter_event SubagentStop >/dev/null
+{ notification toolu_bg && done_line; } >>"$waiter"
+assert "the stop after every launch's notification gets the reminder" "$(waiter_event SubagentStop again)" "$WAITER_REMINDER"
+assert "the reminder after the wait is made once" "$(waiter_event SubagentStop again)" ""
+
+launch_result() {
+  jq -cn --arg id "$1" --arg text "$2" '{type: "user", message: {role: "user", content: [{type: "tool_result", tool_use_id: $id, content: $text}]}}'
+}
+{
+  tool_use Skill '{"skill": "cniska-skills:task"}'
+  launch toolu_bg Bash '{"command":"sleep 1","run_in_background":true}'
+  launch_result toolu_bg "Command running in background with ID: b2946a28k. Output is being written to: /tmp/tasks/b2946a28k.output."
+  launch toolu_other Bash '{"command":"sleep 1","run_in_background":true}'
+  launch_result toolu_other "Command running in background with ID: b2946a28kx. Output is being written to: /tmp/tasks/b2946a28kx.output."
+  launch toolu_stop TaskStop '{"task_id":"b2946a28k"}'
+  done_line
+} >"$waiter"
+fresh_bound
+assert "a stop that waits on one launch while another was stopped gets no reminder" "$(waiter_event SubagentStop)" ""
+{ notification toolu_other && done_line; } >>"$waiter"
+assert "a launch stopped by TaskStop, which sends no notification, no longer holds the reminder" "$(waiter_event SubagentStop again)" "$WAITER_REMINDER"
+
 { tool_use Skill '{"skill": "cniska-skills:task"}' && tool_use SubagentHandback '{"message": "Done."}'; } >"$worker"
 assert "a stop whose run ended in a hand-back is left to the hand-back hook" "$(reason)" ""
 

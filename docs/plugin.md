@@ -125,7 +125,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 
 A hand-back hook runs the coach at the end of every delegated task.
 
-- When the worker agent, or another subagent that loaded `task` with the Skill tool, hands back, the hook refuses the hand-back once and asks it to state its report in a message first, so its transcript keeps it, then run the coach over its own task, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back.
+- When the worker agent, or another subagent that loaded `task` with the Skill tool, hands back, the hook refuses the hand-back once and asks it to state its report in a message first, so its transcript keeps it, then run the coach over its own task, naming its agent, session and transcript; a run that ends without a hand-back gets the same ask once at its stop, under a bound of its own, so a worker that stops to wait is still refused at its hand-back. A stop while a background `Agent`, `Bash` or `Monitor` launch has neither sent its completion notification nor been ended by `TaskStop` is a wait, not an end, and gets no ask.
 - It names the open experiments past their check date and where the record is, when `experiments.jsonl` sits in the ledger's folder.
 - It skips a subagent that already ran the coach.
 - What the caller does with the coach's report, and where it finds a worker's report when no hand-back carries one, is rule 8 of [coordinate](../skills/workflow/coordinate/SKILL.md).

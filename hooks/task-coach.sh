@@ -63,6 +63,7 @@ main() {
     return
   fi
   ! was_denied "$input" coach_not_run || return 0
+  [ -z "$(pending_launches "$transcript")" ] || return 0
   deny_once "$input" coach_reminder "$reason" || return 0
 }
 
