@@ -15,12 +15,6 @@ review_state_file() {
   printf '%s/verdicts/%s\n' "$CLAUDE_PLUGIN_DATA" "$key"
 }
 
-reviewer_marker() {
-  local key
-  key="$(data_key "$1")"
-  printf '%s/reviewers/%s\n' "$CLAUDE_PLUGIN_DATA" "$key"
-}
-
 repo_root() {
   (cd "$1" && git rev-parse --show-toplevel 2>/dev/null)
 }

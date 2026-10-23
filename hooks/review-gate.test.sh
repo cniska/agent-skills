@@ -57,17 +57,6 @@ assert "an accept from the reviewer that returned approves nothing" "$(gate 'git
 assert "an accept from a fresh reviewer after the return records" "$(record_as fresh "$(report "$repo" accept)")" ""
 assert "that fresh accept lets the diff commit" "$(gate 'git commit -am x')" ""
 
-REVIEWED="$(refused "This agent gave a review verdict, and a message to it resumes the same reviewer rather than starting a fresh review. Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read as context.")"
-message_to() {
-  jq -cn --arg to "$1" '{hook_event_name: "PreToolUse", tool_name: "SendMessage", tool_input: {to: $to, message: "Please re-review the fix."}}' |
-    "$HERE/reviewer-message.sh" 2>/dev/null
-}
-assert "a message to the reviewer that returned is refused" "$(message_to returner)" "$REVIEWED"
-assert "a message to the reviewer that accepted is refused" "$(message_to fresh)" "$REVIEWED"
-assert "a message to a reviewer named with its ref is refused" "$(message_to 'returner [3fa9c1]')" "$REVIEWED"
-assert "a message to an agent with no verdict passes" "$(message_to worker)" ""
-assert "a message to the main session passes" "$(message_to main)" ""
-assert "a message passes unchecked without CLAUDE_PLUGIN_DATA" "$(CLAUDE_PLUGIN_DATA='' message_to returner)" ""
 spare="$scratch/spare"
 (cd "$scratch" && git init -q -b main spare)
 assert "the reviewer that returned may accept another repository" "$(record_as returner "$(report "$spare" accept)")" ""

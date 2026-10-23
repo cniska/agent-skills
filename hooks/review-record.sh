@@ -197,16 +197,8 @@ current_entries() {
   done
 }
 
-mark_reviewer() {
-  local marker
-  marker="$(reviewer_marker "$1")"
-  mkdir -p "$(dirname "$marker")"
-  : >"$marker"
-}
-
 record_accept() {
-  local repo="$1" state="$2" entries="$3" agent="$4" head
-  mark_reviewer "$agent"
+  local repo="$1" state="$2" entries="$3" head
   head="$(git -C "$repo" rev-parse --verify --quiet HEAD)" || head=-
   mkdir -p "$(dirname "$state")"
   {
@@ -226,7 +218,6 @@ returns_file() {
 
 record_return() {
   local repo="$1" agent="$2" returns
-  mark_reviewer "$agent"
   returns="$(returns_file "$repo")"
   mkdir -p "$(dirname "$returns")"
   printf '%s\n' "$agent" >>"$returns"
@@ -323,7 +314,7 @@ main() {
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
     if [ "${verdicts[$i]}" = accept ]; then
-      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")" "$agent"
+      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")"
     fi
     fingerprint="$(accept_fingerprint "$state")"
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \

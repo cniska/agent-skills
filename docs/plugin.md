@@ -72,7 +72,6 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - It runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit read-only, with its skills preloaded, since a subagent starts without the parent's, and loads [review](../skills/workflow/review/SKILL.md) for the review of a whole branch.
 - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
 - Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, or an accept with any finding, is sent back to it once before it may stop.
-- A `SendMessage` to a reviewer that gave a verdict is refused every time, since a message resumes the reviewer that already judged the change, and a re-review is a fresh reviewer; the refusal tells the sender to start one.
 
 ## Researcher agent
 
@@ -119,7 +118,7 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
 - Signals and the experiment checks that need agent-record say so and are skipped without it.
 - It changes nothing itself and runs only read commands and `agent-record sync`.
-- It ends each report with `Proposals: <n>`; a hook refuses its hand-back once until it does.
+- It ends each report with `Proposals: <n>`.
 
 ## Event log
 
@@ -161,9 +160,7 @@ It reports the comments each edit adds, in the words of the [agent-gates](https:
 
 ### cniska-task
 
-It keeps the brief of a task the [agent-task](https://github.com/cniska/agent-task) CLI runs from changing under that task.
+Whenever a session starts, resumes, clears or compacts in a directory that holds a running task's brief, it adds the tasks the [agent-task](https://github.com/cniska/agent-task) CLI runs, as `agent-task list` prints them, to the session's context.
 
-- Before each edit, it denies an edit to a running task's brief, naming the steps that change it: `agent-task drop`, the edit, then `agent-task start` under a name the store has never held.
-- Whenever a session starts, resumes, clears or compacts in a directory that holds a running task's brief, it adds the running tasks, as `agent-task list` prints them, to the session's context.
 - It needs `jq` and `realpath`, and does nothing unless the agent-task CLI is on PATH.
 - Install it with `claude plugin install cniska-task@cniska`.
