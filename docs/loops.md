@@ -85,9 +85,9 @@ An eval I approve can check a change before it lands, and the signals judge it a
 The signals count the friction I feel, per week, repo and route; owner interrupts and time to land weigh most.
 
 - **Owner interrupts:** how often I had to answer, correct or unblock an agent.
-- **Time to land:** from my request to the commit on the remote.
+- **Time to land:** from my request to the commit being reachable from `origin/main`.
 - **Review loops:** reviewer runs per commit.
-- **Stranded work:** commits not on the remote within an hour of being made.
+- **Stranded work:** commits not reachable from `origin/main` within an hour of being made.
 - **False stops:** a gate that refused work which then went on with nothing the gate checks changed.
 
 [agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines each signal exactly. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. A proposal stands only when the record shows the friction it answers, or the ledger names the gap.
