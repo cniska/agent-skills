@@ -27,8 +27,8 @@ Review test adequacy for changed code. For large changes spanning many files or 
 - tests asserting implementation details instead of behavior (method call sequences break on refactor)
 - tests repeating behavior another test already proves, without a failure mode unique to each layer
 - tests that wait on the wall clock — a sleep, a real timeout left to elapse, a per-test timeout raised to fit one
-- tests that are not hermetic — touching the network, the user's real home, a tool's own state, or what another test left, or running a tool on the machine's user and system config and the variables the test inherited
-- state shared between tests — a mutable global, fixed port, fixed path, or assumed order — that breaks under concurrent or parallel runs
+- tests that are not hermetic — touching the network, the user's real home, a tool's own state, the real keychain or secret store outside an opt-in integration run, the real app defaults, or what another test left, or running a tool on the machine's user and system config and the variables the test inherited
+- state shared between tests — a mutable global, fixed port, fixed path, or assumed order — that breaks under concurrent or parallel runs, or a suite that runs serially, or a test marked serial, that shares no resource
 - missing cleanup (temp files, cache state)
 - real data in tests — production records, personal data, real credentials, or live accounts and services; fixtures are synthetic
 - a fake secret shaped like a real one (a provider's key prefix and length) — it trips secret scanning and cannot be told apart from a leak; use an obviously fake value such as `test-api-key`

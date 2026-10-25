@@ -45,9 +45,9 @@ Use synthetic data, never production records, personal data, real credentials, o
 
 ## Isolation
 
-- **Hermetic.** Each test builds its own scratch directory, data and environment, and depends on nothing the machine holds: not the network, the real home directory, a tool's own data, or what another test left behind.
+- **Hermetic.** Each test builds its own scratch directory, data and environment, and neither reads nor writes anything the machine holds: not the network, the real home directory, a tool's own data, the user's keychain or other secret store (save in an opt-in integration run under a service name of its own, cleaned up after), their app defaults, or what another test left behind.
 - **A tool's config emptied.** A tool the test runs reads the machine's user and system config and the variables it inherits, so point that config at an empty one and drop the tool's own inherited variables. For git, that is an empty global and system config and every `GIT_*` key dropped: a hook exports `GIT_DIR`, so a test run from one acts on the real repo, and a global `commit.gpgsign true` signs every test commit.
-- **Safe to run at once.** No mutable global, fixed port, fixed path or assumed order shared between tests, so the suite passes under the runner's concurrent mode and across parallel workers.
+- **Concurrent and parallel.** No mutable global, fixed port, fixed path or assumed order is shared between tests, and the suite is set up to run concurrently and across parallel workers wherever the runner allows, serially only where a shared resource forces it.
 - **No real time.** A test never waits on the wall clock: no sleep, and no real timeout left to elapse. Control time and randomness through the code's own seams or the runner's fakes. A wait the fakes cannot reach, such as a native library's lock timeout honored in another process, is passed in as a dependency the way the clock is: production passes the real value through the same parameter, and the test passes 0. Order steps across processes by handshake: the child prints a line and the test waits for that line.
 
 ## See also
@@ -64,7 +64,7 @@ Use synthetic data, never production records, personal data, real credentials, o
 - An assertion that imports the production constant it checks
 - A sleep, a real clock, or unseeded randomness in a test
 - A per-test timeout raised to fit a real wait
-- A test that reads the real home directory, a tool's own data or the network, or relies on another test's leftovers
+- A test that reads or writes the real home directory, a tool's own data, the keychain or secret store, app defaults or the network, or relies on another test's leftovers
 - A tool run in a test on the machine's own config, or with the tool's variables the test inherited
 - A fixed port, fixed path or mutable global shared between tests
 - Production records, personal data, or real credentials in a fixture
