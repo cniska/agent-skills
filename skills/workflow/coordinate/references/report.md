@@ -15,6 +15,6 @@ A report tells the owner what is in flight, in the order they act on it. Build i
 2. **Running**: each agent, what it is doing, and its last sign of progress.
 3. **Landed since the last report**: per repo, by commit.
 4. **At risk**: work not committed, not pushed or not reviewed, and agents gone quiet. Take this from git, not the ledger; a ledger claim git contradicts is itself a finding.
-5. **Next**: the open work in the order to start it, each with the reason it goes there.
+5. **Next**: the open work in the order it starts, each with the reason; work nothing blocks starts without asking.
 
 An empty section says "none". End with every choice made that the owner did not ask for.
