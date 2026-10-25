@@ -1,6 +1,6 @@
 ---
 name: code-writing
-description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart or shell, starting a project, or choosing a library.
+description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift or shell, starting a project, or choosing a library.
 ---
 
 # Code writing
@@ -20,6 +20,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
    | Rust | [references/rust.md](references/rust.md) |
    | Python | [references/python.md](references/python.md) |
    | Dart | [references/dart.md](references/dart.md) |
+   | Swift | [references/swift.md](references/swift.md) |
    | Shell | [references/shell.md](references/shell.md) |
 
 3. Read the repo's manifest, toolchain pins and lint config, and match them.
@@ -31,7 +32,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 - **Match the repo's config and pins, not its weak spots.** Code nearby that breaks a rule here is flagged, never copied into new code and never rewritten as a side effect.
 - **Minimum dependencies.** Every dependency is supply-chain surface. Check whether the standard library or a dependency already in the tree covers the job before adding one, and say why next to a heavier one when it earns its place. A test-only dependency is a dev dependency.
 - **Size the structure to the program.** A small tool stays in a few files and takes no dependency for what a few lines of its own cover; split a file or add a library when a concern actually grows, not in anticipation. Build what was asked: no unrequested flags, output modes or storage layouts.
-- **`mise` manages toolchains.** A runtime it manages is never installed through `brew`, `nvm`, `pyenv` or `fnm`.
+- **The repo pins its toolchain, and `mise` installs every tool it can.** A runtime `mise` manages is never installed through `brew`, `nvm`, `pyenv` or `fnm`. A toolchain `mise` cannot manage, such as the one Xcode ships, is pinned in a committed file its reference names and checked against the installed version before a build.
 - **Read and edit files with the harness's own file tools.** Hooks that check or record edits fire on those tools, and a shell write skips them; the shell also keeps no record of what a file looked like, so a concurrent write is silently overwritten. Open a file with the file-read tool before editing it: a file read only through the shell, such as with `cat` or `sed`, has not been read for an edit, and the edit is refused. A mechanical edit across many sites may go through a script, then the changed files are re-read and the repo's checks run.
 - **Check the installed version, not memory.** A model's memory of a toolchain lags it. Read the installed version's types, changelog or bundled docs before writing an API you recall; each reference lists the drift that already bit.
 
