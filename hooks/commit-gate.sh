@@ -294,10 +294,10 @@ uncovered_items() {
 }
 
 uncovered_reason() {
-  local items pronoun=it
+  local items pronoun=its
   items="$(uncovered_items <<<"$1")"
-  [ "$(wc -l <<<"$items")" -eq 1 ] || pronoun=them
-  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff file covers a path's staged or working-tree content only when the review brief names that file by its absolute path, the reviewer reads it, and the diff's new side is that content, and only until a later commit changes the path. An edit this commit is not meant to carry can be set aside with git stash, or git stash -u for an untracked file, and restored after the commit without voiding any accept. Otherwise write the current diff of %s to a new file and brief a fresh reviewer naming that file by its absolute path, then commit once it ends with 'Verdict: accept'." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
+  [ "$(wc -l <<<"$items")" -eq 1 ] || pronoun=their
+  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff covers a path's staged or working-tree content while the review brief names its file by absolute path, the reviewer reads it and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write %s current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that review ends with 'Verdict: accept'." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
 }
 
 unresolved_reason() {
