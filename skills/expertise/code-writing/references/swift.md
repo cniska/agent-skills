@@ -141,7 +141,7 @@ let package = Package(
 )
 ```
 
-A UI-facing package adds `.defaultIsolation(MainActor.self)` to its `swiftSettings`. The two upcoming features named are the half of approachable concurrency that Swift 6 mode does not already enable; `DisableOutwardActorInference`, `GlobalActorIsolatedTypesUsability` and `InferSendableFromCaptures` are on in Swift 6 mode. `.treatAllWarnings(as:)` and `.defaultIsolation` need tools version 6.2.
+A UI-facing package adds `.defaultIsolation(MainActor.self)` to its `swiftSettings`. `InferIsolatedConformances` and `NonisolatedNonsendingByDefault` are the half of approachable concurrency that Swift 6 mode does not already enable; `DisableOutwardActorInference`, `GlobalActorIsolatedTypesUsability` and `InferSendableFromCaptures` are on in Swift 6 mode. `.treatAllWarnings(as:)` and `.defaultIsolation` need tools version 6.2.
 
 An app target's `.xcconfig`, which Swift 6 mode already covers for strict concurrency:
 
