@@ -44,7 +44,7 @@ Rules:
 4. **Sort what from how.** Any sentence naming an algorithm, a request shape, or an offset is *how*. Move it to the architecture doc and leave the requirement stating only the observable outcome. A fixed decision stays under Constraints only if reversing it would force a rewrite or change what the deliverable *is* — language, runtime, distribution form, hard exclusions like "no telemetry". A decision a tool could re-apply mechanically with every AC still passing — formatter, lint rules, indent width — is a convention: it lives in AGENTS.md, not the spec. A user-observable default (a default port, a timeout) is a requirement; the internal tuning value behind the same behavior is an open decision.
 5. **Make edge cases requirements.** The constructs a naive build gets wrong are requirements, not nice-to-haves. Give each its own ID so it earns its own test.
 6. **Separate constraints from open decisions.** Close with two explicit lists: what is fixed, and what is deliberately left to the builder. The silence between them is where scope disputes grow.
-7. **Verify the traces close.** Each AC cites the requirements it exercises, and every FR, NF and domain-family requirement is cited by at least one AC; deliverables and constraints are not cited. A requirement no AC reaches, or an AC that verifies nothing, is the gap. Fix it before the spec is done.
+7. **Verify the traces close.** Each AC cites the requirements it exercises and exercises every case, clause and app or surface each of them names, and every FR, NF and domain-family requirement is cited by at least one AC; deliverables and constraints are not cited. Before the first review and again after each fix, list each added or modified requirement's cases against the criteria that test them: a case no criterion tests, or an AC that verifies nothing, is the gap. Fix it before the spec is done.
 
 ## Editing an existing spec
 
@@ -70,7 +70,7 @@ Stable IDs and retire-in-place keep that delta legible in the git diff itself; u
 - Drifting into PRD territory (user stories, success metrics, motivation) instead of testable requirements
 - Renumbering IDs no check ties to their citations, or reusing a retired one
 - A sub-numbered ID such as `FR-21a`
-- Acceptance criteria that cite no requirement, or requirements no criterion verifies
+- Acceptance criteria that cite no requirement, or a case, clause, app or surface of a requirement that no criterion verifies
 - A criterion whose test is still a todo or skipped once its work lands
 - Edge cases written as aspirations instead of labelled requirements
 - Fixed constraints and open decisions blended into the same prose

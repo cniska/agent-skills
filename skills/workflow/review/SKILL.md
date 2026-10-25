@@ -8,7 +8,7 @@ argument-hint: "[pr-url-or-number | commit-range]"
 
 Review a whole change and return one report of its findings to whoever ran the review. `correctness-review` and `test-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes what it finds.
 
-Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff file the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
+Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff and log files the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
 
 ## Scope
 
@@ -43,7 +43,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ### Self
 
-1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, or the diff file named. If the scope holds no commit, report and stop.
+1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, or the diff and log files the brief names. If the scope holds no commit, report and stop.
 2. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
 3. Pick the areas from the table, reading each "Runs when" against the diff.
 4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
