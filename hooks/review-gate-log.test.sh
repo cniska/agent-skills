@@ -43,7 +43,7 @@ gate_logged() {
 }
 
 record_logged() {
-  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" --arg transcript "$(transcript_of "$(briefed "$(diff_of "$1")")")" \
+  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" --arg transcript "$(transcript_of "${2:-$(briefed "$(diff_of "$1")")}")" \
     '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 reviewer=r1
@@ -162,6 +162,9 @@ assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(rep
 assert "a report without the sections logs missing_findings" "$(decided record_logged $'Fine.\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_findings"
 reviewer=r3
 assert "an accept with a finding logs accept_with_findings" "$(decided record_logged "$(sections "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" accept_with_findings
+unread="$(transcript_of "$(diff_of "$(report "$logged" accept)")")"
+assert "an accept whose brief names a diff it never read logs unread_diff" \
+  "$(decided record_logged "$(report "$logged" accept)" "$(brief_line "$unread")" | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	unread_diff"
 assert "a return for a brief with no diff logs reason no_diff" "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.verdict, .reason] | @tsv')" "return	no_diff"
 assert "a no_diff return beside an accept for another repo logs the reason on its own pair only" \
   "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: accept' | jq -sc 'map(.reason)')" '["no_diff",null]'

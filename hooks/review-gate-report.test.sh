@@ -45,6 +45,21 @@ assert "a return without the sections on the second hand-back still clears the a
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
+edit app.py 'print(40)'
+unread="$(transcript_of "$(diff_in "$repo" app.py)")"
+reader="$(fresh_agent)"
+assert "an accept whose brief names a diff the reviewer never read keeps the reviewer running" \
+  "$(record_reading "$reader" "$(report "$repo" accept)" "$(brief_line "$unread")")" \
+  "$(refused "You have not read $unread. Read every diff file the brief names before your verdict, since an accept covers only the diffs you read.")"
+assert "that accept approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+assert "the same accept after a Read of that diff records" "$(record_reading "$reader" "$(report "$repo" accept)" "$(brief_line "$unread" && read_of "$unread")")" ""
+assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
+assert "a return whose brief names a diff the reviewer never read is not refused" "$(record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$unread")")" ""
+printf 'notes\n' >"$diffs/notes.txt"
+assert "an accept whose brief also names a file that is not a diff and a missing path records" \
+  "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$unread $diffs/notes.txt $diffs/missing.diff" && read_of "$unread")")" ""
+assert "that accept lets the diff commit too" "$(gate 'git commit -am x')" ""
+
 assert "a hand-back from an agent other than the reviewer is not judged" "$(record_as worker 'No verdict.' general-purpose)" ""
 edit app.py 'print(5)'
 assert "an accept handed back by another agent approves nothing" "$(record_as worker "$(report "$repo" accept)" general-purpose; gate 'git commit -am x')" "$(denied 'app.py (working tree)')"

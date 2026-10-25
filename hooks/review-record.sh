@@ -16,6 +16,7 @@ readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
 SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line '$(fresh_reviewer_step); this one returned it.' above your verdict."
 readonly SAME_REVIEWER_REASON
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
+readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
 readonly MAX_COUNT=1000
 readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
 
@@ -86,6 +87,10 @@ verdict_pairs() {
   awk '/^Reason: no_diff$/{reason = substr($0, 9); repo = ""; next} /^Repo: /{repo = substr($0, 7); next} /^Verdict: (accept|return)$/ {print substr($0, 10) "\037" repo "\037" (repo == "" ? "" : reason)} NF {repo = ""; reason = ""}'
 }
 
+absolute_paths() {
+  grep -Eo "/[^[:space:]\`'\"():,]+"
+}
+
 cited_worktrees() {
   local repo="$1" worktrees main_checkout common path dir
   worktrees="$(git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p')"
@@ -93,7 +98,7 @@ cited_worktrees() {
   [ "$main_checkout" != "$repo" ] || main_checkout=""
   common="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)"
   common="$(cd "$common" && pwd -P)"
-  { grep -v '^Repo: ' | grep -Eo "/[^[:space:]\`'\"():,]+" || true; } | sort -u | while IFS= read -r path; do
+  { grep -v '^Repo: ' | absolute_paths || true; } | sort -u | while IFS= read -r path; do
     dir="$path"
     while [ ! -d "$dir" ]; do
       dir="$(dirname "$dir")"
@@ -141,19 +146,33 @@ diff_paths() {
     END { flush() }'
 }
 
-reviewed_paths() {
-  local transcript file
+brief_and_reads() {
+  local transcript
   transcript="$(agent_transcript "$1")"
   [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
-  jq -nrR '
+  jq -ncR '
     [inputs | fromjson? | objects] as $lines
-    | ([$lines[] | select(.type == "user")][0].message.content // ""
-      | if type == "string" then . else [.[]? | .text? // empty] | join("\n") end) as $brief
-    | [$lines[] | select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Read")
-      | .input.file_path? | select(type == "string" and . != "") | select(. as $path | $brief | contains($path))]
-    | unique[]' "$transcript" | while IFS= read -r file; do
+    | {brief: ([$lines[] | select(.type == "user")][0].message.content // ""
+        | if type == "string" then . else [.[]? | .text? // empty] | join("\n") end),
+      reads: [$lines[] | select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Read")
+        | .input.file_path? | select(type == "string" and . != "")] | unique}' "$transcript"
+}
+
+reviewed_paths() {
+  local file
+  [ -n "$1" ] || return 0
+  jq -r '.brief as $brief | .reads[] | select(. as $path | $brief | contains($path))' <<<"$1" | while IFS= read -r file; do
     [ ! -f "$file" ] || diff_paths <"$file"
   done | sort -u
+}
+
+unread_diffs() {
+  local path
+  [ -n "$1" ] || return 0
+  { jq -r .brief <<<"$1" | absolute_paths || true; } | sed -E 's/[.;]$//' | sort -u | while IFS= read -r path; do
+    [ -f "$path" ] && [ -n "$(diff_paths <"$path")" ] || continue
+    jq -e --arg path "$path" 'any(.reads[]; . == $path)' <<<"$1" >/dev/null || printf '%s\n' "$path"
+  done
 }
 
 unquote_path() {
@@ -305,8 +324,18 @@ main() {
     return
   fi
 
+  local brief_and_reads unread
+  brief_and_reads="$(brief_and_reads "$input")"
+  if [ "$accepts" -gt 0 ]; then
+    unread="$(unread_diffs "$brief_and_reads")"
+    if [ -n "$unread" ]; then
+      malformed_report "$input" unread_diff "You have not read ${unread//$'\n'/, }. $UNREAD_DIFF_REASON"
+      return
+    fi
+  fi
+
   local i state fingerprint counts findings conflicts rules reviewed
-  reviewed="$(reviewed_paths "$input")"
+  reviewed="$(reviewed_paths "$brief_and_reads")"
   counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"
   findings="$(jq -c .findings <<<"$counts")"
   conflicts="$(jq -c .conflicts <<<"$counts")"

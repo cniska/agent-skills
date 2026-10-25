@@ -47,6 +47,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` or `allow` | `same_reviewer` | the report accepts a repository its reviewer returned earlier, so the accept is discarded and a fresh reviewer must judge the fix |
 | `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
+| `verdict` | `deny` or `allow` | `unread_diff` | the report accepts while the brief names by absolute path an existing diff file the reviewer never read |
 
 A `verdict` gate judges the report a reviewer passes to `SubagentHandback`, at `PreToolUse`, while the reviewer still runs to read a deny. `SubagentStop` judges the run the same way unless its final block is a hand-back, which `PreToolUse` already allowed; there the report is the final message. One bound covers both events: each reason a reviewer was denied is kept in a file for its agent id under the plugin's data directory, and the same reason again is allowed, so a reviewer that never fixes its report still ends. Neither the deny nor that allow records a verdict, though a return naming its repository still clears that repository's accept, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
 
