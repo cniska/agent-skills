@@ -2,7 +2,7 @@ MISSING_MODE=000000
 MISSING_BLOB=0
 
 fresh_reviewer_step() {
-  printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read as context"
+  printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read for findings as for its accept"
 }
 
 data_key() {

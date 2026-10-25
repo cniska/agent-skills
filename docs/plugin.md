@@ -39,8 +39,8 @@ sequenceDiagram
   A->>A: task picks a route, steps load skills
   A->>V: here is the diff
   V-->>A: Verdict: return, with findings
-  A->>R: the fix's diff in a new file, the earlier one as context
-  Note over R: judges only the fix, not the whole diff again
+  A->>R: the fix's diff in a new file, the earlier diff files beside it
+  Note over R: judges the fix, reads the earlier diffs for findings and its accept
   R-->>A: Verdict: accept
   Note over R: the accept is recorded for each path's content
   A->>P: git commit
@@ -83,7 +83,7 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 
 - It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file a reviewer read that the brief names by absolute path, and a deleted side only by an accepted deletion. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
 - The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, or once the commit it was recorded on is no longer an ancestor of `HEAD`, as after an amend, rebase or reset, so accepted content landed again after a later change needs a fresh accept, and a `Verdict: return` clears every accept for the repo.
-- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its brief also names the change's earlier diff files by absolute path: it judges the fix, and a disagreement with lines an earlier review of those diffs read and left unflagged is a conflict, which never blocks.
+- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its brief also names the change's earlier diff files by absolute path.
 - An accept from a reviewer that returned the same repo earlier is discarded, so a re-review is always a fresh reviewer.
 - A finding about code outside every diff of the change is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths.
 - Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
