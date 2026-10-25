@@ -27,7 +27,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | Gate | Decision | Reason | When |
 |---|---|---|---|
 | `commit` | `allow` | `accepted` | every judged side of every code path matches an accepted entry for that path |
-| `commit` | `allow` | `no_code_change` | no code path differs from `HEAD` in the index or the working tree: only Markdown, paths `HEAD` marks `linguist-generated`, or nothing |
+| `commit` | `allow` | `no_code_change` | no code path differs from `HEAD` in the index or the working tree: only paths `HEAD` marks `linguist-generated`, or nothing |
 | `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` or `git clone` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |

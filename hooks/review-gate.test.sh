@@ -63,7 +63,8 @@ assert "the reviewer that returned may accept another repository" "$(record_as r
 record_as returner "$(report "$repo" return)" >/dev/null
 
 (cd "$repo" && git reset -q --hard && printf 'a = 1\n' >a.py && printf 'b = 1\n' >b.py && printf 'c = 1\n' >c.py &&
-  printf 'gen.js linguist-generated\n' >.gitattributes && printf 'g = 1\n' >gen.js && git add -A && git commit -q -m sides)
+  printf 'gen.js linguist-generated\ngen.md linguist-generated\n' >.gitattributes && printf 'g = 1\n' >gen.js && printf '# g\n' >gen.md &&
+  git add -A && git commit -q -m sides)
 accept_of() { record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" "$@")")" >/dev/null; }
 last_reason() { tail -n 1 "$log" | jq -r .reason; }
 
@@ -113,11 +114,12 @@ assert "an unaccepted deletion is refused" "$(gate 'git commit -m x')" "$(denied
 (cd "$repo" && git reset -q --hard)
 
 edit README.md 'more'
-assert "a Markdown-only change commits without an accept" "$(gate 'git commit -am x')" ""
-assert "that commit needs no code accept" "$(last_reason)" no_code_change
-accept_of README.md
-assert "a Markdown-only change commits with an accept" "$(gate 'git commit -am x')" ""
-assert "that commit still needs no code accept" "$(last_reason)" no_code_change
+assert "a Markdown-only change needs an accept" "$(gate 'git commit -am x')" "$(denied 'README.md (working tree)')"
+assert "that refusal says no accept covers the Markdown" "$(last_reason)" outside_accept
+(cd "$repo" && git checkout -q -- README.md)
+edit gen.md 'more'
+assert "a Markdown path HEAD marks linguist-generated commits without an accept" "$(gate 'git commit -am x')" ""
+assert "that generated Markdown commit needs no code accept" "$(last_reason)" no_code_change
 land
 edit gen.js 'g = 2'
 assert "a generated-only change commits without an accept" "$(gate 'git commit -am x')" ""

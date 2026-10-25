@@ -91,14 +91,14 @@ assert "a text stop after an accepting handback is judged by the text alone" "$(
 
 land
 edit README.md 'more docs'
-assert "a Markdown-only change commits without a verdict" "$(gate 'git commit -am docs')" ""
+assert "a Markdown-only change needs a verdict" "$(gate 'git commit -am docs')" "$(denied 'README.md (working tree)')"
 (cd "$repo" && printf 'x = 1\n' >scratch.py && git add README.md)
-assert "an untracked code file blocks a staged Markdown-only commit" "$(gate 'git commit -m docs')" "$(denied 'scratch.py (working tree)')"
-assert "a same-command add of an untracked code file needs a verdict" "$(gate 'git add -A && git commit -m docs')" "$(denied 'scratch.py (working tree)')"
+assert "an untracked code file is named beside a staged Markdown change" "$(gate 'git commit -m docs')" "$(denied 'README.md (staged and working tree)' 'scratch.py (working tree)')"
+assert "a same-command add of an untracked code file needs a verdict" "$(gate 'git add -A && git commit -m docs')" "$(denied 'README.md (staged and working tree)' 'scratch.py (working tree)')"
 (cd "$repo" && rm scratch.py)
 land
 (cd "$repo" && git mv app.py app.md)
-assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$(denied 'app.py (staged and working tree)')"
+assert "a staged move of code to Markdown needs a verdict" "$(gate 'git commit -m x')" "$(denied 'app.md (staged and working tree)' 'app.py (staged and working tree)')"
 (cd "$repo" && git mv app.md app.py)
 
 finish
