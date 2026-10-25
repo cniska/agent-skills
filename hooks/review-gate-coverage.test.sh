@@ -18,6 +18,9 @@ edit app.py 'print(33)'
 diff_in "$repo" app.py other.py >"$diffs/unbriefed.diff"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff" && read_of "$diffs/unbriefed.diff")" >/dev/null
 assert "a diff file the reviewer read that the brief does not name approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+diff_in "$repo" app.py other.py >"$diffs/prefix.diff"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/prefix.diff.old" && read_of "$diffs/prefix.diff")" >/dev/null
+assert "a diff file whose path the brief names only inside a longer path approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 stale="$(diff_in "$repo" app.py other.py)"
 edit app.py 'print(34)'
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")" >/dev/null

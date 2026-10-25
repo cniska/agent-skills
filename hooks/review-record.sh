@@ -158,10 +158,14 @@ brief_and_reads() {
         | .input.file_path? | select(type == "string" and . != "")] | unique}' "$transcript"
 }
 
+brief_paths() {
+  { jq -r .brief <<<"$1" | absolute_paths || true; } | sed -E 's/[.;]$//' | sort -u
+}
+
 reviewed_paths() {
   local file
   [ -n "$1" ] || return 0
-  jq -r '.brief as $brief | .reads[] | select(. as $path | $brief | contains($path))' <<<"$1" | while IFS= read -r file; do
+  jq -r --arg named "$(brief_paths "$1")" '($named | split("\n")) as $named | .reads[] | select(IN($named[]))' <<<"$1" | while IFS= read -r file; do
     [ ! -f "$file" ] || diff_paths <"$file"
   done | sort -u
 }
@@ -169,7 +173,7 @@ reviewed_paths() {
 unread_diffs() {
   local path
   [ -n "$1" ] || return 0
-  { jq -r .brief <<<"$1" | absolute_paths || true; } | sed -E 's/[.;]$//' | sort -u | while IFS= read -r path; do
+  brief_paths "$1" | while IFS= read -r path; do
     [ -f "$path" ] && [ -n "$(diff_paths <"$path")" ] || continue
     jq -e --arg path "$path" 'any(.reads[]; . == $path)' <<<"$1" >/dev/null || printf '%s\n' "$path"
   done
