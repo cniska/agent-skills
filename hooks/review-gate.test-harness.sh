@@ -86,18 +86,17 @@ diff_of() {
 }
 brief_line() { jq -cn --arg brief "Review the diff in $1." '{type: "user", message: {content: $brief}}'; }
 read_of() { assistant_line "$(jq -cn --arg path "$1" '{type: "tool_use", name: "Read", input: {file_path: $path}}')"; }
-briefed() {
-  local file
-  file="$(mktemp "$diffs/XXXXXX")"
-  printf '%s\n' "$1" >"$file"
-  brief_line "$file"
-  read_of "$file"
-}
-transcript_of() {
+scratch_file() {
   local file
   file="$(mktemp "$diffs/XXXXXX")"
   printf '%s\n' "$1" >"$file"
   printf '%s\n' "$file"
+}
+briefed() {
+  local file
+  file="$(scratch_file "$1")"
+  brief_line "$file"
+  read_of "$file"
 }
 
 fresh_agent() {
@@ -109,7 +108,7 @@ fresh_agent() {
 }
 
 record_reading() {
-  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${4:-cniska-skills:reviewer}" --arg transcript "$(transcript_of "$3")" \
+  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${4:-cniska-skills:reviewer}" --arg transcript "$(scratch_file "$3")" \
     '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: $type, agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 
@@ -128,7 +127,7 @@ record_handback() {
 
 record_last_message() {
   local transcript
-  transcript="$(transcript_of "$(briefed "$(diff_of "$1")" && text_line "$1")")"
+  transcript="$(scratch_file "$(briefed "$(diff_of "$1")" && text_line "$1")")"
   jq -cn --arg cwd "$repo" --arg message "$1" --arg agent "$(fresh_agent)" --arg transcript "$transcript" \
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }

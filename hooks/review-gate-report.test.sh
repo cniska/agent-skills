@@ -46,13 +46,13 @@ assert "a verdict in the last message counts when there is no handback" "$(recor
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
 edit app.py 'print(40)'
-unread="$(transcript_of "$(diff_in "$repo" app.py)")"
+unread="$(scratch_file "$(diff_in "$repo" app.py)")"
 reader="$(fresh_agent)"
 assert "an accept whose brief names a diff the reviewer never read keeps the reviewer running" \
   "$(record_reading "$reader" "$(report "$repo" accept)" "$(brief_line "$unread")")" \
   "$(refused "You have not read $unread. Read every diff file the brief names before your verdict, since an accept covers only the diffs you read.")"
 assert "that accept approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-second="$(transcript_of "$(diff_in "$repo" app.py)")"
+second="$(scratch_file "$(diff_in "$repo" app.py)")"
 both="$(printf '%s\n' "$unread" "$second" | sort | paste -sd ',' - | sed 's/,/, /')"
 assert "an accept whose brief names two diffs the reviewer never read names both" \
   "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$unread $second")")" \
