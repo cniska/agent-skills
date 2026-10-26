@@ -18,9 +18,9 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** the coach reviews each task once it lands or stops, and the coordinator applies each change it proposes as an experiment where a signal can read it, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
+- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set, as [the improvement loop](docs/loops.md#the-improvement-loop) says, and the coordinator applies each change it proposes as an experiment where a signal can read it, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
 
-One task's life, from my request through its landed branch, or its stop, to the workflow changes its coach proposes:
+One task's life, from my request through its landed branch, or its stop, to the daily review that reads its sessions with the rest of the day's work:
 
 ```mermaid
 flowchart LR
@@ -28,8 +28,8 @@ flowchart LR
   coord -- "brief" --> worker["Worker"]
   worker <-- "diff, verdict" --> reviewer["Reviewer"]
   worker -- "hands back, or stops" --> coord
-  coord -- "the task's sessions" --> coach["Coach"]
-  coach -- "proposals" --> coord
+  worker -- "its sessions" --> review["Daily workflow review"]
+  review -- "proposals" --> coord
   coord -- "report" --> you
 ```
 
@@ -71,7 +71,6 @@ npx skills add cniska/agent-skills
 | Commit gate | Holds each commit for the reviewer's accept. |
 | Brief gate | Refuses a reviewer brief that names a diff by anything but its absolute path or asks the reviewer to run git. |
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
-| Coach agent | Coaches each task once it lands or stops, proposing the workflow changes that repeat. |
 | Event log | Records commit-gate and verdict-check decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
 ## Skills

@@ -22,8 +22,8 @@ What it leaves behind:
 flowchart LR
   agent(["Agent"]) -- "coordinate rewrites" --> ledger[("Ledger")]
   hook["Hooks"] -- "event log" --> rec[("agent-record")]
-  rec -- "the task's and earlier sessions, signals" --> coach["Coach agent"]
-  coach -- "proposals" --> agent
+  rec -- "the day's and earlier sessions, signals" --> review["Your daily workflow-review routine"]
+  review -- "proposals" --> agent
 ```
 
 One commit, start to finish, through the plugin's reviewer and commit gate and agent-gates' git hooks and CI checks:
@@ -114,21 +114,6 @@ It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into c
 - By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.md` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the git common directory, minus `/.git`, slashes as dashes: the main checkout for a normal repo, the git directory under `.git/modules/` for a submodule, or outside git the project's directory, so all of a repo's worktrees read one ledger. The old single `agent-skills/ledger.md` under the state directory is no longer read.
 - When the ledger is missing, it prints the path it would read, so a coordinating session creates the ledger there.
 - Set `AGENT_LEDGER` in a project's local settings to keep its ledger elsewhere, such as a file in a repo you choose, so it outlives the machine; never in user settings, which every project reads.
-
-## Coach agent
-
-`cniska-skills:coach` is a task coach: once a task lands or stops, it finds where the workflow failed me in that task and proposes fixes, for the [improvement loop](loops.md#the-improvement-loop).
-
-- It runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over the task's sessions, the worker's and its subagents': my corrections, the questions I had to ask, gate stops, review returns, retries and the friction the sessions reported.
-- It reads the task's trace from agent-record first where it is installed, and the transcripts only at the steps that show friction; without the record it reads the transcripts whole.
-- It proposes only the changes that repeat: for each piece of friction it searches earlier sessions, through [agent-record](https://github.com/cniska/agent-record) where it is installed, and a first sighting proposes nothing.
-- It proposes changes only to what I commit to, as workflow-review says.
-- It checks each open experiment past its check date in the record its brief names (the `experiments.jsonl` in the ledger's folder, named by the coordinator's brief), as workflow-review's [experiments reference](../skills/workflow/workflow-review/references/experiments.md) says.
-- It proposes keeping, reverting or trimming the change, a later check date when there is not enough data, or a new start date, with an install if needed, when the change was not installed yet.
-- It reads agent-record's `skill-usage` signal and proposes trimming or fixing a skill a route names that does not load, or that loads and changes nothing.
-- Signals and the experiment checks that need agent-record say so and are skipped without it.
-- It changes nothing itself and runs only read commands and `agent-record sync`.
-- It ends each report with `Proposals: <n>`.
 
 ## Event log
 

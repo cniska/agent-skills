@@ -33,7 +33,7 @@ Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plug
 
 ## The outer loop
 
-The coordinator runs all the work in one long session on autocompaction, from my request to the experiments its coach proposes.
+The coordinator runs all the work in one long session on autocompaction, from my request to the experiments the daily workflow review proposes.
 
 ```mermaid
 flowchart TD
@@ -44,10 +44,10 @@ flowchart TD
   worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
   reviewer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
-  lead -- "the landed or stopped task's sessions" --> coach["Coach"]
-  coach -- "proposals, and keep, revert or trim for each due experiment" --> lead
+  day["The day's sessions"] --> review["Daily workflow review"]
+  review -- "proposals, and keep, revert or trim for each due experiment" --> lead
   lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
-  exp -- "past its check date: signals before and after, in the coach's next brief" --> coach
+  exp -- "past its check date: signals before and after, at the next run" --> review
 ```
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
@@ -57,13 +57,13 @@ flowchart TD
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. The coach, a task coach, runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each task once it lands or stops to find what to change, and the coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
+The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. The coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
 
 ```mermaid
 flowchart LR
-  task["Landed or stopped task"] -- "its sessions" --> coach["Coach"]
-  rec[("agent-record")] -- "earlier sessions, signals" --> coach
-  coach -- "proposals, keep, revert or trim" --> lead["Coordinator"]
+  day["A day's work"] -- "its sessions" --> review["Daily workflow review"]
+  rec[("agent-record")] -- "earlier sessions, signals" --> review
+  review -- "proposals, keep, revert or trim" --> lead["Coordinator"]
 ```
 
 On the check date, the signal before and after the change decides whether it stays or is reverted or trimmed:

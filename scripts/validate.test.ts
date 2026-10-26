@@ -465,10 +465,10 @@ describe("validate", () => {
         "README.md",
         "# Skills\n\n**Every task** names its `route`\nbefore the _first_ edit — lands.\n",
       );
-      write(root, "agents/coach.md", `# Coach\n\n- ${TEN}\n`);
+      write(root, "agents/worker.md", `# Worker\n\n- ${TEN}\n`);
       const run = validate(root);
       expect(run.code).toBe(1);
-      expect(run.output).toContain("README.md and agents/coach.md share a run of 10 words");
+      expect(run.output).toContain("README.md and agents/worker.md share a run of 10 words");
     });
 
     test("scans AGENTS.md", () => {
