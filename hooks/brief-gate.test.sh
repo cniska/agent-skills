@@ -32,7 +32,7 @@ git_read() { refused "It cannot run $1: write each command's output to a file in
 assert "a brief naming a diff by its bare name is refused" \
   "$(start 'History, all in /Users/me/tmp/task/: the fix commit as a whole is fix3-v3.diff')" "$(bare fix3-v3.diff)"
 assert "a brief naming a log by a relative path is refused" "$(start 'The log is in tmp/branch.log.')" "$(bare tmp/branch.log)"
-assert "a brief naming a diff under ~ is refused" "$(start 'Read `~/tmp/fix.diff`.')" "$(bare '~/tmp/fix.diff')"
+assert "a brief naming a diff under ~ is refused" "$(start 'Read `~/tmp/fix.diff`.')" "$(bare \~/tmp/fix.diff)"
 assert "a brief naming a diff by a relative path after a branch name is refused" "$(start 'Read (main:docs/fix.diff).')" "$(bare docs/fix.diff)"
 assert "an absolute path after a colon passes, as the commit gate reads it" "$(start 'Read main:/Users/me/fix.diff.')" ""
 assert "an absolute path in angle brackets passes, as the commit gate reads it" "$(start 'Read </Users/me/fix.diff>;</Users/me/b.log>')" ""
