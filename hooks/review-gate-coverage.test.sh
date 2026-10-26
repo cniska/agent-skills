@@ -176,5 +176,20 @@ unborn="$scratch/unborn"
 mkdir -p "$unborn"
 (cd "$unborn" && git init -q -b main && printf '* linguist-generated\n' >.gitattributes && printf 'print(1)\n' >app.py && git add app.py)
 assert "a code change in a repo with no commit yet still needs an accept" "$(gate_from 'git commit -m x' "$unborn")" "$(denied '.gitattributes (working tree)' 'app.py (staged and working tree)')"
+(cd "$repo" && chmod -x other.py)
+land
+edit app.py 'print(50)'
+edit other.py 'y = 6'
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
+assert "a return voids the accept of the paths its diff covers and no other" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
+unread="$(transcript_of "$(diff_in "$repo" app.py)")"
+record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$unread")" >/dev/null
+assert "a return voids the paths of a diff its brief names that its reviewer never read" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$diffs/none.diff")" >/dev/null
+assert "a return whose brief names no diff voids no accept" "$(gate 'git commit -am x')" ""
 
 finish

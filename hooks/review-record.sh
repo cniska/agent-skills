@@ -159,12 +159,24 @@ brief_paths() {
   jq -r .brief <<<"$1" | absolute_paths | sort -u
 }
 
-reviewed_paths() {
+diff_files_paths() {
   local file
-  [ -n "$1" ] || return 0
-  jq -r --arg named "$(brief_paths "$1")" '($named | split("\n")) as $named | .reads[] | select(IN($named[]))' <<<"$1" | while IFS= read -r file; do
+  while IFS= read -r file; do
     [ ! -f "$file" ] || diff_paths <"$file"
   done | sort -u
+}
+
+reviewed_paths() {
+  [ -n "$1" ] || return 0
+  jq -r --arg named "$(brief_paths "$1")" '($named | split("\n")) as $named | .reads[] | select(IN($named[]))' <<<"$1" | diff_files_paths
+}
+
+returned_paths() {
+  local path
+  [ -n "$1" ] || return 0
+  brief_paths "$1" | diff_files_paths | while IFS=$'\t' read -r path _; do
+    [ -z "$path" ] || unquote_path "$path"
+  done
 }
 
 unread_diffs() {
@@ -278,6 +290,10 @@ main() {
     return
   fi
 
+  local brief_and_reads returned
+  brief_and_reads="$(brief_and_reads "$input")"
+  returned="$(returned_paths "$brief_and_reads")"
+
   local verdicts=() repos=() reasons=() verdict named reason repo accepts=0 code="" why="" pair_code pair_why cited
   while IFS=$'\037' read -r verdict named reason; do
     pair_code=""
@@ -289,7 +305,7 @@ main() {
       pair_code=repo_not_found pair_why="'$named' is not a repository. $MISSING_REPO_REASON"
     else
       if [ "$verdict" = return ]; then
-        rm -f "$(review_state_file "$repo")"
+        void_paths "$(review_state_file "$repo")" "$returned"
         record_return "$repo" "$agent"
       fi
       cited="$(cited_worktrees "$repo" <<<"$report")"
@@ -325,8 +341,7 @@ main() {
     return
   fi
 
-  local brief_and_reads unread
-  brief_and_reads="$(brief_and_reads "$input")"
+  local unread
   if [ "$accepts" -gt 0 ]; then
     unread="$(unread_diffs "$brief_and_reads")"
     if [ -n "$unread" ]; then

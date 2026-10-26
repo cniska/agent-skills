@@ -149,6 +149,13 @@ path_entries() {
   awk -F '\t' 'NR == FNR { wanted[$0]; next } substr($0, length($1) + length($2) + 3) in wanted { print $1 "\t" $2 }' - "$1"
 }
 
+void_paths() {
+  local state="$1" paths="$2"
+  [ -f "$state" ] && [ -n "$paths" ] || return 0
+  awk -F '\t' 'NR == FNR { voided[$0]; next } !(substr($0, length($1) + length($2) + 3) in voided)' - "$state" <<<"$paths" >"$state.tmp"
+  mv "$state.tmp" "$state"
+}
+
 accepted_heads() {
   path_entries "$1" <<<"$3" | CONTENT="$2" awk -F '\t' '$2 == ENVIRON["CONTENT"] { print $1 }'
 }

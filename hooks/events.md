@@ -49,7 +49,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
 | `verdict` | `deny` or `allow` | `unread_diff` | the report accepts while the brief names by absolute path an existing diff file the reviewer never read |
 
-A `verdict` gate judges the report a reviewer passes to `SubagentHandback`, at `PreToolUse`, while the reviewer still runs to read a deny. `SubagentStop` judges the run the same way unless its final block is a hand-back, which `PreToolUse` already allowed; there the report is the final message. One bound covers both events: each reason a reviewer was denied is kept in a file for its agent id under the plugin's data directory, and the same reason again is allowed, so a reviewer that never fixes its report still ends. Neither the deny nor that allow records a verdict, though a return naming its repository still clears that repository's accept, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
+A `verdict` gate judges the report a reviewer passes to `SubagentHandback`, at `PreToolUse`, while the reviewer still runs to read a deny. `SubagentStop` judges the run the same way unless its final block is a hand-back, which `PreToolUse` already allowed; there the report is the final message. One bound covers both events: each reason a reviewer was denied is kept in a file for its agent id under the plugin's data directory, and the same reason again is allowed, so a reviewer that never fixes its report still ends. Neither the deny nor that allow records a verdict, though a return naming its repository still voids that repository's accept of each path in the diff files its brief names, and is kept against the reviewer's agent id so a later accept from that agent for that repository is `same_reviewer`.
 
 ### `verdict`
 
@@ -59,7 +59,7 @@ The reviewer handed back a well-formed verdict, or ended its run with one, and t
 |---|---|
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
-| `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, and its path; a return clears the set, so it carries the hash of the empty set |
+| `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, and its path; a return drops the entries of the paths in the diff files its brief names, so it carries the hash of the set that remains |
 | `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
 | `findings` | the findings under `## Findings`, each counted by its `Severity:` as `critical`, `major` or `minor`, and as `unrated` when it has no readable one; `fix` and `consider` are always 0, since the report has no such kinds |
 | `conflicts` | the `- **Where:**` bullets under `## Conflicts` |
