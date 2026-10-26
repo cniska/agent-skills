@@ -4,7 +4,7 @@ A workflow change stays only if the signal it named moved the way it said.
 
 ## The record
 
-The experiment record the brief names is a JSON-lines file, one line per event. An `open` line gives the commit that made or records the change (`sha`), the `signal` and its `direction`, when the change took effect (`from`), the `check` date, where another change overlaps it on that signal its `read`, and, when the owner approved an eval run, its `eval`: the case and the champion's and challenger's scores. A `close` line with the same `sha` ends the experiment; an `open` line without one is still open, and the latest `open` line for a `sha` counts.
+The experiment record the routine or the owner names is a JSON-lines file, one line per event. An `open` line gives the commit that made or records the change (`sha`), the `signal` and its `direction`, when the change took effect (`from`), the `check` date, where another change overlaps it on that signal its `read`, and, when the owner approved an eval run, its `eval`: the case and the champion's and challenger's scores. A `close` line with the same `sha` ends the experiment; an `open` line without one is still open, and the latest `open` line for a `sha` counts.
 
 ## Thresholds
 

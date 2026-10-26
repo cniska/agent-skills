@@ -33,7 +33,7 @@ A change no signal can read opens no experiment, and the report says why.
 
 ## Check
 
-Brief each `workflow-review` run with the record's path. For each open experiment past its check date it proposes keep, revert, trim or a later check date, or, when the change was not installed yet, a new `from`: the time the new version first ran, or, when it never ran, an install, with the `from` at that install.
+Whatever starts a `workflow-review` run, a scheduled routine included, names the record's path. For each open experiment past its check date it proposes keep, revert, trim or a later check date, or, when the change was not installed yet, a new `from`: the time the new version first ran, or, when it never ran, an install, with the `from` at that install.
 
 ## Close
 
