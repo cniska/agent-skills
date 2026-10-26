@@ -27,7 +27,7 @@ Where no rule decides a case, choose what a sensible engineer would choose for t
 
 ## Read
 
-Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation. For each new helper in scope, search the whole repo, tests and fixtures included, for its name and for the call it wraps (such as `rg -n 'mkdtempSync'`), and for each new type, for its fields or shape, to find the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised. A finding that clashes with a decision the owner or the coordinator settled in the brief is a conflict for the owner, never a finding.
+Read every line in scope, and the callers of what it exports: `rg -n '\b<name>\b'` over the source, tests included, because an export only a test imports is itself a finding. A caller outside the scope is cited as another place with the same violation, which the review report in `principles` says when to fix. For each new helper in scope, search the whole repo, tests and fixtures included, for its name and for the call it wraps (such as `rg -n 'mkdtempSync'`), and for each new type, for its fields or shape, to find the one it duplicates. Read the repo's recorded decisions for the area, wherever it keeps them (decision records, design docs): a finding that contradicts one names the record and why the friction warrants reopening it, or is not raised. A finding that clashes with a decision the owner or the coordinator settled in the brief is a conflict for the owner, never a finding.
 
 ## Judge
 
@@ -39,7 +39,7 @@ For a fix, name the cause it removes, as fix the cause in `principles` says; a s
 
 Write short and direct. No "consider", no "might", no praise. When a case is truly unclear, say what would settle it.
 
-Order the findings by reach: first a design every new case of the same kind, such as a new technique, page or command, would have to copy; then one that misleads the next writer; then local mess. Every finding is fixed, whatever its place.
+Order the findings by reach: first a design every new case of the same kind, such as a new technique, page or command, would have to copy; then one that misleads the next writer; then local mess. The order never excuses a finding: each under Findings is fixed.
 
 ## Report
 

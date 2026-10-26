@@ -8,14 +8,14 @@ readonly MISSING_REASON="End your report with a last line that is exactly 'Verdi
 MISSING="$(refused "$MISSING_REASON")"
 MISSING_AT_STOP="$(blocked "$MISSING_REASON")"
 readonly MISSING MISSING_AT_STOP
-readonly SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
+readonly SHAPE="The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect in code no diff of the change touches that does not block the change goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 REFERENCE="$HERE/../skills/expertise/principles/references/review-report.md"
 NO_SECTIONS="$(refused "The report lacks a section. $SHAPE")"
-WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $SHAPE")"
+WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while a finding stands there, end with 'Verdict: return'. $SHAPE")"
 readonly NO_SECTIONS WITH_FINDINGS
 
 labels="$(awk '/^```/ { inside = !inside; next } inside && /^(## |- \*\*[A-Z][a-z]*:\*\*)/' "$REFERENCE" | sed -E 's/^(- \*\*[A-Za-z]+:\*\*).*/\1/')"
-assert "the review report reference holds three sections and five finding bullets" "$(printf '%s\n' "$labels" | wc -l | tr -d ' ')" 8
+assert "the review report reference holds four sections and five finding bullets" "$(printf '%s\n' "$labels" | wc -l | tr -d ' ')" 9
 while IFS= read -r label; do
   case "$SHAPE" in *"'$label"*) named=yes ;; *) named=no ;; esac
   assert "the refusal names the review report's $label" "$named" yes
@@ -27,13 +27,18 @@ assert "a report with no verdict keeps the reviewer running" "$(record_handback 
 assert "a verdict not on its own line does not count" "$(record_handback 'My Verdict: accept')" "$MISSING"
 assert "a missing verdict on the second hand-back lets the reviewer hand back" "$(record_handback 'Still no verdict.' again)" ""
 
-assert "a report without the three sections keeps the reviewer running" "$(record_handback $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
+assert "a report without the four sections keeps the reviewer running" "$(record_handback $'Fine.\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
 assert "a report missing one section keeps the reviewer running" "$(record_handback "$(sections | grep -v '^## Clean$')"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
+assert "a report missing the follow-ups section keeps the reviewer running" "$(record_handback "$(sections | grep -v '^## Follow-ups$')"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$NO_SECTIONS"
 assert "an accept without the sections approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 assert "an accept with a finding keeps the reviewer running" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
 assert "an accept with 'none' and a finding keeps the reviewer running" "$(record_handback "$(sections "none"$'\n'"$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
 assert "an accept with a finding on the second hand-back lets the reviewer hand back" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept' again)" ""
 assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+assert "an accept with a finding and a follow-up keeps the reviewer running" "$(record_handback "$(sections "$(finding)" none "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" "$WITH_FINDINGS"
+assert "an accept with only a follow-up counts" "$(record_handback "$(sections none none "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: accept')" ""
+assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
+edit app.py 'print(41)'
 assert "an accept whose Findings says 'None.' counts" "$(record_handback "$(sections 'None.')"$'\nRepo: '"$repo"$'\nVerdict: accept')" ""
 assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
 assert "a return with a finding records nothing to say" "$(record_handback "$(sections "$(finding)")"$'\nRepo: '"$repo"$'\nVerdict: return')" ""

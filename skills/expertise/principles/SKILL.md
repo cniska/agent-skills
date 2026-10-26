@@ -16,7 +16,7 @@ A principle that more than one skill needs lives here once, so every skill that 
 | No transitional architecture | Replace, migrate and remove; never keep the old path alive beside the new | [no-transitional-architecture.md](references/no-transitional-architecture.md) |
 | Rules as checks | A mechanical rule is a type, lint, test or hook, not a sentence | [rules-as-checks.md](references/rules-as-checks.md) |
 | No drift | A change updates what describes, repeats, names or depends on it | [no-drift.md](references/no-drift.md) |
-| Review report | Every review reports findings in one shape, each fixed, and accepts only when none stands | [review-report.md](references/review-report.md) |
+| Review report | Every review reports in one shape, fixes what the change touches, queues real defects beyond it, and accepts only when Findings is empty | [review-report.md](references/review-report.md) |
 | Verify at the source | Settle each factual claim where it is defined, and cite that place | [verify-at-source.md](references/verify-at-source.md) |
 
 A principle only one skill uses stays in that skill. It moves here when a second skill needs it.

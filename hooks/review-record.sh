@@ -12,15 +12,15 @@ readonly MISSING_VERDICT_REASON="End your report with a last line that is exactl
 readonly MISSING_REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
 readonly WORKTREE_MISMATCH_REASON="Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository."
 readonly REPO_REPEATED_REASON="Give each repository one verdict: name it in one 'Repo:' line only."
-readonly REPORT_SHAPE="The report is three sections, '## Findings', '## Conflicts' and '## Clean', each saying 'none' when it is empty; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
+readonly REPORT_SHAPE="The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect in code no diff of the change touches that does not block the change goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
 SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line '$(fresh_reviewer_step); this one returned it.' above your verdict."
 readonly SAME_REVIEWER_REASON
-readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
+readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while a finding stands there, end with 'Verdict: return'. $REPORT_SHAPE"
 readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
 readonly STALE_DIFF_REASON="The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change."
 readonly MAX_COUNT=1000
-readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
+readonly UNCOUNTED='{"findings":null,"conflicts":null,"follow_ups":null,"rules":null}'
 
 die() {
   printf 'review-record.sh: %s\n' "$1" >&2
@@ -44,7 +44,7 @@ parse_report() {
     def blank: test("^\\s*$");
     def none: test("^none\\.?$"; "i");
     def last_finding(f): .findings[(.findings | length) - 1] |= f;
-    reduce (split("\n")[]) as $line ({headings: [], section: null, findings_lines: 0, findings_none: 0, findings: [], conflicts: 0, prose: false};
+    reduce (split("\n")[]) as $line ({headings: [], section: null, findings_lines: 0, findings_none: 0, findings: [], conflicts: 0, follow_ups: 0, prose: false};
       if ($line | test("^## ")) then .section = $line[3:] | .headings += [.section]
       elif ($line | blank) then .
       elif .section == "Findings" then
@@ -60,12 +60,17 @@ parse_report() {
         elif ($line | test(bullet("Where"))) then .conflicts += 1
         elif .conflicts == 0 then .prose = true
         else . end
+      elif .section == "Follow-ups" then
+        if ($line | none) then .
+        elif ($line | test(bullet("Where"))) then .follow_ups += 1
+        elif .follow_ups == 0 then .prose = true
+        else . end
       else . end)
-    | {headings, findings_empty: (.findings_lines == 1 and .findings_none == 1), findings, conflicts, prose}'
+    | {headings, findings_empty: (.findings_lines == 1 and .findings_none == 1), findings, conflicts, follow_ups, prose}'
 }
 
 has_sections() {
-  jq -e '["Findings", "Conflicts", "Clean"] - .headings == []' >/dev/null
+  jq -e '["Findings", "Conflicts", "Follow-ups", "Clean"] - .headings == []' >/dev/null
 }
 
 findings_empty() {
@@ -81,8 +86,8 @@ verdict_counts() {
   jq -c --argjson max "$MAX_COUNT" --argjson uncounted "$UNCOUNTED" '
     ({critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}
       + (.findings | group_by(.severity) | map({key: .[0].severity, value: length}) | from_entries)) as $findings
-    | if .prose or ([$findings[], .conflicts] | max) > $max then $uncounted
-      else {findings: $findings, conflicts, rules: [.findings[].rule | select(. != null)]} end' <<<"$parsed"
+    | if .prose or ([$findings[], .conflicts, .follow_ups] | max) > $max then $uncounted
+      else {findings: $findings, conflicts, follow_ups, rules: [.findings[].rule | select(. != null)]} end' <<<"$parsed"
 }
 
 verdict_pairs() {
@@ -386,10 +391,11 @@ main() {
     fi
   done
 
-  local state fingerprint counts findings conflicts rules
+  local state fingerprint counts findings conflicts follow_ups rules
   counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"
   findings="$(jq -c .findings <<<"$counts")"
   conflicts="$(jq -c .conflicts <<<"$counts")"
+  follow_ups="$(jq -c .follow_ups <<<"$counts")"
   rules="$(jq -c .rules <<<"$counts")"
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
@@ -399,7 +405,7 @@ main() {
     fingerprint="$(accept_fingerprint "$state")"
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
       --arg reason "${reasons[$i]}" --argjson findings "$findings" \
-      --argjson conflicts "$conflicts" --argjson rules "$rules"
+      --argjson conflicts "$conflicts" --argjson follow_ups "$follow_ups" --argjson rules "$rules"
   done
 }
 

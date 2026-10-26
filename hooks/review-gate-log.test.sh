@@ -79,7 +79,7 @@ assert "an unreviewed commit logs a deny with the diff it judged" \
 
 assert "an accepting verdict logs the verdict and the accept set it recorded" \
   "$(decided record_logged "$(report "$logged" accept)")" \
-  "$(jq -cn --arg repo "$logged_repo" --arg fp "$accepted_fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null, findings: {critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}, conflicts: 0, rules: []}')"
+  "$(jq -cn --arg repo "$logged_repo" --arg fp "$accepted_fp" '{verdict: "accept", repo: $repo, fingerprint: $fp, reason: null, findings: {critical: 0, major: 0, minor: 0, fix: 0, consider: 0, unrated: 0}, conflicts: 0, follow_ups: 0, rules: []}')"
 assert "the verdict line names the reviewer's agent id" "$(tail -n 1 "$log" | jq -r .agent)" r1
 assert "the accepted commit logs an allow with the fingerprint of the sides it judged" \
   "$(decided gate_logged 'git commit -am x')" \
@@ -89,7 +89,7 @@ reviewer=r2
 assert "an edit after the accept logs changed_since_accept" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" changed_since_accept
 assert "a returning verdict logs the return with the fingerprint of the cleared accept set" \
   "$(decided record_logged "$(report "$logged" return)" | jq -r --arg repo "$logged_repo" '[.verdict, .repo == $repo, .fingerprint] | @tsv')" "return	true	$(printf '' | sha)"
-counts() { decided record_logged "$(sections "$1" "$2")"$'\nRepo: '"$logged"$'\nVerdict: return' | jq -c '[.findings, .conflicts, .rules]'; }
+counts() { decided record_logged "$(sections "$1" "$2" "${3:-none}")"$'\nRepo: '"$logged"$'\nVerdict: return' | jq -c '[.findings, .conflicts, .follow_ups, .rules]'; }
 readonly EVERY_SEVERITY='- **Where:** n.py:1
 - **Rule:** No dead structure
 - **Severity:** critical
@@ -128,19 +128,21 @@ readonly TWO_CONFLICTS='- **Where:** n.py:6
 - **Severity:** minor
 - **Why:** a.
 - **Instead:** b.'
-assert "a return counts its findings by severity, its conflicts and each finding's rule" \
-  "$(counts "$EVERY_SEVERITY" "$TWO_CONFLICTS")" \
-  '[{"critical":1,"major":1,"minor":1,"fix":0,"consider":0,"unrated":2},2,["No dead structure","Named constants","No dead structure","Names"]]'
+assert "a return counts its findings by severity, its conflicts, its follow-ups and each finding's rule" \
+  "$(counts "$EVERY_SEVERITY" "$TWO_CONFLICTS" "$(finding)")" \
+  '[{"critical":1,"major":1,"minor":1,"fix":0,"consider":0,"unrated":2},2,1,["No dead structure","Named constants","No dead structure","Names"]]'
 assert "findings in prose rather than bullets leave the verdict uncounted" \
-  "$(counts 'The constant on line 2 is unused.' none)" '[null,null,null]'
+  "$(counts 'The constant on line 2 is unused.' none)" '[null,null,null,null]'
 assert "a conflict in prose rather than bullets leaves the verdict uncounted" \
-  "$(counts "$(finding)" 'The brief settles this the other way.')" '[null,null,null]'
+  "$(counts "$(finding)" 'The brief settles this the other way.')" '[null,null,null,null]'
+assert "a follow-up in prose rather than bullets leaves the verdict uncounted" \
+  "$(counts none none 'The parser below also drops a field.')" '[null,null,null,null]'
 assert "an uncounted return is still logged" "$(tail -n 1 "$log" | jq -r .verdict)" return
 many="$(for _ in $(seq 1001); do printf -- '- **Where:** n.py:1\n- **Severity:** minor\n'; done)"
-assert "more than 1000 findings of a kind leave the verdict uncounted" "$(counts "$many" none)" '[null,null,null]'
+assert "more than 1000 findings of a kind leave the verdict uncounted" "$(counts "$many" none)" '[null,null,null,null]'
 assert "a report naming two repositories leaves each verdict uncounted" \
-  "$(decided record_logged "$(sections)"$'\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: return' | jq -sc 'map([.findings, .conflicts, .rules])')" \
-  '[[null,null,null],[null,null,null]]'
+  "$(decided record_logged "$(sections)"$'\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: return' | jq -sc 'map([.findings, .conflicts, .follow_ups, .rules])')" \
+  '[[null,null,null,null],[null,null,null,null]]'
 assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" not_accepted
 
 (cd "$logged" && git checkout -q n.py && printf 'more\n' >>NOTES.md)
@@ -162,6 +164,8 @@ assert "a relative Repo path logs repo_relative" "$(decided record_logged "$(rep
 assert "a report without the sections logs missing_findings" "$(decided record_logged $'Fine.\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	missing_findings"
 reviewer=r3
 assert "an accept with a finding logs accept_with_findings" "$(decided record_logged "$(sections "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" accept_with_findings
+assert "an accept with only a follow-up logs the accept and counts the follow-up" \
+  "$(decided record_logged "$(sections none none "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r '[.verdict, .follow_ups] | @tsv')" "accept	1"
 unread="$(scratch_file "$(diff_of "$(report "$logged" accept)")")"
 assert "an accept whose brief names a diff it never read logs unread_diff" \
   "$(decided record_logged "$(report "$logged" accept)" "$(brief_line "$unread")" | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	unread_diff"

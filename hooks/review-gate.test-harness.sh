@@ -132,7 +132,7 @@ record_last_message() {
     '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 
-sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\n%s\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}" "${2:-none}"; }
+sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\n%s\n\n## Follow-ups\n\n%s\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}" "${2:-none}" "${3:-none}"; }
 report() { printf '%s\nRepo: %s\nVerdict: %s' "$(sections)" "$1" "$2"; }
 finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Severity:** minor\n- **Why:** unused.\n- **Instead:** delete it.'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }

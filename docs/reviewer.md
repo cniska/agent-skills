@@ -14,9 +14,9 @@ The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [c
 
 Its report takes the shape every review in the plugin uses, the [review report](../skills/expertise/principles/references/review-report.md) in `principles`.
 
-- Every finding is fixed, so any finding returns the change; it accepts only when Findings is empty.
+- A finding on code the change touches is fixed, so it returns the change; it accepts only when Findings is empty.
 - The re-review is another fresh agent, given the fix to judge and the change's earlier diffs to read, for findings as for its accept. Where any later review, the branch review's first pass included, disagrees with a line an earlier review read and did not flag, whether that review accepted or returned, that is a finding and returns, unless it is against a decision I or the coordinator settled, which is a conflict for me to settle.
-- A finding about code none of the change's diffs touch still goes under Findings and returns the change, never left in a backlog; the fix is its own commit, accepted on its own and committed first, and the returned change's re-review is then handed that commit's diff as the fix, so the change's diff never grows to cover it.
+- On code none of the change's diffs touch, only a defect that blocks the change returns it; the fix is its own commit, accepted on its own and committed first, and the returned change's re-review is then handed that commit's diff as the fix, so the change's diff never grows to cover it. Any other bug or security hole there is a follow-up: the accept never waits on it, and it becomes a queued task, never a backlog line. A style point or nit there is dropped.
 - A brief that gives it no diff to read is returned as `no_diff`, never accepted on a read of something else.
 
-Only a finding that needs my decision, or sits in a change another person owns, goes into the task's report.
+Only a finding that needs my decision, or sits in a change another person owns, and the follow-ups to queue go into the task's report.

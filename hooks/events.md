@@ -45,8 +45,8 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` or `allow` | `repo_repeated` | two `Repo:` lines name the same repository |
 | `verdict` | `deny` or `allow` | `worktree_mismatch` | the report cites files in another worktree of the `Repo:` repository and none in the one it names; when `Repo:` names a linked worktree, files in the main checkout do not count |
 | `verdict` | `deny` or `allow` | `same_reviewer` | the report accepts a repository its reviewer returned earlier, so the accept is discarded and a fresh reviewer must judge the fix |
-| `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts` and `## Clean` |
-| `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings` |
+| `verdict` | `deny` or `allow` | `missing_findings` | the report lacks one of `## Findings`, `## Conflicts`, `## Follow-ups` and `## Clean` |
+| `verdict` | `deny` or `allow` | `accept_with_findings` | the report accepts with something other than `none` under `## Findings`; `## Follow-ups` never holds back an accept |
 | `verdict` | `deny` or `allow` | `unread_diff` | the report accepts while the brief names by absolute path an existing diff file the reviewer never read |
 | `verdict` | `deny` or `allow` | `accept_covers_nothing` | the report accepts a repository while the diff files the reviewer read name at least one path and none of them has its new side in that checkout's index or working tree; the reason names those paths and, where another worktree of the repository holds them, names that worktree and asks for it on the `Repo:` line, as `worktree_mismatch` does; where none does, it says the diff no longer matches the change, most likely edited after the diff was written, and asks the reviewer to request a fresh diff |
 
@@ -64,9 +64,10 @@ The reviewer handed back a well-formed verdict, or ended its run with one, and t
 | `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
 | `findings` | the findings under `## Findings`, each counted by its `Severity:` as `critical`, `major` or `minor`, and as `unrated` when it has no readable one; `fix` and `consider` are always 0, since the report has no such kinds |
 | `conflicts` | the `- **Where:**` bullets under `## Conflicts` |
+| `follow_ups` | the `- **Where:**` bullets under `## Follow-ups`, the defects in code the change does not touch that do not block it; none of them is counted under `findings` |
 | `rules` | each finding's `**Rule:**` under `## Findings`, one entry per finding that names one |
 
-Finding counts and the rules a review cites are written, so a reader sums them without parsing the report. A report the hook cannot count leaves all three `null`: findings or conflicts written as prose rather than bullets, a count over 1000, or a report naming more than one repository, whose findings no line can claim alone.
+Finding counts and the rules a review cites are written, so a reader sums them without parsing the report. A report the hook cannot count leaves all four `null`: findings, conflicts or follow-ups written as prose rather than bullets, a count over 1000, or a report naming more than one repository, whose findings no line can claim alone.
 
 ### `permission_prompt`
 

@@ -6,13 +6,13 @@ argument-hint: "[pr-url-or-number | commit-range]"
 
 # Review
 
-Review a whole change and return one report of its findings to whoever ran the review. `correctness-review` and `test-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes what it finds.
+Review a whole change and return one report of its findings to whoever ran the review. `correctness-review` and `test-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes its findings and queues its follow-ups.
 
 Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff and log files the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
 
 ## Scope
 
-Review only the diff, but read enough surrounding code and docs to understand conventions and boundaries.
+Review the diff, reading enough surrounding code and docs to understand conventions and boundaries. A defect in that surrounding code is placed as the review report in `principles` says: a finding when it blocks the change, a follow-up when it is a real defect that does not, and dropped when it is a style point.
 
 Do not duplicate the same issue across areas. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
 
@@ -101,5 +101,6 @@ One report, in the review report shape from `principles`, so the area skills' fi
 - Generic cleanup wishlists
 - Speculative issues without evidence
 - Broad rewrite suggestions out of scope
-- An accept while any finding stands, or "LGTM" without evidence of review
+- An accept while a finding stands under Findings, or "LGTM" without evidence of review
+- A defect in code the change does not touch returning the change without blocking it, or a nit there reported at all
 - Softening real issues — if it's a bug, say so directly
