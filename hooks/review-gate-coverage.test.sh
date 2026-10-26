@@ -197,7 +197,7 @@ edit app.py 'print(51)'
 edit other.py 'y = 7'
 assert "an accept whose diff matches nothing in its repo keeps the reviewer running" \
   "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")")" \
-  "$(refused "None of app.py, other.py in the diff files you read matches the index or working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing. End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line.")"
+  "$(refused "None of app.py, other.py in the diff files you read matches what is staged or in the working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing. The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change.")"
 assert "that refused accept records no verdict" "$(tail -n 1 "$log" | jq -r '[.event, .gate, .reason] | @tsv')" "gate	verdict	accept_covers_nothing"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py && printf '%s\n' "$stale_other")")" >/dev/null
 assert "an accept whose diff matches one path in its repo records that path" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"

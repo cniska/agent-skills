@@ -18,7 +18,7 @@ SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's c
 readonly SAME_REVIEWER_REASON
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
 readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
-readonly COVERS_NOTHING_REASON="End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line."
+readonly STALE_DIFF_REASON="The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change."
 readonly MAX_COUNT=1000
 readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
 
@@ -242,11 +242,15 @@ staged_worktree() {
 }
 
 covers_nothing_reason() {
-  local repo="$1" reviewed="$2" path names worktree found=""
+  local repo="$1" reviewed="$2" path names worktree covers_nothing
   names="$(cut -f 1 <<<"$reviewed" | while IFS= read -r path; do unquote_path "$path"; done | sort -u)"
+  covers_nothing="None of ${names//$'\n'/, } in the diff files you read matches what is staged or in the working tree of '$repo', so this accept would cover nothing"
   worktree="$(staged_worktree "$repo" "$reviewed")"
-  [ -z "$worktree" ] || found="; they match the worktree '$worktree'"
-  printf '%s\n' "None of ${names//$'\n'/, } in the diff files you read matches the index or working tree of '$repo', so this accept would cover nothing$found. $COVERS_NOTHING_REASON"
+  if [ -n "$worktree" ]; then
+    printf '%s\n' "$covers_nothing; they match the worktree '$worktree'. $WORKTREE_MISMATCH_REASON"
+    return
+  fi
+  printf '%s\n' "$covers_nothing. $STALE_DIFF_REASON"
 }
 
 record_accept() {

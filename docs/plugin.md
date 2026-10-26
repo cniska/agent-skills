@@ -71,7 +71,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 - It runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit read-only, with its skills preloaded, since a subagent starts without the parent's, and loads [review](../skills/workflow/review/SKILL.md) for the review of a whole branch.
 - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
-- Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, an accept with any finding, an accept from a reviewer that never read a diff file its brief names, or an accept whose diff files name paths none of which matches the index or working tree of the checkout its `Repo:` line names, is sent back to it once before it may stop.
+- Its report holds the sections `## Findings`, `## Conflicts` and `## Clean`; a report missing one, an accept with any finding, an accept from a reviewer that never read a diff file its brief names, or an accept whose diff files name paths none of which matches the index or working tree of the checkout its `Repo:` line names, is sent back to it once before it may stop. That last one is told to name the worktree that holds those paths on its `Repo:` line, or, where no worktree does, to ask for a fresh diff of the change.
 
 ## Researcher agent
 

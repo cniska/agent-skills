@@ -77,6 +77,13 @@ assert "a second pair naming no repository keeps the reviewer running" \
 (cd "$worktree" && printf 'print(12)\n' >>app.py)
 assert "an accept naming a checkout that holds none of its diff names the worktree that does" \
   "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$worktree" app.py)")")" \
-  "$(refused "None of app.py in the diff files you read matches the index or working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing; they match the worktree '$(cd "$worktree" && pwd -P)'. End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line.")"
+  "$(refused "None of app.py in the diff files you read matches what is staged or in the working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing; they match the worktree '$(cd "$worktree" && pwd -P)'. Put the path of the worktree the change is in on the 'Repo:' line, not another checkout of its repository.")"
+redirected="$(fresh_agent)"
+staged_brief="$(briefed "$(diff_in "$worktree" app.py)")"
+record_reading "$redirected" "$(report "$repo" accept)" "$staged_brief" >/dev/null
+assert "a refused accept naming the wrong checkout lets the worktree commit nothing" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" "$(denied 'app.py (working tree)')"
+assert "that reviewer's accept naming the worktree it was pointed to records" \
+  "$(record_reading "$redirected" "$(report "$worktree" accept)" "$staged_brief")" ""
+assert "that accept lets the worktree commit" "$(gate_from "cd $worktree && git add -A && git commit -m x" "$repo")" ""
 
 finish
