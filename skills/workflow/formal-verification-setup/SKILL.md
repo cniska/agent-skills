@@ -8,7 +8,7 @@ argument-hint: "[area-or-property]"
 
 A test covers the cases someone wrote down; a formal check covers all of a stated scope, such as each interleaving a model allows, each input below a bound, or the whole input space. This skill finds where in the repo that reach pays off most, checks a single property there, and hands the next agent, arriving cold mid-change, a project-local skill to recheck it. Its verdict has to be one the owner can rely on and act on with no knowledge of the checker's syntax.
 
-The mode follows from whether a formal verification skill already exists in the project: a project-local skill, hand-written or not, whose check feeds named source to a model checker, a prover or a verifier that reads the code itself. **Create** (none exists) writes `<project>-formal-<area>`; **Update** (one exists) realigns that skill and its check with today's code under the skill's own name. Never write a second skill beside an existing one.
+The mode follows from whether a formal verification skill already exists in the project: a project-local skill, hand-written or not, whose check feeds named source to a model checker, a prover or a verifier that reads the code itself, or drives property-based inputs through named functions over a stated scope. **Create** (none exists) writes `<project>-formal-<area>`; **Update** (one exists) realigns that skill and its check with today's code under the skill's own name. Never write a second skill beside an existing one.
 
 ## Placement
 
