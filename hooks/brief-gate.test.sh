@@ -62,7 +62,18 @@ assert "a start with no agent type passes" \
   "$(jq -cn '{tool_name: "Agent", tool_input: {prompt: "Read fix.diff"}}' | "$HOOK" 2>/dev/null)" ""
 assert "a refusal exits 0, so the host reads the decision" "$(start 'fix.diff' >/dev/null; echo "$?")" 0
 assert "input that is not JSON passes with exit 0" "$(printf 'not json' | "$HOOK" 2>/dev/null; echo "$?")" 0
-assert "input that is not JSON says so on stderr" "$(printf 'not json' | "$HOOK" 2>&1 >/dev/null | grep -c '^brief-gate.sh: allowed the agent start unchecked')" 1
+assert "input that is not JSON says so on stderr" "$(printf 'not json' | "$HOOK" 2>&1 >/dev/null)" \
+  "brief-gate.sh: allowed the agent start unchecked: its input is not JSON"
+
+scratch="$(mktemp -d)" || exit 1
+trap 'rm -rf "$scratch"' EXIT
+mkdir "$scratch/bin"
+printf '#!/bin/sh\nexit 127\n' >"$scratch/bin/jq"
+chmod +x "$scratch/bin/jq"
+without_jq() { printf '{}' | PATH="$scratch/bin:$PATH" "$HOOK"; }
+assert "a start without a working jq passes with exit 0" "$(without_jq 2>/dev/null; echo "$?")" 0
+assert "a start without a working jq names jq on stderr" "$(without_jq 2>&1 >/dev/null)" \
+  "brief-gate.sh: allowed the agent start unchecked: jq is required"
 
 assert "the gate runs before each Agent start" \
   "$(jq -r '[.hooks.PreToolUse[] | select(.matcher == "Agent") | .hooks[].command] | join(" ")' "$HERE/hooks.json")" \

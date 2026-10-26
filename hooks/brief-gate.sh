@@ -27,6 +27,10 @@ refusal() {
 
 main() {
   local input type files reads
+  if ! jq --version >/dev/null 2>&1; then
+    printf 'brief-gate.sh: allowed the agent start unchecked: jq is required\n' >&2
+    return 0
+  fi
   input="$(cat)"
   if ! type="$(jq -r '.tool_input.subagent_type // empty' <<<"$input" 2>/dev/null)"; then
     printf 'brief-gate.sh: allowed the agent start unchecked: its input is not JSON\n' >&2

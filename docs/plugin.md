@@ -100,7 +100,7 @@ It refuses to start the reviewer on a brief the reviewer cannot read, since the 
 - A prompt naming a `.diff` or `.log` file by anything but an absolute path, such as a bare name, a relative path or a `~` path, is refused, and the refusal names each such file. It splits the prompt into paths the way the commit gate reads a brief, so each one it lets through is a path the commit gate reads too.
 - A prompt holding `git show`, `git -C`, `git diff`, or a `git log` with `-p` or `--patch` is refused, and the refusal says to write each command's output to a file in the temp folder and name the file by its absolute path.
 - A prompt holding both is refused once, naming each.
-- Input it cannot read passes, with a line on stderr.
+- Input it cannot read passes, and so does every start when `jq` does not run, each with a line on stderr naming the cause.
 
 ## Ledger hook
 
