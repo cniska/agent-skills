@@ -20,7 +20,7 @@ Two modes, inferred from the request:
 4. **Sweep for drift**: apply no drift from `principles` to the skill's own description, any index or README that lists it, and sibling skills or hooks that restate or act on what changed, and, where the repo has a trigger check, that skill's trigger prompts ([evals](references/evals.md)).
 5. **Validate** with the repo's validator. Reach for an eval ([evals](references/evals.md)) only when the change's risk needs one, such as a behavior the skill exists for or a past regression no cheaper check can judge; a model run needs the owner's approval, so name the run and why in the report instead of starting it.
 6. **Commit** the way the repo's rules say, only once the user gives the go.
-7. **Check it in real use** once it lands, where the host has the signals: the session record's skill loads by version, and a coach's experiment record with a check date for the change. `workflow-review` judges the change by them.
+7. **Check it in real use** once it lands, where the host has the signals: the session record's skill loads by version, and an experiment record with a check date for the change. `workflow-review` judges the change by them.
 
 ## See also
 

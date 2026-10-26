@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use when a task lands or stops, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use on a schedule over a window of work, such as the last day's, or when asked what should change in the workflow.
 ---
 
 # Workflow review
@@ -18,13 +18,13 @@ Find where the workflow failed the owner, and say what should change so it does 
 
 ## Read
 
-1. **Scope** to the task the brief names, or to the window or projects the owner asks about; without either, ask. A task's sessions are the run that did it and the subagents that run started, which its agent tool calls name.
+1. **Scope** to the window of work and the projects the routine or the owner names, such as the last day's; without either, ask. Each task in it has as its sessions the run that did it and the subagents that run started, which its agent tool calls name.
 2. **Find the evidence** through `search-sessions`, in the scope:
    - the owner correcting an agent;
    - a question the owner had to ask mid-task that a skill should have answered;
    - friction a session reported about the workflow itself, or a gate stop, a review return or a retry;
    - an eval case that regressed, where the repo has evals.
-   When the scope is one task, read its steps first where the session record traces them: a refused or failed step, a review return, a long step, an agent heavy on tokens or a compaction is where to open its transcripts; then search every earlier session for each piece of friction it shows; one with no earlier sighting is a one-off.
+   For each task in the window, read its steps first where the session record traces them: a refused or failed step, a review return, a long step, an agent heavy on tokens or a compaction is where to open its transcripts; then search every earlier session for each piece of friction it shows; one with no earlier sighting is a one-off.
 3. **Read each hit's thread**: what the agent did, what it was following (a skill line, a repo rule, nothing), and what the owner wanted instead.
    Ask why until the cause is one a change can reach, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 4. **Read the current version** of the skill, agent or rules file involved. A finding the current version already settles is dropped.
