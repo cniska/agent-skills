@@ -1,6 +1,6 @@
 ---
 name: workflow-review
-description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each past change should stay or go by its signal. Use on a schedule over a window of work, such as the last day's, or when asked what should change in the workflow.
+description: Review how the work actually went — the owner's corrections, questions they had to ask, and friction sessions reported — and propose the changes to skills, agents and repo rules that the evidence repeats, and whether each experiment's change should stay or go by its signal. Use on a schedule over a window of work, such as the last day's, or when asked what should change in the workflow.
 ---
 
 # Workflow review
@@ -56,7 +56,7 @@ One heading per kind, one proposal per finding, within each kind the costliest f
 - **Evidence:** the quotes, each with its citation, or for an eval or check finding, the case and the result that shows it.
 - **Waste and cause:** what it cost, and the reachable cause the whys stopped at.
 - **Change:** the smallest edit that would have prevented it, cuts first; for a missing tool, the smallest tool.
-- **Check:** the cheapest test or check that would catch it coming back. Propose an eval only when the change's risk justifies one: a behavior the skill exists for, a past regression, or a change no cheaper check can judge, and say why. A proposed eval goes to the owner as its own Conflict, naming the change it judges; the change stays in its kind, and the signal on the check date judges it until the owner decides.
+- **Check:** the cheapest test or check that would catch it coming back. Propose an eval only when the change's risk justifies one: a behavior the skill exists for, a past regression, or a change no cheaper check can judge, and say why. A proposed eval goes to the owner as its own Conflict, naming the change it judges; the change stays in its kind, and, where it lands as a bet, the signal on the check date judges it until the owner decides.
 
 A conflict's proposal also names the decision the owner has to make. Then the experiments checked, then the one-offs, one line each, and what was searched for and not found. No summary paragraph.
 

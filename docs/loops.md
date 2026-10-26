@@ -33,7 +33,7 @@ Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plug
 
 ## The outer loop
 
-The coordinator runs all the work in one long session on autocompaction, from my request to the experiments the daily workflow review proposes.
+The coordinator runs all the work in one long session on autocompaction, from my request to the changes the daily workflow review proposes.
 
 ```mermaid
 flowchart TD
@@ -46,7 +46,7 @@ flowchart TD
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
   day["The day's sessions"] --> review["Daily workflow review"]
   review -- "proposals, and keep, revert or trim for each due experiment" --> lead
-  lead -- "applies one change: commit, signal, check date" --> exp["Experiment"]
+  lead -- "applies a bet as one change: commit, signal, check date" --> exp["Experiment"]
   exp -- "past its check date: signals before and after, at the next run" --> review
 ```
 
@@ -57,7 +57,7 @@ flowchart TD
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. The coordinator applies each change as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, unless no signal can read it.
+The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. The coordinator applies each change, and tries it as an [experiment](../skills/workflow/coordinate/references/experiments.md), with the signal it should move and a check date, only when it is a bet whose effect is uncertain and measurable; a plain win, an owner decision, a defect fix or a drift fix just lands.
 
 ```mermaid
 flowchart LR
@@ -70,14 +70,14 @@ On the check date, the signal before and after the change decides whether it sta
 
 ```mermaid
 flowchart LR
-  prop["Proposal"] -- "applied: open line with commit, signal, check date" --> exp["Experiment"]
+  prop["Bet"] -- "applied: open line with commit, signal, check date" --> exp["Experiment"]
   exp -- "signal before and after, past the check date" --> review["Workflow review"]
   review -- "keep, revert, trim or a later check" --> lead["Coordinator"]
   lead -- "close line, or a new open line" --> rec[("Experiment record")]
   lead -- "a trim: its own experiment" --> prop
 ```
 
-An eval I approve can check a change before it lands, and the signals judge it after.
+An eval I approve can check a change before it lands, and the signals judge a bet after.
 
 ### Signals
 
@@ -99,7 +99,7 @@ The loop changes skills, agents, hooks and checks on its own; anything else come
 
 It follows lean practice, in plain terms first:
 
-- The skills are the standard way of working, and every change the coordinator makes to them that a signal can measure is tried as an experiment (kaizen).
+- The skills are the standard way of working, and every change the coordinator makes to them that is an uncertain bet a signal can measure is tried as an experiment (kaizen); a plain win just lands.
 - Each finding names what it cost and is traced back to a skill line, a repo rule, a check or a missing tool (waste, 5 whys).
 - Rules become checks, as [principles](conventions.md#principles) says, and a gate that stops correct work counts against the gate (jidoka, false stops).
 - An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [debug](../skills/workflow/debug/SKILL.md) (andon).

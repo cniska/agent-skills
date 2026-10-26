@@ -1,6 +1,6 @@
 # Experiments
 
-A workflow change stays only if the signal it named moved the way it said.
+A bet stays only if the signal it named moved the way it said.
 
 ## The record
 

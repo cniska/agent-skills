@@ -1,6 +1,6 @@
 # Experiments
 
-A workflow change stays only if it moves what it was meant to move. Every change the coordinator applies to skills, agents, hooks or checks, proposed by a workflow review or not, is an experiment until it is checked, unless no signal can read it.
+A workflow change stays only if it moves what it was meant to move. A change the coordinator applies to skills, agents, hooks or checks, proposed by a workflow review or not, is tried as an experiment only when it is a bet: an uncertain change a signal can read. A bet stays an experiment until it is checked.
 
 ## The record
 
@@ -25,11 +25,11 @@ An experiment is open while its `open` line has no `close` line with the same `s
 
 ## Open
 
-When the change lands, append an `open` line. Scores from an eval the owner approves later go on a new `open` line with the same `check`.
+When a bet lands, append an `open` line. Scores from an eval the owner approves later go on a new `open` line with the same `check`.
 
-A second change aimed at the same signal while one is open muddies both checks: wait for the first check, or give each overlapping `open` line a `read` and name the overlap in the report.
+Fold bets that aim at the same signal into one change, with one `open` line. A bet aimed at a signal an open experiment already aims at muddies both checks: wait for the first check, or give each overlapping `open` line a `read` and name the overlap in the report.
 
-A change no signal can read opens no experiment, and the report says why.
+Anything else lands with no `open` line, and the report says which it is: a plain win, an owner decision, a defect fix, a drift fix, or a change no signal can read.
 
 ## Check
 
@@ -37,4 +37,4 @@ Whatever starts a `workflow-review` run, a scheduled routine included, names the
 
 ## Close
 
-A later check date or a new `from` is a new `open` line, as The record says, never a close. Apply a keep, revert or trim verdict, then append a `close` line with its outcome, repeating the open line's other fields. A revert or trim lands as its own commit, or is recorded in one, named in `by_sha`. A trim is a new change, so it also opens its own experiment; a revert does not.
+A later check date or a new `from` is a new `open` line, as The record says, never a close. Apply a keep, revert or trim verdict, then append a `close` line with its outcome, repeating the open line's other fields. A revert or trim lands as its own commit, or is recorded in one, named in `by_sha`. A trim is a new bet on the same signal, so it also opens its own experiment; a revert does not.
