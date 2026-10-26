@@ -60,7 +60,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 2. **Read the code that changed.** The doc must reflect what the code does now.
 3. **Find the owning section.** The doc map names the doc; match its existing vocabulary and structure.
 4. **Merge, don't append.** If an existing bullet overlaps, rewrite it. If a new concept is introduced, give it its own subsection.
-5. **Sweep every mention.** For each changed behavior, search the README, the docs folder, the spec and the agent rules file for its name, command and flags, and fix each hit, as no drift in `principles` says; a mention outside the owning doc becomes a link to it.
+5. **Sweep every mention.** For each changed behavior, search the README, the docs folder, the spec and the agent rules file for its name, command and flags and for each passage that acts on it in other words, and fix each hit, as no drift in `principles` says; a mention outside the owning doc becomes a link to it.
 6. **Update the docs index.** If the doc's scope changed.
 7. **Check each claim at its source.** For every claim the change adds or alters, read the file and line it rests on, such as the script, config or test, or run the command it describes, and apply verify at the source from `principles`. If the code and doc disagree, the code wins.
 8. **Hand the sources to the reviewer.** List each changed claim with the file and line it rests on, and put that list in the review brief, so the reviewer reads the source rather than the doc's word for it.

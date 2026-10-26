@@ -8,4 +8,4 @@ A change also updates, in the same commit, everything that describes, repeats, n
 - **Contracts:** callers, config, fixtures and schemas built for an interface's old shape.
 - **Decisions:** a spec, decision record or `AGENTS.md` line the change contradicts.
 
-Before committing, search for the old wording, names and shapes, and fix each hit or point it at the one place that owns it. Where the repo's validator refuses a run of words two files share, the second place names the source instead of rewording the copy. Name in the report anything found that belongs to another change.
+Before committing, search for the old wording, names and shapes, and for each place that acts on what the change redefines, whatever its wording, and fix each hit or point it at the one place that owns it. Where the repo's validator refuses a run of words two files share, the second place names the source instead of rewording the copy. Name in the report anything found that belongs to another change.
