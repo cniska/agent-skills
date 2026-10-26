@@ -53,6 +53,9 @@ assert "a brief naming every diff and log by absolute path passes" \
 assert "a brief that says .diff without a name passes" "$(start 'Each .diff file is named by absolute path.')" ""
 assert "a file whose name only starts with a diff name passes" "$(start 'Ignore fix.diff.bak and notes.diffs.')" ""
 assert "a brief naming git log without a patch passes" "$(start 'The branch log came from git log --oneline main..topic.')" ""
+assert "a -p after git log ends at a semicolon passes" "$(start 'From git log --oneline main..topic; mkdir -p /Users/me/tmp')" ""
+assert "a -p after git log ends at a comma passes" \
+  "$(start 'Branch log: /Users/me/tmp/log.txt (git log --oneline main..topic, run after mkdir -p /Users/me/tmp)')" ""
 assert "a brief that holds no file or git command passes" "$(start 'Judge the design in the plan.')" ""
 assert "a bare name in a start of another agent type passes" "$(start 'Read fix.diff and git diff' cniska-skills:researcher)" ""
 assert "a start with no agent type passes" \

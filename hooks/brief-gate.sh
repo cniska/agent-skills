@@ -7,7 +7,7 @@ source "$HERE/paths.sh"
 
 readonly REVIEWER=cniska-skills:reviewer
 readonly BARE_FILE='^[^/](.*[^/])?\.(diff|log)$'
-readonly GIT_READ='\bgit\s+(?:show|-C|diff)\b|\bgit\s+log\b[^\n`]*?\s(?:-p|--patch)\b'
+readonly GIT_READ='\bgit\s+(?:show|-C|diff)\b|\bgit\s+log\b[^\n`;|&,()]*?\s(?:-p|--patch)\b'
 readonly NO_SHELL="Reviewer brief refused: $REVIEWER has no shell, so it reads only files named by absolute path."
 
 bare_files() {
