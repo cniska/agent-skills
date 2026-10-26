@@ -74,5 +74,9 @@ assert "a report with two bad pairs is denied for the first" \
 assert "a second pair naming no repository keeps the reviewer running" \
   "$(record_handback "$(two_repos "$worktree" accept "$scratch/nowhere" accept)")" \
   "$(repo_refusal "'$scratch/nowhere' is not a repository.")"
+(cd "$worktree" && printf 'print(12)\n' >>app.py)
+assert "an accept naming a checkout that holds none of its diff names the worktree that does" \
+  "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$worktree" app.py)")")" \
+  "$(refused "None of app.py in the diff files you read matches the index or working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing; they match the worktree '$(cd "$worktree" && pwd -P)'. End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line.")"
 
 finish

@@ -191,5 +191,17 @@ assert "a return voids the paths of a diff its brief names that its reviewer nev
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
 record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$diffs/none.diff")" >/dev/null
 assert "a return whose brief names no diff voids no accept" "$(gate 'git commit -am x')" ""
+stale="$(diff_in "$repo" app.py other.py)"
+stale_other="$(diff_in "$repo" other.py)"
+edit app.py 'print(51)'
+edit other.py 'y = 7'
+assert "an accept whose diff matches nothing in its repo keeps the reviewer running" \
+  "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")")" \
+  "$(refused "None of app.py, other.py in the diff files you read matches the index or working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing. End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line.")"
+assert "that refused accept records no verdict" "$(tail -n 1 "$log" | jq -r '[.event, .gate, .reason] | @tsv')" "gate	verdict	accept_covers_nothing"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py && printf '%s\n' "$stale_other")")" >/dev/null
+assert "an accept whose diff matches one path in its repo records that path" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"
+assert "an accept with no diff file, such as a design's, records" "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff")")" ""
+assert "that accept logs its verdict" "$(tail -n 1 "$log" | jq -r '[.event, .verdict] | @tsv')" "verdict	accept"
 
 finish

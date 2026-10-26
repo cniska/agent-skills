@@ -18,6 +18,7 @@ SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's c
 readonly SAME_REVIEWER_REASON
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while any finding stands, end with 'Verdict: return'. $REPORT_SHAPE"
 readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
+readonly COVERS_NOTHING_REASON="End your report with a line telling whoever briefed you to name the worktree they are staged in on the 'Repo:' line."
 readonly MAX_COUNT=1000
 readonly UNCOUNTED='{"findings":null,"conflicts":null,"rules":null}'
 
@@ -229,6 +230,25 @@ current_entries() {
   done
 }
 
+staged_worktree() {
+  local repo="$1" reviewed="$2" worktree
+  git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p' | while IFS= read -r worktree; do
+    [ "$worktree" != "$repo" ] && [ -d "$worktree" ] || continue
+    if [ -n "$(current_entries "$worktree" <<<"$reviewed")" ]; then
+      printf '%s\n' "$worktree"
+      return
+    fi
+  done
+}
+
+covers_nothing_reason() {
+  local repo="$1" reviewed="$2" path names worktree found=""
+  names="$(cut -f 1 <<<"$reviewed" | while IFS= read -r path; do unquote_path "$path"; done | sort -u)"
+  worktree="$(staged_worktree "$repo" "$reviewed")"
+  [ -z "$worktree" ] || found="; they match the worktree '$worktree'"
+  printf '%s\n' "None of ${names//$'\n'/, } in the diff files you read matches the index or working tree of '$repo', so this accept would cover nothing$found. $COVERS_NOTHING_REASON"
+}
+
 record_accept() {
   local repo="$1" state="$2" entries="$3" head
   head="$(git -C "$repo" rev-parse --verify --quiet HEAD)" || head=-
@@ -350,8 +370,19 @@ main() {
     fi
   fi
 
-  local i state fingerprint counts findings conflicts rules reviewed
+  local i reviewed entries=()
   reviewed="$(reviewed_paths "$brief_and_reads")"
+  for i in "${!repos[@]}"; do
+    entries[i]=""
+    [ "${verdicts[$i]}" = accept ] || continue
+    entries[i]="$(current_entries "${repos[$i]}" <<<"$reviewed")"
+    if [ -n "$reviewed" ] && [ -z "${entries[i]}" ]; then
+      malformed_report "$input" accept_covers_nothing "$(covers_nothing_reason "${repos[$i]}" "$reviewed")"
+      return
+    fi
+  done
+
+  local state fingerprint counts findings conflicts rules
   counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"
   findings="$(jq -c .findings <<<"$counts")"
   conflicts="$(jq -c .conflicts <<<"$counts")"
@@ -359,7 +390,7 @@ main() {
   for i in "${!repos[@]}"; do
     state="$(review_state_file "${repos[$i]}")"
     if [ "${verdicts[$i]}" = accept ]; then
-      record_accept "${repos[$i]}" "$state" "$(current_entries "${repos[$i]}" <<<"$reviewed")"
+      record_accept "${repos[$i]}" "$state" "${entries[i]}"
     fi
     fingerprint="$(accept_fingerprint "$state")"
     event_log "$input" verdict --arg verdict "${verdicts[$i]}" --arg repo "${repos[$i]}" --arg fingerprint "$fingerprint" \
