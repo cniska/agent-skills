@@ -18,7 +18,7 @@ Two modes, inferred from the request:
 - The repo's own doc map decides which doc owns a fact, wherever the repo keeps it: a docs index, the spec or the agent rules file. The fact lives in that doc, and every other doc links to it. Set no split between the README, the docs and the spec of your own; where the repo has no map, the doc that already holds the fact owns it.
 - One H1 per doc. H1 is the topic in title case. H2+ are sentence case.
 - First sentence is the summary. One line. The reader knows what this doc covers without scrolling.
-- A flow diagram is a ```mermaid flowchart that answers one question, judged by whether a reader understands it at a glance, not by its size: short node names, edge labels of a few words and a handful of nodes usually get it there. The prose beside it stays the source and holds the caveats.
+- A chart follows [diagrams](references/diagrams.md): when it beats prose or a table, which Mermaid chart fits the question, and the check that renders it.
 - Tables are for structured data — column definitions, severity matrices, index lists, test tiers. Not prose.
 - Bullets start with a bold label or a capital letter.
 - Business terminology wins over technical terms when they differ.
@@ -34,7 +34,7 @@ One-sentence summary of what this doc covers.
 
 ## [Primary content]
 
-Tables, flow diagrams, and bullets.
+Tables, charts, and bullets.
 
 ## Design rule
 
@@ -90,6 +90,6 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 - A fact restated in a second doc instead of linked from the doc that owns it
 - Creating a new doc when an existing one should be edited
 - Adding speculative "future work" sections
-- Writing prose where a table or flow diagram would be clearer
+- Writing prose where a table or chart would be clearer, as [diagrams](references/diagrams.md) judges it
 - Omitting cross-references to adjacent docs
 - A doc that says what something should do instead of what it does

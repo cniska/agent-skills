@@ -61,6 +61,7 @@ Check that the draft starts with the point, supports strong claims, removes repe
 
 - `principles` — no drift, for what a change leaves stale
 - `agents-md` for an `AGENTS.md`, and `spec` for a `SPEC.md`
+- `docs-writing` for a chart in a PR description or other prose
 
 ## Red flags
 

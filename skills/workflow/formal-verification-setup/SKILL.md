@@ -24,7 +24,7 @@ The skill goes in the directory of skills the repo's agents load, never in a dir
    - **Able to fail**, as proven able to fail in `principles` says, shown for each property against a deliberately broken copy of the guarded code.
    - **Results stand.** A violation in today's code is a result to report; never loosen a property or the model to turn it green, and touch product code only at the user's request.
    - **Scoped honestly.** A pass is stated with its bounds and assumptions, and with what the model leaves out.
-   - **Plain to read.** Say in plain words what must always hold, and separately what goes wrong for users if it does not. A counterexample is told as a short sequence of plain steps in the code's own words, then replayed against the real code through a test written per `test-writing`; a step the code cannot take means the model is wrong.
+   - **Plain to read.** Say in plain words what must always hold, and separately what goes wrong for users if it does not. A counterexample is told as a short sequence of plain steps in the code's own words, then replayed against the real code through a test written per `test-writing`; a step the code cannot take means the model is wrong. A chart of the model's states or of a counterexample's steps follows `docs-writing`.
    - **Cheap.** Keep the bounds small enough that the check takes no longer than the repo's slowest existing check.
    - **Tracked.** A coverage record names, per check, the files and functions it models, beside the sync commit: the newest commit whose code the model was checked against and found to match.
 5. **Write the skill** in the shape of the repo's own skills. Its frontmatter names the area and when to load it, for a skill without frontmatter is invisible to the agent. Reading only it, the next agent can see whether its change reaches covered code, run the check, separate a defect in the code from a defect in the model, and revise the model when the change alters behavior on purpose. It carries the coverage record and sync commit, and lets the sync commit advance only after the model is confirmed against the code at that later commit. Every command and path in it is the one this repo actually uses; nothing is left to fill in.
@@ -52,6 +52,7 @@ Name the mode, the skill, the check's command, and the files added or changed. C
 - `test-writing` for the test that replays a counterexample
 - `skill-writing` for the generated skill's shape
 - `verification-setup` for the sibling skill that drives the running app
+- `docs-writing` for a chart of a model's states or of a counterexample's steps
 
 ## Red flags
 
