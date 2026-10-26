@@ -59,6 +59,15 @@ claude plugin install cniska-skills@cniska
 npx skills add cniska/agent-skills
 ```
 
+## Optional tools
+
+These tools make an agent's work easier. Each one works on its own in any agent workflow, and the skills need none of them; the plugin's [optional companions](docs/plugin.md#optional-companions) bring them into a Claude Code session.
+
+- [agent-task](https://github.com/cniska/agent-task): task tracking for coding agents, the tasks running, in review and waiting to run
+- [agent-record](https://github.com/cniska/agent-record): a session record for coding agents, every past session queryable and joined to its commits
+- [agent-gates](https://github.com/cniska/agent-gates): commit gates for coding agents, git hooks and CI checks that refuse a bad commit
+- [agent-worktree](https://github.com/cniska/agent-worktree): task worktrees for coding agents, one checkout per task, set up and torn down by the project's own commands
+
 ## The plugin
 
 [The plugin](docs/plugin.md) has the detail on each part and on its optional companions.

@@ -4,7 +4,7 @@ This repo is also `cniska-skills`, a Claude Code plugin; the [README](../README.
 
 ## How the parts fit
 
-The optional [agent-record](https://github.com/cniska/agent-record), [agent-worktree](https://github.com/cniska/agent-worktree), [agent-task](https://github.com/cniska/agent-task) and [agent-gates](https://github.com/cniska/agent-gates) sit beside the plugin.
+The [optional tools](../README.md#optional-tools) the README lists sit beside the plugin.
 
 What an agent starts with:
 
