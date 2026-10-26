@@ -35,6 +35,10 @@ edit app.py 'print(36)'
 fix="$(transcript_of "$(diff_in "$repo" app.py)")"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix $first" && read_of "$fix" && read_of "$first")" >/dev/null
 assert "a re-review that read the fix's diff and the commit's earlier one lets the commit through" "$(gate 'git commit -am x')" ""
+edit app.py 'print(37)'
+fix="$(transcript_of "$(diff_in "$repo" app.py)")"
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix;$first" && read_of "$fix" && read_of "$first")" >/dev/null
+assert "diff files a brief joins with a semicolon are each named" "$(gate 'git commit -am x')" ""
 land
 (cd "$repo" && git mv other.py renamed.py)
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff -M HEAD)")" >/dev/null

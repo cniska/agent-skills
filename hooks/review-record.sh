@@ -6,6 +6,7 @@ source "$HERE/review-state.sh"
 source "$HERE/hook-output.sh"
 source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
+source "$HERE/paths.sh"
 
 readonly MISSING_VERDICT_REASON="End your report with a last line that is exactly 'Verdict: accept' or 'Verdict: return'."
 readonly MISSING_REPO_REASON="Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."
@@ -87,10 +88,6 @@ verdict_pairs() {
   awk '/^Reason: no_diff$/{reason = substr($0, 9); repo = ""; next} /^Repo: /{repo = substr($0, 7); next} /^Verdict: (accept|return)$/ {print substr($0, 10) "\037" repo "\037" (repo == "" ? "" : reason)} NF {repo = ""; reason = ""}'
 }
 
-absolute_paths() {
-  grep -Eo "/[^[:space:]\`'\"():,]+"
-}
-
 cited_worktrees() {
   local repo="$1" worktrees main_checkout common path dir
   worktrees="$(git -C "$repo" worktree list --porcelain | sed -n 's/^worktree //p')"
@@ -98,7 +95,7 @@ cited_worktrees() {
   [ "$main_checkout" != "$repo" ] || main_checkout=""
   common="$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)"
   common="$(cd "$common" && pwd -P)"
-  { grep -v '^Repo: ' | absolute_paths || true; } | sort -u | while IFS= read -r path; do
+  grep -v '^Repo: ' | absolute_paths | sort -u | while IFS= read -r path; do
     dir="$path"
     while [ ! -d "$dir" ]; do
       dir="$(dirname "$dir")"
@@ -159,7 +156,7 @@ brief_and_reads() {
 }
 
 brief_paths() {
-  { jq -r .brief <<<"$1" | absolute_paths || true; } | sed -E 's/[.;]$//' | sort -u
+  jq -r .brief <<<"$1" | absolute_paths | sort -u
 }
 
 reviewed_paths() {
