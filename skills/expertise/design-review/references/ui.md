@@ -1,6 +1,6 @@
 # UI rules
 
-Load these when the scope renders an interface. They hold for any component library. Design tokens and visual polish are `ui-design`'s.
+Load these when the scope renders an interface. They hold for any component library. Design tokens and visual polish follow `ui-design`, and `ui-review` judges them.
 
 - **One owner per piece of data.** The component that owns the data fetches and changes it; components below get values and callbacks.
 - **Data flows one way.** Values go down, and events come back up.
