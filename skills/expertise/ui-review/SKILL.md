@@ -34,7 +34,7 @@ Report in the review report shape from `principles`, ending with a `Verdict:` li
 - `principles` — the review report shape
 - `search-sessions` — the owner's past corrections on a screen's subject
 - `workflow-review` — turns the owner's repeated UI corrections into rules for `ui-design` or this skill
-- `verification-setup` — the verify skill whose run produces the captures and frame dumps
+- `verification-setup` — the verify skill whose run produces the captures, their reference captures and the frame dumps
 
 ## Red flags
 
