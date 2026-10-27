@@ -37,12 +37,14 @@ frontmatter_value() {
 PLUGIN="$(cd "$HERE/../.claude-plugin" && pwd)"
 assert "the plugin is named cniska-skills" "$(grep -c '^  "name": "cniska-skills",$' "$PLUGIN/plugin.json")" 1
 assert "the marketplace is cniska and lists cniska-skills" "$(grep -c -e '^  "name": "cniska",$' -e '^      "name": "cniska-skills",$' "$PLUGIN/marketplace.json")" 2
-assert "the agents are researcher, reviewer and worker" "$(find "$AGENTS" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort | tr '\n' ' ')" "researcher.md reviewer.md worker.md "
+assert "the agents are designer, researcher, reviewer and worker" "$(find "$AGENTS" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort | tr '\n' ' ')" "designer.md researcher.md reviewer.md worker.md "
 assert "worker preloads task and principles, nothing more" "$(frontmatter_list "$AGENTS/worker.md" skills | tr '\n' ' ')" "cniska-skills:task cniska-skills:principles "
 assert "worker inherits every tool, so its frontmatter has no tools line" "$(sed -n '2,/^---$/p' "$AGENTS/worker.md" | grep -c '^tools:')" 0
 assert "reviewer preloads design-review and principles" "$(frontmatter_list "$AGENTS/reviewer.md" skills | tr '\n' ' ')" "cniska-skills:design-review cniska-skills:principles "
 assert "reviewer reads files and loads the review skills, nothing more" "$(frontmatter_value "$AGENTS/reviewer.md" tools)" "Read, Grep, Glob, Skill"
 assert "researcher preloads second-opinion, search-sessions and principles" "$(frontmatter_list "$AGENTS/researcher.md" skills | tr '\n' ' ')" "cniska-skills:second-opinion cniska-skills:search-sessions cniska-skills:principles "
+assert "designer preloads ui-review, ui-design, search-sessions and principles" "$(frontmatter_list "$AGENTS/designer.md" skills | tr '\n' ' ')" "cniska-skills:ui-review cniska-skills:ui-design cniska-skills:search-sessions cniska-skills:principles "
+assert "designer reads files and the record, and loads skills, nothing more" "$(frontmatter_value "$AGENTS/designer.md" tools)" "Read, Grep, Glob, Skill, Bash"
 assert "researcher reads files, the record and the web" "$(frontmatter_value "$AGENTS/researcher.md" tools)" "Read, Grep, Glob, Bash, WebFetch, WebSearch"
 
 for agent in "$AGENTS"/*.md; do

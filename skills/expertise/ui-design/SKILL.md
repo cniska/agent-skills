@@ -42,7 +42,7 @@ Design the interface as a coherent product surface, not as a collection of techn
 
 ## Review gate
 
-Before calling a design done, use representative fixture data that exercises the meaningful domain states, long labels and empty or stale sources. Before the owner sees it, capture each state it touches at the target sizes and the largest text size, in each theme the product ships, light and dark, and check the pixels for alignment, equal margins, shared baselines and type size; automated checks do not stand in for this. Then an independent reviewer checks the same shots when the workflow provides one; otherwise record a deliberate self-review against hierarchy, alignment, spacing, contrast, typography, state clarity, responsive behavior and whether every visible element earns its place.
+Before calling a design done, use representative fixture data that exercises the meaningful domain states, long labels and empty or stale sources. Before the owner sees it, capture each state it touches at the target sizes and the largest text size, in each theme the product ships, light and dark, and check the pixels for alignment, equal margins, shared baselines and type size; automated checks do not stand in for this. Then a fresh `designer` agent that did not make the change runs `ui-review` on the same shots, and the change waits for its accept; the author's own look never stands in for it.
 
 ## See also
 

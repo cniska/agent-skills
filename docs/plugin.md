@@ -63,7 +63,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
 
 - It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
-- It inherits every tool, since it edits, commits and starts the reviewer and researcher agents.
+- It inherits every tool, since it edits, commits and starts the reviewer, designer and researcher agents.
 
 ## Reviewer agent
 
@@ -72,6 +72,14 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - It runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit read-only, with its skills preloaded, since a subagent starts without the parent's, and loads [review](../skills/workflow/review/SKILL.md) for the review of a whole branch.
 - It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
 - Its report holds the sections `## Findings`, `## Conflicts`, `## Follow-ups` and `## Clean`; a report missing one, an accept with any finding under `## Findings`, an accept from a reviewer that never read a diff file its brief names, or an accept whose diff files name paths none of which matches the index or working tree of the checkout its `Repo:` line names, is sent back to it once before it may stop. That last one is told to name the worktree that holds those paths on its `Repo:` line, or, where no worktree does, to ask for a fresh diff of the change.
+
+## Designer agent
+
+`cniska-skills:designer` judges a change to a running interface it did not make, as [its agent file](../agents/designer.md) says.
+
+- It runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
+- Its shell only reads, and syncs the session record, where it looks up the owner's past UI corrections.
+- It ends each report with `Verdict: accept` or `Verdict: return` under a `Repo:` line, as the reviewer does. The commit gate does not record its verdicts, so a designer accept never stands in for the reviewer's; [task](../skills/workflow/task/SKILL.md) is what makes an interface commit wait for it.
 
 ## Researcher agent
 

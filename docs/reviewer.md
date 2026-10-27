@@ -10,6 +10,8 @@ A fresh agent that did not write the work runs [design-review](../skills/experti
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts.
 
+It judges the code, not the screens: a commit that changes an interface also waits for a fresh [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
+
 ## Findings
 
 Its report takes the shape every review in the plugin uses, the [review report](../skills/expertise/principles/references/review-report.md) in `principles`.

@@ -10,7 +10,7 @@ I do all my engineering with coding agents, and this is the workflow I follow. T
 Two parts carry the workflow:
 
 - **[task](skills/workflow/task/SKILL.md) routes each task** by what it changes (feature, bug fix, refactor, test or review), and loads the skill each step needs.
-- **[A separate reviewer](docs/reviewer.md) judges every commit** against my design rules in [design-review](skills/expertise/design-review/SKILL.md).
+- **[A separate reviewer](docs/reviewer.md) judges every commit** against my design rules in [design-review](skills/expertise/design-review/SKILL.md), and a separate designer judges every commit that changes an interface, from captures of the running app, in [ui-review](skills/expertise/ui-review/SKILL.md).
 
 Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
 
@@ -77,6 +77,7 @@ These tools make an agent's work easier. Each one works on its own in any agent 
 | Session-start hook | Routes a plain prompt the way `/task` would. |
 | Worker agent | Carries each task a coordinator delegates along its route, with `task` and `principles` preloaded. |
 | Reviewer agent | Judges each commit it did not write against the design rules, runs `review` on a whole branch before it lands, and ends with accept or return. |
+| Designer agent | Judges each commit that changes an interface it did not make, from captures of every state, through `ui-review`, and ends with accept or return. |
 | Commit gate | Holds each commit for the reviewer's accept. |
 | Brief gate | Refuses a reviewer brief that names a diff by anything but its absolute path or asks the reviewer to run git. |
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
