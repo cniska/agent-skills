@@ -11,7 +11,7 @@ The project's own conventions override everything below on message format, caden
 
 ## Commit messages
 
-[Conventional Commits](https://www.conventionalcommits.org/) — `type(scope): subject`. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`. Single-line subject, aim under 50 characters and never over 72. The subject names what changed in the plainest words; the why goes in the PR body, where a reviewer reads it beside the diff. Do not hand-write issue references in the subject (`(#123)`, `Fixes #123`) — those belong in the PR body. A `(#N)` suffix a squash merge appends is the forge's and stays.
+Conventional Commits — `type(scope): subject`. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`. Single-line subject, aim under 50 characters and never over 72. The subject names what changed in the plainest words; the why goes in the PR body, where a reviewer reads it beside the diff. Do not hand-write issue references in the subject (`(#123)`, `Fixes #123`) — those belong in the PR body. A `(#N)` suffix a squash merge appends is the forge's and stays.
 
 ## Commit discipline
 

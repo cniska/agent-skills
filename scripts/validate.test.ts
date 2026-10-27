@@ -266,15 +266,49 @@ describe("validate", () => {
     });
   });
 
-  test("skips web, mail and in-page links", () => {
+  test("skips mail and in-page links", () => {
+    const root = fixture();
+    write(
+      root,
+      "skills/workflow/demo/SKILL.md",
+      skill(REVIEW, `See [b](mailto:a@example.com) and [c](#red-flags).\n\n${RED_FLAGS}`),
+    );
+    expect(validate(root).code).toBe(0);
+  });
+
+  test("fails a web link that is not a tool link", () => {
+    const root = fixture();
+    write(
+      root,
+      "skills/workflow/demo/SKILL.md",
+      skill(REVIEW, `Per [a](https://example.com/x).\n\n${RED_FLAGS}`),
+    );
+    write(root, "skills/workflow/demo/references/notes.md", "# Notes\n\nSee [b](http://example.com/y).\n");
+    const run = validate(root);
+    expect(run.code).toBe(1);
+    expect(run.output).toContain("web link 'https://example.com/x' in demo is not a tool link");
+    expect(run.output).toContain("web link 'http://example.com/y' in demo is not a tool link");
+  });
+
+  test("passes a web link on the tool allowlist", () => {
     const root = fixture();
     write(
       root,
       "skills/workflow/demo/SKILL.md",
       skill(
         REVIEW,
-        `See [a](https://example.com/x), [b](mailto:a@example.com) and [c](#red-flags).\n\n${RED_FLAGS}`,
+        `Cases follow the [eval docs](https://code.claude.com/docs/en/plugin-evals).\n\n${RED_FLAGS}`,
       ),
+    );
+    expect(validate(root).code).toBe(0);
+  });
+
+  test("passes a URL outside link syntax", () => {
+    const root = fixture();
+    write(
+      root,
+      "skills/workflow/demo/SKILL.md",
+      skill(REVIEW, `Fetch \`https://example.com/<path>.json\`.\n\n${RED_FLAGS}`),
     );
     expect(validate(root).code).toBe(0);
   });

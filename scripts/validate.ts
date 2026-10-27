@@ -41,7 +41,9 @@ const FIRST_WORD = /^\s*([A-Za-z-]+)/;
 const RED_FLAGS = /^## Red flags$/m;
 const ANTI_PATTERNS = /^## Anti-patterns$/m;
 const LINK = /\]\(([^)\n]+)\)/g;
-const EXTERNAL_LINK = /^(https?:|mailto:|#)/;
+const SKIPPED_LINK = /^(mailto:|#)/;
+const WEB_LINK = /^https?:/;
+const TOOL_LINKS: ReadonlySet<string> = new Set(["https://code.claude.com/docs/en/plugin-evals"]);
 const SKILL_NAME = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
 const SEE_ALSO = /^## See also$/;
 const HEADING = /^## /;
@@ -160,11 +162,24 @@ function antiPatternsProblems({ skillDoc }: Skill): string[] {
   return [`use '## Red flags' instead of '## Anti-patterns' in ${skillDoc.shown}`];
 }
 
+function linkTargets(doc: Doc): string[] {
+  return [...doc.text.matchAll(LINK)]
+    .map((match) => match[1] ?? "")
+    .filter((link) => !SKIPPED_LINK.test(link));
+}
+
+function webLinkProblems({ name, docs }: Skill): string[] {
+  return docs.flatMap((doc) =>
+    linkTargets(doc)
+      .filter((link) => WEB_LINK.test(link) && !TOOL_LINKS.has(link))
+      .map((link) => `web link '${link}' in ${name} is not a tool link (in ${doc.shown})`),
+  );
+}
+
 function linkProblems({ name, dir, docs }: Skill): string[] {
   return docs.flatMap((doc) =>
-    [...doc.text.matchAll(LINK)]
-      .map((match) => match[1] ?? "")
-      .filter((link) => !EXTERNAL_LINK.test(link))
+    linkTargets(doc)
+      .filter((link) => !WEB_LINK.test(link))
       .filter((link) => {
         const target = link.split("#")[0] ?? "";
         return target !== "" && !resolvesInside(dir, doc, target);
@@ -298,6 +313,11 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
     resolve:
       "point the link at a file that exists inside the skill's own directory, or name another skill by bare name under ## See also",
     problems: linkProblems,
+  },
+  {
+    resolve:
+      "drop the link and keep the rule's wording whole, naming its source in the commit or report; only a tool link an agent follows to use a tool stays, listed in TOOL_LINKS",
+    problems: webLinkProblems,
   },
   { resolve: "name a fast, balanced or powerful tier instead of the model", problems: modelProblems },
 ];
