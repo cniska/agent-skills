@@ -38,7 +38,7 @@ Put the skill where the repo keeps the skills agents load when working in it (`.
 
 ## Update
 
-When the skill lacks a section from Create step 2 or has no feature map, add them per Create, keeping its content, then prove it. Otherwise:
+When the skill falls short of anything Create steps 2 and 3 ask, whether a section, the feature map, a part of a feature file or what one of them requires, add what it lacks per Create, keeping its content, then prove it. Otherwise:
 
 1. **Index hygiene.** Fix missing, duplicate, or dead entries in the feature map index.
 2. **Source pass.** For each feature file, spawn one read-only agent on a **balanced-tier** model to read the source it describes and return drift with citations — renamed routes, removed commands, new sub-features — and one live recipe. Readers never drive the app or edit files. Sweep recent changes for user-facing features the map lacks; require a concrete source path before calling one missing.
