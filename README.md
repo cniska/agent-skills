@@ -27,6 +27,7 @@ flowchart LR
   you(["You"]) -- "request" --> coord["Coordinator"]
   coord -- "brief" --> worker["Worker"]
   worker <-- "diff, verdict" --> reviewer["Reviewer"]
+  worker <-- "interface diff, captures, verdict" --> designer["Designer"]
   worker -- "hands back, or stops" --> coord
   worker -- "its sessions" --> review["Daily workflow review"]
   review -- "proposals" --> coord
