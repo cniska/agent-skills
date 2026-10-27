@@ -130,7 +130,7 @@ What good looks like in one kind of work, which may go unused for a while.
 | [test-writing](skills/expertise/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
 | [writing](skills/expertise/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
 | [database-design](skills/expertise/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
-| [ui-design](skills/expertise/ui-design/SKILL.md) | Design or review interfaces against product states and visual hierarchy |
+| [ui-design](skills/expertise/ui-design/SKILL.md) | Design or review interfaces against product states, visual hierarchy and platform conventions |
 | [design-review](skills/expertise/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
 | [correctness-review](skills/expertise/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
 | [maintainability-review](skills/expertise/maintainability-review/SKILL.md) | Conformance to local conventions, naming and readability |
