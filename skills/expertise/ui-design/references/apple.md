@@ -53,4 +53,4 @@ Each guidelines page sits under `design/human-interface-guidelines/`.
 
 ## Proof (macOS, iOS)
 
-- Set each shot beside its reference screen's capture, in the same theme and at the same size, so the reviewer judges the pair.
+- Set each shot beside its reference screen's capture, in the same theme and at the same size, so the fresh agent running `ui-review` judges the pair.
