@@ -10,7 +10,7 @@ Judge a running interface the way the owner does on looking at it: whether each 
 
 ## Evidence
 
-- **Captures of the running interface.** Judge the screens a run of the changed build produced, never a mock or the source alone: stills miss hover, focus and small sizes, so the run captures those too, and a terminal interface's capture is its output text and exit code. A review with no capture is source-only: it says visual quality is unverified and returns.
+- **Captures of the running interface.** Judge the screens a run of the changed build produced, never a mock or the source alone: stills miss hover, focus and small sizes, so the run captures those too, and a terminal interface's capture is its output text, escape codes kept, and exit code. A review with no capture is source-only: it says visual quality is unverified and returns.
 - **Every state, not one shot.** Each state the change touches, such as empty, some and many items, error, waiting, disabled, focus, hover, search focus and the keyboard up, in each theme the product ships, at each target size and at the largest text size, largest and smallest layouts first. A changed state with no capture is a finding.
 - **The diff beside the captures.** Tokens, hand-set values and the components a screen is built from do not show in pixels; read the diff for them.
 - **The owner's own reviews.** Search the session record for the owner's past corrections on the screen's subject, such as its alignment, spacing, wording or prominence. A correction that applies is judged as a rule, cited by session and time.
