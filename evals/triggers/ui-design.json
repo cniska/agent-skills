@@ -1,0 +1,9 @@
+{
+  "positive": [
+    { "prompt": "the buttons on this mobile screen are too small to tap and the layout ignores the safe areas" },
+    { "prompt": "the keyboard is rendered on top of the sheet so you cannot see the sheet" },
+    { "prompt": "the statusline should stack on narrow terminals and the progress output needs a cleaner layout" },
+    { "prompt": "build the settings page for the web app so it works on phones and in dark mode" }
+  ],
+  "negative": []
+}

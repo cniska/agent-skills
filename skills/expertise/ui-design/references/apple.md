@@ -1,6 +1,6 @@
 # Apple platforms
 
-Load this for a native screen on macOS or iOS, before its first sketch or its review. Each rule names the platforms its evidence covers; a rule marked macOS has no iOS evidence yet, so on iOS check it against an iOS reference screen before applying it.
+Load this for a native screen on macOS or iOS built from system components, before its first sketch or its review. On iOS, read [Mobile](mobile.md) beside it for what every phone shares, such as touch targets, reach, safe areas, the keyboard, back navigation and permission prompts. Each rule names the platforms its evidence covers; a rule marked macOS has no iOS evidence yet, so on iOS check it against an iOS reference screen before applying it.
 
 ## Copy a first-party screen (macOS, iOS)
 
