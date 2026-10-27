@@ -5,7 +5,7 @@ description: Implement a feature slice by slice, deciding how the work is cut an
 
 # Build
 
-This skill makes two calls: how the work is cut into slices, and when a run of them stops. Everything else a slice goes through belongs to the route the task runs or to the repo's own rules: each slice is written and verified as `code-writing` says, and is accepted by `design-review` and committed as `git` says before the next one starts.
+This skill makes two calls: how the work is cut into slices, and when a run of them stops. Everything else a slice goes through belongs to the route the task runs or to the repo's own rules: each slice is written and verified as `code-writing` says, and is accepted by `design-review`, and by `ui-review` when it changes an interface, and committed as `git` says before the next one starts.
 
 ## Cut the slices
 
@@ -35,6 +35,7 @@ Name what stopped the run and which slices were committed. The per-slice commits
 - `code-writing` — how each slice's code is written and verified
 - `simplify` — cutting complexity from code that works, without changing what it does
 - `design-review` — the review each slice waits on
+- `ui-review` — the review a slice that changes an interface also waits on
 - `git` — how each slice is committed
 
 ## Red flags
