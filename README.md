@@ -142,7 +142,7 @@ What good looks like in one kind of work, which may go unused for a while.
 | [security-review](skills/expertise/security-review/SKILL.md) | Trust boundaries, execution safety, concrete attack paths only |
 | [performance-review](skills/expertise/performance-review/SKILL.md) | Repeated work, unbounded operations, and resource use |
 | [test-review](skills/expertise/test-review/SKILL.md) | Coverage gaps, edge cases, test quality |
-| [doc-review](skills/expertise/doc-review/SKILL.md) | Docs judged as prose: drift, shape, verbosity |
+| [doc-review](skills/expertise/doc-review/SKILL.md) | Docs judged as prose: drift, shape, verbosity, and a whole doc's structure |
 
 ## Docs
 

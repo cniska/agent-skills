@@ -1,15 +1,20 @@
 ---
 name: doc-review
-description: Review docs as prose for a reader, not as code — drift, shape and verbosity. Use when a change edits docs or changes behavior a doc describes.
+description: Review docs as prose for a reader, not as code — drift, shape and verbosity; for a whole doc, judge its structure and propose the smallest restructure. Use when a change edits docs or changes behavior a doc describes, and on a doc readers find hard to scan.
 ---
 
 # Documentation Review
 
-Judge each doc the diff changes or makes stale the way a reader meets it: whether it is still true, easy to scan, and short.
+Judge each doc the way a reader meets it: whether it is still true, easy to scan, and short. Findings are stated as findings, never softened into suggestions.
+
+A diff gets the review below. A whole doc, meaning its purpose, its outline and a restructure, gets [the whole-doc review](references/whole-doc.md). [The patterns](references/patterns.md) name the shapes a doc falls into and the form each should take instead; a finding cites one by name as its **Rule**.
 
 ## Scope
 
 Report what the diff causes, such as a line it leaves as it was but makes wrong; place what it did not cause where the review report in `principles` puts it.
+
+- **A diff that adds to a section that already breaks the shape** grew it, so that section's structure is the change's finding, and its **Instead** restructures the section.
+- **A doc's structure that was wrong before the diff**, such as a wall, a subject with no heading or a mapping written as prose, hides facts from every reader, so it is a real defect, not a style point: report it as a follow-up for a whole-doc review of that doc. A single long sentence or bullet left as it was is a style point, and dropped; a list whose bullets run long, as in the long bullets pattern, is structure and goes to that follow-up.
 
 ### 1. Drift
 
@@ -37,9 +42,10 @@ Read the diff, then each doc it changes or makes stale, whole. For changes touch
 
 ## Output
 
-Report each finding as `principles`' review report says: **Where** is the file and line, **Why** what drifted, breaks the shape or can go, and **Instead** the fix, for brevity the shorter wording itself.
+Report each finding as `principles`' review report says: **Where** is the file and line, **Why** what drifted, breaks the shape or can go, in one sentence about this doc, and **Instead** the fix written out: the shorter wording, the new headings, or the table with its rows. No "consider", no "might", no praise.
 
 - Bad: "README could explain the retry architecture in more depth."
+- Bad: "The setup section might benefit from some restructuring."
 - Good: **Why:** `docs/config.md` still says `maxRetries` defaults to 3, and this diff changes it to 5 in `src/client.ts`.
 - Good: **Why:** `README.md:12` says the cache "is designed to make sure that reads are generally fast"; **Instead:** "The cache serves repeated reads."
 
@@ -48,12 +54,17 @@ If nothing drifted, breaks the shape or can go, Findings is `none`.
 ## See also
 
 - `docs-writing`, whose shape and brevity rules this review checks
+- `writing`, whose rules for documents that last a doc is held to
 - `review`, which runs this review when docs or the behavior they describe change
 - `principles` for the review report shape a finding takes
+- `design-review`, the counterpart for code
 
 ## Red flags
 
+- A finding softened into "consider" or "might"
 - Rewording to taste that cuts nothing and breaks no rule above
-- Judging a doc by code rules: types, patterns or smells
+- Judging a doc by code rules: types, code patterns or smells
 - Asking for more words where the doc already says the fact once
+- A restructure that grows the doc beyond its new headings and tables
+- A doc's wall left unreported because the diff did not touch it
 - Treating roadmap notes as shipped behavior

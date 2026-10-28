@@ -89,7 +89,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 
 - `writing` — the prose rules every lasting doc follows: one place per fact, current state only, no volatile numbers
 - `principles` — verify at the source, for every claim a doc makes, and no drift
-- `doc-review` — check docs for drift, shape and verbosity
+- `doc-review` — check docs for drift, shape and verbosity, and a whole doc's structure
 - `spec` — requirements that docs reference
 - `agents-md` — project rules that docs must follow
 
