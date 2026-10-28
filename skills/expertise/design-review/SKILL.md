@@ -15,7 +15,7 @@ Files or a diff get the review below. A whole module, meaning its purpose, its h
 ## The rules
 
 - [The patterns](references/patterns.md): Architecture and Code, for all code.
-- The shared principles in `principles`, which a finding cites by name: fix the cause, no transitional architecture, no drift, Chesterton's Fence, no comments and rules as checks.
+- The shared principles in `principles`, which a finding cites by name: fix the cause, no transitional architecture, no drift, Chesterton's Fence, no comments and mistake-proofing.
 - Rules for particular kinds of code, loaded only when the scope has that kind:
   - [UI](references/ui.md), when the scope renders an interface;
   - [API](references/api.md), when it defines an interface others call, such as a public module, a CLI command, a tool, an endpoint or a schema;

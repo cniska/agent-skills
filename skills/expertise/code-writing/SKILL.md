@@ -87,7 +87,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
 ## Principles
 
-Load `principles` and apply five of them to every change: no comments, rules as checks, proven able to fail, fix the cause, and no drift.
+Load `principles` and apply five of them to every change: no comments, mistake-proofing, proven able to fail, fix the cause, and no drift.
 
 ## Verification loop
 

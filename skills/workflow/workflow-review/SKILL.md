@@ -13,7 +13,7 @@ Find where the workflow failed the owner, and say what should change so it does 
 - **A pattern needs two independent sessions.** One sighting is usually that session's judgment call: list it and propose nothing. An eval or check finding rests on the case and its result instead.
 - **The owner's correction is the evidence.** When the agent followed a skill and the owner corrected it, the skill is in question, not the owner.
 - **Cut before adding.** A step that routinely finds nothing, or a rule models now follow unprompted, is a proposal to remove it.
-- **A mechanical rule becomes a check**, as rules as checks in `principles` says, not another sentence.
+- **A mechanical rule, or a step an agent must remember, is made impossible or caught**, as mistake-proofing in `principles` says, not another sentence.
 - **Propose changes only to what the user commits to:** the rules of their repos and the skills whose source sits in a checkout of theirs. Friction with a skill installed from elsewhere becomes a rule in the repo's `AGENTS.md`, where skills defer everything project-specific; never an edit to the installed copy, and nothing sent to its author.
 
 ## Read
@@ -66,7 +66,7 @@ A conflict's proposal also names the decision the owner has to make. Then the ex
 - `skill-writing` — makes an accepted change to a skill or agent
 - `agents-md` — makes an accepted change to a repo's rules
 - `design-review` — the same judgment, applied to code
-- `principles` — rules as checks, no drift
+- `principles` — mistake-proofing, no drift
 
 ## Red flags
 

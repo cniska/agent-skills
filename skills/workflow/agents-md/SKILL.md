@@ -81,7 +81,7 @@ Concrete target behavior: adding a "naming" rule should absorb a pre-existing "n
 AGENTS.md is the hub that gives the other skills their project-specific grounding. Each skill reads it to understand what the project considers non-negotiable.
 
 - `writing` — the prose rules this file shares with every lasting doc: rules not history, one place per fact
-- `principles` — the comment ban, rules as checks for deciding what becomes executable, and no drift
+- `principles` — the comment ban, mistake-proofing for deciding what becomes executable, and no drift
 - `code-writing` — the code rules; the Code section carries the ones every contributor must keep.
 - `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants cite spec IDs; code does not.
 - `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.
