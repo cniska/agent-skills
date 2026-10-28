@@ -5,8 +5,8 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-gate.test-harness.sh"
 
 top="$(cd "$repo" && git rev-parse --show-toplevel)"
-third() { refused "This is return $1 on one commit of '$top'. End your report with the line 'This commit has been returned $1 times: stop fixing it and park it, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."; }
-third_at_stop() { blocked "This is return $1 on one commit of '$top'. End your report with the line 'This commit has been returned $1 times: stop fixing it and park it, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."; }
+third() { refused "This is return $1 on one commit of '$top'. End your report with the line 'This commit has been returned $1 times: stop fixing it, park it, and bring whoever coordinates you what the returns show and the one decision that would end them, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."; }
+third_at_stop() { blocked "This is return $1 on one commit of '$top'. End your report with the line 'This commit has been returned $1 times: stop fixing it, park it, and bring whoever coordinates you what the returns show and the one decision that would end them, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."; }
 step="$(awk '/^## / { inside = ($0 == "## Pick the route") } inside && /^4\. /' "$HERE/../skills/workflow/task/SKILL.md")"
 case "$step" in *"After a third return on one commit, stop fixing that commit"*) named=yes ;; *) named=no ;; esac
 assert "step 4 of the task skill is the one that parks a commit after its third return" "$named" yes

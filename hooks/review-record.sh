@@ -304,7 +304,7 @@ returns_on_commit() {
 
 third_return_reason() {
   local repo="$1" count="$2"
-  printf '%s\n' "This is return $count on one commit of '$repo'. End your report with the line 'This commit has been returned $count times: stop fixing it and park it, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."
+  printf '%s\n' "This is return $count on one commit of '$repo'. End your report with the line 'This commit has been returned $count times: stop fixing it, park it, and bring whoever coordinates you what the returns show and the one decision that would end them, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."
 }
 
 note_third_return() {
