@@ -1,6 +1,6 @@
 ---
 name: doc-review
-description: Review docs as prose for a reader, not as code — drift, shape and verbosity; for a whole doc, judge its structure and propose the smallest restructure. Use when a change edits docs or changes behavior a doc describes, and on a doc readers find hard to scan.
+description: Review docs as prose for a reader, not as code — drift, shape, verbosity and a whole page's structure. Use when a change edits docs or changes behavior a doc describes, or when a readme or page is hard to read, such as a wall of text or missing headings.
 ---
 
 # Documentation Review

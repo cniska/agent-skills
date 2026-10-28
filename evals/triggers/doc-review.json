@@ -1,0 +1,7 @@
+{
+  "positive": [
+    { "prompt": "readme is still very hard to read because it has no proper headings" },
+    { "prompt": "also the docs is now very hard to read because of text walls" },
+    { "prompt": "id also question @docs/core.md it should be short and easy to read not a wall of text" }
+  ]
+}
