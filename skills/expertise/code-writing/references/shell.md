@@ -1,6 +1,6 @@
 # Shell
 
-Shell is the right language for orchestrating processes, wiring tools together and short installers. When the logic needs real data structures, parsing or more than a screenful of branching, it belongs in one of the other languages.
+Shell is for scripts that run a fixed sequence of commands: orchestrating processes, wiring tools together, short installers. It never builds a command-line program, as [Command-line programs](../SKILL.md#command-line-programs) defines one, and a shell file stays within 100 lines; past that, or once the logic needs real data structures or parsing, it moves to the repo's own language. A runner-fixed script, as [Language](../SKILL.md#language) defines it, takes its language and size from the repo's rules instead.
 
 ## Bash version
 
@@ -35,16 +35,16 @@ Suggested tools; whatever a project already runs in their place takes precedence
   done | xargs -0 shellcheck --severity=warning
   ```
 
+- A check refuses a tracked shell file, found the same way, that runs past 100 lines, except under the runner-fixed paths listed in the check's own configuration, such as `.githooks/`, a plugin's `hooks/` or a skill's `scripts/`, so it reads them rather than guessing.
 - Point shellcheck at sourced files with `source-path=SCRIPTDIR` in `.shellcheckrc` rather than disabling SC1091.
 - `shfmt` formats with the repo's settings (`-i 2` where there are none), run on each written file.
 
 ## Layout
 
 - Executables start `#!/usr/bin/env bash` and carry no extension; a library meant to be sourced ends in `.sh` and sets no shell options, so it does not change its caller's shell. `#!/bin/sh` only for a strictly POSIX script.
-- A script that takes arguments prints its usage, prerequisites and exit statuses on `--help` and on a usage error.
+- A runner-fixed script that takes arguments prints its usage, prerequisites and exit statuses on `--help` and on a usage error.
 - Code lives in functions, with `main "$@"` as the last line. A script a test sources guards its entry point: `(return 0 2>/dev/null) && return`, then strict mode, then `main "$@"`, so strict mode stays out of the test that sources it.
 - The script's own directory comes from `"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`, never `$0` or the working directory.
-- Long options are parsed with a `while (($#)); do case "$1" in … esac; done` loop; `getopts` has no long options.
 - Function variables are `local`, declared on one line and assigned on the next when the value comes from a command.
 - Errors go through one `die` helper.
 
@@ -57,9 +57,9 @@ Suggested tools; whatever a project already runs in their place takes precedence
 
 ## Errors and exit status
 
-- Diagnostics go to stderr as `tool: message`; the result goes to stdout. When a caller or test must tell failures apart, the message carries a stable code after the tool name (`tool: checksum-mismatch: …`).
-- Exit statuses follow [Command-line programs](../SKILL.md#command-line-programs).
-- Required input is checked first, `: "${VAR:?VAR is required}"`, and every argument problem is reported at once.
+- Diagnostics go to stderr as `tool: message`; the result goes to stdout.
+- A script's own exits are 0 on success and 1 on failure; a signal ends it with 130 or 143, as [Child processes](#child-processes) says. A runner-fixed script follows [Command-line programs](../SKILL.md#command-line-programs) for its statuses, and when a caller or test must tell its failures apart, the message carries a stable code after the tool name (`tool: checksum-mismatch: …`).
+- Required input is checked first, `: "${VAR:?VAR is required}"`; a runner-fixed script that takes arguments reports every argument problem at once.
 - A prerequisite is checked by running it (`jq --version`), not only by `command -v`, and a missing one is named. Never `which`.
 
 ## Safe changes
@@ -128,4 +128,4 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - A fixed `/tmp/...` path, or scratch space with no cleanup trap
 - A hand-written watchdog where `bounded` does the job, or a background child left holding the caller's stdout
 - A download piped into a shell, or `curl` without `-f`
-- Logic that outgrew a screenful and wants a real language
+- Outside a runner-fixed path, a shell file past 100 lines, or one that is a command-line program by the skill's definition

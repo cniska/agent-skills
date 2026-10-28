@@ -1,6 +1,6 @@
 ---
 name: code-writing
-description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift, shell or a CI workflow, starting a project, or choosing a library.
+description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift, shell or a CI workflow, starting a project, or choosing a language or a library.
 ---
 
 # Code writing
@@ -25,6 +25,13 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
 3. Read the repo's manifest, toolchain pins and lint config, and match them.
 4. Run the repo's declared format, lint, type and test tasks before declaring done.
+
+## Language
+
+- **Write a program only in a language the table above has a reference for.** In a repo, use its own language first, or shell where the shell reference allows it. Any other language, or a runtime the repo does not have yet, is the owner's decision: report it, and never copy it from a precedent, in the repo or anywhere else. A brief that asks for a tool in the shape of another copies its behavior, not its language.
+- **Not every file is a program.** SQL follows `database-design`, a CI workflow follows the section on it below, config and data formats follow their own schema, and platform code a framework requires, such as a Flutter app's Android or iOS side, is in the language that platform asks for.
+- **A runner can fix the language.** A plugin hook, a git hook, and a script a skill bundles that may assume no runtime are runner-fixed: the repo's own rules decide their language and size, and neither the shell reference's length limit nor the rule keeping command-line programs out of shell binds them.
+- **A project holds this with a check** that refuses a tracked file whose shebang names an interpreter no reference language runs on, such as `perl` or `ruby`, or whose extension is a scripting language with no reference, such as `.pl`, `.rb`, `.php` or `.lua`. The shell reference names the check on shell's length beside it.
 
 ## Stack and dependencies
 
@@ -70,6 +77,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
 ## Command-line programs
 
+- A program with options or subcommands, a usage text, or exit statuses beyond success and failure, such as a usage error or a code its callers branch on, is a command-line program, written in a reference language other than shell unless it is runner-fixed, as [Language](#language) defines it.
 - The result goes to stdout; diagnostics and errors go to stderr.
 - Exit 0 is success, 1 a failure, 2 a usage error. Help asked for goes to stdout and exits 0.
 - A machine-readable switch (`--json`) prints one fixed shape, and its errors still go to stderr.
@@ -109,6 +117,7 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 ## Red flags
 
 - Writing in a language without having read its reference
+- A program in a language with no reference here, or in a runtime new to the repo, that the owner did not choose
 - A cast on parsed JSON, env, rows or another program's output
 - A type parameter that claims a shape no parser checks
 - An owned shape whose schema drops unknown keys instead of rejecting them, such as zod's bare `z.object`
