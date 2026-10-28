@@ -1,5 +1,3 @@
-readonly LEDGER_LINK_PATTERN='\[[^]]*\]\(([^)[:space:]]+)\)'
-
 ledger_home() {
   local home="${HOME:-}"
   if [ -z "${home//[[:space:]]/}" ]; then
@@ -41,17 +39,14 @@ ledger_path() {
   fi
   local root
   root="$(ledger_project_root)"
-  printf '%s/agent-skills/%s/ledger.md\n' "$(ledger_data_home)" "${root//\//-}"
+  printf '%s/agent-skills/%s/ledger.toon\n' "$(ledger_data_home)" "${root//\//-}"
 }
 
-linked_shared_file() {
-  [ -f "$1" ] || return 0
-  local first
-  first="$(head -n 1 -- "$1")"
-  [[ "$first" =~ $LEDGER_LINK_PATTERN ]] || return 0
-  local target="${BASH_REMATCH[1]%%#*}"
+shared_file() {
+  local target
+  target="$(jq -Rsr -f "$(dirname -- "${BASH_SOURCE[0]}")/ledger-shared.jq" <"$1")" || return 1
   case "$target" in
-    "" | *:*) ;;
+    "") ;;
     /*) printf '%s\n' "$target" ;;
     *) printf '%s/%s\n' "$(dirname -- "$1")" "$target" ;;
   esac

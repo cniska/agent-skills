@@ -112,7 +112,10 @@ main() {
   pull_file "$ledger" "Ledger"
   cat -- "$ledger"
   local shared
-  shared="$(linked_shared_file "$ledger")"
+  if ! shared="$(shared_file "$ledger")"; then
+    printf '\nShared file not read: jq could not run on the ledger.\n'
+    return 0
+  fi
   [ -n "$shared" ] || return 0
   print_shared_file "$ledger" "$shared"
 }

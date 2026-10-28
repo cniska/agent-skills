@@ -106,12 +106,12 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds what coordinate's ledger step lists, its briefs filed in the ledger's folder: beside the shared file it links, else beside the ledger.
+- The ledger holds what coordinate's ledger step lists, its briefs filed in the ledger's folder: beside the shared file it names, else beside the ledger.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
-- When the ledger's first line links a shared file, it prints that file after the ledger, pulled the same way, so the owner's standing rules survive compaction too.
+- When the ledger decodes as TOON and its root `shared` key holds a path, absolute or relative to the ledger's directory, it prints that file after the ledger, pulled the same way, so the owner's standing rules survive compaction too. It reads that key in the form the TOON encoder prints; any other ledger, such as a Markdown one, prints alone.
 - Experiments go in `experiments.jsonl` in the ledger's folder, one line each time one opens or closes, so agent-record can archive them.
-- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.md` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the git common directory, minus `/.git`, slashes as dashes: the main checkout for a normal repo, the git directory under `.git/modules/` for a submodule, or outside git the project's directory, so all of a repo's worktrees read one ledger. The old single `agent-skills/ledger.md` under the state directory is no longer read.
+- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.toon` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the git common directory, minus `/.git`, slashes as dashes: the main checkout for a normal repo, the git directory under `.git/modules/` for a submodule, or outside git the project's directory, so all of a repo's worktrees read one ledger. The old default `ledger.md` beside it, and the old single `agent-skills/ledger.md` under the state directory, are no longer read.
 - When the ledger is missing, it prints the path it would read, so a coordinating session creates the ledger there.
 - Set `AGENT_LEDGER` in a project's local settings to keep its ledger elsewhere, such as a file in a repo you choose, so it outlives the machine; never in user settings, which every project reads.
 
