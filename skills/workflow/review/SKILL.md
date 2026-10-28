@@ -1,12 +1,12 @@
 ---
 name: review
-description: Review a whole change, always for correctness and tests and in each other area only when the diff touches it, and return the findings to whoever ran the review. Use when a feature branch is ready to land, on a change whose commits already landed, or on someone else's PR.
+description: Review a whole change, always for correctness, tests and security and in each other area only when the diff touches it, and return the findings to whoever ran the review. Use when a feature branch is ready to land, on a change whose commits already landed, or on someone else's PR.
 argument-hint: "[pr-url-or-number | commit-range]"
 ---
 
 # Review
 
-Review a whole change and return one report of its findings to whoever ran the review. `correctness-review` and `test-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes its findings and queues its follow-ups.
+Review a whole change and return one report of its findings to whoever ran the review. `correctness-review`, `test-review` and `security-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes its findings and queues its follow-ups.
 
 Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff and log files the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
 
@@ -32,7 +32,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 |------|-------|-----------|
 | Correctness | `correctness-review` | always |
 | Tests | `test-review` | always |
-| Security | `security-review` | the diff touches hooks, gates, auth, permissions, secrets or input from outside the process |
+| Security | `security-review` | always |
 | Documentation | `doc-review` | docs change, or behavior a doc describes changes |
 | Performance | `performance-review` | the diff adds work on a hot path, a loop over unbounded data, a query or a network call |
 | Maintainability | `maintainability-review` | the diff changes code |
@@ -82,7 +82,7 @@ If the change includes database migrations, load `database-design` and check the
 
 ## Report
 
-One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. `## Clean` names every area that ran and what it checked; an area the table skipped is not listed.
+One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. `## Clean` names every area that ran and what it checked. After the four sections, the report closes with `Not run: <area> (<reason>), ...`, naming each area the table skipped with the "Runs when" it failed, or `Not run: none`; it goes above any `Reason:`, `Repo:` and `Verdict:` lines the caller asks for.
 
 ## See also
 
@@ -95,7 +95,7 @@ One report, in the review report shape from `principles`, so the area skills' fi
 ## Red flags
 
 - Reviewing only the diff without reading touched files in context
-- Skipping correctness or tests, or running an area the diff does not touch
+- Skipping correctness, tests or security, or running an area the diff does not touch
 - Duplicating the same root issue across areas
 - Editing or committing during a review, in any mode
 - Generic cleanup wishlists
