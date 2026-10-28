@@ -1,7 +1,7 @@
 ---
 name: ui-review
 description: Review a change to a running interface, its UI and its UX, from captures of every state it touches, measured and set beside the screen it copies, and say what is wrong and what it should be instead. Use on each commit that changes an interface, and before the owner sees any of its screens.
-argument-hint: "<diff, captures and reference captures>"
+argument-hint: "<diff, captures, reference captures, verify skill and unreached list>"
 ---
 
 # UI review
@@ -10,8 +10,14 @@ Judge a running interface the way the owner does on looking at it: whether each 
 
 ## Evidence
 
-- **Captures of the running interface.** Judge the screens a run of the changed build produced, never a mock or the source alone: stills miss hover, focus and small sizes, so the run captures those too, and a terminal interface's capture is its output text, escape codes kept, and exit code. A review with no capture is source-only: it says visual quality is unverified and returns.
-- **Every state, not one shot.** Each state the change touches, such as empty, some and many items, error, waiting, disabled, focus, hover, search focus and the keyboard up, in each theme the product ships and at each size, text size or width `ui-design`'s "Review gate" asks for, largest and smallest layouts first. A changed state with no capture is a finding.
+- **Captures of the running interface.** Judge the screens a run of the changed build produced, never a mock or the source alone: stills miss hover, focus and small sizes, so the run captures those too, and a terminal interface's capture is its output text, escape codes kept, and exit code. A review with no capture at all judges the diff alone, says visual quality is unverified, and sorts the gap as below.
+- **Every state, not one shot.** Each state the change touches, such as empty, some and many items, error, waiting, disabled, focus, hover, search focus and the keyboard up, in each theme the product ships and at each size, text size or width `ui-design`'s "Review gate" asks for, largest and smallest layouts first.
+- **Each missing capture sorted by its cause.** Read the verify skill the brief names, its feature map and Evidence, and the run's list of what it could not reach with the reason for each. Put each capture the brief lacks, of a touched state or of its reference screen, under the first of these it meets, and name every one under its case:
+  1. **No reference exists:** a reference screen's capture, where the state's platform reference in `ui-design` names no reference it can reach. A capture of the state itself never stops here. It goes under Conflicts, as "Against a named reference screen" says, and holds back no accept.
+  2. **Broken build:** the run says it could not reach the state because the change fails, a product defect. It is a finding on the change.
+  3. **Verify skill short:** the repo has no verify skill; its feature map has no visible state entry for the state, or leaves out its reference screen or the way to reach it; its Evidence cannot capture what the state needs; or the run blames the harness for a state, or a reachable reference, that the skill lists. A finding whose fix is that verify skill made or brought up to the state, not a rerun.
+  4. **Run blocked:** the run gives a cause that is neither the change nor the harness, such as a host lacking a credential, a toolchain or a simulator, a locked screen, or a defect outside the change. A finding that quotes the run's reason; the commit waits on that blocker.
+  5. **Run short:** the skill lists the state and its reference and can capture them, yet the brief has no capture, while the run reports no trouble with them or the brief leaves out the run's unreached list or a reason in it. A finding that names each capture to attach from the run's evidence directory, or to take on a rerun.
 - **The diff beside the captures.** Tokens, hand-set values and the components a screen is built from do not show in pixels; read the diff for them.
 - **The owner's own reviews.** Search the session record for the owner's past corrections on the screen's subject, such as its alignment, spacing, wording or prominence. A correction that applies is judged as a rule, cited by session and time.
 
@@ -39,6 +45,7 @@ Report in the review report shape from `principles`, ending with a `Verdict:` li
 ## Red flags
 
 - An accept with a changed state, theme, size, text size or width left uncaptured that `ui-design`'s Review gate asks for
+- A missing capture returned without its cause, or a verify skill gap blamed on the run
 - Judging a screen with no reference screen named beside it
 - Alignment or spacing called right by eye where frames were there to measure
 - A screen judged on looks alone, its flow, wording and prominence unread
