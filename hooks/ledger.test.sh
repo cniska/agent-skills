@@ -200,10 +200,10 @@ choices[1]{project,choice,reason}:
 
 shared rules"
 
-write_ledger "$scratch/absolute/ledger.toon" "experiments: experiments.jsonl
+write_ledger "$scratch/absolute/ledger.toon" "name: loop
 shared: \"$scratch/split/ledger.toon\""
 assert "a quoted absolute shared path names the shared file" \
-  "$(AGENT_LEDGER="$scratch/absolute/ledger.toon" run)" "experiments: experiments.jsonl
+  "$(AGENT_LEDGER="$scratch/absolute/ledger.toon" run)" "name: loop
 shared: \"$scratch/split/ledger.toon\"
 
 shared rules"
@@ -216,13 +216,13 @@ shared: ../split/ledger.toon
 
 shared rules"
 
-write_ledger "$scratch/alone/ledger.toon" "experiments: experiments.jsonl
+write_ledger "$scratch/alone/ledger.toon" "name: loop
 plans[1]{project,plan,where}:
   loop,shared,../split/ledger.toon
 meta:
   shared: ../split/ledger.toon"
 assert "a TOON ledger with no root shared key prints alone" \
-  "$(AGENT_LEDGER="$scratch/alone/ledger.toon" run)" "experiments: experiments.jsonl
+  "$(AGENT_LEDGER="$scratch/alone/ledger.toon" run)" "name: loop
 plans[1]{project,plan,where}:
   loop,shared,../split/ledger.toon
 meta:

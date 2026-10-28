@@ -18,7 +18,7 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set, as [the improvement loop](docs/loops.md#the-improvement-loop) says, and the coordinator applies each change it proposes, trying it as an experiment only when it is an uncertain bet a signal can read, kept or reverted by the [signals](docs/loops.md#signals): counts of friction, such as how often I had to step in.
+- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set, as [the improvement loop](docs/loops.md#the-improvement-loop) says, and the coordinator applies each change it proposes, kept or reverted by the [signals](docs/loops.md#signals) over the following days: counts of friction, such as how often I had to step in.
 
 One task's life, from my request through its landed branch, or its stop, to the daily review that reads its sessions with the rest of the day's work:
 
@@ -34,7 +34,7 @@ flowchart LR
   coord -- "report" --> you
 ```
 
-The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger, the experiments and their check dates.
+The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger and the reviews that keep or revert each change.
 
 ## Install
 
