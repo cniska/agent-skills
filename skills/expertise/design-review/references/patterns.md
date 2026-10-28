@@ -249,7 +249,7 @@ Spot it:
 
 ## No tech debt
 
-Nothing lands that someone has to come back to: no TODO, no stub, no shim, no compatibility layer, no dual path, and no comment excusing a workaround. Leaving a feature unbuilt is fine; building half of it is not. Debt that is found is removed now, and a known bug is fixed, not filed. The fix removes the cause, as fix the cause in `principles` says. With agents writing the code, the right fix costs about what the shortcut costs, so nothing justifies debt.
+Nothing lands that someone has to come back to: no TODO, no stub, no shim, no compatibility layer, no dual path, and no comment excusing a workaround. Leaving a feature unbuilt is fine; building half of it is not. Debt or a bug found that was there before the change is sorted as the review report in `principles` says, never left as a TODO or a doc line. The fix removes the cause, as fix the cause in `principles` says. With agents writing the code, the right fix costs about what the shortcut costs, so nothing justifies debt.
 
 Spot it:
 

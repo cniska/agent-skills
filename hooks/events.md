@@ -64,7 +64,7 @@ The reviewer handed back a well-formed verdict, or ended its run with one, and t
 | `reason` | `no_diff` when the pair has `Reason: no_diff` on the line above its `Repo:`, saying the brief gave no diff to read, otherwise `null` |
 | `findings` | the findings under `## Findings`, each counted by its `Severity:` as `critical`, `major` or `minor`, and as `unrated` when it has no readable one; `fix` and `consider` are always 0, since the report has no such kinds |
 | `conflicts` | the `- **Where:**` bullets under `## Conflicts` |
-| `follow_ups` | the `- **Where:**` bullets under `## Follow-ups`, the defects in code the change does not touch that do not block it; none of them is counted under `findings` |
+| `follow_ups` | the `- **Where:**` bullets under `## Follow-ups`, the defects that were there before the change and do not block it; none of them is counted under `findings` |
 | `rules` | each finding's `**Rule:**` under `## Findings`, one entry per finding that names one |
 
 Finding counts and the rules a review cites are written, so a reader sums them without parsing the report. A report the hook cannot count leaves all four `null`: findings, conflicts or follow-ups written as prose rather than bullets, a count over 1000, or a report naming more than one repository, whose findings no line can claim alone.

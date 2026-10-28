@@ -9,7 +9,7 @@ Review the docs the diff affects for drift — terms, contracts, and behavior th
 
 ## Scope
 
-Report only drift caused or exposed by the diff. Pre-existing doc debt untouched by the change is out of scope unless the change makes it actively wrong.
+Report the drift the diff causes, such as a doc line it leaves as it was but makes wrong, and place drift the change did not cause where the review report in `principles` puts it.
 
 - canonical doc updates for behavior, contract, or config changes
 - glossary drift when new terms are introduced

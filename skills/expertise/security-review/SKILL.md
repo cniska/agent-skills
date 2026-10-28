@@ -55,7 +55,7 @@ Only report findings with a concrete attack path, trust-boundary failure, or uns
 
 ## Workflow
 
-1. Map entry points and trust boundaries in the diff. A hole in pre-existing code is a finding where the change newly makes it reachable, and otherwise a follow-up to queue, as the review report in `principles` says.
+1. Map entry points and trust boundaries in the diff. Sort a hole that was there before the change as the review report in `principles` says.
 2. Classify each: local-only, authenticated, remote-accessible, privileged.
 3. Check validation, authorization, safe defaults at each boundary. For large audits, fan out **fast-tier** readers — one per boundary or subsystem — to collect raw candidates. Verify each against the code before reporting.
 4. Identify exploitable paths (read, write, execute, network, persist).

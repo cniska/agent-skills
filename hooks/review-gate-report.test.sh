@@ -8,7 +8,7 @@ readonly MISSING_REASON="End your report with a last line that is exactly 'Verdi
 MISSING="$(refused "$MISSING_REASON")"
 MISSING_AT_STOP="$(blocked "$MISSING_REASON")"
 readonly MISSING MISSING_AT_STOP
-readonly SHAPE="The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect in code no diff of the change touches that does not block the change goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
+readonly SHAPE="The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect that was there before the change and does not block it goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository."
 REFERENCE="$HERE/../skills/expertise/principles/references/review-report.md"
 NO_SECTIONS="$(refused "The report lacks a section. $SHAPE")"
 WITH_FINDINGS="$(refused "An accept needs 'none' under '## Findings'; while a finding stands there, end with 'Verdict: return'. $SHAPE")"

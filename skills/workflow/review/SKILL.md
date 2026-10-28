@@ -12,7 +12,7 @@ Two modes: **Self** (no argument, or a commit range) — the current branch's di
 
 ## Scope
 
-Review the diff, reading enough surrounding code and docs to understand conventions and boundaries. A defect in that surrounding code is placed as the review report in `principles` says: a finding when it blocks the change, a follow-up when it is a real defect that does not, and dropped when it is a style point.
+Review the diff, reading enough surrounding code and docs to understand conventions and boundaries. Sort each problem you find, there or in the diff, by whether the change caused it, as the review report in `principles` says.
 
 Do not duplicate the same issue across areas. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
 
@@ -102,5 +102,5 @@ One report, in the review report shape from `principles`, so the area skills' fi
 - Speculative issues without evidence
 - Broad rewrite suggestions out of scope
 - An accept while a finding stands under Findings, or "LGTM" without evidence of review
-- A defect in code the change does not touch returning the change without blocking it, or a nit there reported at all
+- A problem that was there before the change reported as one it introduced, returning the change without blocking it, or reported at all when it is a style point
 - Softening real issues — if it's a bug, say so directly

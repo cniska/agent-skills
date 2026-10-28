@@ -17,7 +17,7 @@ edit app.py 'print(2)'
 first="$(fresh_agent)"
 assert "a first return with a malformed report keeps its reviewer running" \
   "$(record_as "$first" "$(sections | grep -v '^## Clean$')"$'\nRepo: '"$repo"$'\nVerdict: return')" \
-  "$(refused "The report lacks a section. The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect in code no diff of the change touches that does not block the change goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository.")"
+  "$(refused "The report lacks a section. The report is four sections, '## Findings', '## Conflicts', '## Follow-ups' and '## Clean', each saying 'none' when it is empty; a defect that was there before the change and does not block it goes under '## Follow-ups', never '## Findings'; each finding is five bullets, '- **Where:**', '- **Rule:** <the rule's heading>', '- **Severity:** critical, major or minor', '- **Why:**' and '- **Instead:**'; then, at the end, 'Repo: <absolute path>' with 'Verdict: accept' or 'Verdict: return' on the line below it, one such pair per repository.")"
 assert "that reviewer's fixed first return gets no note" "$(record_as "$first" "$(report "$repo" return)")" ""
 assert "a second return on the same commit gets no note, so the denied pass counted once" "$(record_handback "$(report "$repo" return)")" ""
 edit app.py 'print(3)'
