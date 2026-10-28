@@ -10,7 +10,7 @@
 
 These must always hold; break them and the system breaks — often silently.
 
-1. <The rule that, if broken, corrupts data or breaks the system in a non-obvious way. Cite a spec ID (e.g. `FR-15`) when one applies.>
+1. <The rule that, if broken, corrupts data or breaks the system in a non-obvious way.>
 2. Run `<verify command>` before every commit.
 
 ## Workflow

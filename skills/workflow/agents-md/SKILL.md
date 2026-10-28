@@ -24,7 +24,7 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 - Decide placement by cost, not by recipe. AGENTS.md is loaded on every task, so every line pays a recurring token cost. Whether a fact belongs inline here or behind a one-line pointer to a doc or executable is a judgment: weigh how often it's needed against that per-task cost, and decide for this project. The right split differs across projects and shifts as models improve — apply the principle rather than a fixed line count or section recipe. When the file must come down, cut what is cheapest to re-derive — an enumeration the agent could read off a manifest — before anything a reader could not reconstruct from the repo at all.
 - Put a rule in the lowest layer that still reaches the work: machine-wide guidance, this repo, a skill, a doc, or an executable gate. Keep judgment in prose; make mechanical invariants executable where the project can enforce them.
 - Always carry a comment ban — one bullet stating no comments from `principles`. Scope it to new and changed code, so it states the convention going forward rather than a claim about the tree. Where the project can run one, a check that scans the lines a diff adds holds it; a whole-tree scan would fail on every existing comment. Put it where code rules already live.
-- If a `SPEC.md` exists, the opening line must reference it as the source of truth for requirements and require keeping it current in the same change that changes behavior — the spec never lags the code. Invariants may cite spec IDs (e.g. `FR-15`) to make them traceable, but code and test names must not — describe behavior in plain terms; the spec is the reference for why.
+- If a `SPEC.md` exists, the opening line must reference it as the source of truth for requirements and require keeping it current in the same change that changes behavior — the spec never lags the code. Invariants, code and unit test names cite no spec ID, since renumbering would leave them stale — describe behavior in plain terms; acceptance test names cite criteria, as `spec` says, and the spec is the reference for why.
 
 ## Sections to consider
 
@@ -83,7 +83,7 @@ AGENTS.md is the hub that gives the other skills their project-specific groundin
 - `writing` — the prose rules this file shares with every lasting doc: rules not history, one place per fact
 - `principles` — the comment ban, mistake-proofing for deciding what becomes executable, and no drift
 - `code-writing` — the code rules; the Code section carries the ones every contributor must keep.
-- `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants cite spec IDs; code does not.
+- `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants, code and unit tests cite no spec ID.
 - `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.
 - `task` — the Workflow section names the checks a task's Close step runs on every commit.
 - `tdd` — the Testing section describes the surface the `tdd` skill drives against: test layout, run command, boundary mocking policy.

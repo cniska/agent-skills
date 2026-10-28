@@ -18,7 +18,7 @@ When the source is an existing codebase rather than a design conversation, you a
 
 ## Labelled requirements
 
-Every requirement gets a stable ID: a short family prefix and a number (`FR-12`, `NF-3`, `AC-9`). IDs are the spec's addressing system. Acceptance criteria cite the requirements they verify, acceptance tests cite the criteria they prove, and cross-references point by ID, not by prose. For a deliverable that can be run, set up the acceptance suite and the check that ties it to the spec as [`references/acceptance-tests.md`](references/acceptance-tests.md) describes.
+Every requirement gets an ID: a short family prefix and a number (`FR-12`, `NF-3`, `AC-9`). IDs are the spec's addressing system. Acceptance criteria cite the requirements they verify, acceptance tests cite the criteria they prove, and cross-references point by ID, not by prose. Every spec has an acceptance suite and a check that ties it to the spec, set up as [`references/acceptance-tests.md`](references/acceptance-tests.md) describes.
 
 Core families. Add domain families as the project needs (`ST` styling, `AU` auth, `SEC` security):
 
@@ -30,9 +30,8 @@ Core families. Add domain families as the project needs (`ST` styling, `AU` auth
 
 Rules:
 
-- **Without a citation check, never renumber and retire in place.** IDs are addresses; renumbering silently breaks every cross-reference and every test that cites one. Append a new requirement with the next free number, and mark a removed one retired — `**FR-9** — *Retired (superseded by FR-38).*` — so no citation dangles.
-- **With a check that ties every citation to the spec, the check wins.** A new item may sit beside a related one, and a removed one is deleted; the IDs after either are renumbered in the same change as every citation. A tombstone would fail the check, since no criterion cites it.
-- **No sub-numbered IDs** — never `FR-21a` or `FR-21.1`. Each ID is a family prefix and a whole number. An existing sub-numbered ID stays until a citation check lets the change renumber it away.
+- **Renumber with every citation.** A new item may sit beside a related one, and a removed one is deleted; the IDs after either are renumbered in the same change as every citation, in the spec, its tests or any other file that cites one, so the check finds no gap and no dangling ID.
+- **No sub-numbered IDs** — never `FR-21a` or `FR-21.1`. Each ID is a family prefix and a whole number; the change that meets a sub-numbered one renumbers it away.
 - **One claim per ID.** A requirement with two independently-verifiable claims is two requirements.
 - **Earn each family and each ID.** A dimension gets its own family only when it carries distinct, independently-verifiable claims, not just functional surface that could sit under FR. Aim for a spec you could reimplement from, not an exhaustive inventory; when two readers would land far apart on the requirement count, you are enumerating mechanism, not contract.
 
@@ -48,13 +47,13 @@ Rules:
 
 ## Editing an existing spec
 
-Before touching the living doc, think the change as a delta of IDs — what is **added**, **modified**, **retired**, and which traces it moves (which ACs gain or lose an FR):
+Before touching the living doc, think the change as a delta of IDs — what is **added**, **modified**, **removed**, and which traces it moves (which ACs gain or lose an FR):
 
 ```
-ADDED FR-38; MODIFIED FR-12 (narrowed); AC-4 now also cites FR-38; RETIRED FR-9
+REMOVED FR-9; FR-10..FR-37 → FR-9..FR-36; ADDED FR-37; MODIFIED FR-11 (narrowed); AC-4 now also cites FR-37
 ```
 
-Stable IDs and retire-in-place keep that delta legible in the git diff itself; under a citation check, the delta also names the renumbering (`FR-10..FR-37 → FR-9..FR-36`). Either way it needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A tombstone's brief reason, and a policy's `serves FR-x` pointer, are the exception: permitted guards against silently re-adding what you removed, not motivation.
+The delta names a removed ID by its old number, then the renumbering a removal or an inserted item causes, and every other ID by its new number. It needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A policy's `serves FR-x` pointer is the one exception: a trace to the requirement it serves, not motivation.
 
 ## See also
 
@@ -68,7 +67,8 @@ Stable IDs and retire-in-place keep that delta legible in the git diff itself; u
 
 - Specifying *how* (an algorithm, a request shape, a data structure) where an outcome would do
 - Drifting into PRD territory (user stories, success metrics, motivation) instead of testable requirements
-- Renumbering IDs no check ties to their citations, or reusing a retired one
+- A spec with no acceptance suite or no check tying it to the spec
+- An ID renumbered apart from its citations, or a removed requirement left in the spec
 - A sub-numbered ID such as `FR-21a`
 - Acceptance criteria that cite no requirement, or a case, clause, app or surface of a requirement that no criterion verifies
 - A criterion whose test is still a todo or skipped once its work lands
