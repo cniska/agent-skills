@@ -63,7 +63,8 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
 
 - It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
-- It inherits every tool, since it edits, commits and starts the reviewer, designer and researcher agents.
+- It drops the built-in tools no route calls, such as `Artifact`, `NotebookEdit`, `LSP` and the cron tools, since every tool definition it carries is re-read on each model call. It keeps the shell and file tools to edit and commit, `Agent` and `SendMessage` to start the reviewer, designer and researcher agents and answer its coordinator, `Skill` for each step, `Monitor` and `TaskStop` for long runs, and `WebFetch` and `WebSearch` for docs.
+- It inherits every MCP tool, so whatever server a project's verify skill drives stays reachable, and `ToolSearch` keeps each one the host defers out of context until a step searches for it.
 
 ## Reviewer agent
 
