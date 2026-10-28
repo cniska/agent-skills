@@ -9,7 +9,7 @@ Dart and Flutter specifics. A `!` is a claim made only where a check proves it, 
 
 ## Toolchain
 
-`mise` pins Flutter, which carries its Dart SDK, or Dart alone for a package with no Flutter. A pinned tool can sit off the non-interactive `PATH`, so run it through `mise exec --` or the repo's task. In a pub workspace — the root `pubspec.yaml` lists members under `workspace:` — `pub get` runs once at the root.
+Suggestions for a project starting out; an existing project's tools win. `mise` pins Flutter, which carries its Dart SDK, or Dart alone for a package with no Flutter. A pinned tool can sit off the non-interactive `PATH`, so run it through `mise exec --` or the repo's task. In a pub workspace — the root `pubspec.yaml` lists members under `workspace:` — `pub get` runs once at the root.
 
 - `dart analyze --fatal-infos`: lints report at info level, and without the flag a lint never fails the run. `flutter analyze` in a Flutter package makes infos fatal by default.
 - `dart format`. Since 3.7 the formatter adds and removes trailing commas itself; do not place them to force a layout.
@@ -68,7 +68,7 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 
 ## Setup
 
-Config bodies for a new package.
+Suggested config bodies for a new package with none of its own.
 
 ### `analysis_options.yaml`
 

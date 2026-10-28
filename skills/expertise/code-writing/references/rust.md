@@ -2,11 +2,13 @@
 
 ## Toolchain
 
-Edition 2024 for new code. `rustfmt` and `clippy` from an exact pinned version in `rust-toolchain.toml` (`1.xx.y`; a bare `stable` resolves to whatever each machine has, so machines and CI drift), `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. `unsafe_code` is denied workspace-wide; `unsafe` sits only in a small safe function carrying `#[expect(unsafe_code, reason = "...")]`, whose name and tests hold the invariant it relies on.
+A project's own choice stands; where it has chosen none of these, suggest edition 2024 for new code, `rustfmt` and `clippy` from an exact version pinned in `rust-toolchain.toml` (`1.xx.y`; a bare `stable` resolves to whatever each machine has, so machines and CI drift), `cargo-deny` for dependencies, and the `xb`/`xt`/`xc`/`xd` cargo aliases. `unsafe_code` is denied workspace-wide; `unsafe` sits only in a small safe function carrying `#[expect(unsafe_code, reason = "...")]`, whose name and tests hold the invariant it relies on.
 
 Modern means: native `async fn` in traits (stable since 1.75), `LazyLock` / `OnceLock` over `lazy_static` / `ctor`, `let-else` and `if let` chains where they clarify intent.
 
 ## Stack defaults
+
+Defaults where nothing is in the tree yet; a crate already used wins.
 
 | Need | Default | Heavier option (only when justified) |
 |---|---|---|
@@ -59,7 +61,7 @@ No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its RE
 
 ## Verification
 
-`cargo fmt --all -- --check`, `cargo xc` (or `cargo clippy --workspace -- -W warnings`), `cargo xt` (or `cargo test --workspace`).
+The project's own commands; otherwise `cargo fmt --all -- --check`, `cargo xc` (or `cargo clippy --workspace -- -W warnings`), `cargo xt` (or `cargo test --workspace`).
 
 ## Red flags
 
@@ -69,11 +71,11 @@ No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its RE
 - `Box<dyn Trait>` for a fixed in-tree set of implementations
 - `lazy_static`, `once_cell` or `async-trait` where std or native async traits cover it
 - `unwrap()` or `expect()` on a `Result` where the failure mode is reachable
-- `#[allow(...)]` where `[lints]` or `#[expect(..., reason = "...")]` fits, an advisory ignore in `deny.toml` without its reason, a doc comment, or `unsafe` outside a small safe function that carries its `#[expect(unsafe_code, …)]`
+- `#[allow(...)]` where `[lints]` or `#[expect(..., reason = "...")]` fits, an advisory ignore without its reason, a doc comment, or `unsafe` outside a small safe function that carries its `#[expect(unsafe_code, …)]`
 
 ## Setup
 
-Versions are starting points; when a workspace `Cargo.toml` or `rust-toolchain.toml` is present, use what's already pinned.
+Suggestions, and versions are starting points; when a workspace `Cargo.toml` or `rust-toolchain.toml` is present, use what's already pinned.
 
 - `rust-toolchain.toml` pins a stable channel. Components `rustfmt`, `clippy`; profile `minimal`.
 - `rustfmt.toml`: `edition = "2024"` for new repos, the workspace's edition otherwise; `max_width = 100`, `use_field_init_shorthand = true`.
@@ -101,4 +103,4 @@ Cargo:
 
 - `[workspace.dependencies]` for shared crates; `[workspace.package]` for `version`, `edition`, `license`, `repository`.
 - Internal crates declare both `version = "x.y.z"` and `path = "..."`; cargo-deny rejects path-only deps on published crates.
-- Publish through CI, never `cargo publish` locally. Conventional Commits and release-please for bumps, with `CHANGELOG.md` `[Unreleased]` updated per change.
+- Publish through CI, never `cargo publish` locally. Suggested for bumps: Conventional Commits and release-please, with `CHANGELOG.md` `[Unreleased]` updated per change.

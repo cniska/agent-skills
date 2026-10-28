@@ -2,16 +2,18 @@
 
 ## Toolchain
 
-Tool config is inherited, not authored: a shared project template carries the reviewed ruff, mypy, pytest, coverage, uv and mise setup. A project outside the template copies its config with its reasons, since the ignore list is a standard other repos are lined up on. A deviation is a decision, commented on the line that deviates.
+These tools are suggestions for a new project; a project's own tools win. Where a shared project template carries the reviewed tool config, it is inherited, not authored, and a deviation is a decision with its reason.
 
-- `uv` is the only package manager: `uv sync --locked`, `uv run`, `uv add`, `uv lock`. Never `pip install` into a project, and never poetry, pipenv or conda. The lockfile is committed and CI installs with `--locked`.
-- `ruff` lints at `select = ["ALL"]` and formats; each ignore carries its reason. `mypy --strict`, with tests relaxed by an override, never excluded.
+- `uv` as the package manager: `uv sync --locked`, `uv run`, `uv add`, `uv lock`. Whatever the package manager, the lockfile is committed and CI installs from it.
+- `ruff` lints at `select = ["ALL"]` and formats, each ignore carrying its reason; `mypy --strict` type checks, with tests relaxed by an override, never excluded.
 - `mise` pins python and uv and wraps the gates as tasks; `prek` runs them as git hooks.
-- Resolve and publish only through the one configured package index; CI authenticates to it with short-lived OIDC credentials read from `UV_INDEX_<NAME>_USERNAME` / `UV_INDEX_<NAME>_PASSWORD`.
+- Resolve and publish through one configured package index; with uv, CI authenticates to it with short-lived OIDC credentials read from `UV_INDEX_<NAME>_USERNAME` / `UV_INDEX_<NAME>_PASSWORD`.
 
-Modern means: the interpreter the template pins as the floor, PEP 695 `type` aliases and `def f[T]()` generics, `X | None` over `Optional`, built-in generics over `typing.List`, `StrEnum` for wire values, `datetime.UTC`, `pathlib` over `os.path`, `tomllib`, `asyncio.TaskGroup` over bare `gather`, `Self` and `@override`.
+Modern means: the interpreter the project pins as the floor, PEP 695 `type` aliases and `def f[T]()` generics, `X | None` over `Optional`, built-in generics over `typing.List`, `StrEnum` for wire values, `datetime.UTC`, `pathlib` over `os.path`, `tomllib`, `asyncio.TaskGroup` over bare `gather`, `Self` and `@override`.
 
 ## Stack defaults
+
+Defaults for a new project; the libraries already in use win.
 
 | Need | Default | Heavier option (only when justified) |
 |---|---|---|
@@ -29,7 +31,7 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 
 - `__init__.py` re-exports the package's public surface and nothing else.
 - Underscore-prefix internal functions; it is the only access signal Python gives.
-- Import order is ruff's job (`I`), never hand-maintained.
+- Import order is the formatter's or linter's job, never hand-maintained.
 
 ## Typing
 
@@ -50,7 +52,7 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 ## Logging
 
 - `logger = logging.getLogger(__name__)` at module scope; never the root logger or `logging.info(...)`.
-- Lazy `%s` interpolation, not f-strings; ruff's `G` rules enforce it.
+- Lazy `%s` interpolation, not f-strings.
 - Handlers configured once, in the entry point; a library never calls `basicConfig`.
 - `logger.exception(...)` inside an `except` block. `print` is for a CLI's output only.
 
@@ -70,12 +72,12 @@ Modern means: the interpreter the template pins as the floor, PEP 695 `type` ali
 
 ## Verification
 
-Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards: it goes into `pyproject.toml`'s per-file ignores or a mypy override, with its reason there, never `noqa` or `type: ignore` in source.
+Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards: it goes into the project's tool config, such as per-file ignores or a type-checker override, with its reason there, never `noqa` or `type: ignore` in source.
 
 ## Red flags
 
-- A hand-written ruff, mypy or pytest config in a repo that could have taken the template's
-- `pip install`, `poetry` or `requirements.txt` in a project that has `uv.lock`
+- A hand-written tool config in a repo whose shared template already carries it
+- A package installed outside the project's own package manager and lockfile
 - `typing.List` / `Dict` / `Optional` / `Union` in new code
 - A public function with no annotations, or an `Any` where a type could be written
 - `except Exception: pass`, a bare `except:`, or `raise` inside an `except` without `from`
@@ -86,7 +88,7 @@ Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exis
 
 ## Setup
 
-Copy the template's config rather than writing an equivalent.
+A starting point for a project with no template of its own; where a template exists, copy its config rather than writing an equivalent.
 
 ```toml
 [project]

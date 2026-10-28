@@ -5,7 +5,7 @@ description: Write code whose types tell the truth — parsed boundaries, one em
 
 # Code writing
 
-Write code whose types are true at runtime and whose failures are loud. The rules here hold in every language; each language's reference holds its toolchain, its stack and the pitfalls a model gets wrong in it.
+Write code whose types are true at runtime and whose failures are loud. The rules here hold in every language; each language's reference suggests its toolchain and its stack for a project that has not chosen, and holds the pitfalls a model gets wrong in it.
 
 The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
@@ -32,7 +32,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 - **Match the repo's config and pins, not its weak spots.** Code nearby that breaks a rule here is flagged, never copied into new code and never rewritten as a side effect.
 - **Minimum dependencies.** Every dependency is supply-chain surface. Check whether the standard library or a dependency already in the tree covers the job before adding one, and say why next to a heavier one when it earns its place. A test-only dependency is a dev dependency.
 - **Size the structure to the program.** A small tool stays in a few files and takes no dependency for what a few lines of its own cover; split a file or add a library when a concern actually grows, not in anticipation. Build what was asked: no unrequested flags, output modes or storage layouts.
-- **The repo pins its toolchain, and `mise` installs every tool it can.** A runtime `mise` manages is never installed through `brew`, `nvm`, `pyenv` or `fnm`. A toolchain `mise` cannot manage, such as the one Xcode ships, is pinned in a committed file its reference names and checked against the installed version before a build.
+- **The repo pins its toolchain, in the way it has chosen.** For a project that has not chosen, `mise` is the suggestion: it installs every tool it can, so a runtime it manages is not also installed through `brew`, `nvm`, `pyenv` or `fnm`. A toolchain `mise` cannot manage, such as the one Xcode ships, is pinned the way the project chose, with the committed file its reference suggests as the default, and checked against the installed version before a build.
 - **Read and edit files with the harness's own file tools.** Hooks that check or record edits fire on those tools, and a shell write skips them; the shell also keeps no record of what a file looked like, so a concurrent write is silently overwritten. Open a file with the file-read tool before editing it: a file read only through the shell, such as with `cat` or `sed`, has not been read for an edit, and the edit is refused. A mechanical edit across many sites may go through a script, then the changed files are re-read and the repo's checks run.
 - **Check the installed version, not memory.** A model's memory of a toolchain lags it. Read the installed version's types, changelog or bundled docs before writing an API you recall; each reference lists the drift that already bit.
 

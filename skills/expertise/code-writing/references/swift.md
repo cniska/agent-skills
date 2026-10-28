@@ -4,7 +4,7 @@ Swift and SwiftUI specifics. Swift 6 language mode everywhere, an optional unwra
 
 ## Toolchain
 
-On macOS the Swift compiler, SwiftPM and `swift-format` come with Xcode, which `mise` cannot manage. `.xcode-version` at the repo root holds the Xcode version on one line, the file `xcodes` and fastlane read, and the repo's check compares it with `xcodebuild -version` before a build; that one pin fixes the Swift compiler and `swift format`, in the toolchain since Swift 6. `mise` pins only command-line tools the toolchain does not ship.
+Suggestions only: the tools a project already uses take precedence. On macOS the Swift compiler, SwiftPM and `swift-format` come with Xcode, which `mise` cannot manage. A suggested `.xcode-version` at the repo root holds the Xcode version on one line, the file `xcodes` and fastlane read, and the repo's check compares it with `xcodebuild -version` before a build; that one pin fixes the Swift compiler and `swift format`, in the toolchain since Swift 6. `mise` pins only command-line tools the toolchain does not ship.
 
 - `swift format lint --strict --recursive --parallel Sources Tests`: without `--strict` findings print as warnings and the run exits 0, so the lint never fails.
 - `swift format format --in-place --recursive Sources Tests`.
@@ -20,6 +20,8 @@ A model's memory of Swift lags the toolchain, so read the installed version befo
 - Xcode 27 makes SwiftUI's `@State` a macro (TN3211): an `init` assigns every other stored property before any `@State` one, a `@State` property takes no second wrapper, and a view with private `@State` writes its own memberwise `init`.
 
 ## Stack defaults
+
+What to reach for with nothing chosen yet; a project's own frameworks and test tools stand.
 
 | Need | Default |
 |---|---|
@@ -39,7 +41,7 @@ A model's memory of Swift lags the toolchain, so read the installed version befo
 
 ## Types
 
-- **`nil` is the empty value.** A field, return or wire value that may be empty on purpose is `T?`; never `""`, `[]`, `0` or `-1` standing in. Unwrap with `if let` or `guard let`, never `!`; swift-format's `NeverForceUnwrap` holds the rule. A dictionary of optionals makes two empties (`[String: String?]` reads back `String??`, where `.some(nil)` and `nil` differ), so a value that can be empty is removed from the dictionary, not stored as `nil`.
+- **`nil` is the empty value.** A field, return or wire value that may be empty on purpose is `T?`; never `""`, `[]`, `0` or `-1` standing in. Unwrap with `if let` or `guard let`, never `!`. A dictionary of optionals makes two empties (`[String: String?]` reads back `String??`, where `.some(nil)` and `nil` differ), so a value that can be empty is removed from the dictionary, not stored as `nil`.
 - **Parse at the boundary with `Codable`.** JSON, plists, files and another program's output decode into a `Decodable` type at the edge; `[String: Any]` from `JSONSerialization` never passes it. `JSONDecoder` ignores unknown keys, and a container keyed by `CodingKeys` lists only the keys it knows, so a shape you own declares its `CodingKeys` enum as `CaseIterable` (a synthesized one is not) and writes `init(from:)` that calls one shared helper: it opens a second container keyed by a `CodingKey` type built from any string, subtracts `CodingKeys.allCases` from its `allKeys`, and throws `DecodingError.dataCorrupted` naming the extra keys; a shape another system defines takes the default decoder and declares only the fields it reads. Past the edge an id is its own `struct` with a `rawValue`, a time is a `Date`, and a secret is `Data` or a `SymmetricKey`, never a `String`.
 - **Variants are an enum with associated values**: `enum Load { case loading, ready(Diff), failed(LoadError) }`, never a struct with an `isLoading` flag beside an optional result and an optional error.
 - **A switch over an enum you own has no `default`.** The compiler then rejects every switch a new case misses. `@unknown default` goes only on an enum a binary framework declares nonfrozen, where Swift 6 mode demands it.
@@ -85,11 +87,11 @@ A model's memory of Swift lags the toolchain, so read the installed version befo
 - Swift Testing: a `struct` suite is a fresh instance per test, so setup is its `init` and tests share nothing through it. `#expect(throws: ModuleError.self)` pins the error type; a parameterized `@Test(arguments:)` replaces a loop; `confirmation` counts a callback; an exit test proves a `precondition` fires. Tests run in parallel, so `.serialized` marks only a suite whose tests share a resource. Internal API comes through `@testable import`.
 - A test seam is compiled in: `#if DEBUG`, or a SwiftPM `.define("...", .when(configuration: .debug))`, never a runtime variable the shipped code reads.
 - The keychain, the enclave and biometrics sit behind a protocol the unit tests stub; the real ones are an opt-in integration run with their own `kSecAttrService`, cleaned up after.
-- UI tests are `XCTestCase`s driving `XCUIApplication`, in their own target, finding controls by accessibility identifier; nothing else uses XCTest.
+- UI tests are `XCTestCase`s driving `XCUIApplication`, in their own target, finding controls by accessibility identifier, where the project uses XCTest for UI tests.
 
 ## Verification
 
-Without declared tasks: `swift format format --in-place --recursive Sources Tests`, `swift format lint --strict --recursive --parallel Sources Tests`, `swift build`, `swift test`, and for an app `xcodebuild -scheme <scheme> -destination <destination> test`, after `xcodebuild -version` matches `.xcode-version`.
+The project's own commands; without declared tasks: `swift format format --in-place --recursive Sources Tests`, `swift format lint --strict --recursive --parallel Sources Tests`, `swift build`, `swift test`, and for an app `xcodebuild -scheme <scheme> -destination <destination> test`, and where the project keeps `.xcode-version`, after `xcodebuild -version` matches it.
 
 ## Red flags
 
@@ -102,17 +104,17 @@ Without declared tasks: `swift format format --in-place --recursive Sources Test
 - `@unchecked Sendable` or `nonisolated(unsafe)`
 - A model class marked `Sendable`, or an `actor` holding UI state
 - Swift 5 language mode left from a template, or `SWIFT_STRICT_CONCURRENCY` set beside Swift 6 mode
-- `swift format lint` without `--strict`
+- A lint run that prints warnings and exits 0, so it never fails, such as `swift format lint` without `--strict`
 - `evaluatePolicy`'s `Bool` guarding a secret the keychain could bind
 - A Secure Enclave key built with the default access control, or without `.privateKeyUsage`
 - `kSecAttrAccessibleAlways`, a secret logged `.public` or printed, or `HKDF` used as a password hash
-- `XCTAssert` in a Swift Testing suite, or XCTest in a unit test target
-- CocoaPods, Carthage, or a dependency where an Apple framework covers the job
-- `.xcode-version` disagreeing with `xcodebuild -version`
+- `XCTAssert` and `#expect` mixed in one suite
+- A dependency where an Apple framework covers the job
+- A kept `.xcode-version` disagreeing with `xcodebuild -version`
 
 ## Setup
 
-`.xcode-version` holds one line, such as `26.6`.
+Suggested for a new package. If the project keeps `.xcode-version`, it holds one line, such as `26.6`.
 
 `Package.swift` for a library package, the `nonisolated` default kept:
 
@@ -154,7 +156,7 @@ SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES
 SWIFT_TREAT_WARNINGS_AS_ERRORS = YES
 ```
 
-`.swift-format` at the repo root; swift-format reads the nearest one above each file, so `Tests/.swift-format` sets `NeverForceUnwrap` back to `false` where a test's `!` on a fixture is the point:
+A suggested `.swift-format` at the repo root; swift-format reads the nearest one above each file, so `Tests/.swift-format` sets `NeverForceUnwrap` back to `false` where a test's `!` on a fixture is the point:
 
 ```json
 {

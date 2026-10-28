@@ -22,6 +22,8 @@ A developer-machine script that wants more than 3.2 offers should be written in 
 
 ## Toolchain
 
+Suggested tools; whatever a project already runs in their place takes precedence.
+
 - `shellcheck` lints every tracked shell file, including extensionless scripts, found by shebang rather than a hand-kept list, so a new script is covered without editing anything. Block on warnings and errors:
 
   ```bash
@@ -117,7 +119,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 
 ## Red flags
 
-- A shell script with no shellcheck gate, or a gate that lists files by hand
+- A shell script with no lint gate, `shellcheck` for one, or a gate that lists files by hand
 - bash 4 or 5 syntax in a script a developer runs, or a bash 5 script with no version check
 - `set -e` doing the work of an explicit check inside a function, or `|| true` hiding a failure
 - An unquoted expansion, an argument string split into a command, or `eval`

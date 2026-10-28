@@ -2,7 +2,7 @@
 
 ## Toolchain
 
-`mise` pins the runtime. Bun is the runtime, package manager and test runner unless the host pins Node, as a serverless platform does; then Node with pnpm. `tsc --noEmit` typechecks; Biome 2 lints and formats, with no ESLint or Prettier beside it. zod 4 is the schema library wherever **Schema first** below calls for one.
+A project's own tools win; for one that has not chosen, suggest `mise` to pin the runtime, Bun as runtime, package manager and test runner (Node with pnpm where the host pins Node, as a serverless platform does), `tsc --noEmit` to typecheck, oxlint and oxfmt to lint and format, and zod 4 as the schema library wherever **Schema first** below calls for one.
 
 Drift a model's memory gets wrong:
 
@@ -13,6 +13,8 @@ Drift a model's memory gets wrong:
 A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or `node --experimental-strip-types <path>.ts`), never a new `.mjs`. Shell stays shell where the job is process orchestration.
 
 ## Stack defaults
+
+On a project with nothing chosen yet; libraries and test tools already in the tree stand.
 
 | Need | Default |
 |---|---|
@@ -50,7 +52,7 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 - Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
 - A promise is awaited, returned, or detached with a handler.
 - `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
-- No `@ts-expect-error`, `@ts-ignore`, `biome-ignore` or JSDoc types: fix the type or parse the value, and set a check that must be off in `tsconfig.json` or `biome.json`. Typed code is TypeScript.
+- No `@ts-expect-error`, `@ts-ignore`, lint-suppression comment of any linter or JSDoc types: fix the type or parse the value, and set a check that must be off in the project's `tsconfig.json` or linter config. Typed code is TypeScript.
 
 ## React
 
@@ -59,21 +61,21 @@ A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or
 
 ## Verification
 
-Without declared tasks: `bunx biome check --write .`, `bunx tsc --noEmit`, `bun test`.
+Without declared tasks: `bunx oxfmt .`, `bunx oxlint --type-aware`, `bunx tsc --noEmit`, `bun test`.
 
 ## Red flags
 
 - `x !== undefined` on a value typed `T | null`, or an optional field standing for a deliberately empty value
-- `as T` on parsed data, `!`, `any`, or a `@ts-` or `biome-ignore` suppression
+- `as T` on parsed data, `!`, `any`, or a `@ts-` or lint suppression
 - A type parameter such as `db.query<Row>` claiming a shape nothing checks
 - A bare `z.object`
 - `enum` or `namespace` in new code
 - A tsconfig option TypeScript 7 removed, or a zod 3 API in a zod 4 tree
-- ESLint or Prettier beside Biome
+- A second linter or formatter beside the project's own
 
 ## Setup
 
-`tsconfig.json`:
+A suggested starting `tsconfig.json`:
 
 ```jsonc
 {
@@ -96,34 +98,4 @@ Without declared tasks: `bunx biome check --write .`, `bunx tsc --noEmit`, `bun 
 
 `strict` is the default in TypeScript 7 and needs no line. `noUncheckedIndexedAccess` is not, and is the one most worth adding. On Node, `"module": "NodeNext"` with `"moduleResolution": "NodeNext"` replaces the bundler pair, and `"types": ["node"]` replaces Bun's.
 
-`biome.json`:
-
-```json
-{
-  "formatter": { "enabled": true, "indentStyle": "space", "indentWidth": 2, "lineWidth": 110 },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "preset": "recommended",
-      "style": {
-        "noNonNullAssertion": "error",
-        "noEnum": "error",
-        "noNamespace": "error",
-        "noParameterProperties": "error",
-        "noExportedImports": "error",
-        "useImportType": "error"
-      },
-      "suspicious": { "noExplicitAny": "error" },
-      "performance": { "noBarrelFile": "error", "noReExportAll": "error" },
-      "nursery": {
-        "noFloatingPromises": "error",
-        "useExhaustiveSwitchCases": "error",
-        "noUnsafeTypeAssertion": "error"
-      }
-    }
-  },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } }
-}
-```
-
-Nursery rules can change between Biome minors; pin Biome's version so a minor arrives as a reviewed change. Wire a `PostToolUse` hook on `Edit|Write` that runs `biome check --write` on the touched file.
+Wire a `PostToolUse` hook on `Edit|Write` that runs the project's formatter on the touched file.

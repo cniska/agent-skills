@@ -48,7 +48,7 @@ A menu of common dimensions, not a required skeleton. Shape the actual sections 
 No AGENTS.md exists. Infer the project's *real* conventions from evidence — never invent aspirational rules the code doesn't follow.
 
 1. Gather evidence:
-   - lint/format config (`biome.json`, `.eslintrc*`, `.prettierrc*`, `rustfmt.toml`, `ruff.toml`) — the style section writes itself from these.
+   - lint/format config (`.oxlintrc.json`, `.oxfmtrc.json`, `.eslintrc*`, `.prettierrc*`, `rustfmt.toml`, `ruff.toml`) — the style section writes itself from these.
    - test layout and scripts (`package.json` scripts, test dirs, CI config).
    - framework and runtime (manifest files, lockfiles).
    - commit style from `git log --oneline -30` — the log is the authority, so copy the format actually in use. A log that consistently isn't Conventional Commits is the repo's rule, not drift to correct. Where a format leads but isn't universal, name it as house style and say it isn't enforced; where the log is genuinely formatless, say that instead of dignifying the largest pile as a convention. Discount artifacts the tooling adds — a squash-merge `(#123)` suffix is near-universal and must never be hand-written.
