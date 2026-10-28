@@ -24,7 +24,7 @@ After:
 >
 > ### Sending
 >
-> `send` works in `open` and queues while `connecting`. `close()` drops the queue.
+> `send` works only in `open` and queues while `connecting`. `close()` drops the queue.
 
 The move: a heading per concern, a From / Action / To table for the transitions, and each caveat as a sentence under the concern it belongs to. A start-state table joins the transitions when the start depends on input.
 
