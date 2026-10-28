@@ -101,16 +101,6 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 - A command that creates its repo with `git init` or `git clone` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else blocks the commit. A command run from outside a temp directory reaches one with `-C` and a literal temp path on every commit, or with a leading `cd` to a literal temp path or to `"$(mktemp -d)"`, joined to every later step by `&&`; on the `cd` route, a target named through a variable, or a `;` or newline before the last commit, blocks the command.
 - Quoted strings and heredoc bodies are read as text, so commit text in an `echo` or a message neither opens nor blocks the gate; a quoted path after `cd`, `pushd` or `-C` still names the repo, and a quoted string that runs as code, after `sh -c` or `eval` or holding a command substitution, is still read.
 
-## Brief gate
-
-It refuses to start the reviewer on a brief the reviewer cannot read, since the reviewer has no shell.
-
-- It reads only the prompt of an `Agent` start whose `subagent_type` is `cniska-skills:reviewer`; every other start passes.
-- A prompt naming a `.diff` or `.log` file by anything but an absolute path, such as a bare name, a relative path or a `~` path, is refused, and the refusal names each such file. It splits the prompt into paths the way the commit gate reads a brief, so each one it lets through is a path the commit gate reads too.
-- A prompt holding `git show`, `git -C`, `git diff`, or a `git log` with `-p` or `--patch` is refused, and the refusal says to write each command's output to a file in the temp folder and name the file by its absolute path.
-- A prompt holding both is refused once, naming each.
-- Input it cannot read passes, and so does every start when `jq` does not run, each with a line on stderr naming the cause.
-
 ## Ledger hook
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).

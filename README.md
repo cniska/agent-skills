@@ -80,7 +80,6 @@ These tools make an agent's work easier. Each one works on its own in any agent 
 | Reviewer agent | Judges each commit it did not write against the design rules, runs `review` on a whole branch before it lands, and ends with accept or return. |
 | Designer agent | Judges each commit that changes an interface it did not make, from captures of every state, through `ui-review`, and ends with accept or return. |
 | Commit gate | Holds each commit for the reviewer's accept. |
-| Brief gate | Refuses a reviewer brief that names a diff by anything but its absolute path or asks the reviewer to run git. |
 | Ledger hook | Prints the coordinator's ledger, and the shared file it links, into each session, so coordinating work survives restarts and compaction. |
 | Event log | Records commit-gate and verdict-check decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
