@@ -20,6 +20,7 @@ readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'
 readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
 readonly STALE_DIFF_REASON="The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change."
 readonly MAX_COUNT=1000
+readonly PARK_AFTER_RETURNS=3
 readonly UNCOUNTED='{"findings":null,"conflicts":null,"follow_ups":null,"rules":null}'
 
 die() {
@@ -258,9 +259,13 @@ covers_nothing_reason() {
   printf '%s\n' "$covers_nothing. $STALE_DIFF_REASON"
 }
 
+head_commit() {
+  git -C "$1" rev-parse --verify --quiet HEAD || printf -- '-\n'
+}
+
 record_accept() {
   local repo="$1" state="$2" entries="$3" head
-  head="$(git -C "$repo" rev-parse --verify --quiet HEAD)" || head=-
+  head="$(head_commit "$repo")"
   mkdir -p "$(dirname "$state")"
   {
     [ ! -f "$state" ] || cat "$state"
@@ -278,16 +283,48 @@ returns_file() {
 }
 
 record_return() {
-  local repo="$1" agent="$2" returns
+  local repo="$1" agent="$2" paths="$3" returns head
   returns="$(returns_file "$repo")"
+  head="$(head_commit "$repo")"
   mkdir -p "$(dirname "$returns")"
-  printf '%s\n' "$agent" >>"$returns"
+  {
+    [ ! -f "$returns" ] || cat "$returns"
+    printf '%s\n' "$paths" | RETURN_HEAD="$head" AGENT="$agent" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["AGENT"] "\t" $0 }'
+  } | sort -u >"$returns.tmp"
+  mv "$returns.tmp" "$returns"
 }
 
 returned_before() {
   local repo="$1" agent="$2" returns
   returns="$(returns_file "$repo")"
-  [ -f "$returns" ] && grep -qxF "$agent" "$returns"
+  [ -f "$returns" ] && AGENT="$agent" awk -F '\t' '$2 == ENVIRON["AGENT"] { found = 1 } END { exit !found }' "$returns"
+}
+
+returns_on_commit() {
+  local repo="$1" paths="$2" returns
+  returns="$(returns_file "$repo")"
+  if [ ! -f "$returns" ] || [ -z "$paths" ]; then
+    printf '0\n'
+    return
+  fi
+  path_entries "$returns" <<<"$paths" | RETURN_HEAD="$(head_commit "$repo")" awk -F '\t' '
+    $1 == ENVIRON["RETURN_HEAD"] && !seen[$2]++ { count++ }
+    END { print count + 0 }'
+}
+
+third_return_reason() {
+  local repo="$1" count="$2"
+  printf '%s\n' "This is return $count on one commit of '$repo'. End your report with the line 'This commit has been returned $count times: stop fixing it and park it, as step 4 of cniska-skills:task says.' above its 'Repo:' line, and keep your verdict."
+}
+
+note_third_return() {
+  local input="$1" repo="$2" count="$3" decision=allow
+  if deny_once "$input" third_return "$(third_return_reason "$repo" "$count")"; then
+    decision=deny
+  fi
+  event_log "$input" gate --arg gate verdict --arg decision "$decision" --arg reason third_return \
+    --arg repo "$repo" --arg head "" --arg fingerprint ""
+  [ "$decision" = deny ]
 }
 
 named_before() {
@@ -335,7 +372,7 @@ main() {
     else
       if [ "$verdict" = return ]; then
         void_paths "$(review_state_file "$repo")" "$returned"
-        record_return "$repo" "$agent"
+        record_return "$repo" "$agent" "$returned"
       fi
       cited="$(cited_worktrees "$repo" <<<"$report")"
       if named_before "$repo" ${repos[@]+"${repos[@]}"}; then
@@ -390,6 +427,19 @@ main() {
       return
     fi
   done
+
+  local count
+  if ! was_denied "$input" third_return; then
+    for i in "${!repos[@]}"; do
+      [ "${verdicts[$i]}" = return ] || continue
+      count="$(returns_on_commit "${repos[$i]}" "$returned")"
+      [ "$count" -ge "$PARK_AFTER_RETURNS" ] || continue
+      if note_third_return "$input" "${repos[$i]}" "$count"; then
+        return
+      fi
+      break
+    done
+  fi
 
   local state fingerprint counts findings conflicts follow_ups rules
   counts="$(verdict_counts "${#repos[@]}" "$parsed")" || die "jq could not count the reviewer's findings"

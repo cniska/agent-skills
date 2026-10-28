@@ -50,6 +50,7 @@ assert "a return without the sections on the second hand-back still clears the a
 assert "a verdict in the last message counts when there is no handback" "$(record_last_message "$(report "$repo" accept)")" ""
 assert "that verdict lets the diff commit" "$(gate 'git commit -am x')" ""
 
+land
 edit app.py 'print(40)'
 unread="$(scratch_file "$(diff_in "$repo" app.py)")"
 reader="$(fresh_agent)"
