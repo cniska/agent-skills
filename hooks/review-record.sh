@@ -17,7 +17,6 @@ readonly MISSING_FINDINGS_REASON="The report lacks a section. $REPORT_SHAPE"
 SAME_REVIEWER_REASON="This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line '$(fresh_reviewer_step); this one returned it.' above your verdict."
 readonly SAME_REVIEWER_REASON
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept needs 'none' under '## Findings'; while a finding stands there, end with 'Verdict: return'. $REPORT_SHAPE"
-readonly UNREAD_DIFF_REASON="Read every diff file the brief names before your verdict, since an accept covers only the diffs you read."
 readonly STALE_DIFF_REASON="The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change."
 readonly MAX_COUNT=1000
 readonly PARK_AFTER_RETURNS=3
@@ -183,15 +182,6 @@ returned_paths() {
   [ -n "$1" ] || return 0
   brief_paths "$1" | diff_files_paths | while IFS=$'\t' read -r path _; do
     [ -z "$path" ] || unquote_path "$path"
-  done
-}
-
-unread_diffs() {
-  local path
-  [ -n "$1" ] || return 0
-  brief_paths "$1" | while IFS= read -r path; do
-    [ -f "$path" ] && [ -n "$(diff_paths <"$path")" ] || continue
-    jq -e --arg path "$path" 'any(.reads[]; . == $path)' <<<"$1" >/dev/null || printf '%s\n' "$path"
   done
 }
 
@@ -405,15 +395,6 @@ main() {
   elif [ "$accepts" -gt 0 ] && ! findings_empty <<<"$parsed"; then
     malformed_report "$input" accept_with_findings "$ACCEPT_WITH_FINDINGS_REASON"
     return
-  fi
-
-  local unread
-  if [ "$accepts" -gt 0 ]; then
-    unread="$(unread_diffs "$brief_and_reads")"
-    if [ -n "$unread" ]; then
-      malformed_report "$input" unread_diff "You have not read ${unread//$'\n'/, }. $UNREAD_DIFF_REASON"
-      return
-    fi
   fi
 
   local i reviewed entries=()

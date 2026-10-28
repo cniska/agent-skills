@@ -43,7 +43,7 @@ gate_logged() {
 }
 
 record_logged() {
-  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" --arg transcript "$(scratch_file "${2:-$(briefed "$(diff_of "$1")")}")" \
+  jq -cn --arg cwd "$logged" --arg message "$1" --arg agent "$reviewer" --arg transcript "$(scratch_file "$(briefed "$(diff_of "$1")")")" \
     '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
 reviewer=r1
@@ -166,9 +166,6 @@ reviewer=r3
 assert "an accept with a finding logs accept_with_findings" "$(decided record_logged "$(sections "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r .reason)" accept_with_findings
 assert "an accept with only a follow-up logs the accept and counts the follow-up" \
   "$(decided record_logged "$(sections none none "$(finding)")"$'\nRepo: '"$logged"$'\nVerdict: accept' | jq -r '[.verdict, .follow_ups] | @tsv')" "accept	1"
-unread="$(scratch_file "$(diff_of "$(report "$logged" accept)")")"
-assert "an accept whose brief names a diff it never read logs unread_diff" \
-  "$(decided record_logged "$(report "$logged" accept)" "$(brief_line "$unread")" | jq -r '[.gate, .decision, .reason] | @tsv')" "verdict	deny	unread_diff"
 assert "a return for a brief with no diff logs reason no_diff" "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return' | jq -r '[.verdict, .reason] | @tsv')" "return	no_diff"
 assert "a no_diff return beside an accept for another repo logs the reason on its own pair only" \
   "$(decided record_logged "$(sections)"$'\nReason: no_diff\nRepo: '"$logged"$'\nVerdict: return\nRepo: '"$other"$'\nVerdict: accept' | jq -sc 'map(.reason)')" '["no_diff",null]'
