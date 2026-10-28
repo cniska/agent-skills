@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { CodedError } from "../../lib/coded-error";
 import type { Frontmatter } from "../../lib/frontmatter";
 import { grade, parseGrader } from "./grader";

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { CodedError } from "./coded-error";
 import { frontmatter } from "./frontmatter";
 

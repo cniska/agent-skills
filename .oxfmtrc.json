@@ -3,5 +3,6 @@
   "useTabs": false,
   "tabWidth": 2,
   "printWidth": 110,
+  "sortImports": {},
   "ignorePatterns": [".githooks/**"]
 }

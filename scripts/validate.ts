@@ -1,6 +1,8 @@
 import { existsSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
+
 import { z } from "zod";
+
 import { reportProblems, runMain } from "../lib/cli";
 import { CodedError } from "../lib/coded-error";
 import { type Frontmatter, frontmatter } from "../lib/frontmatter";

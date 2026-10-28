@@ -1,7 +1,9 @@
 import { existsSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
+
 import { z } from "zod";
+
 import { reportProblems, runMain } from "../lib/cli";
 import { CodedError } from "../lib/coded-error";
 import { readJson } from "../lib/read-file";

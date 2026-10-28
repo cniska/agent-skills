@@ -1,5 +1,7 @@
 import { readFileSync } from "node:fs";
+
 import { z } from "zod";
+
 import { CodedError } from "./coded-error";
 
 export function isMissingFile(error: unknown): boolean {

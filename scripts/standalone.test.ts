@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { join, relative } from "node:path";
+
 import { ROOT_DIR } from "../lib/paths";
 import { readText } from "../lib/read-file";
 

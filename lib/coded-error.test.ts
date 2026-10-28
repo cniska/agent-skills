@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+
 import { BUG, CodedError } from "./coded-error";
 
 describe("coded errors", () => {
