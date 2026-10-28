@@ -17,7 +17,7 @@ Hold work that spans agents or repos so none of it is lost, stranded, or left wa
 5. **Keep every plan in the ledger's repo or the work's repo**, never only in a message or a temp path another machine cannot reach. Each worker works in its own worktree, never a primary checkout, so what it leaves is findable and its own.
 6. **Check in on an agent that has gone quiet** for longer than its step needs: read its latest output, then steer it, restart it, or report it, and update the ledger.
 7. **Take every choice you have a clear recommendation for**, design tradeoffs included, such as push timing or slicing, and name each in the report. When unsure, or when an owner idea or design question takes more than a line or two to settle, get a `powerful`-tier read through `second-opinion` first, from a `researcher` agent where the host can start one, and file what it returns as a proposal, an idea in the ledger, or a drop with its reason. Ask the owner only about product tradeoffs and what you cannot answer.
-8. **Check each task once its worker hands back or stops, and apply each workflow review.** On a hand-back, check that every CI run on the commit it landed is green, and send a red one back to the worker, or to a new task when the worker is gone; where no hand-back came, read the report the worker stated in its transcript, through the session record where one is installed. Apply each workflow review's proposals, wherever that review runs, except conflicts, which go to the owner, and open an experiment for each workflow change that lands as a bet, or append the line a due experiment's outcome calls for, where the [experiment record](references/experiments.md) calls for one.
+8. **Check each task once its worker hands back or stops, and apply each workflow review.** On a hand-back, check that every CI run on the commit it landed is green, and send a red one back to the worker, or to a new task when the worker is gone; where no hand-back came, read the report the worker stated in its transcript, through the session record where one is installed. Queue each follow-up the worker's report names where the review report in `principles` sends it, or drop it with its reason in your report. Apply each workflow review's proposals, wherever that review runs, except conflicts, which go to the owner, and open an experiment for each workflow change that lands as a bet, or append the line a due experiment's outcome calls for, where the [experiment record](references/experiments.md) calls for one.
 
 ## Resume
 
@@ -32,7 +32,7 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - `task` — the route each delegated task runs
 - `design-review` — what the reviewers judge
 - `second-opinion` — the read to get before asking the owner
-- `principles` — verify at the source, for each claim a brief or a recommendation to the owner states
+- `principles` — verify at the source, for each claim a brief or a recommendation to the owner states, and the review report, for where a worker's follow-ups go
 - `code-writing` — bundles the bounded-run script a brief names for a worker's suite or long command
 - `workflow-review` — proposes the workflow changes a window of work shows, and each due experiment's outcome
 
@@ -57,4 +57,5 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 - Owner questions placed below status
 - Work called pushed without checking the remote
 - A hand-back counted as landed while its CI is red or still running
+- A follow-up from a worker's report left unqueued, or dropped without its reason in the report
 - A bet applied without an `open` line in the experiment record, an experiment opened for a change that is no bet, a change applied without one whose report does not say which kind it is, or an experiment left open past its check date
