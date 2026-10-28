@@ -5,7 +5,7 @@ type FrontmatterValue = string | readonly string[] | Readonly<Record<string, str
 export type Frontmatter = Readonly<Record<string, FrontmatterValue>>;
 
 type Open =
-  | { readonly kind: "block"; readonly key: string; readonly joiner: string; text: string }
+  | { readonly kind: "block"; readonly key: string; readonly joiner: string; readonly lines: string[] }
   | { readonly kind: "map"; readonly map: Record<string, string> };
 
 type Line = { readonly path: string; readonly line: string };
@@ -75,9 +75,8 @@ export function frontmatter(text: string, path: string): Frontmatter {
     if (!line.trim()) continue;
     const indented = line.match(INDENTED);
     if (indented && open?.kind === "block") {
-      const text = (indented[1] ?? "").trim();
-      open.text = open.text ? `${open.text}${open.joiner}${text}` : text;
-      keys[open.key] = open.text;
+      open.lines.push((indented[1] ?? "").trim());
+      keys[open.key] = open.lines.join(open.joiner);
       continue;
     }
     const child = line.match(CHILD_KEY_VALUE);
@@ -93,7 +92,7 @@ export function frontmatter(text: string, path: string): Frontmatter {
     const joiner = blockJoiner(value);
     open = null;
     if (joiner) {
-      open = { kind: "block", key, joiner, text: "" };
+      open = { kind: "block", key, joiner, lines: [] };
       keys[key] = "";
       continue;
     }

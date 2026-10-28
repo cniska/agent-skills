@@ -6,7 +6,6 @@
   },
   "ignorePatterns": [".githooks/**"],
   "rules": {
-    "typescript/restrict-template-expressions": "off",
     "typescript/no-non-null-assertion": "error",
     "typescript/no-explicit-any": "error",
     "typescript/consistent-type-imports": "error",
