@@ -14,7 +14,7 @@ Load this for a native screen on macOS or iOS built from system components, befo
 - To remove a hand-set value, choose the container whose default gives the reference screen's spacing, such as a `Form` section in place of a stack, rather than deleting the value and taking whatever default is left.
 - A notice the user must act on, such as a wrong PIN, takes the text style the reference screen gives it, never footnote or caption type.
 - In a grouped settings form, each field takes the alignment the reference capture shows from the container's default, never a hand-set alignment; where the default differs from the capture, change the container, as above. Its width takes a token, as the next line says.
-- A value the system has no default for, such as a window size or a field width, takes the nearest project token, never the reference screen's value; a new token is added only when none fits.
+- A value the system has no default for, such as a window size or a field width, takes the project token for its role, never the reference screen's value; a new token is added only when none fits.
 
 ## Wording
 
