@@ -49,7 +49,7 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 ## Testing
 
 - No real time: inject `package:clock` and drive timers with `fakeAsync`.
-- No `// ignore:` or `// ignore_for_file:`: fix the code, or set the lint in `analysis_options.yaml` with its reason.
+- No `// ignore:` or `// ignore_for_file:`: fix the code, and turn a lint off in `analysis_options.yaml` only when the skill's rule on flagged code allows it.
 
 ## Red flags
 

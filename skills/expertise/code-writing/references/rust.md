@@ -57,7 +57,7 @@ Log through the workspace's shared logger crate; in a standalone repo, wrap `tra
 
 ## Documentation
 
-No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its README carries the usage example. Lint levels live in `Cargo.toml`'s `[lints]`; a single site's exception is `#[expect(lint, reason = "...")]`, an attribute the compiler reads that warns once the lint no longer fires.
+No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its README carries the usage example. Lint levels live in `Cargo.toml`'s `[lints]`; a single site's exception, only where no rewrite satisfies the lint, is `#[expect(lint, reason = "...")]`, the per-site form the skill's rule on flagged code allows, an attribute the compiler reads that warns once the lint no longer fires.
 
 ## Verification
 

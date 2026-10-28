@@ -97,6 +97,8 @@ Load `principles` and apply six of them to every change: no comments, mistake-pr
 
 Run the repo's declared tasks, or the reference's commands where it declares none. A failing check is a stop signal, not a warning to silence. A check that cannot run, because a tool or registry is unavailable, is reported as unrun, never worked around by dropping it or installing from an unvetted source; tests written but never run count as unwritten. Wire format-on-write so the format check is a formality.
 
+- **A rule that flags code is fixed in the code.** When a linter, type checker or analyzer rule flags code, rewrite the code. A rule is turned off in the project's config, for the whole project or one directory, only when no rewrite satisfies it without making the code worse, such as one whose fix is a comment that no comments forbids, and it is named there with why, where the project documents its lint. Adopting a linter, or raising its strictness, turns its rules on and fixes the hits rather than turning off what the code breaks. A suppression comment in source is never the fix; a language whose reference names a per-site form uses that form under the same test.
+
 ## See also
 
 - `principles` for the six principles every change applies
@@ -123,5 +125,6 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 - An error response carrying a path, a stack trace or an upstream message
 - `${{ … }}` inside a workflow's `run:` block
 - A gate reported as passing that never ran
+- A lint, type or analyzer rule turned off, for a project or a directory, that a rewrite of the code could satisfy
 - A new dependency that duplicates something already in the tree
 - An API written from memory that the installed version changed

@@ -156,7 +156,7 @@ SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES
 SWIFT_TREAT_WARNINGS_AS_ERRORS = YES
 ```
 
-A suggested `.swift-format` at the repo root; swift-format reads the nearest one above each file, so `Tests/.swift-format` sets `NeverForceUnwrap` back to `false` where a test's `!` on a fixture is the point:
+A suggested `.swift-format` at the repo root, which tests share: a test unwraps a fixture with `try #require(...)`, never `!`:
 
 ```json
 {
@@ -174,4 +174,4 @@ A suggested `.swift-format` at the repo root; swift-format reads the nearest one
 }
 ```
 
-`swift format dump-configuration` prints the defaults the rest come from; `AllPublicDeclarationsHaveDocumentation` stays off. Wire a `PostToolUse` hook on `Edit|Write` that runs `swift format format --in-place` on the touched `.swift` file, so the format check is a formality.
+`swift format dump-configuration` prints the defaults the rest come from; `AllPublicDeclarationsHaveDocumentation` stays off, since its fix is a doc comment no comments forbids. Wire a `PostToolUse` hook on `Edit|Write` that runs `swift format format --in-place` on the touched `.swift` file, so the format check is a formality.

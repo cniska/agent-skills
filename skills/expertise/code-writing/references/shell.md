@@ -86,7 +86,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - Quote every expansion. Build argument lists as arrays (`args=(--flag "$value")`, `"${args[@]}"`), never as a string split later.
 - Filenames are read with `while IFS= read -r` or NUL-delimited (`find -print0`, `git ls-files -z`, `xargs -0`); never parse `ls`.
 - `printf` over `echo` for anything containing a variable.
-- No `# shellcheck` directive: fix the code, or set the check in `.shellcheckrc` with its reason. An SC2086 that keeps coming back means an argument string should be an array.
+- No `# shellcheck` directive: fix the code, and turn a check off in `.shellcheckrc` only as the skill's rule on flagged code allows. An SC2086 that keeps coming back means an argument string should be an array.
 - Scratch space is `mktemp -d` plus a cleanup trap on `EXIT`; never a fixed path under `/tmp`.
 
 ## Output and portability

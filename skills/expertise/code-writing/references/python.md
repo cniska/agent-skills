@@ -5,7 +5,7 @@
 These tools are suggestions for a new project; a project's own tools win. Where a shared project template carries the reviewed tool config, it is inherited, not authored, and a deviation is a decision with its reason.
 
 - `uv` as the package manager: `uv sync --locked`, `uv run`, `uv add`, `uv lock`. Whatever the package manager, the lockfile is committed and CI installs from it.
-- `ruff` lints at `select = ["ALL"]` and formats, each ignore carrying its reason; `mypy --strict` type checks, with tests relaxed by an override, never excluded.
+- `ruff` lints at `select = ["ALL"]` and formats, its config turning off only what the skill's rule on flagged code allows; `mypy --strict` type checks every file, tests typed like the rest.
 - `mise` pins python and uv and wraps the gates as tasks; `prek` runs them as git hooks.
 - Resolve and publish through one configured package index; with uv, CI authenticates to it with short-lived OIDC credentials read from `UV_INDEX_<NAME>_USERNAME` / `UV_INDEX_<NAME>_PASSWORD`.
 
@@ -72,7 +72,7 @@ Defaults for a new project; the libraries already in use win.
 
 ## Verification
 
-Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Silencing a lint is a change to the project's standards: it goes into the project's tool config, such as per-file ignores or a type-checker override, with its reason there, never `noqa` or `type: ignore` in source.
+Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Never `noqa` or `type: ignore` in source: fix the code, and turn a rule off in the project's tool config only as the skill's rule on flagged code allows.
 
 ## Red flags
 
@@ -113,11 +113,6 @@ strict = true
 show_error_codes = true
 explicit_package_bases = true
 
-[[tool.mypy.overrides]]
-module = ["*.tests.*"]
-disallow_untyped_defs = false
-warn_return_any = false
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = ["--import-mode=importlib"]
@@ -126,7 +121,7 @@ asyncio_default_fixture_loop_scope = "function"
 ```
 
 - `requires-python` is a narrow range so a new interpreter is an explicit decision; dependencies carry a lower bound and a major cap, and ruff, being pre-1.0, a minor cap.
-- ruff: `line-length = 120`, `select = ["ALL"]`, whole tools off with a reason (`ARG`, `D`, `EM`, `ERA`, `FBT`, `FIX`, `INP`, `PLR`, `TD`), and per-file ignores for `tests/`, `scripts/` and `__init__.py`. Adjust `extend-exclude` and `known-first-party` locally.
+- ruff: `line-length = 120`, `select = ["ALL"]`, with `D` off, since its fix is a docstring no comments forbids, and `COM812` off, since `ruff format` owns trailing commas and rewrites them; in `tests/`, `S101` off for the plain `assert` above and `PLR2004` off for wire values pinned as literals. Every other rule stays on. Adjust `extend-exclude` and `known-first-party` locally.
 - `mise.toml` pins `python`, `uv` and `prek`, with `boot` (`mise install --locked`, `uv sync --locked`, `prek install`), `lint` (`prek run -a --hook-stage manual`) and `test` (`uv run --locked pytest`) tasks.
 - `prek` runs `ruff check --fix` and `ruff format` on commit, `uv lock` when a manifest changes, and mypy plus the import linters at the `manual` stage. An agent harness also runs `ruff format` on each written file.
 - CI: OIDC to the index (`id-token: write`), `astral-sh/setup-uv` with `enable-cache: true` and `prune-cache: false`, `actions/setup-python` with `python-version-file: pyproject.toml`, `uv sync --locked`, then `mise run lint` and `mise run test`. Third-party actions are pinned to a full commit SHA.

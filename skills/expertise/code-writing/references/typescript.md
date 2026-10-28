@@ -52,7 +52,7 @@ On a project with nothing chosen yet; libraries and test tools already in the tr
 - Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
 - A promise is awaited, returned, or detached with a handler.
 - `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
-- No `@ts-expect-error`, `@ts-ignore`, lint-suppression comment of any linter or JSDoc types: fix the type or parse the value, and set a check that must be off in the project's `tsconfig.json` or linter config. Typed code is TypeScript.
+- No `@ts-expect-error`, `@ts-ignore`, lint-suppression comment of any linter or JSDoc types: fix the type or parse the value, and turn a rule off only as the skill's rule on flagged code allows. Typed code is TypeScript.
 
 ## React
 
