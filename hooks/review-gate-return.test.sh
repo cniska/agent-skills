@@ -21,6 +21,8 @@ assert "a first return with a malformed report keeps its reviewer running" \
 assert "that reviewer's fixed first return gets no note" "$(record_as "$first" "$(report "$repo" return)")" ""
 assert "a second return on the same commit gets no note, so the denied pass counted once" "$(record_handback "$(report "$repo" return)")" ""
 edit app.py 'print(3)'
+assert "an accept between returns adds nothing to the count" "$(record_handback "$(report "$repo" accept)")" ""
+assert "that accept lets the change commit" "$(gate 'git commit -am x')" ""
 
 before="$(lines)"
 returner="$(fresh_agent)"
@@ -32,8 +34,8 @@ assert "the note records no verdict yet" "$(new_lines "$before" | jq -s 'map(sel
 
 before="$(lines)"
 assert "that reviewer's next hand-back is let through" "$(record_as "$returner" "$(report "$repo" return)")" ""
-assert "that hand-back records the return as any return" \
-  "$(new_lines "$before" | jq -sc 'map([.event, .verdict, .repo])')" "$(jq -cn --arg repo "$top" '[["verdict", "return", $repo]]')"
+assert "that hand-back records the return as the noted reviewer's own verdict" \
+  "$(new_lines "$before" | jq -sc 'map([.event, .verdict, .repo, .agent])')" "$(jq -cn --arg repo "$top" --arg agent "$returner" '[["verdict", "return", $repo, $agent]]')"
 assert "the third return still voids the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 assert "a fourth return counts the third reviewer once" "$(record_handback "$(report "$repo" return)")" "$(third 4)"
 assert "an accept after the note records as any accept" "$(record_handback "$(report "$repo" accept)")" ""
