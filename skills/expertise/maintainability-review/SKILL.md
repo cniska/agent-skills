@@ -37,7 +37,7 @@ Check where the codebase already has a clear local pattern:
 
 - a comment the project's comment rule does not allow
 - no unused params, dead branches, or ad-hoc fallbacks
-- a new suppression of a type, lint, or security check in config or an attribute, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag a suppression unless no rewrite of the code meets the check without making it worse and the config entry, or the attribute's reason, says why; flag a stub unless the diff says why
+- a new suppression of a type, lint, or security check in config or an attribute, or a stub standing where the work should be — an unimplemented throw, an empty catch turning a failure into silence. Flag a suppression unless no rewrite of the code meets the check without making it worse and its why is recorded where the project documents its lint, or in the attribute's reason; flag a stub unless the diff says why
 - keep structure and terminology aligned with nearby code
 - prefer clear, idiomatic code over cleverness
 
