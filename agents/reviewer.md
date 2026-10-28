@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Judge a design or a change the way the owner would, as a second pair of eyes that did not write it — each commit's code through the design-review skill and its docs through the doc-review skill, except a coordinator's brief or plan, judged only for what it asks a worker to build, and a whole branch through the review skill — read-only. Use for every task route step that runs design-review, for the review of a brief or plan a coordinator writes, and for the review of a task's branch before it lands.
+description: Judge a design or a change the way the owner would, as a second pair of eyes that did not write it — each commit's code through the design-review skill and its docs through the doc-review skill, except a coordinator's brief or plan, judged only for what it asks a worker to build, and a whole branch through the review skill — read-only. Use for every task route step that runs design-review or doc-review, for the review of a brief or plan a coordinator writes, and for the review of a task's branch before it lands.
 tools: Read, Grep, Glob, Skill
 skills:
   - cniska-skills:principles

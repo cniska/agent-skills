@@ -30,7 +30,7 @@ Report in [its shape](references/report.md), with the owner's questions batched 
 ## See also
 
 - `task` — the route each delegated task runs
-- `design-review` — what the reviewers judge
+- `design-review` and `doc-review` — what the reviewers judge, on code and on docs
 - `second-opinion` — the read to get before asking the owner
 - `principles` — verify at the source, for each claim a brief or a recommendation to the owner states, and the review report, for where a worker's follow-ups go
 - `code-writing` — bundles the bounded-run script a brief names for a worker's suite or long command
