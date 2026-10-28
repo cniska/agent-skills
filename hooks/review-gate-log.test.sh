@@ -32,8 +32,7 @@ assert "the verdict recorder judges every hand-back" \
 
 logged="$scratch/logged"
 mkdir -p "$logged"
-(cd "$logged" && git init -q -b main && printf 'n = 1\n' >n.py && printf '# n\n' >NOTES.md &&
-  printf 'GEN.md linguist-generated\n' >.gitattributes && printf '# g\n' >GEN.md && git add -A && git commit -q -m base)
+(cd "$logged" && git init -q -b main && printf 'n = 1\n' >n.py && printf '# n\n' >NOTES.md && git add -A && git commit -q -m base)
 logged_head="$(git -C "$logged" rev-parse HEAD)"
 logged_repo="$(git -C "$logged" rev-parse --show-toplevel)"
 
@@ -146,9 +145,7 @@ assert "a report naming two repositories leaves each verdict uncounted" \
 assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" not_accepted
 
 (cd "$logged" && git checkout -q n.py && printf 'more\n' >>NOTES.md)
-assert "a Markdown-only commit logs a deny" "$(decided gate_logged 'git commit -am x' | jq -c '[.decision, .reason]')" '["deny","not_accepted"]'
-(cd "$logged" && git checkout -q NOTES.md && printf 'more\n' >>GEN.md)
-assert "a commit of only Markdown HEAD marks linguist-generated logs an allow" "$(decided gate_logged 'git commit -am x' | jq -c '[.decision, .reason, .fingerprint]')" '["allow","no_code_change",null]'
+assert "a Markdown-only commit logs an allow" "$(decided gate_logged 'git commit -am x' | jq -c '[.decision, .reason, .fingerprint]')" '["allow","no_code_change",null]'
 assert "a commit outside any repository logs an allow" "$(decided gate_logged 'git commit -am x' "$scratch" | jq -c '[.decision, .reason, .repo]')" '["allow","outside_repo",null]'
 assert "two commits in one command log multiple_commits" "$(decided gate_logged 'git commit -m x && git commit -m y' | jq -r .reason)" multiple_commits
 assert "a commit that creates its repo logs repo_created" "$(decided gate_logged 'git init -q && git commit -m x' / | jq -r .reason)" repo_created
@@ -178,7 +175,7 @@ record_logged "$(report "$logged" accept)" >/dev/null
 assert "its second hand-back logs an allow and no verdict" "$(new_lines "$before" | jq -sc 'map([.event, .decision, .reason])')" '[["gate","allow","same_reviewer"]]'
 assert "a Repo path that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
-(cd "$logged" && git checkout -q GEN.md && printf 'n = 4\n' >n.py)
+(cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)
 mv "$log" "$log.kept"
 mkdir "$log"
 assert "an unwritable log leaves a deny unchanged" "$(gate_logged 'git commit -am x')" "$(denied 'n.py (working tree)')"

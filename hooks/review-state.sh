@@ -72,7 +72,7 @@ head_generated_paths() {
 
 code_paths() {
   local repo="$1" candidates generated
-  candidates="$(printf '%s\n' "$2" | grep -v -e '^$')" || return 0
+  candidates="$(printf '%s\n' "$2" | grep -v -e '\.md$' -e '^$')" || return 0
   generated="$(head_generated_paths "$repo" "$candidates")" || generated=""
   if [ -z "$generated" ]; then
     printf '%s\n' "$candidates"
