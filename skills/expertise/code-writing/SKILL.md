@@ -87,7 +87,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 
 ## Principles
 
-Load `principles` and apply five of them to every change: no comments, mistake-proofing, proven able to fail, fix the cause, and no drift.
+Load `principles` and apply six of them to every change: no comments, mistake-proofing, no text heuristics, proven able to fail, fix the cause, and no drift.
 
 ## Verification loop
 
@@ -95,7 +95,7 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 
 ## See also
 
-- `principles` for the five principles every change applies
+- `principles` for the six principles every change applies
 - `tdd` for crucial logic driven test-first
 - `test-writing` for tests that are proven able to fail
 - `database-design` for schemas the types are parsed from

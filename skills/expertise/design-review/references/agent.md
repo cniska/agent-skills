@@ -22,10 +22,8 @@ Load these when the scope drives a model: a harness, a tool, a prompt, or the lo
 
 Spot it:
 
-- a regex or keyword classifier deciding what the model should do
 - output rewritten after the model returns it
 - a prompt line that names one task, file or scenario
-- a prompt test matching text with a regex instead of checking intent
 - a tool result carrying data the model does not use
 - a tool whose schema or formatter lives in another file
 - dynamic content above stable content in the system prompt
