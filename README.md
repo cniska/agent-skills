@@ -133,7 +133,7 @@ What good looks like in one kind of work, which may go unused for a while.
 | [writing](skills/expertise/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
 | [database-design](skills/expertise/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
 | [ui-design](skills/expertise/ui-design/SKILL.md) | Design web, mobile, terminal and Apple-platform interfaces against product states, visual hierarchy and platform conventions |
-| [ui-review](skills/expertise/ui-review/SKILL.md) | Judge a running interface's UI and UX from captures of every state, measured against the screen it copies |
+| [ui-review](skills/expertise/ui-review/SKILL.md) | Judge a running interface's UI and UX from measured captures of every state, beside the reference screen it follows |
 | [design-review](skills/expertise/design-review/SKILL.md) | Judge code against design rules; trace a module's bugs to its design, cuts first |
 | [correctness-review](skills/expertise/correctness-review/SKILL.md) | Logic bugs, edge cases, broken contracts |
 | [maintainability-review](skills/expertise/maintainability-review/SKILL.md) | Conformance to local conventions, naming and readability |

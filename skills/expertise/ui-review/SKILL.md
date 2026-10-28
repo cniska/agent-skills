@@ -1,6 +1,6 @@
 ---
 name: ui-review
-description: Review a change to a running interface, its UI and its UX, from captures of every state it touches, measured and set beside the screen it copies, and say what is wrong and what it should be instead. Use on each commit that changes an interface, and before the owner sees any of its screens.
+description: Review a change to a running interface, its UI and its UX, from measured captures of every state it touches, set beside the reference screen it follows, and say what is wrong and what it should be instead. Use on each commit that changes an interface, and before the owner sees any of its screens.
 argument-hint: "<diff, captures, reference captures, verify skill and unreached list>"
 ---
 
@@ -27,7 +27,7 @@ Judge a running interface the way the owner does on looking at it: whether each 
 - **Measured, not only looked at.** Check alignment, equal margins, shared baselines and type size, and that nothing jumps: compare each element's position between the states, and between sibling screens that share a layout, from the frames in the capture's accessibility dump where the project's verify skill emits one, else from the capture. Measure contrast and target size against `ui-design`'s "Responsive and accessible behavior" and the figures the screen's platform reference sets. Blur the capture to check the primary element still dominates.
 - **UX as well as UI.** Walk the flow through each step, its exits and its undo, and check it against Nielsen's ten usability heuristics, naming the heuristic a finding breaks. Read the wording against the reference screen's and against `ui-design`'s "State and interaction". Check each element's prominence against how often it is used, as `ui-design`'s "Before designing" says.
 - **Tokens and design systems.** Judge the diff against `ui-design`'s "Visual contract", its "Preserve the product's established visual language" included, and, on a native Apple screen built from system components, its "System components, never hand-rolled styles". A literal repeated across screens, or a hand-set value equal to the default of the component it sets, is a finding. On a product with no system yet, each finding moves the screen toward one shared token set and component system.
-- **Taste stays the owner's.** A call no rule, reference, owner correction or cited source settles goes under Conflicts, never Findings. A departure from the reference screen or an established pattern is not taste: without evidence for it, it is a finding.
+- **Taste stays the owner's.** A call no rule, reference, owner correction or cited source settles goes under Conflicts, never Findings. A departure from the reference screen's layout, components or wording, or from an established pattern, is not taste: without evidence for it, it is a finding. A value that differs from the reference's because the screen takes a project token is no departure.
 
 ## Report
 

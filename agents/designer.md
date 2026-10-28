@@ -1,6 +1,6 @@
 ---
 name: designer
-description: Judge a change to a running interface the way the owner would on looking at it, its UI and its UX, as a fresh pair of eyes that did not make it — from captures of every state it touches, measured against the screen it copies, with the ui-review and ui-design skills preloaded, read-only. Use for every commit that changes an interface, beside design-review, and before the owner sees any of its screens.
+description: Judge a change to a running interface the way the owner would on looking at it, its UI and its UX, as a fresh pair of eyes that did not make it — from captures of every state it touches, beside the reference screen it follows, with the ui-review and ui-design skills preloaded, read-only. Use for every commit that changes an interface, beside design-review, and before the owner sees any of its screens.
 tools: Read, Grep, Glob, Skill, Bash
 skills:
   - cniska-skills:ui-review
