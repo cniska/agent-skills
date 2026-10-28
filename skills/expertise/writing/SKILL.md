@@ -9,7 +9,7 @@ Write naturally for the intended reader. Lead with the point, then give the deta
 
 ## Style
 
-- Use short to medium sentences and clear, direct language. Be concise without sounding clipped.
+- Use short sentences and clear, direct language, each point in the fewest words that keep its meaning, without sounding clipped.
 - Name the real problem early. Explain tradeoffs, constraints, reliability, and verification when they matter.
 - Prefer concrete mechanisms to abstractions. Treat claims as things to justify, not decorate.
 - Use contrast when it clarifies a real distinction. Cut lines that only restate the prose for rhythm: a repeated "Not X. Y." formula, two-beat slogans ("A prompt asks. A sandbox decides."), and wordplay that reuses a word as the hinge.
@@ -50,7 +50,7 @@ A README, a spec, an architecture doc, a decision record or an agent rules file 
 - It states what holds now, never how it got there; history lives in version control.
 - Each fact lives in one place; link to its owner rather than restating it.
 - No volatile numbers (sizes, line counts, latency), and no counting a collection that can grow.
-- Say what is, not what isn't. Plain words over metaphor such as spine, rail, seam, blast radius, theater or posture. Cut any sentence whose deletion loses nothing.
+- Say what is, not what isn't. Plain words over metaphor such as spine, rail, seam, blast radius, theater or posture. Cut restatement and filler: any word or sentence whose deletion loses nothing.
 - A page takes the structure, depth and voice of the pages beside it.
 - US spelling, unless the repo already uses another.
 

@@ -14,16 +14,27 @@ Two modes, inferred from the request:
 
 ## Conventions this skill enforces
 
-- Apply `writing`'s rules for documents that last: each fact in one place, within the page as across docs; current state only; no volatile numbers; each page in the structure, depth and voice of its neighbors. The formatting conventions and the template below hold only where the repo's docs set none of their own.
+- Apply `writing`'s rules for documents that last: each fact once, in the fewest words that keep its meaning, within the page as across docs; current state only; no volatile numbers; each page in the structure, depth and voice of its neighbors. The formatting conventions and the template below hold only where the repo's docs set none of their own; the shape rules hold in every repo, over a neighbor that breaks them.
 - The repo's own doc map decides which doc owns a fact, wherever the repo keeps it: a docs index, the spec or the agent rules file. The fact lives in that doc, and every other doc links to it. Set no split between the README, the docs and the spec of your own; where the repo has no map, the doc that already holds the fact owns it.
 - One H1 per doc. H1 is the topic in title case. H2+ are sentence case.
 - First sentence is the summary. One line. The reader knows what this doc covers without scrolling.
 - A chart follows [diagrams](references/diagrams.md): when it beats prose or a table, which Mermaid chart fits the question, and the check that renders it.
-- Tables are for structured data — column definitions, severity matrices, index lists, test tiers. Not prose.
 - Bullets start with a bold label or a capital letter.
 - Business terminology wins over technical terms when they differ.
 - No marketing language. State what it does.
 - No speculative future work. If it's not shipped or actively being built, it doesn't belong.
+
+## Shape
+
+A reader scans a doc before reading it, so text walls and long bullets hide its facts.
+
+- One heading per subject.
+- A paragraph holds about four sentences at most.
+- A list holds two items or more; a single item is a sentence.
+- A bullet runs about two lines at most; a longer one becomes a paragraph or its own subsection.
+- A procedural sentence holds one instruction in about 20 words at most; a descriptive one, about 25 (ASD-STE100).
+- One term per meaning, and one meaning per term.
+- A table where text maps one set to another, such as options to defaults or commands to effects; never a table for prose.
 
 ## Template
 
@@ -78,7 +89,7 @@ Omit sections that don't apply. Cross-reference related docs where they own adja
 
 - `writing` — the prose rules every lasting doc follows: one place per fact, current state only, no volatile numbers
 - `principles` — verify at the source, for every claim a doc makes, and no drift
-- `doc-review` — check existing docs for drift after code changes
+- `doc-review` — check docs for drift, shape and verbosity
 - `spec` — requirements that docs reference
 - `agents-md` — project rules that docs must follow
 
