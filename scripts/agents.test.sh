@@ -41,7 +41,7 @@ assert "the agents are designer, researcher, reviewer and worker" "$(find "$AGEN
 assert "worker preloads task and principles, nothing more" "$(frontmatter_list "$AGENTS/worker.md" skills | tr '\n' ' ')" "cniska-skills:task cniska-skills:principles "
 assert "worker inherits every MCP tool, so its frontmatter has no tools line" "$(sed -n '2,/^---$/p' "$AGENTS/worker.md" | grep -c '^tools:')" 0
 assert "worker drops only the built-in tools no route calls, keeping ToolSearch and every MCP tool" "$(frontmatter_value "$AGENTS/worker.md" disallowedTools)" "Artifact, ArtifactComments, ArtifactData, CronCreate, CronDelete, CronList, DesignSync, EnterWorktree, ExitWorktree, ListMcpResourcesTool, LSP, NotebookEdit, PushNotification, ReadMcpResourceDirTool, ReadMcpResourceTool, RemoteTrigger, ReportFindings, ScheduleWakeup, ShareOnboardingGuide, TodoWrite"
-assert "reviewer preloads design-review and principles" "$(frontmatter_list "$AGENTS/reviewer.md" skills | tr '\n' ' ')" "cniska-skills:design-review cniska-skills:principles "
+assert "reviewer preloads principles, nothing more" "$(frontmatter_list "$AGENTS/reviewer.md" skills | tr '\n' ' ')" "cniska-skills:principles "
 assert "reviewer reads files and loads the review skills, nothing more" "$(frontmatter_value "$AGENTS/reviewer.md" tools)" "Read, Grep, Glob, Skill"
 assert "researcher preloads second-opinion, search-sessions and principles" "$(frontmatter_list "$AGENTS/researcher.md" skills | tr '\n' ' ')" "cniska-skills:second-opinion cniska-skills:search-sessions cniska-skills:principles "
 assert "designer preloads ui-review, ui-design, search-sessions and principles" "$(frontmatter_list "$AGENTS/designer.md" skills | tr '\n' ' ')" "cniska-skills:ui-review cniska-skills:ui-design cniska-skills:search-sessions cniska-skills:principles "
@@ -56,6 +56,9 @@ for agent in "$AGENTS"/*.md; do
     assert "$name preloads $skill, which exists" "$(compgen -G "$SKILLS/*/${skill#cniska-skills:}/SKILL.md" >/dev/null && echo yes || echo no)" yes
   done < <(frontmatter_list "$agent" skills)
   assert "$name preloads at least one skill" "$([ "$count" -gt 0 ] && echo yes || echo no)" yes
+  while IFS= read -r skill; do
+    assert "$name names $skill, which exists" "$(compgen -G "$SKILLS/*/${skill#cniska-skills:}/SKILL.md" >/dev/null && echo yes || echo no)" yes
+  done < <(grep -o '`cniska-skills:[a-z-]*`' "$agent" | tr -d '`' | LC_ALL=C sort -u)
 done
 
 printf '%d passed, %d failed\n' "$pass" "$fail"

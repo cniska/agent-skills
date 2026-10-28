@@ -1,9 +1,10 @@
 # The reviewer
 
-A fresh agent that did not write the work runs [design-review](../skills/expertise/design-review/SKILL.md) on each commit other than a coordinator's brief or plan, and on the design wherever its shape is open; before a branch lands, another fresh one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built.
+A fresh agent that did not write the work judges each commit and each design whose shape is open. Before a branch lands, another fresh one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built.
 
 - **On a brief or plan the coordinator writes for a worker it judges what to build**: the outcome, the scope, the decisions it settles, whether a worker can build from it, and any claim false at its source. How the work is built waits for the worker's own reviews, so its report leaves that out.
-- **On each other commit it judges the way I would in review**, against my design rules: architecture, patterns and code smells.
+- **On code it judges the way I would in review**, against my design rules in [design-review](../skills/expertise/design-review/SKILL.md): architecture, patterns and code smells.
+- **On docs it judges prose for a reader** in [doc-review](../skills/expertise/doc-review/SKILL.md): drift, shape and verbosity. The [agent](../agents/reviewer.md) tells docs from code by file path.
 - **On a whole branch it checks correctness, tests and security**, and each other area the diff touches, as `review` says.
 - **For each problem it states what is wrong and what it should be instead**, so its findings steer the work toward the shape I would have given it.
 - **On how code is built, its verdict wins** over other reviewers.
@@ -11,7 +12,7 @@ A fresh agent that did not write the work runs [design-review](../skills/experti
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts.
 
-It judges the code, not the screens: a commit that changes an interface also waits for a fresh [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
+It judges the diff, not the screens: a commit that changes an interface also waits for a fresh [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
 
 ## Findings
 
