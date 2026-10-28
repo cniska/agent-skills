@@ -11,7 +11,7 @@ A report tells the owner what is in flight, in the order they act on it. Build i
 
 ## Shape
 
-1. **Waiting on the owner**: decisions and tasks, the most blocking first, each answerable in a line.
+1. **Waiting on the owner**: decisions and tasks, the most blocking first, each answerable in a line; an unlanded branch only once rule 3's recheck passed it.
 2. **Running**: each agent, what it is doing, and its last sign of progress.
 3. **Landed since the last report**: per repo, by commit.
 4. **At risk**: work not committed, not pushed or not reviewed, and agents gone quiet. Take this from git, not the ledger; a ledger claim git contradicts is itself a finding, and so is each owner decision the ledger or its shared file records that needs work but has no task, queued or running, and no work for it in its repo, landed or on a branch.
