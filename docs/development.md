@@ -34,13 +34,12 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 
 - `mise run validate` runs [`scripts/validate.ts`](../scripts/validate.ts).
 - `mise run test` runs the bash and TypeScript tests.
-- `mise run lint` runs Biome, `tsc`, knip (unused files, exports and dependencies) and [`scripts/lint-shell.sh`](../scripts/lint-shell.sh), the pinned `shellcheck` at warning severity over every tracked shell file, found by its `.sh` extension or its shebang.
+- `mise run lint` runs `oxfmt --check` and oxlint, `tsc`, knip (unused files, exports and dependencies) and [`scripts/lint-shell.sh`](../scripts/lint-shell.sh), the pinned `shellcheck` at warning severity over every tracked shell file, found by its `.sh` extension or its shebang.
 - `mise run test:evals` and `mise run test:triggers` are the eval checks that need no model, which [`evals/README.md`](../evals/README.md) describes.
 - [`ci.yml`](../.github/workflows/ci.yml) runs `validate`, `lint`, `test`, `test:evals` and `test:triggers` on pull requests and pushes to `main`.
 - The `commit-msg` hook refuses a commit subject that breaks the rule.
 - [`commits.yml`](../.github/workflows/commits.yml) judges every pushed commit's subject.
 - The `pre-commit` hook runs the repo's `format` script, stages what it changes in files the commit stages whole, and refuses a partly staged file it would change.
-- [`format.yml`](../.github/workflows/format.yml) refuses unformatted files in CI.
 - The `pre-commit` hook refuses comments in a TypeScript or shell file a commit changes, other than one a tool reads and acts on, such as a shebang.
 - [`no-comments.yml`](../.github/workflows/no-comments.yml) refuses the same comments in CI.
 - The `pre-push` hook refuses a push carrying a bad subject, a leftover `fixup!`, `squash!` or `amend!` commit, or an added comment, through `.githooks/judge-push`, the script [`commits.yml`](../.github/workflows/commits.yml) and [`no-comments.yml`](../.github/workflows/no-comments.yml) run in CI.

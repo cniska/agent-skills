@@ -5,17 +5,19 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "format": "bunx biome check --write lib evals/lib scripts",
-    "lint": "bunx biome check --error-on-warnings lib evals/lib scripts",
+    "format": "oxfmt lib evals/lib scripts",
+    "lint": "oxfmt --check lib evals/lib scripts && oxlint --type-aware --deny-warnings lib evals/lib scripts",
     "typecheck": "bunx tsc --noEmit",
     "knip": "bunx --bun knip",
     "test": "bun test lib evals/lib scripts",
     "prepare": "! git rev-parse --git-dir >/dev/null 2>&1 || git config core.hooksPath .githooks"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.14",
     "@types/bun": "^1.4.2",
     "knip": "6.39.0",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
     "typescript": "^7.0.2"
   },
   "dependencies": {

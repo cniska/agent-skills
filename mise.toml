@@ -17,7 +17,7 @@ description = "Run the bash and TypeScript tests (offline, no API)"
 run = "bun run test && ./scripts/test-shell.sh"
 
 [tasks.lint]
-description = "Lint, typecheck and check the TypeScript for unused code, then shellcheck every tracked shell file at warning severity"
+description = "Check formatting, lint, typecheck and check the TypeScript for unused code, then shellcheck every tracked shell file at warning severity"
 run = "bun run lint && bun run typecheck && bun run knip && ./scripts/lint-shell.sh"
 
 [tasks.bootstrap]

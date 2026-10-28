@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "oxc", "import"],
+  "categories": {
+    "correctness": "error"
+  },
+  "ignorePatterns": [".githooks/**"],
+  "rules": {
+    "typescript/restrict-template-expressions": "off",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/consistent-type-imports": "error",
+    "typescript/no-floating-promises": "error",
+    "typescript/switch-exhaustiveness-check": "error",
+    "typescript/no-unsafe-type-assertion": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": ["log"]
+      }
+    ],
+    "oxc/no-barrel-file": [
+      "error",
+      {
+        "threshold": 0
+      }
+    ],
+    "typescript/no-namespace": "error",
+    "typescript/parameter-properties": "error"
+  }
+}
