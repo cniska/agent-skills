@@ -95,7 +95,6 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 
 ## CI
 
-- A GitHub Actions step passes inputs and expressions to its script through `env:`, never as `${{ … }}` inside `run:`, where they are pasted into the script as code.
 - A script that runs both in CI and locally guards the CI-only files: `>> "${GITHUB_STEP_SUMMARY:-/dev/null}"`, `[ -n "${GITHUB_OUTPUT:-}" ]`.
 
 ## Testing
@@ -126,6 +125,5 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - A script that mutates before it has checked its inputs, or that fails on a second run
 - A fixed `/tmp/...` path, or scratch space with no cleanup trap
 - A hand-written watchdog where `bounded` does the job, or a background child left holding the caller's stdout
-- `${{ … }}` inside a workflow's `run:` block
 - A download piped into a shell, or `curl` without `-f`
 - Logic that outgrew a screenful and wants a real language

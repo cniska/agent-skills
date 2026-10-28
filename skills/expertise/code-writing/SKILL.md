@@ -1,6 +1,6 @@
 ---
 name: code-writing
-description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift or shell, starting a project, or choosing a library.
+description: Write code whose types tell the truth — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift, shell or a CI workflow, starting a project, or choosing a library.
 ---
 
 # Code writing
@@ -75,6 +75,15 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
 - A machine-readable switch (`--json`) prints one fixed shape, and its errors still go to stderr.
 - An unexpected error prints its message, not a stack trace.
 
+## CI workflows
+
+A private repository pays for every Actions minute its workflows use.
+
+- In a private repository, a workflow runs on push, pull request or a schedule only a check that no local hook already runs.
+- A runner billed at a multiple of the Linux rate, such as macOS or Windows, never runs on push or pull request: it runs on dispatch, such as before a release, on the release itself, or on a schedule.
+- A workflow added to a private repository names, in the brief for its commit's review, the minutes it costs per push.
+- A step passes inputs and expressions to its script through `env:`, never as `${{ … }}` inside `run:`, where they are pasted into the script as code.
+
 ## Testing
 
 - **Crucial logic is test-first.** Parsers, auth, signing and fail-closed paths get their failing test before the code.
@@ -117,6 +126,9 @@ Run the repo's declared tasks, or the reference's commands where it declares non
 - A refusal test that asserts the error but not that nothing happened
 - A test-only path switched on by an environment variable
 - An error response carrying a path, a stack trace or an upstream message
+- A private repository's workflow running on push, pull request or a schedule a check a local hook already runs
+- A macOS or Windows runner on push or pull request
+- `${{ … }}` inside a workflow's `run:` block
 - A gate reported as passing that never ran
 - A new dependency that duplicates something already in the tree
 - An API written from memory that the installed version changed
