@@ -95,7 +95,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, and `read_report` returns one stored report by its agent id, or a top-level worker's by its session id.
 
 - **Checked before the call:** the plugin's `PreToolUse` hook checks each call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes.
-- **Once per agent:** a second report call is refused. A reviewer, designer, researcher or worker that hands back or stops with no report is sent back once.
+- **Once per hand-back:** a second report call before the hand-back is refused. A reviewer, designer, researcher or worker that ends with no report since its last hand-back is sent back once; handing back a report resets that, so a resumed agent reports again and its report replaces the old. One that still ends without reporting leaves no report to read.
 - **Read back:** the caller reads the report through `read_report`, never from the agent's closing message.
 
 ## Commit gate

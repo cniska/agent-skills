@@ -12,7 +12,7 @@ source "$HERE/review-record.sh"
 readonly SCHEMAS="$HERE/../mcp/report-schemas.json"
 readonly TOOL_PREFIX="mcp__plugin_cniska-skills_report__"
 readonly CALLERS='{"verdict": ["cniska-skills:reviewer", "cniska-skills:designer"], "research": ["cniska-skills:researcher"], "task_report": ["cniska-skills:worker"]}'
-readonly ALREADY_REPORTED_REASON="Your report is already stored, and a report is made once. Hand back now with a one-line message."
+readonly ALREADY_REPORTED_REASON="Your report is already stored, and a report is made once per hand-back. Hand back now with a one-line message."
 
 readonly PAYLOAD_VIOLATIONS='
   include "report-schema";
@@ -77,7 +77,7 @@ store() {
   if ! {
     mkdir -p "$(dirname "$file")" &&
       jq -c --arg tool "$tool" --argjson gate "$gate" \
-        '{tool: $tool, agent_type: (.agent_type // null), agent_id: (.agent_id // null), session_id: (.session_id // null), payload: .tool_input, gate: $gate}' \
+        '{tool: $tool, agent_type: (.agent_type // null), agent_id: (.agent_id // null), session_id: (.session_id // null), payload: .tool_input, gate: $gate, handed_back: false}' \
         <<<"$input" >"$file.tmp" &&
       mv "$file.tmp" "$file"
   }; then
@@ -96,6 +96,18 @@ refuse() {
   pre_tool_allow
 }
 
+awaits_handback() {
+  [ -f "$1" ] && ! jq -e '.handed_back' "$1" >/dev/null 2>&1
+}
+
+hand_back() {
+  local input="$1" file="$2"
+  if ! { jq -c '.handed_back = true' "$file" >"$file.tmp" && mv "$file.tmp" "$file"; }; then
+    die "the report at $file cannot be marked as handed back"
+  fi
+  rm -f "$(denials_file "$(reporter_id "$input")")" || die "the bound on denials cannot be reset for $file"
+}
+
 is_report_tool() {
   jq -e --arg tool "$1" 'has($tool)' <<<"$CALLERS" >/dev/null
 }
@@ -104,7 +116,7 @@ on_report_tool() {
   local input="$1" tool="$2" file violations agent_type
   is_report_tool "$tool" || return 0
   file="$(stored_report_file "$input")"
-  if [ -f "$file" ]; then
+  if awaits_handback "$file"; then
     pre_tool_deny "$ALREADY_REPORTED_REASON"
     gate_line "$input" deny already_reported
     return
@@ -162,11 +174,15 @@ on_end() {
   [ -n "$tool" ] || return 0
   ! left_to_handback "$input" || return 0
   file="$(stored_report_file "$input")"
-  [ ! -f "$file" ] || return 0
+  if awaits_handback "$file"; then
+    hand_back "$input" "$file"
+    return 0
+  fi
   if deny_once "$input" missing_report "Call $TOOL_PREFIX$tool with your report before you end. Your caller reads the report from that call, not from your final message."; then
     gate_line "$input" deny missing_report
     return
   fi
+  rm -f "$file" || die "the earlier hand-back's report at $file cannot be removed"
   gate_line "$input" allow missing_report
 }
 

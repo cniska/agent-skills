@@ -86,10 +86,34 @@ assert "the verdict is stored with who made it" "$(stored "$agent" | jq -c '[.to
 assert "the stored payload is the call's input" "$(stored "$agent" | jq -c .payload)" "$(jq -c . <<<"$VERDICT")"
 out="$(call "$agent" "$DESIGNER" verdict "$VERDICT")"
 assert "a second report is refused" "$(decision "$out")" deny
-assert "the refusal says to hand back" "$(reason "$out")" "Your report is already stored, and a report is made once. Hand back now with a one-line message."
+assert "the refusal says to hand back" "$(reason "$out")" "Your report is already stored, and a report is made once per hand-back. Hand back now with a one-line message."
 assert "an already_reported refusal is logged" "$(last_gate)" '["verdict","deny","already_reported"]'
 assert "a third report is refused too, with no bound" "$(decision "$(call "$agent" "$DESIGNER" verdict "$VERDICT")")" deny
 assert "the first report stays as stored" "$(stored "$agent" | jq -c .payload)" "$(jq -c . <<<"$VERDICT")"
+assert "the stored report awaits its hand-back" "$(stored "$agent" | jq -c .handed_back)" false
+
+resumed="$(fresh_agent)"
+call "$resumed" "$WORKER" task_report "$(jq -c '.outcome = "plan_ready" | .plan = "/tmp/plan.md"' <<<"$TASK_REPORT")" >/dev/null
+assert "a worker's hand-back after its report goes through" "$(handback "$resumed" "$WORKER")" ""
+assert "that hand-back marks the report handed back" "$(stored "$resumed" | jq -c .handed_back)" true
+LANDED_REPORT="$(jq -c '.outcome = "landed" | .landed = {repo: "/repo", branch: "main", sha: "0123456789abcdef0123456789abcdef01234567", ci_runs: []}' <<<"$TASK_REPORT")"
+assert "a resumed worker's next report is allowed" "$(decision "$(call "$resumed" "$WORKER" task_report "$LANDED_REPORT")")" allow
+assert "the next report replaces the handed-back one" "$(stored "$resumed" | jq -c '[.payload.outcome, .handed_back]')" '["landed",false]'
+call "$resumed" "$WORKER" task_report "$LANDED_REPORT" >/dev/null
+assert "a second report before that hand-back is refused" "$(last_gate)" '["verdict","deny","already_reported"]'
+silent="$(fresh_agent)"
+call "$silent" "$WORKER" task_report "$TASK_REPORT" >/dev/null
+handback "$silent" "$WORKER" >/dev/null
+assert "a resumed worker handing back with no new report is sent back" "$(decision "$(handback "$silent" "$WORKER")")" deny
+assert "that refusal is missing_report" "$(last_gate)" '["verdict","deny","missing_report"]'
+assert "past the bound, that resumed worker's end goes through" "$(handback "$silent" "$WORKER")" ""
+assert "and its earlier hand-back's report is no longer stored" "$(stored "$silent")" ""
+assert "resumed again with its bound spent and no report, it ends without being sent back" "$(handback "$silent" "$WORKER")" ""
+twice_sent="$(fresh_agent)"
+handback "$twice_sent" "$WORKER" >/dev/null
+call "$twice_sent" "$WORKER" task_report "$TASK_REPORT" >/dev/null
+handback "$twice_sent" "$WORKER" >/dev/null
+assert "a worker sent back in an earlier run is sent back again after its resume" "$(decision "$(handback "$twice_sent" "$WORKER")")" deny
 
 read_back() {
   jq -cn --arg id "$1" '{jsonrpc: "2.0", id: 1, method: "tools/call", params: {name: "read_report", arguments: {id: $id}}}' |

@@ -40,8 +40,8 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `commit` | `deny` | `gate_error` | the gate itself failed, so it refused |
 | `verdict` | `deny` or `allow` | `payload_invalid` | the report call's input breaks its tool's schema in `mcp/report-schemas.json`, or a field is missing or given against another field's value, such as `drop_reason` without `sort` `drop`; or a judgment gives a `reason` with `verdict` `accept`, or one its agent may not give: a reviewer may give only `no_diff`, a designer also `verify_gap`, `run_blocked` or `run_short` |
 | `verdict` | `deny` | `wrong_agent` | the report tool is not its caller's: `verdict` is the reviewer's and the designer's, `research` the researcher's, `task_report` the worker's; denied every time, and stores nothing |
-| `verdict` | `deny` | `already_reported` | the agent calls a report tool after its report is stored; denied every time |
-| `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops before its report is stored |
+| `verdict` | `deny` | `already_reported` | the agent calls a report tool while its stored report awaits its hand-back; denied every time |
+| `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops with no report stored since its last hand-back |
 | `verdict` | `deny` or `allow` | `diff_not_read` | a reviewer lists under `diffs` a file it did not read with `Read` |
 | `verdict` | `deny` or `allow` | `repo_not_found` | a judgment's `repo` is not a repository |
 | `verdict` | `deny` or `allow` | `repo_repeated` | two judgments name the same repository |
@@ -51,8 +51,9 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `allow` | `accept_covers_nothing` | a note: a judgment accepts while the listed diffs name at least one path and none has its new side in that checkout's index or working tree, and no other worktree holds them, so the diff no longer matches the change and the accept is not recorded |
 
 - **When:** a `verdict` gate judges a report at its tool's `PreToolUse`, while the agent still runs to read a deny. It judges an end without a report at `SubagentHandback`, `SubagentStop` or a top-level worker's `Stop`.
-- **Bound:** each code but `wrong_agent` and `already_reported` is denied once per agent id, or per session id at the top level. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
-- **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless its report is already stored. It is also kept against the reviewer's agent id, so a later accept from that agent for that repository is `same_reviewer`.
+- **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
+- **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's agent id, so a later accept from that agent for that repository is `same_reviewer`.
+- **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back` and resets the bound, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current.
 - **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, returns_on_commit}` for the caller to read. `returns_on_commit` counts the returns from distinct reviewers on one `HEAD` of `repo` whose read diffs share a path.
 
 ### `verdict`
