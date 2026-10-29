@@ -102,11 +102,13 @@ describe("regex", () => {
   });
 
   test("a pattern that does not compile is refused at load", () => {
-    expect(refusal({ type: "regex", pattern: "(" })).toBeInstanceOf(CodedError);
+    const error = refusal({ type: "regex", pattern: "(", target: "trace" });
+    expect(error instanceof CodedError && error.message).toContain('pattern "("');
   });
 
   test("an unknown match is refused at load", () => {
-    expect(refusal({ type: "regex", pattern: "x", match: "count:two" })).toBeInstanceOf(CodedError);
+    const error = refusal({ type: "regex", pattern: "x", target: "trace", match: "count:two" });
+    expect(error instanceof CodedError && error.message).toContain("at match");
   });
 });
 
