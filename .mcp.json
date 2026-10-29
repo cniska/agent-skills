@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "report": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/mcp/report-server.sh",
+      "env": {
+        "CLAUDE_PLUGIN_DATA": "${CLAUDE_PLUGIN_DATA}"
+      }
+    }
+  }
+}

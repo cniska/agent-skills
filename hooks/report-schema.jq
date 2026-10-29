@@ -71,3 +71,10 @@ def unsupported_keywords($root):
     (select(has("items") and (.items | type) != "object") | "items"),
     (select(has("pattern") and (.pattern | contains("\\") or (.[:-1] | contains("$")))) | "pattern");
   [$root["$defs"][], ($root.tools[] | .inputSchema) | nodes | unsupported] | unique;
+
+def inline_refs($root):
+  if type == "object" and has("$ref") then
+    (resolve($root) | inline_refs($root)) + (if has("description") then {description} else {} end)
+  elif type == "object" then map_values(inline_refs($root))
+  elif type == "array" then map(inline_refs($root))
+  else . end;
