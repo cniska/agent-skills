@@ -79,16 +79,16 @@ stored() { cat "$CLAUDE_PLUGIN_DATA/reports/$1.json" 2>/dev/null; }
 last_gate() { jq -sc '[.[] | select(.event == "gate")] | last | [.gate, .decision, .reason]' "$LOG"; }
 
 agent="$(fresh_agent)"
-out="$(call "$agent" "$REVIEWER" verdict "$VERDICT")"
-assert "a reviewer's well-formed verdict is allowed without a prompt" "$(decision "$out")" allow
+out="$(call "$agent" "$DESIGNER" verdict "$VERDICT")"
+assert "a designer's well-formed verdict is allowed without a prompt" "$(decision "$out")" allow
 assert "the verdict is stored with who made it" "$(stored "$agent" | jq -c '[.tool, .agent_type, .agent_id, .session_id, .gate]')" \
-  '["verdict","cniska-skills:reviewer","'"$agent"'","parent1",{"recorded":true}]'
+  '["verdict","cniska-skills:designer","'"$agent"'","parent1",{"recorded":true}]'
 assert "the stored payload is the call's input" "$(stored "$agent" | jq -c .payload)" "$(jq -c . <<<"$VERDICT")"
-out="$(call "$agent" "$REVIEWER" verdict "$VERDICT")"
+out="$(call "$agent" "$DESIGNER" verdict "$VERDICT")"
 assert "a second report is refused" "$(decision "$out")" deny
 assert "the refusal says to hand back" "$(reason "$out")" "Your report is already stored, and a report is made once. Hand back now with a one-line message."
-assert "an already_reported refusal is logged" "$(last_gate)" '["report","deny","already_reported"]'
-assert "a third report is refused too, with no bound" "$(decision "$(call "$agent" "$REVIEWER" verdict "$VERDICT")")" deny
+assert "an already_reported refusal is logged" "$(last_gate)" '["verdict","deny","already_reported"]'
+assert "a third report is refused too, with no bound" "$(decision "$(call "$agent" "$DESIGNER" verdict "$VERDICT")")" deny
 assert "the first report stays as stored" "$(stored "$agent" | jq -c .payload)" "$(jq -c . <<<"$VERDICT")"
 
 read_back() {
@@ -97,8 +97,6 @@ read_back() {
 }
 assert "the report server reads back what the hook stored" "$(read_back "$agent")" "$(stored "$agent" | jq -c .)"
 
-agent="$(fresh_agent)"
-assert "a designer's verdict is allowed" "$(decision "$(call "$agent" "$DESIGNER" verdict "$VERDICT")")" allow
 agent="$(fresh_agent)"
 assert "a researcher's research is allowed" "$(decision "$(call "$agent" "$RESEARCHER" research "$RESEARCH")")" allow
 assert "the research is stored" "$(stored "$agent" | jq -r .tool)" research
@@ -116,11 +114,11 @@ assert "the refusal names every violation and the fix" "$(reason "$out")" \
 /judgments must hold at least 1 item
 Call the tool again with each of these fixed."
 assert "a refused payload is not stored" "$(stored "$agent")" ""
-assert "a payload_invalid refusal is logged" "$(last_gate)" '["report","deny","payload_invalid"]'
+assert "a payload_invalid refusal is logged" "$(last_gate)" '["verdict","deny","payload_invalid"]'
 out="$(call "$agent" "$REVIEWER" verdict '{"diffs": "/tmp/x.diff", "judgments": []}')"
 assert "past the bound, the same refusal is allowed" "$(decision "$out")" allow
 assert "past the bound, the payload is stored as not recorded" "$(stored "$agent" | jq -c .gate)" '{"recorded":false,"code":"payload_invalid"}'
-assert "the allow past the bound is logged" "$(last_gate)" '["report","allow","payload_invalid"]'
+assert "the allow past the bound is logged" "$(last_gate)" '["verdict","allow","payload_invalid"]'
 
 agent="$(fresh_agent)"
 out="$(call "$agent" "$RESEARCHER" verdict "$VERDICT")"
@@ -128,13 +126,19 @@ assert "a verdict from a researcher is refused" "$(decision "$out")" deny
 assert "the refusal names who may call the tool" "$(reason "$out")" \
   "Only cniska-skills:reviewer or cniska-skills:designer report through verdict; this session is cniska-skills:researcher. Hand back as your own instructions say."
 assert "a wrong_agent refusal stores nothing" "$(stored "$agent")" ""
-assert "a wrong_agent refusal is logged" "$(last_gate)" '["report","deny","wrong_agent"]'
+assert "a wrong_agent refusal is logged" "$(last_gate)" '["verdict","deny","wrong_agent"]'
 out="$(call "" "" verdict "$VERDICT")"
 assert "a verdict from the parent session is refused" "$(reason "$out")" \
   "Only cniska-skills:reviewer or cniska-skills:designer report through verdict; this session is not a cniska-skills agent. Hand back as your own instructions say."
 assert "a task report from a reviewer is refused" "$(decision "$(call "$(fresh_agent)" "$REVIEWER" task_report "$TASK_REPORT")")" deny
-assert "the shape is checked before the caller" \
-  "$(reason "$(call "$(fresh_agent)" "$RESEARCHER" verdict '{}')" | head -n 1)" "The report does not match the verdict tool's schema:"
+assert "the caller is checked before the shape" \
+  "$(reason "$(call "$(fresh_agent)" "$RESEARCHER" verdict '{}')")" \
+  "Only cniska-skills:reviewer or cniska-skills:designer report through verdict; this session is cniska-skills:researcher. Hand back as your own instructions say."
+strayed="$(fresh_agent)"
+call "$strayed" "$DESIGNER" research "$RESEARCH" >/dev/null
+assert "a second call with the wrong tool is still refused" "$(decision "$(call "$strayed" "$DESIGNER" research "$RESEARCH")")" deny
+assert "calls with the wrong tool store nothing" "$(stored "$strayed")" ""
+assert "after calls with the wrong tool, the agent's own report is allowed" "$(decision "$(call "$strayed" "$DESIGNER" verdict "$VERDICT")")" allow
 
 pairing() { reason "$(call "$(fresh_agent)" "$1" "$2" "$(jq -c "$3" <<<"$4")")" | sed -n 2p; }
 assert "a drop needs its reason" "$(pairing "$RESEARCHER" research '.sort = "drop"' "$RESEARCH")" '/drop_reason is required when /sort is "drop"'
@@ -146,18 +150,25 @@ assert "a landing needs a landed outcome" \
   "$(pairing "$WORKER" task_report '.landed = {repo: "/repo", branch: "main", sha: "0123456789abcdef0123456789abcdef01234567", ci_runs: []}' "$TASK_REPORT")" \
   '/landed is given only when /outcome is "landed"'
 assert "a ready plan needs its path" "$(pairing "$WORKER" task_report '.outcome = "plan_ready"' "$TASK_REPORT")" '/plan is required when /outcome is "plan_ready"'
+assert "a reason on an accept is refused" \
+  "$(pairing "$DESIGNER" verdict '.judgments[0] |= (.verdict = "accept" | .findings = [] | .reason = "run_short")' "$VERDICT")" \
+  '/judgments/0/reason is given only when /judgments/0/verdict is "return"'
+assert "a designer's no_diff return is allowed" \
+  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(jq -c '.judgments[0].reason = "no_diff"' <<<"$VERDICT")")")" allow
+assert "a designer's run reason on a return is allowed" \
+  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(jq -c '.judgments[0].reason = "verify_gap"' <<<"$VERDICT")")")" allow
 
 agent="$(fresh_agent)"
 out="$(handback "$agent" "$REVIEWER")"
 assert "a reviewer handing back with no report is refused" "$(decision "$out")" deny
 assert "the refusal names the tool to call" "$(reason "$out")" \
   "Call ${PREFIX}verdict with your report before you end. Your caller reads the report from that call, not from your final message."
-assert "a missing_report refusal is logged" "$(last_gate)" '["report","deny","missing_report"]'
+assert "a missing_report refusal is logged" "$(last_gate)" '["verdict","deny","missing_report"]'
 assert "past the bound, the hand-back goes through" "$(handback "$agent" "$REVIEWER")" ""
-assert "the allow past the bound is logged" "$(last_gate)" '["report","allow","missing_report"]'
+assert "the allow past the bound is logged" "$(last_gate)" '["verdict","allow","missing_report"]'
 agent="$(fresh_agent)"
-call "$agent" "$REVIEWER" verdict "$VERDICT" >/dev/null
-assert "a hand-back after a report goes through" "$(handback "$agent" "$REVIEWER")" ""
+call "$agent" "$DESIGNER" verdict "$VERDICT" >/dev/null
+assert "a hand-back after a report goes through" "$(handback "$agent" "$DESIGNER")" ""
 assert "a worker's refusal names task_report" "$(reason "$(handback "$(fresh_agent)" "$WORKER")")" \
   "Call ${PREFIX}task_report with your report before you end. Your caller reads the report from that call, not from your final message."
 assert "an agent with no report tool hands back freely" "$(handback "$(fresh_agent)" general-purpose)" ""
@@ -170,6 +181,21 @@ assert "the block names research" "$(reason "$out")" \
 handed="$scratch/handed.jsonl"
 jq -cn '{type: "assistant", message: {content: [{type: "tool_use", name: "SubagentHandback", input: {message: "Done."}}]}}' >"$handed"
 assert "a stop after a hand-back the hook already judged is left alone" "$(subagent_stop "$(fresh_agent)" "$RESEARCHER" "$handed")" ""
+
+late="$scratch/late.jsonl"
+readonly HANDBACK_LINE='{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "SubagentHandback", "input": {"message": "Done."}}]}}'
+readonly TEXT_LINE='{"type": "assistant", "message": {"content": [{"type": "text", "text": "Looking again."}]}}'
+stop_late() {
+  (sleep 0.5 && printf '%s\n' "$1" >>"$late") &
+  subagent_stop "$(fresh_agent)" "$RESEARCHER" "$late"
+  wait
+}
+printf '%s\n' '{"type": "assistant", "message": {"content": [{"type": "tool_use", "name": "Read", "input": {"file_path": "/tmp/a"}}]}}' >"$late"
+assert "a stop whose hand-back reaches the transcript late is left to the hand-back hook" "$(stop_late "$HANDBACK_LINE")" ""
+printf '%s\n%s\n' "$HANDBACK_LINE" '{"type": "attachment", "attachment": {"type": "hook_blocking_error"}}' >"$late"
+assert "a text end after a blocked hand-back is judged, not left to the earlier hand-back" "$(decision "$(stop_late "$TEXT_LINE")")" block
+printf '%s\n%s\n' "$HANDBACK_LINE" '{"type": "user", "message": {"content": "Look again."}}' >"$late"
+assert "a text end after a resume is judged, not left to the earlier hand-back" "$(decision "$(stop_late "$TEXT_LINE")")" block
 
 out="$(session_stop session7 "$WORKER")"
 assert "a top-level worker stopping with no report is blocked" "$(decision "$out")" block

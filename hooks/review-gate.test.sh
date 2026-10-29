@@ -12,14 +12,20 @@ assert "a commit word in another git command passes" "$(gate 'git log --grep com
 assert "a commit through an absolute git path is gated" "$(gate '/usr/bin/git -C . commit -m x')" "$(denied 'app.py (working tree)')"
 assert "a commit after cd and && is gated" "$(gate "cd $repo && git commit -m x")" "$(denied 'app.py (working tree)')"
 
-assert "a verdict with no Repo line keeps the reviewer running" "$(record_handback $'All good.\nVerdict: accept')" "$(repo_refusal)"
-assert "an accept with no Repo line approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-assert "a Repo line that is not a repository keeps the reviewer running" "$(record_handback "$(report "$scratch/nowhere" accept)")" "$(repo_refusal "'$scratch/nowhere' is not a repository.")"
-assert "a relative Repo path keeps the reviewer running" "$(record_handback "$(report repo accept)")" "$(repo_refusal "'repo' is not an absolute path.")"
-assert "a missing Repo line on the second hand-back lets the reviewer hand back" "$(record_handback $'All good.\nVerdict: accept' again)" ""
-assert "a reviewer stopped without a Repo line approved nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+shape_refusal() { refused "The report does not match the verdict tool's schema:"$'\n'"$1"$'\n'"Call the tool again with each of these fixed."; }
+no_repo="$(report "$repo" accept 'del(.repo)')"
+assert "a judgment with no repo keeps the reviewer running" "$(record_handback "$no_repo")" "$(shape_refusal "/judgments/0/repo is required")"
+assert "an accept with no repo approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+assert "a repo that is not a repository keeps the reviewer running" "$(record_handback "$(report "$scratch/nowhere" accept)")" \
+  "$(refused "'$scratch/nowhere' is not a repository. Name the repository the change is in as the judgment's repo.")"
+assert "a relative repo keeps the reviewer running" "$(record_handback "$(report repo accept)")" "$(shape_refusal "/judgments/0/repo must match the pattern ^/")"
+twice="$(fresh_agent)"
+record_as "$twice" "$no_repo" >/dev/null
+assert "a judgment with no repo on the second call lets the reviewer hand back" "$(record_as "$twice" "$no_repo")" "$(allowed)"
+assert "that call is stored as not recorded" "$(stored "$twice" | jq -c .gate)" '{"recorded":false,"code":"payload_invalid"}'
+assert "a reviewer let through without a repo approved nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
-assert "an accepting verdict records nothing to say" "$(record_handback "$(report "$repo" accept)")" ""
+assert "an accepting verdict is allowed" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
 assert "an accepted diff commits" "$(gate 'git commit -am x')" ""
 edit app.py 'print(3)'
 assert "an edit after the accept blocks the commit" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
@@ -49,18 +55,22 @@ record_handback "$(report "$repo" accept)" >/dev/null
 record_handback "$(report "$repo" return)" >/dev/null
 assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
-SAME_REVIEWER="$(refused "This accept is discarded: you returned this repository's change earlier, and the commit gate takes an accept only from a reviewer that has not. End your report with the line 'Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read for findings as for its accept; this one returned it.' above your verdict.")"
-record_as returner "$(report "$repo" return)" >/dev/null
-assert "an accept from the reviewer that returned keeps it running" "$(record_as returner "$(report "$repo" accept)")" "$SAME_REVIEWER"
-assert "an accept from the reviewer that returned on its second hand-back lets it hand back" "$(record_as returner "$(report "$repo" accept)")" ""
+returner="$(fresh_agent)"
+record_listing "$returner" "$(report "$repo" return)" "$(briefed "$(diff_of "$(report "$repo" return)")")" "$diffs/unread.diff" >/dev/null
+assert "a return refused for a diff it did not read still clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+assert "an accept from the reviewer that returned lets it hand back" "$(record_as "$returner" "$(report "$repo" accept)")" "$(allowed)"
+assert "that accept is stored with the same_reviewer note" "$(stored "$returner" | jq -c '.gate.judgments[] | [.recorded, .code, .fix]')" \
+  "$(jq -cn '[false, "same_reviewer", "This accept is not recorded: its reviewer returned this repository'"'"'s change earlier. Start a fresh cniska-skills:reviewer on the fix'"'"'s diff, with the change'"'"'s earlier diff files to read for findings as for its accept."]')"
 assert "an accept from the reviewer that returned approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-assert "an accept from a fresh reviewer after the return records" "$(record_as fresh "$(report "$repo" accept)")" ""
+assert "an accept from a fresh reviewer after the return records" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
 assert "that fresh accept lets the diff commit" "$(gate 'git commit -am x')" ""
 
 spare="$scratch/spare"
 (cd "$scratch" && git init -q -b main spare)
-assert "the reviewer that returned may accept another repository" "$(record_as returner "$(report "$spare" accept)")" ""
-record_as returner "$(report "$repo" return)" >/dev/null
+spare_reviewer="$(fresh_agent)"
+record_listing "$spare_reviewer" "$(report "$repo" return)" "$(briefed "$(diff_of "$(report "$repo" return)")")" "$diffs/unread.diff" >/dev/null
+assert "the reviewer that returned may accept another repository" "$(record_as "$spare_reviewer" "$(report "$spare" accept)" | jq -c . ; stored "$spare_reviewer" | jq -c '.gate.judgments[0].recorded')" "$(allowed)
+true"
 
 (cd "$repo" && git reset -q --hard && printf 'a = 1\n' >a.py && printf 'b = 1\n' >b.py && printf 'c = 1\n' >c.py &&
   printf 'gen.js linguist-generated\n' >.gitattributes && printf 'g = 1\n' >gen.js && git add -A && git commit -q -m sides)

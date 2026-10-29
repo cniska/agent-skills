@@ -1,6 +1,7 @@
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GATE="$HERE/commit-gate.sh"
-RECORD="$HERE/review-record.sh"
+RECORD="$HERE/report-record.sh"
+readonly VERDICT_TOOL=mcp__plugin_cniska-skills_report__verdict
 
 pass=0
 fail=0
@@ -31,11 +32,10 @@ denied() {
   local items pronoun=its
   [ "$#" -eq 1 ] || pronoun=their
   items="$(printf '%s, ' "$@")"
-  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers ${items%, }, which this commit can carry. A diff covers a path's staged or working-tree content while the review brief names its file by absolute path, the reviewer reads it and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write $pronoun current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that review ends with 'Verdict: accept'."
+  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers ${items%, }, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write $pronoun current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that reviewer's verdict call accepts it."
 }
 refused() { jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'; }
-blocked() { jq -cn --arg reason "$1" '{decision: "block", reason: $reason}'; }
-repo_refusal() { refused "${1:+$1 }Put 'Repo: <absolute path of the repository under review>' on the line above the verdict."; }
+allowed() { jq -cn '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "allow"}}'; }
 
 readonly LOOK_ALIKE='echo "notes: cd /nowhere && git -C /nowhere commit -m y; git commit -m z"'
 readonly QUOTE="'"
@@ -60,9 +60,6 @@ gate_from() {
 gate() { gate_from "$1" "$repo"; }
 
 assistant_line() { jq -cn --argjson block "$1" '{type: "assistant", message: {content: [$block]}}'; }
-handback_line() { assistant_line "$(jq -cn --arg message "$1" '{type: "tool_use", name: "SubagentHandback", input: {message: $message}}')"; }
-read_line() { assistant_line '{"type": "tool_use", "name": "Read", "input": {"file_path": "/x"}}'; }
-text_line() { assistant_line "$(jq -cn --arg text "$1" '{type: "text", text: $text}')"; }
 
 diffs="$scratch/diffs"
 mkdir -p "$diffs"
@@ -77,14 +74,13 @@ diff_in() {
 }
 diff_of() {
   local named root path
-  sed -n 's/^Repo: //p' <<<"$1" | while IFS= read -r named; do
+  jq -r .repo <<<"$1" | while IFS= read -r named; do
     root="$(cd "$named" 2>/dev/null && git rev-parse --show-toplevel 2>/dev/null)" || continue
     local paths=()
     while IFS= read -r path; do paths+=("$path"); done < <(changed_in "$root" | sort -u)
     diff_in "$root" ${paths[@]+"${paths[@]}"}
   done
 }
-brief_line() { jq -cn --arg brief "Review the diff in $1." '{type: "user", message: {content: $brief}}'; }
 read_of() { assistant_line "$(jq -cn --arg path "$1" '{type: "tool_use", name: "Read", input: {file_path: $path}}')"; }
 scratch_file() {
   local file
@@ -92,12 +88,7 @@ scratch_file() {
   printf '%s\n' "$1" >"$file"
   printf '%s\n' "$file"
 }
-briefed() {
-  local file
-  file="$(scratch_file "$1")"
-  brief_line "$file"
-  read_of "$file"
-}
+briefed() { read_of "$(scratch_file "$1")"; }
 
 fresh_agent() {
   local count
@@ -107,9 +98,18 @@ fresh_agent() {
   printf 'reviewer-%s\n' "$count"
 }
 
+reads_in() { jq -r 'select(.type == "assistant") | .message.content[] | select(.type == "tool_use" and .name == "Read") | .input.file_path' <<<"$1"; }
+
+record_listing() {
+  local agent="$1" judgments="$2" transcript="$3" listed="$4" type="${5:-cniska-skills:reviewer}"
+  jq -cn --arg cwd "$repo" --arg agent "$agent" --arg type "$type" --arg tool "$VERDICT_TOOL" --arg transcript "$(scratch_file "$transcript")" \
+    --arg listed "$listed" --argjson judgments "$(jq -sc . <<<"$judgments")" '
+    {hook_event_name: "PreToolUse", session_id: "s0", tool_name: $tool, tool_input: {diffs: ($listed | split("\n") | map(select(. != ""))), judgments: $judgments},
+      agent_type: $type, agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
+}
+
 record_reading() {
-  jq -cn --arg cwd "$repo" --arg agent "$1" --arg message "$2" --arg type "${4:-cniska-skills:reviewer}" --arg transcript "$(scratch_file "$3")" \
-    '{hook_event_name: "PreToolUse", tool_name: "SubagentHandback", tool_input: {message: $message}, agent_type: $type, agent_id: $agent, cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
+  record_listing "$1" "$2" "$3" "$(reads_in "$3")" "${4:-}"
 }
 
 record_as() {
@@ -117,24 +117,19 @@ record_as() {
 }
 
 record_handback() {
-  local agent
-  agent="$(fresh_agent)"
-  if [ "${2:-}" = again ]; then
-    record_as "$agent" "$1" >/dev/null
-  fi
-  record_as "$agent" "$1"
+  record_as "$(fresh_agent)" "$1"
 }
 
-record_last_message() {
-  local transcript
-  transcript="$(scratch_file "$(briefed "$(diff_of "$1")" && text_line "$1")")"
-  jq -cn --arg cwd "$repo" --arg message "$1" --arg agent "$(fresh_agent)" --arg transcript "$transcript" \
-    '{hook_event_name: "SubagentStop", agent_type: "cniska-skills:reviewer", agent_id: $agent, cwd: $cwd, last_assistant_message: $message, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
-}
+stored() { cat "$CLAUDE_PLUGIN_DATA/reports/$1.json" 2>/dev/null; }
 
-sections() { printf '## Findings\n\n%s\n\n## Conflicts\n\n%s\n\n## Follow-ups\n\n%s\n\n## Clean\n\n- **Use what exists:** app.py\n' "${1:-none}" "${2:-none}" "${3:-none}"; }
-report() { printf '%s\nRepo: %s\nVerdict: %s' "$(sections)" "$1" "$2"; }
-finding() { printf -- '- **Where:** app.py:1\n- **Rule:** No dead structure\n- **Severity:** minor\n- **Why:** unused.\n- **Instead:** delete it.'; }
+report() {
+  jq -cn --arg repo "$1" --arg verdict "$2" '{repo: $repo, verdict: $verdict, findings: [], conflicts: [], follow_ups: [], clean: []}' | jq -c "${3:-.}"
+}
+finding() {
+  jq -cn --arg path "$1" --arg rule "${2:-No dead structure}" --arg severity "${3:-minor}" \
+    '{where: [{path: $path, line: 1}], rule: $rule, severity: $severity, why: "It is unused.", instead: "Delete it."}'
+}
+clean_at() { jq -cn --arg path "$1" '{rule: "Use what exists", places: [{path: $path}]}'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
 land() { (cd "$repo" && git add -A && git commit -q -m land); }
 

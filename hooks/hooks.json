@@ -42,18 +42,28 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/review-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "SubagentHandback",
+        "matcher": "SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report)",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/review-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
           }
         ]
       },

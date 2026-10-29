@@ -38,10 +38,6 @@ at_handback() {
   [ "$(jq -r '.hook_event_name // empty' <<<"$1")" = PreToolUse ]
 }
 
-judges() {
-  [ "$(jq -r '.agent_type // empty' <<<"$1")" = "$2" ]
-}
-
 agent_transcript() {
   local input="$1"
   local path session_transcript agent
@@ -57,6 +53,14 @@ agent_transcript() {
   fi
 }
 
+read_files() {
+  local transcript
+  transcript="$(agent_transcript "$1")"
+  [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
+  jq -nrR '[inputs | fromjson? | objects | select(.type == "assistant") | .message.content[]?
+    | select(.type == "tool_use" and .name == "Read") | .input.file_path? | select(type == "string" and . != "")] | unique[]' "$transcript"
+}
+
 left_to_handback() {
   local input="$1"
   local transcript
@@ -64,25 +68,6 @@ left_to_handback() {
   transcript="$(agent_transcript "$input")"
   [ -n "$transcript" ] && [ -f "$transcript" ] || return 1
   settled_block "$transcript" | is_handback
-}
-
-subagent_report() {
-  local input="$1"
-  local transcript last_message block
-  if at_handback "$input"; then
-    jq -r '.tool_input.message // empty' <<<"$input"
-    return
-  fi
-  transcript="$(agent_transcript "$input")"
-  last_message="$(jq -r '.last_assistant_message // empty' <<<"$input")"
-  if [ -n "$transcript" ] && [ -f "$transcript" ]; then
-    block="$(settled_block "$transcript")"
-    if [ -z "$last_message" ] && is_text <<<"$block"; then
-      jq -r '.text' <<<"$block"
-      return
-    fi
-  fi
-  printf '%s\n' "$last_message"
 }
 
 denials_file() {

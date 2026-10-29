@@ -12,33 +12,29 @@ assert "an accept of one file's diff does not let a commit carry another changed
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
 assert "a second accept of the same tree adds the paths of the diff it read" "$(gate 'git commit -am x')" ""
 edit app.py 'print(32)'
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff")" >/dev/null
+record_listing "$(fresh_agent)" "$(report "$repo" accept)" "" "" >/dev/null
 assert "an accept by a reviewer that read no diff file approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 edit app.py 'print(33)'
 diff_in "$repo" app.py other.py >"$diffs/unbriefed.diff"
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff" && read_of "$diffs/unbriefed.diff")" >/dev/null
-assert "a diff file the reviewer read that the brief does not name approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+record_listing "$(fresh_agent)" "$(report "$repo" accept)" "$(read_of "$diffs/unbriefed.diff")" "" >/dev/null
+assert "a diff file the reviewer read but did not list approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 diff_in "$repo" app.py other.py >"$diffs/prefix.diff"
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/prefix.diff.old" && read_of "$diffs/prefix.diff")" >/dev/null
-assert "a diff file whose path the brief names only inside a longer path approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+record_listing "$(fresh_agent)" "$(report "$repo" accept)" "$(read_of "$diffs/prefix.diff")" "$diffs/prefix.diff.old" >/dev/null
+assert "a listed diff file whose path only extends one the reviewer read approves no code" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 stale="$(diff_in "$repo" app.py other.py)"
 edit app.py 'print(34)'
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")" >/dev/null
 assert "a diff file whose new content is not the path's content now does not approve that path" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 first="$(scratch_file "$(diff_in "$repo" app.py other.py)")"
-record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$first" && read_of "$first")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(read_of "$first")" >/dev/null
 edit app.py 'print(35)'
 fix="$(scratch_file "$(diff_in "$repo" app.py)")"
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix" && read_of "$fix")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(read_of "$fix")" >/dev/null
 assert "a re-review that read only the fix's diff does not cover the rest of the commit" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"
 edit app.py 'print(36)'
 fix="$(scratch_file "$(diff_in "$repo" app.py)")"
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix $first" && read_of "$fix" && read_of "$first")" >/dev/null
+record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(read_of "$fix" && read_of "$first")" >/dev/null
 assert "a re-review that read the fix's diff and the commit's earlier one lets the commit through" "$(gate 'git commit -am x')" ""
-edit app.py 'print(37)'
-fix="$(scratch_file "$(diff_in "$repo" app.py)")"
-record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$fix;$first" && read_of "$fix" && read_of "$first")" >/dev/null
-assert "diff files a brief joins with a semicolon are each named" "$(gate 'git commit -am x')" ""
 land
 (cd "$repo" && git mv other.py renamed.py)
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(git -C "$repo" diff -M HEAD)")" >/dev/null
@@ -186,22 +182,24 @@ record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(briefed "$(diff_in
 assert "a return voids the accept of the paths its diff covers and no other" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" other.py)")" >/dev/null
 unread="$(scratch_file "$(diff_in "$repo" app.py)")"
-record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$unread")" >/dev/null
-assert "a return voids the paths of a diff its brief names that its reviewer never read" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+record_listing "$(fresh_agent)" "$(report "$repo" return)" "$(read_of "$unread")" "" >/dev/null
+assert "a return voids the paths of a diff its reviewer read but did not list" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py)")" >/dev/null
-record_reading "$(fresh_agent)" "$(report "$repo" return)" "$(brief_line "$diffs/none.diff")" >/dev/null
-assert "a return whose brief names no diff voids no accept" "$(gate 'git commit -am x')" ""
+record_listing "$(fresh_agent)" "$(report "$repo" return)" "" "" >/dev/null
+assert "a return whose reviewer read no diff voids no accept" "$(gate 'git commit -am x')" ""
 stale="$(diff_in "$repo" app.py other.py)"
 stale_other="$(diff_in "$repo" other.py)"
 edit app.py 'print(51)'
 edit other.py 'y = 7'
-assert "an accept whose diff matches nothing in its repo keeps the reviewer running" \
-  "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$stale")")" \
-  "$(refused "None of app.py, other.py in the diff files you read matches what is staged or in the working tree of '$(cd "$repo" && pwd -P)', so this accept would cover nothing. The diff no longer matches the change, most likely because the change was edited after the diff was written. End your report with a line asking whoever briefed you for a fresh diff of the change.")"
-assert "that refused accept records no verdict" "$(tail -n 1 "$log" | jq -r '[.event, .gate, .reason] | @tsv')" "gate	verdict	accept_covers_nothing"
+stale_reviewer="$(fresh_agent)"
+assert "an accept whose diff matches nothing in its repo lets the reviewer hand back" \
+  "$(record_reading "$stale_reviewer" "$(report "$repo" accept)" "$(briefed "$stale")")" "$(allowed)"
+assert "that accept is stored with the accept_covers_nothing note" "$(stored "$stale_reviewer" | jq -c '.gate.judgments[] | [.recorded, .code, .fix]')" \
+  '[false,"accept_covers_nothing","The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a fresh diff of the change and brief a fresh reviewer with it."]'
+assert "that accept logs a gate note and no verdict" "$(tail -n 1 "$log" | jq -r '[.event, .gate, .decision, .reason] | @tsv')" "gate	verdict	allow	accept_covers_nothing"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py && printf '%s\n' "$stale_other")")" >/dev/null
 assert "an accept whose diff matches one path in its repo records that path" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"
-assert "an accept with no diff file, such as a design's, records" "$(record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(brief_line "$diffs/none.diff")")" ""
+assert "an accept with no diff file, such as a design's, records" "$(record_listing "$(fresh_agent)" "$(report "$repo" accept)" "" "")" "$(allowed)"
 assert "that accept logs its verdict" "$(tail -n 1 "$log" | jq -r '[.event, .verdict] | @tsv')" "verdict	accept"
 
 finish

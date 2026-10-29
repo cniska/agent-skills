@@ -2,10 +2,12 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HERE/review-state.sh"
 source "$HERE/hook-output.sh"
 source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 source "$HERE/report-store.sh"
+source "$HERE/review-record.sh"
 
 readonly SCHEMAS="$HERE/../mcp/report-schemas.json"
 readonly TOOL_PREFIX="mcp__plugin_cniska-skills_report__"
@@ -28,6 +30,13 @@ readonly PAYLOAD_VIOLATIONS='
   .tool_input as $payload
   | [$payload | tool_violations($schemas[0]; $tool) | violation_text] as $shape
   | if ($shape | length) > 0 then $shape[] else $payload | pairings($tool) end'
+
+readonly REASON_VIOLATIONS='
+  .agent_type as $type
+  | .tool_input.judgments | to_entries[] | .key as $i | .value
+  | select(has("reason"))
+  | (select(.verdict != "return") | "/judgments/\($i)/reason is given only when /judgments/\($i)/verdict is \"return\""),
+    (select($type == "cniska-skills:reviewer" and .reason != "no_diff") | "/judgments/\($i)/reason must be \"no_diff\" from a reviewer")'
 
 readonly ID_VIOLATIONS='include "report-schema"; {id: $id} | tool_violations($schemas[0]; "read_report")'
 
@@ -59,8 +68,8 @@ callers_of() {
 }
 
 gate_line() {
-  event_log "$1" gate --arg gate report --arg decision "$2" --arg reason "$3" \
-    --arg repo "" --arg head "" --arg fingerprint ""
+  event_log "$1" gate --arg gate verdict --arg decision "$2" --arg reason "$3" \
+    --arg repo "${4:-}" --arg head "" --arg fingerprint ""
 }
 
 store() {
@@ -100,6 +109,19 @@ on_report_tool() {
     gate_line "$input" deny already_reported
     return
   fi
+  agent_type="$(field "$input" agent_type)"
+  if [ "$(reporting_tool "$agent_type")" != "$tool" ]; then
+    pre_tool_deny "Only $(callers_of "$tool") report through $tool; this session is ${agent_type:-not a cniska-skills agent}. Hand back as your own instructions say."
+    gate_line "$input" deny wrong_agent
+    return
+  fi
+  local reads="" reviewer="" returned=""
+  if [ "$tool" = verdict ] && [ "$agent_type" = cniska-skills:reviewer ]; then
+    reads="$(read_files "$input")"
+    reviewer="$(reporter_id "$input")"
+    returned="$(returned_paths "$reads")"
+    void_returns "$input" "$reviewer" "$returned"
+  fi
   violations="$(jq -r -L "$HERE" --slurpfile schemas "$SCHEMAS" --arg tool "$tool" "$PAYLOAD_VIOLATIONS" <<<"$input")" ||
     die "jq could not check the $tool report"
   if [ -n "$violations" ]; then
@@ -107,13 +129,30 @@ on_report_tool() {
       "The report does not match the $tool tool's schema:"$'\n'"$violations"$'\n'"Call the tool again with each of these fixed."
     return
   fi
-  agent_type="$(field "$input" agent_type)"
-  if [ "$(reporting_tool "$agent_type")" != "$tool" ]; then
-    refuse "$input" "$tool" "$file" wrong_agent \
-      "Only $(callers_of "$tool") report through $tool; this session is ${agent_type:-not a cniska-skills agent}. Hand back as your own instructions say."
-    return
+  local gate='{"recorded": true}'
+  if [ "$tool" = verdict ]; then
+    violations="$(jq -r "$REASON_VIOLATIONS" <<<"$input")" || die "jq could not check the verdict's reasons"
+    if [ -n "$violations" ]; then
+      refuse "$input" "$tool" "$file" payload_invalid \
+        "The report gives a reason it may not:"$'\n'"$violations"$'\n'"Call the tool again with each of these fixed."
+      return
+    fi
   fi
-  store "$input" "$tool" "$file" '{"recorded": true}'
+  if [ "$agent_type" = cniska-skills:reviewer ]; then
+    local judged code
+    judged="$(record_verdict "$input" "$reads" "$reviewer" "$returned")"
+    code="$(jq -r '.code // empty' <<<"$judged")"
+    if [ -n "$code" ]; then
+      refuse "$input" "$tool" "$file" "$code" "$(jq -r .why <<<"$judged")"
+      return
+    fi
+    gate="$(jq -c .gate <<<"$judged")"
+    local repo
+    while IFS=$'\t' read -r code repo; do
+      gate_line "$input" allow "$code" "$repo"
+    done < <(jq -r '.judgments[] | select(.code) | [.code, .repo] | @tsv' <<<"$gate")
+  fi
+  store "$input" "$tool" "$file" "$gate"
   pre_tool_allow
 }
 

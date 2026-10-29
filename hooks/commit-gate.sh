@@ -297,7 +297,7 @@ uncovered_reason() {
   local items pronoun=its
   items="$(uncovered_items <<<"$1")"
   [ "$(wc -l <<<"$items")" -eq 1 ] || pronoun=their
-  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff covers a path's staged or working-tree content while the review brief names its file by absolute path, the reviewer reads it and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write %s current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that review ends with 'Verdict: accept'." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
+  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write %s current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that reviewer's verdict call accepts it." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
 }
 
 unresolved_reason() {
