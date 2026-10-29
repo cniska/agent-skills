@@ -4,4 +4,9 @@ Nothing depends on an agent or a user writing certain words. A check, gate, hook
 
 - What a step needs lives in structured data it parses, such as a JSON field, a tool call's arguments or frontmatter, or in an explicit command or flag that someone runs.
 - A regex is fine on a well-defined format, one a program, schema or grammar fixes, such as a log line, a commit hash or a config file.
-- The fix moves the signal into data: the writer emits a field or calls a tool, and the reader parses it and fails loudly when it is missing. Widening the pattern to catch the next phrasing is not a fix.
+- Model-written output is prose, even in a format its agent definition or a skill sets, such as a fixed heading or a `Verdict:` line, since a model can drift from a format it is only told to follow.
+- The fix moves the signal into data the reader parses, failing loudly when it is missing, and the receiver decides the form:
+  - When a tool receives it at hand-off, the writer calls a tool whose input schema the host checks.
+  - When a file stores it, the writer writes TOON that a schema checks.
+  - Only what a person reads stays prose.
+- Widening the pattern to catch the next phrasing is not a fix.
