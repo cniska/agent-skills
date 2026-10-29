@@ -29,7 +29,9 @@ Report what the diff causes, such as a line it leaves as it was but makes wrong;
 - a bullet longer than about two lines
 - a paragraph longer than about four sentences, or a subject with no heading of its own
 - a procedural sentence over about 20 words or carrying two instructions; a descriptive one over about 25
+- a noun cluster of four words or more
 - one term used for two meanings, or two terms for one
+- a note that tells the reader to act, where it should only inform
 - text that maps one set to another where a table would read faster
 
 ### 3. Brevity

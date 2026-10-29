@@ -32,8 +32,10 @@ A reader scans a doc before reading it, so text walls and long bullets hide its 
 - A paragraph holds about four sentences at most.
 - A list holds two items or more; a single item is a sentence.
 - A bullet runs about two lines at most; a longer one becomes a paragraph or its own subsection.
-- A procedural sentence holds one instruction in about 20 words at most; a descriptive one, about 25 (ASD-STE100).
+- A procedural sentence holds one instruction in about 20 words at most; a descriptive one, about 25.
+- A noun cluster holds three words at most; a longer one takes a verb or a preposition.
 - One term per meaning, and one meaning per term.
+- A note gives information, never an instruction; the instruction goes in the step it governs.
 - A table where text maps one set to another, such as options to defaults or commands to effects; never a table for prose.
 
 ## Template

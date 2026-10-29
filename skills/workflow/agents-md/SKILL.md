@@ -17,6 +17,7 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 ## Conventions this file must follow (and enforce)
 
 - Apply `writing`'s rules for documents that last: a rule, not its history; each fact in one place.
+- Word each rule as `writing`'s medium for instructions an agent follows says.
 - One logical rule per bullet.
 - Never hard-wrap markdown — one line per bullet or paragraph, let it soft-wrap.
 - Reuse the existing file's vocabulary — don't coin a synonym for a concept already named.

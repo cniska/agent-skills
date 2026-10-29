@@ -1,6 +1,6 @@
 # Brief
 
-A brief is the worker's whole context: it starts with none of yours. Write it so a stranger could act on it alone — no "as discussed", no pointer to this conversation.
+A brief is the worker's whole context: it starts with none of yours. Write it so a stranger could act on it alone — no "as discussed", no pointer to this conversation. Word it by `writing`'s medium for instructions an agent follows.
 
 ## What it holds
 

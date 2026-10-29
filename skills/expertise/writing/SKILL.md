@@ -1,6 +1,6 @@
 ---
 name: writing
-description: Write or edit natural prose for emails, docs, a README, proposals, PR descriptions, reviews, and messages, removing generic AI phrasing while preserving meaning and audience fit. Use when writing or editing prose that humans read.
+description: Write or edit natural prose for emails, docs, a README, proposals, PR descriptions, reviews, and messages, removing generic AI phrasing while preserving meaning and audience fit. Use when writing or editing prose that people read, or instructions an agent follows, such as a skill, a rules file or a brief.
 ---
 
 # Writing
@@ -22,6 +22,7 @@ Preserve the intended meaning and level of confidence. Remove words or structure
 - Cut marketing language, vague enthusiasm, filler transitions, corporate padding, and summary lines that sound wise but state nothing a reader could check.
 - Name the source behind an attribution or remove the claim. Replace vague claims with a concrete mechanism, result, or example.
 - Prefer plain words and active actors. Split dense sentences; repeat the same term instead of cycling through synonyms.
+- Break a noun cluster of more than three words with a verb or a preposition: "the worker brief temp folder path" becomes "the path to the worker's temp folder".
 - After an edit, re-read each "it", "its", "either", "both" and "above" against what its own sentence and the neighboring sentences now name, and name the thing where more than one fits.
 - Remove forced groups of three, false ranges, ornate metaphors, stock framing phrases, and human traits given to a tool, rule or document ("a sandbox does not skim", "confidently wrong"). Agents and models are real actors.
 - Expand shorthand that drops articles or verbs, and rewrite phrasing bent to stay short ("the test it is failing" for "a failing test"). A concise sentence should still read naturally.
@@ -38,8 +39,9 @@ Preserve the intended meaning and level of confidence. Remove words or structure
 - **Public writing:** Allow rhetorical emphasis when the substance earns it.
 - **PR review replies:** Lead with the action or finding. Let the thread carry its own history and references.
 - **Resumes:** Lead with concrete actions and outcomes. Follow the format's point-of-view convention.
+- **Instructions an agent follows:** Skills, agent definitions, rules files and briefs. Give one instruction per sentence, so two instructions joined by a semicolon become two sentences. Put the condition before the command: "When the check fails, stop." Use one word for each concept and give each word one meaning. Name a concrete threshold, such as a count, a size or a named state, never a qualitative word such as "large" or "often".
 
-For technical readers, assume shared context. For external readers, reduce jargon and explain consequences alongside mechanisms.
+For technical readers, assume shared context. For any reader outside the code, reduce jargon and explain consequences alongside mechanisms.
 Keep the writer's point of view when it serves the purpose and audience.
 
 ## Documents that last

@@ -131,7 +131,7 @@ What good looks like in one kind of work, which may go unused for a while.
 | [principles](skills/expertise/principles/SKILL.md) | The principles more than one skill applies, one file each, read by name |
 | [code-writing](skills/expertise/code-writing/SKILL.md) | Shared code rules once, plus a toolchain and pitfalls reference per language |
 | [test-writing](skills/expertise/test-writing/SKILL.md) | Tests that catch a named bug, proven able to fail |
-| [writing](skills/expertise/writing/SKILL.md) | Write clear, natural prose for each reader and medium, and the shared rules for documents that last |
+| [writing](skills/expertise/writing/SKILL.md) | Write clear, natural prose for each reader and medium, instructions an agent follows included, and the shared rules for documents that last |
 | [database-design](skills/expertise/database-design/SKILL.md) | Schema as the domain's record: invariants, access, and migrations in the database |
 | [ui-design](skills/expertise/ui-design/SKILL.md) | Design web, mobile, terminal and Apple-platform interfaces against product states, visual hierarchy and platform conventions |
 | [ui-review](skills/expertise/ui-review/SKILL.md) | Judge a running interface's UI and UX from measured captures of every state, beside the reference screen it follows |
