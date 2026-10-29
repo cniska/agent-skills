@@ -2,6 +2,7 @@
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$HERE/../hooks/report-store.sh"
 readonly SCHEMAS="$HERE/report-schemas.json"
 readonly SCHEMA_LIB="$HERE/../hooks"
 readonly SUPPORTED_VERSIONS='["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]'
@@ -71,7 +72,8 @@ read_report() {
     not_stored "$rpc_id" "No report can be read: CLAUDE_PLUGIN_DATA is not set for the report server."
     return
   fi
-  local file="$CLAUDE_PLUGIN_DATA/reports/$report_id.json"
+  local file
+  file="$(report_file "$report_id")"
   if [ ! -f "$file" ]; then
     not_stored "$rpc_id" "No report is stored for $report_id: the agent made no report call, or its call was refused."
     return

@@ -240,7 +240,7 @@
           },
           "plan": {
             "$ref": "#/$defs/path",
-            "description": "The plan's path, when the task handed back a plan."
+            "description": "The plan's path; given with outcome plan_ready, and with any other outcome that hands back a plan."
           },
           "second_opinion": {
             "type": "object",
@@ -253,6 +253,7 @@
           },
           "landed": {
             "type": "object",
+            "description": "Where the task landed; given with outcome landed, and only then.",
             "additionalProperties": false,
             "required": ["repo", "branch", "sha", "ci_runs"],
             "properties": {
