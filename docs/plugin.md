@@ -1,6 +1,6 @@
 # The plugin
 
-This repo is also `cniska-skills`, a Claude Code plugin; the [README](../README.md#install) says how to install it. It bundles every skill, with the `cniska-skills:` prefix, plus the hooks and agents below.
+This repo is also `cniska-skills`, a Claude Code plugin; the [README](../README.md#install) says how to install it. It bundles every skill, with the `cniska-skills:` prefix, plus the hooks, agents and report server below.
 
 ## How the parts fit
 
@@ -38,10 +38,10 @@ sequenceDiagram
   participant C as CI
   A->>A: task picks a route, steps load skills
   A->>V: here is the diff
-  V-->>A: Verdict: return, with findings
+  V-->>A: verdict call: return, with findings
   A->>R: the fix's diff in a new file, the earlier diff files beside it
   Note over R: judges the fix, reads the earlier diffs for findings and its accept
-  R-->>A: Verdict: accept
+  R-->>A: verdict call: accept
   Note over R: the accept is recorded for each path's content
   A->>P: git commit
   P->>G: allowed (each changed path's content accepted)
@@ -64,6 +64,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 - It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
 - It drops the built-in tools no route calls, such as `Artifact`, `NotebookEdit`, `LSP` and the cron tools, since every tool definition it carries is re-read on each model call. It keeps the shell and file tools to edit and commit, `Agent` and `SendMessage` to start the reviewer, designer and researcher agents and answer its coordinator, `ListAgents` to find the sessions a repo's rules say to message, `Skill` for each step, `Monitor` and `TaskStop` for long runs, and `WebFetch` and `WebSearch` for docs.
+- It states its final report through the [report server](#report-server)'s `task_report` tool.
 - It inherits every MCP tool, so whatever server a project's verify skill drives stays reachable, and `ToolSearch` keeps each one the host defers out of context until a step searches for it.
 
 ## Reviewer agent
@@ -72,9 +73,10 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 - It works read-only and preloads only `principles`. By a commit's file paths it loads [design-review](../skills/expertise/design-review/SKILL.md) for code and [doc-review](../skills/expertise/doc-review/SKILL.md) for docs.
 - It judges a coordinator's brief or plan as [the reviewer](reviewer.md) says, and loads [review](../skills/workflow/review/SKILL.md) for a whole branch.
-- It ends each report with `Verdict: accept` or `Verdict: return`, naming the repo it judged on a `Repo:` line above it; a change across repos ends with one such pair per repo.
-- Its report holds the sections `## Findings`, `## Conflicts`, `## Follow-ups` and `## Clean`; a report missing one, an accept with any finding under `## Findings`, or an accept whose diff files name paths none of which matches the index or working tree of the checkout its `Repo:` line names, is sent back to it once before it may stop. That last one is told to name the worktree that holds those paths on its `Repo:` line, or, where no worktree does, to ask for a fresh diff of the change.
-- A return that is the third or later on one commit is sent back to it once, to add a line telling the author to stop fixing that commit, park it, and report to whoever coordinates them what the returns show and which decision would end them, as `task` says; the verdict stands as it is. One commit's returns are those from distinct reviewers made on the same `HEAD` whose diff files share a path, so a landed commit, or a change replaced by one on other paths, starts the count over, and a reviewer sent back counts once.
+- It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
+- A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
+- An accept whose diffs match no checkout, or one from a reviewer that returned the repo earlier, is stored with a note and not recorded.
+- The stored report counts a return's place on its commit, so `task` parks a commit after its third return. One commit's returns are those from distinct reviewers on the same `HEAD` whose read diff files share a path, so a landed commit, or a change replaced by one on other paths, starts the count over.
 
 ## Designer agent
 
@@ -82,21 +84,29 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 - It runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
 - Its shell only reads, and syncs the session record, where it looks up the owner's past UI corrections.
-- It ends each report with `Verdict: accept` or `Verdict: return` under a `Repo:` line, as the reviewer does. The commit gate does not record its verdicts, so a designer accept never stands in for the reviewer's; [task](../skills/workflow/task/SKILL.md) is what makes an interface commit wait for it.
+- It reports through the same `verdict` tool, with the reasons its agent file lists. The commit gate does not record its verdicts, so a designer accept never stands in for the reviewer's; [task](../skills/workflow/task/SKILL.md) is what makes an interface commit wait for it.
 
 ## Researcher agent
 
-`cniska-skills:researcher` answers [second-opinion](../skills/workflow/second-opinion/SKILL.md) read-only, as [its agent file](../agents/researcher.md) says, and ends with `Sort: proposal`, `Sort: idea` or `Sort: drop: <reason>`.
+`cniska-skills:researcher` answers [second-opinion](../skills/workflow/second-opinion/SKILL.md) read-only, as [its agent file](../agents/researcher.md) says, and reports through the `research` tool, whose `sort` is `proposal`, `idea` or `drop` with its reason.
+
+## Report server
+
+It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, and `read_report` returns one stored report by its agent id, or a top-level worker's by its session id.
+
+- **Checked before the call:** the plugin's `PreToolUse` hook checks each call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes.
+- **Once per agent:** a second report call is refused. A reviewer, designer, researcher or worker that hands back or stops with no report is sent back once.
+- **Read back:** the caller reads the report through `read_report`, never from the agent's closing message.
 
 ## Commit gate
 
 It blocks a commit until the reviewer has accepted the content of every changed code path, in the worktree the commit targets.
 
-- It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file a reviewer read that the brief names by absolute path, and a deleted side only by an accepted deletion. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
-- The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, or once the commit it was recorded on is no longer an ancestor of `HEAD`, as after an amend, rebase or reset, so accepted content landed again after a later change needs a fresh accept, and a `Verdict: return` voids the accept of each path in a diff file its brief names by absolute path, leaving the repo's other accepts standing.
-- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its brief also names the change's earlier diff files by absolute path.
-- An accept from a reviewer that returned the same repo earlier is discarded, so a re-review is always a fresh reviewer.
-- A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under `## Follow-ups`, which never holds back an accept.
+- It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file the reviewer read and listed in its `verdict` call's `diffs`, and a deleted side only by an accepted deletion. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
+- The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, or once the commit it was recorded on is no longer an ancestor of `HEAD`, as after an amend, rebase or reset, so accepted content landed again after a later change needs a fresh accept, and a return voids the accept of each path in every diff file its reviewer read, leaving the repo's other accepts standing.
+- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its reviewer also reads and lists the change's earlier diff files.
+- An accept from a reviewer that returned the same repo earlier is not recorded, so a re-review is always a fresh reviewer.
+- A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under follow-ups, which never hold back an accept.
 - Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
 - Only a marking committed in `HEAD` counts, so a `.gitattributes` change exempts paths from the next commit on, and a `.gitattributes` file is never exempt; the refusal names this route, a `.gitattributes` change committed alone and reviewed first. No path counts as generated while the repo's `info/attributes` holds a rule, before the first commit, or when `git check-attr` fails.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.
