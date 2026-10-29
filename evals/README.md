@@ -69,7 +69,16 @@ Each row is one side: the mean score, each run's score, and the graders that fai
 { "<trace>.jsonl": { "workspace": "<dir, optional>", "expect": { "<grader>": "pass" } } }
 ```
 
-`mise run test:evals` fails if any grader disagrees, or is never seen both passing and failing. It parses every grader when it loads, refusing an unknown type, an unknown option on `regex`, `tool_used` and `tool_order`, a `regex` that names no `target` or names the final message, and a pattern that does not compile; it also refuses an expectation naming no grader, or one the trace cannot check. It checks `regex`, `tool_used` and `tool_order` graders. What a trace cannot show is left to the model run: `llm`, `baseline` and `file_exists` graders, a `regex` on `files` or `mock_calls`, and a file grader with no workspace or a missing file. Run with `--keep-temp` to keep a run's traces, then save one with `eval:keep` before the temporary directory is cleaned; hand-written traces cover the bad cases real runs never produce. A grader that reads a file gets a small workspace folder under `traces/`, named in `expected.json`.
+`mise run test:evals` fails if any grader disagrees, or is never seen both passing and failing. It parses every grader when it loads, and refuses:
+
+- an unknown grader type, or an unknown option on `regex`, `tool_used` or `tool_order`
+- a `regex` with no `target`, or with the final message as its target
+- a pattern that does not compile
+- an expectation naming no grader, or one the trace cannot check
+
+It checks `regex`, `tool_used` and `tool_order` graders. What a trace cannot show is left to the model run: `llm`, `baseline` and `file_exists` graders, a `regex` on `files` or `mock_calls`, and a file grader with no workspace or a missing file.
+
+Run with `--keep-temp` to keep a run's traces, then save one with `eval:keep` before the temporary directory is cleaned; hand-written traces cover the bad cases real runs never produce. A grader that reads a file gets a small workspace folder under `traces/`, named in `expected.json`.
 
 ## The sandbox
 
