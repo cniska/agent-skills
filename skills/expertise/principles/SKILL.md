@@ -17,7 +17,7 @@ A principle that more than one skill needs lives here once, so every skill that 
 | Mistake-proofing | Make a mistake impossible; else catch it with a lint, test or hook; ask anyone to remember only as a last resort | [mistake-proofing.md](references/mistake-proofing.md) |
 | No text heuristics | A step reads structured data or an explicit command, never the phrasing a writer happened to choose | [no-text-heuristics.md](references/no-text-heuristics.md) |
 | No drift | A change updates what describes, repeats, names or depends on it | [no-drift.md](references/no-drift.md) |
-| Review report | Every review reports in one shape, fixes what the change causes and what blocks it, queues other real defects, and accepts only when Findings is empty | [review-report.md](references/review-report.md) |
+| Review report | Every review reports in one shape, fixes what the change causes and what blocks it, queues other real defects, and accepts only when there is no finding | [review-report.md](references/review-report.md) |
 | Current rules | Recheck a branch against the skills and agent definitions that wrote and judged it before it moves on | [current-rules.md](references/current-rules.md) |
 | Verify at the source | Settle each factual claim where it is defined, and cite that place | [verify-at-source.md](references/verify-at-source.md) |
 

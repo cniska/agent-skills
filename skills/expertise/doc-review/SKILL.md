@@ -51,7 +51,7 @@ Report each finding as `principles`' review report says: **Where** is the file a
 - Good: **Why:** `docs/config.md` still says `maxRetries` defaults to 3, and this diff changes it to 5 in `src/client.ts`.
 - Good: **Why:** `README.md:12` says the cache "is designed to make sure that reads are generally fast"; **Instead:** "The cache serves repeated reads."
 
-If nothing drifted, breaks the shape or can go, Findings is `none`.
+If nothing drifted, breaks the shape or can go, there is no finding.
 
 ## See also
 

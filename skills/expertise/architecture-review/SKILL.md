@@ -50,7 +50,7 @@ Report each boundary breach in the review report shape `principles` holds: **Whe
 - Bad: "UserService is doing a lot; could be more decoupled." (taste, no contract, no evidence)
 - Good: **Why:** `src/api/client.ts` imports `src/auth/session.ts`, which imports it back (runtime cycle), against the api→auth dependency direction in `docs/architecture.md`.
 
-Findings `none` is a valid, complete result.
+No finding is a valid, complete result.
 
 ## See also
 

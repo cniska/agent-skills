@@ -31,7 +31,7 @@ Judge a running interface the way the owner does on looking at it: whether each 
 
 ## Report
 
-Report in the review report shape from `principles`, ending with a `Verdict:` line. Each finding's **Where** names the screen, the state, the theme, the size and the capture or frame it rests on, plus `file:line` where the diff holds the cause. **Severity:** critical when a state hides, clips or loses what the user needs or cannot be operated; major when it breaks a rule, the reference or an owner correction; minor for the rest.
+Report in the review report shape from `principles`, with the verdict the caller asks for. Each finding's **Where** names the screen, the state, the theme, the size and the capture or frame it rests on, plus `file:line` where the diff holds the cause. **Severity:** critical when a state hides, clips or loses what the user needs or cannot be operated; major when it breaks a rule, the reference or an owner correction; minor for the rest.
 
 ## See also
 

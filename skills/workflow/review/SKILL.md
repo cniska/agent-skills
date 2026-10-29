@@ -82,7 +82,7 @@ If the change includes database migrations, load `database-design` and check the
 
 ## Report
 
-One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. `## Clean` names every area that ran and what it checked. After the four sections, the report closes with `Not run: <area> (<reason>), ...`, naming each area the table skipped with the "Runs when" it failed, or `Not run: none`; it goes above any `Reason:`, `Repo:` and `Verdict:` lines the caller asks for.
+One report, in the review report shape from `principles`, so the area skills' findings merge without translation; each area skill hands its findings back to this review, and only this review makes a report tool's call, once, after merging. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. Clean names every area that ran and what it checked. Name each area the table skipped, with the "Runs when" it failed: under `not_run` in a report tool's call that has the field, or else in a closing line after the four sections, `Not run: <area> (<reason>), ...` or `Not run: none`, above any closing lines the caller asks for.
 
 ## See also
 

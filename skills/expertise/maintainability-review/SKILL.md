@@ -61,7 +61,7 @@ Follow the review report in `principles`. For each departure from convention, **
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
 - Good: **Why:** `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`).
 
-If nothing clears the threshold, Findings is `none` — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
+If nothing clears the threshold, there is no finding — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
 
 ## See also
 

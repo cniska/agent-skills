@@ -68,7 +68,7 @@ Report each attack path in the review report shape from `principles`: **Where** 
 - Reject: "The WebSocket uses WS not WSS — should be encrypted." (no reachable attack path)
 - Report, as critical: **Why:** `server.ts:42` binds `0.0.0.0` with `auth:false` by default, so any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).
 
-Findings `none` is a valid result.
+No finding is a valid result.
 
 ## See also
 

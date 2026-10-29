@@ -48,7 +48,7 @@ Flag a performance issue only with a concrete trigger: name the input, request p
 
 Write each hot spot in the `principles` review report: **Why** carries the triggering workload, its impact and the evidence, and **Instead** the fix direction.
 
-With nothing over the threshold, Findings is `none`.
+With nothing over the threshold, there is no finding.
 
 ## See also
 

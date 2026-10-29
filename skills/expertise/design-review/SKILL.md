@@ -39,7 +39,7 @@ For a fix, name the cause it removes, as fix the cause in `principles` says; a s
 
 Write short and direct. No "consider", no "might", no praise. When a case is truly unclear, say what would settle it.
 
-Order the findings by reach: first a design every new case of the same kind, such as a new technique, page or command, would have to copy; then one that misleads the next writer; then local mess. The order never excuses a finding: each under Findings is fixed.
+Order the findings by reach: first a design every new case of the same kind, such as a new technique, page or command, would have to copy; then one that misleads the next writer; then local mess. The order never excuses a finding: each is fixed.
 
 ## Report
 

@@ -23,7 +23,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - branch has commits ahead of `main` (`git log main..HEAD --oneline`)
    - project verification passes (run the project's test/lint/typecheck command)
 2. **Have `review` accept the branch** as it stands, by a fresh agent, unless it already has:
-   - if it returns any finding, stop and report them — do not create the PR
+   - if it returns any finding, stop and report them — do not create the PR; where it reports through a tool, take its verdict and findings from the stored report, not its closing message
 3. **Gather context**:
    - read `.github/pull_request_template.md` if it exists
    - run `git log main..HEAD --oneline` to see commits

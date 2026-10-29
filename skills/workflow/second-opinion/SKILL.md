@@ -13,7 +13,7 @@ One model agreeing with itself is not verification. Have a different model attac
 2. **Hand over the smallest reviewable unit**: the artifact, plus the constraints a decision must meet or the sources a fact should be checked against.
 3. **Frame it to disprove.** Write your own position down first and keep it out of the prompt. Ask what is wrong, say the author may be overconfident, and name the kinds of failure to hunt for, not the ones you suspect. Demand a position, and accept "nothing found after checking X" as an answer.
 4. **Require a citation for every factual finding**, such as `file:line` or a URL. Read any finding you act on at its source, and report the rest as unverified rather than dropping or adopting them.
-5. **Weigh, don't adopt.** Compare the findings with the position you wrote down, apply what survives the source check, and report each disagreement with both positions.
+5. **Weigh, don't adopt.** Where the reviewer reports through a tool, read its recommendation, evidence and sort from the stored report, not its closing message. Compare the findings with the position you wrote down, apply what survives the source check, and report each disagreement with both positions.
 6. **Stop when a pass surfaces nothing new.** Run another pass only after a material change.
 
 ## See also
