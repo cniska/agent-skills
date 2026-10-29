@@ -1,0 +1,338 @@
+{
+  "$defs": {
+    "path": {
+      "type": "string",
+      "pattern": "^/",
+      "description": "An absolute path."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path",
+          "description": "The file, or for a screen the capture file, as an absolute path."
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "end_line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "note": {
+          "$ref": "#/$defs/text",
+          "description": "What a path and line cannot say, such as a screen's state, theme and size."
+        }
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["where", "rule", "severity", "why", "instead"],
+      "properties": {
+        "where": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/location" },
+          "description": "The place, plus each other place showing the same problem."
+        },
+        "rule": {
+          "$ref": "#/$defs/text",
+          "description": "The rule or check it breaks, by its heading."
+        },
+        "severity": {
+          "enum": ["critical", "major", "minor"]
+        },
+        "why": {
+          "$ref": "#/$defs/text",
+          "description": "One sentence about this code."
+        },
+        "instead": {
+          "$ref": "#/$defs/text",
+          "description": "The shape to build, or delete."
+        }
+      }
+    },
+    "clean": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rule", "places"],
+      "properties": {
+        "rule": { "$ref": "#/$defs/text" },
+        "places": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/location" },
+          "description": "The places the rule was checked in."
+        }
+      }
+    },
+    "not_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["area", "reason"],
+      "properties": {
+        "area": { "$ref": "#/$defs/text" },
+        "reason": {
+          "$ref": "#/$defs/text",
+          "description": "The condition for running the area that the change did not meet."
+        }
+      }
+    },
+    "judgment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "verdict", "findings", "conflicts", "follow_ups", "clean"],
+      "properties": {
+        "repo": {
+          "$ref": "#/$defs/path",
+          "description": "The repository the change is in; for a change in a worktree, that worktree's path."
+        },
+        "verdict": {
+          "enum": ["accept", "return"],
+          "description": "accept only when findings is empty."
+        },
+        "reason": {
+          "enum": ["no_diff", "verify_gap", "run_blocked", "run_short"],
+          "description": "Why a return judged nothing, when it did not: no_diff, or a designer's verify_gap, run_blocked or run_short."
+        },
+        "findings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/finding" },
+          "description": "Problems the change causes, and older ones that block it."
+        },
+        "conflicts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/finding" },
+          "description": "Findings only the owner can settle."
+        },
+        "follow_ups": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/finding" },
+          "description": "Real defects that were there before the change and do not block it."
+        },
+        "clean": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/clean" }
+        },
+        "not_run": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/not_run" },
+          "description": "Each review area that did not run, for a review that picks its areas."
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim", "source"],
+      "properties": {
+        "claim": { "$ref": "#/$defs/text" },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "ref"],
+          "properties": {
+            "kind": { "enum": ["session", "file", "url"] },
+            "ref": {
+              "$ref": "#/$defs/text",
+              "description": "A session id prefix and timestamp, a path:line, or a URL."
+            }
+          }
+        }
+      }
+    },
+    "ci_run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow", "url", "conclusion"],
+      "properties": {
+        "workflow": { "$ref": "#/$defs/text" },
+        "url": { "$ref": "#/$defs/text" },
+        "conclusion": { "$ref": "#/$defs/text" }
+      }
+    }
+  },
+  "tools": {
+    "verdict": {
+      "description": "Hand back a review's verdict, once, as your last step before your final message. Each judgment covers one repository.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["diffs", "judgments"],
+        "properties": {
+          "diffs": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/path" },
+            "description": "Each diff file you judged and read, by absolute path; empty for a design."
+          },
+          "judgments": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/judgment" }
+          }
+        }
+      }
+    },
+    "research": {
+      "description": "Hand back a second opinion or a researched answer, once, as your last step before your final message.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["recommendation", "evidence", "against", "owner_conflicts", "unverified", "sort"],
+        "properties": {
+          "recommendation": {
+            "$ref": "#/$defs/text",
+            "description": "One or two sentences that take a position."
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/evidence" },
+            "description": "One entry per claim the recommendation rests on."
+          },
+          "against": {
+            "$ref": "#/$defs/text",
+            "description": "The strongest case against the recommendation."
+          },
+          "owner_conflicts": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/text" },
+            "description": "Each owner decision the recommendation conflicts with."
+          },
+          "unverified": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/text" },
+            "description": "Each claim you could not check at a source."
+          },
+          "sort": {
+            "enum": ["proposal", "idea", "drop"],
+            "description": "proposal: ready to act on; idea: worth keeping, not acting on now; drop: goes no further."
+          },
+          "drop_reason": {
+            "$ref": "#/$defs/text",
+            "description": "Why it goes no further; given with sort drop, and only then."
+          }
+        }
+      }
+    },
+    "task_report": {
+      "description": "Hand back a task's report to whoever coordinates you, once, as your last step before your final message.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["task", "outcome", "summary", "choices", "owner_questions", "follow_ups", "open", "steps_skipped", "plugin_update_due"],
+        "properties": {
+          "task": { "$ref": "#/$defs/text" },
+          "outcome": {
+            "enum": ["landed", "plan_ready", "blocked", "parked", "stopped"]
+          },
+          "summary": {
+            "$ref": "#/$defs/text",
+            "description": "The outcome in a few sentences, for a person."
+          },
+          "plan": {
+            "$ref": "#/$defs/path",
+            "description": "The plan's path, when the task handed back a plan."
+          },
+          "second_opinion": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sort", "recommendation"],
+            "properties": {
+              "sort": { "enum": ["proposal", "idea", "drop"] },
+              "recommendation": { "$ref": "#/$defs/text" }
+            }
+          },
+          "landed": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["repo", "branch", "sha", "ci_runs"],
+            "properties": {
+              "repo": { "$ref": "#/$defs/path" },
+              "branch": { "$ref": "#/$defs/text" },
+              "sha": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$",
+                "description": "The landed commit's full sha."
+              },
+              "ci_runs": {
+                "type": "array",
+                "items": { "$ref": "#/$defs/ci_run" },
+                "description": "Each CI run on the landed commit; empty when the repo has no CI."
+              }
+            }
+          },
+          "branch_kept": {
+            "$ref": "#/$defs/text",
+            "description": "The line the worktree removal printed when it kept the branch."
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["choice", "why"],
+              "properties": {
+                "choice": { "$ref": "#/$defs/text" },
+                "why": { "$ref": "#/$defs/text" }
+              }
+            },
+            "description": "Each choice the owner did not make."
+          },
+          "owner_questions": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/text" }
+          },
+          "follow_ups": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/finding" },
+            "description": "Real defects to queue as tasks of their own."
+          },
+          "open": {
+            "type": "array",
+            "items": { "$ref": "#/$defs/text" },
+            "description": "Anything left open, such as a parked commit or a refused command."
+          },
+          "steps_skipped": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["step", "why"],
+              "properties": {
+                "step": { "$ref": "#/$defs/text" },
+                "why": { "$ref": "#/$defs/text" }
+              }
+            },
+            "description": "Each route step skipped or not yet run."
+          },
+          "plugin_update_due": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "read_report": {
+      "description": "Read the report a subagent handed back, by the agent id its result names, or a top-level worker's by its session id.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,128}$"
+          }
+        }
+      }
+    }
+  }
+}
