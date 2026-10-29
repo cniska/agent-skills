@@ -51,14 +51,24 @@ describe("graders checked only by a model run", () => {
 });
 
 describe("regex", () => {
-  test("reads the final message by default", () => {
-    expect(verdict({ type: "regex", pattern: "Rebased" })).toBe(true);
-    expect(verdict({ type: "regex", pattern: "Merged" })).toBe(false);
+  test("reads the trace it names", () => {
+    expect(verdict({ type: "regex", pattern: "Rebased", target: "trace" })).toBe(true);
+    expect(verdict({ type: "regex", pattern: "Merged", target: "trace" })).toBe(false);
+  });
+
+  test.each([
+    ["no target", {}],
+    ["the final message as its target", { target: "last_message" }],
+  ])("a regex with %s is refused at load", (_, target) => {
+    const error = refusal({ type: "regex", pattern: "Rebased", ...target });
+    expect(error instanceof CodedError && error.code).toBe("grader_invalid");
   });
 
   test("not_contains passes only when the pattern is absent", () => {
-    expect(verdict({ type: "regex", pattern: "Merged", match: "not_contains" })).toBe(true);
-    expect(verdict({ type: "regex", pattern: "Rebased", match: "not_contains" })).toBe(false);
+    expect(verdict({ type: "regex", pattern: "Merged", target: "trace", match: "not_contains" })).toBe(true);
+    expect(verdict({ type: "regex", pattern: "Rebased", target: "trace", match: "not_contains" })).toBe(
+      false,
+    );
   });
 
   test("count:N passes only on exactly N matches", () => {
@@ -72,7 +82,12 @@ describe("regex", () => {
   });
 
   test("a g flag does not carry state from one check to the next", () => {
-    const grader = parseGrader("graders/g.md", { type: "regex", pattern: "Rebased", flags: "g" });
+    const grader = parseGrader("graders/g.md", {
+      type: "regex",
+      pattern: "Rebased",
+      target: "trace",
+      flags: "g",
+    });
     expect(grade(grader, TRACE, null)).toBe(true);
     expect(grade(grader, TRACE, null)).toBe(true);
   });

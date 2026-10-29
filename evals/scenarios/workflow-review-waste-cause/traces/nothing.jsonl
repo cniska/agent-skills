@@ -1,4 +1,0 @@
-{"type":"user","message":{"content":"last week's agent sessions are in transcripts/. what should change in how my agents work?"}}
-{"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Skill","input":{"skill":"cniska-skills:workflow-review"}}]}}
-{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"a1","content":"Launching skill: cniska-skills:workflow-review"}]}}
-{"type":"assistant","message":{"content":[{"type":"text","text":"Nothing clears the bar this week. One-offs: npm instead of pnpm (e5f1)."}]}}

@@ -11,11 +11,14 @@ describe("parseTrace", () => {
           subtype: "permission_denied",
           message: "Permission to use Grep has been denied.",
         }),
-        JSON.stringify({ type: "assistant", message: { content: [{ type: "text", text: "Done." }] } }),
+        JSON.stringify({
+          type: "assistant",
+          message: { content: [{ type: "tool_use", name: "Bash", input: { command: "ls" } }] },
+        }),
       ].join("\n"),
       "trace.jsonl",
     );
-    expect(trace.lastMessage).toBe("Done.");
+    expect(trace.toolCalls).toEqual([{ name: "Bash", input: '{"command":"ls"}' }]);
   });
 
   test("refuses an assistant line whose message is not a list of blocks", () => {

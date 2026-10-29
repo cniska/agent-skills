@@ -21,7 +21,7 @@ const MatchSpec = z.union([
 ]);
 
 const Target = z.union([
-  z.enum(["last_message", "trace", "files", "mock_calls"]),
+  z.enum(["trace", "files", "mock_calls"]),
   z.strictObject({ source: z.literal("file"), path: z.string() }),
 ]);
 
@@ -44,7 +44,7 @@ const GraderSpec = z.discriminatedUnion("type", [
     pattern: z.string(),
     flags: z.string().default(""),
     match: MatchSpec.default({ kind: "contains" }),
-    target: Target.default("last_message"),
+    target: Target,
   }),
   z.strictObject({
     type: z.literal("tool_used"),
@@ -172,8 +172,6 @@ function fileText(workspace: string | null, path: string): string | null {
 function targetText(target: z.infer<typeof Target>, trace: Trace, workspace: string | null): string | null {
   if (typeof target === "object") return fileText(workspace, target.path);
   switch (target) {
-    case "last_message":
-      return trace.lastMessage;
     case "trace":
       return trace.text;
     case "files":
