@@ -48,7 +48,7 @@ record_logged_as() {
   local transcript
   transcript="$(briefed "$(diff_of "$2")")"
   jq -cn --arg cwd "$logged" --arg agent "$1" --arg tool "$VERDICT_TOOL" --arg transcript "$(scratch_file "$transcript")" \
-    --arg listed "$(reads_in "$transcript")" --argjson judgments "$(jq -sc . <<<"$2")" '
+    --arg listed "$(reads_in "$transcript")" --slurpfile judgments <(printf '%s\n' "$2") '
     {session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: $tool, tool_input: {diffs: ($listed | split("\n") | map(select(. != ""))), judgments: $judgments},
       agent_type: "cniska-skills:reviewer", cwd: $cwd, agent_transcript_path: $transcript}' | "$RECORD" 2>/dev/null
 }
