@@ -1,6 +1,7 @@
 ---
-type: regex
-target: trace
-pattern: 'Verdict: return(?=\\n|\\?")'
-match: not_contains
+type: tool_used
+tool: mcp__plugin_cniska-skills_report__verdict
+input_match: '"verdict":"return"'
+min: 0
+max: 0
 ---

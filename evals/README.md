@@ -14,6 +14,7 @@ evals/scenarios/<case>/
 ├── case.yaml        # points at the scaffold
 ├── scaffold.sh      # builds the throwaway workspace the run starts in
 ├── graders/         # one pass/fail check per file, read from the trace or a file, or by a model judge
+├── mocks/           # optional: <server>/<tool>.md, whose body a mocked MCP tool returns to the agent
 └── traces/          # saved runs, and expected.json: the verdict each grader must give each one
 ```
 

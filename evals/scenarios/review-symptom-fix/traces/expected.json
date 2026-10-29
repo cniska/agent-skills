@@ -28,13 +28,6 @@
       "returned": "fail"
     }
   },
-  "natural-wording.jsonl": {
-    "expect": {
-      "returned": "pass",
-      "names-siblings": "pass",
-      "names-raised-timeout": "pass"
-    }
-  },
   "parent-only.jsonl": {
     "expect": {
       "returned": "fail",
@@ -47,6 +40,27 @@
       "returned": "pass",
       "names-siblings": "fail",
       "names-raised-timeout": "fail"
+    }
+  },
+  "range-location.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-siblings": "pass",
+      "names-raised-timeout": "pass"
+    }
+  },
+  "sibling-no-timeout.jsonl": {
+    "expect": {
+      "returned": "pass",
+      "names-siblings": "pass",
+      "names-raised-timeout": "fail"
+    }
+  },
+  "follow-up-sibling.jsonl": {
+    "expect": {
+      "returned": "fail",
+      "names-siblings": "pass",
+      "names-raised-timeout": "pass"
     }
   }
 }

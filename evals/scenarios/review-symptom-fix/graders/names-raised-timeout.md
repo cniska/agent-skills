@@ -1,6 +1,5 @@
 ---
-type: regex
-target: trace
-pattern: '^(?=.*Verdict: (?:return|accept)(?:\\n|\\?"))(?=.*(?:\\n|[^\w.,])8(?:[,_]?000(?!\d)|\s?s(?:ec(?:ond)?s?)?\b))'
-flags: im
+type: tool_used
+tool: mcp__plugin_cniska-skills_report__verdict
+input_match: '\{(?=(?:[^{}"]|"(?:[^"\\]|\\.)*")*"path":"[^"]*tests/feed\.test\.ts")(?:(?=(?:[^{}"]|"(?:[^"\\]|\\.)*")*"line":13[,}])|(?=(?:[^{}"]|"(?:[^"\\]|\\.)*")*"line":(?:[1-9]|1[0-2])[,}])(?=(?:[^{}"]|"(?:[^"\\]|\\.)*")*"end_line":(?:1[3-9]|[2-9]\d|\d{3,})[,}]))'
 ---

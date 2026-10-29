@@ -1,3 +1,3 @@
 {"type":"user","message":{"content":"the profile tests kept timing out, i put a fix in the working tree. review it"}}
-{"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Agent","input":{"subagent_type":"general-purpose","description":"Review the fix","prompt":"Review the uncommitted change in /work."}}]}}
+{"type":"assistant","message":{"content":[{"type":"tool_use","id":"a1","name":"Agent","input":{"subagent_type":"general-purpose","description":"Review the fix","prompt":"Review the uncommitted change in /work. The diff is in /tmp/review/change.diff."}}]}}
 {"type":"assistant","message":{"content":[{"type":"text","text":"The fix looks right: the mock removes the 400 ms floor in the profile tests."}]}}

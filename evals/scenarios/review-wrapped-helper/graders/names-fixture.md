@@ -1,6 +1,5 @@
 ---
-type: regex
-target: trace
-pattern: '^(?=.*Verdict: (?:return|accept)(?:\\n|\\?"))(?=.*\bscratchDir\b)'
-flags: im
+type: tool_used
+tool: mcp__plugin_cniska-skills_report__verdict
+input_match: '"path":"[^"]*fixtures/scratch\.ts"'
 ---
