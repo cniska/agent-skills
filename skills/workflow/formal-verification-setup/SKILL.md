@@ -18,7 +18,7 @@ The skill goes in the directory of skills the repo's agents load, never in a dir
 
 1. **Pick the target by reading the code.** Start from an area or bug the user named; otherwise read the code and ask only what it cannot show. Choose the guarantee whose failure would hurt users most and that no current test drives to its failing case, not the property easiest to check.
 2. **Let the question pick the tool**, the cheapest one that answers it, and tell the user why. A question about steps landing in a harmful order goes to a model checker run on a compact abstraction of the design, TLA+ by default whatever the language. Whether the code holds for every input, such as memory safety, integer overflow or an invariant of a data structure, goes to a verifier that works on the source; where the language has none, say so and fall back to property-based inputs driven through the actual functions, never through a hand-written imitation of them. When no bound is enough and the claim must cover any size, reach for a proof assistant. Favor whatever the team can already set up on their own machines.
-3. **Make it one of the repo's checks.** The check is one command under the repo's task runner, and once it is green, as step 6 says, the repo's check entry point calls it, so every change that runs the repo's checks runs it too. Pin the checker in the repo's own tool setup at a version that cannot move. For TLA+ that is an immutable `tla2tools.jar` release fetched with its checksum, one line in mise where the repo uses it, never the rolling `v1.8.0` prerelease, and a pinned Java beside it. Let the checker's non-zero exit on a violation fail the check, as TLC's does, rather than parse its output.
+3. **Make it one of the repo's checks.** The check is one command under the repo's task runner, and once it is green, as step 6 says, the repo's check entry point calls it, so every change that runs the repo's checks runs it too. Pin the checker in the repo's own tool setup at a version that cannot move, its runtime included. Let the checker's non-zero exit on a violation fail the check rather than parse its output.
 4. **Write the model or harness to these rules:**
    - **Faithful.** Each variable, action and assumption traces to a file and symbol in the repo, named with this repo's nouns. Each action is one indivisible step in the code, and its name or its line in the coverage record gives that code's file and symbol.
    - **Able to fail**, as proven able to fail in `principles` says, shown for each property against a deliberately broken copy of the guarded code.
@@ -58,7 +58,7 @@ Name the mode, the skill, the check's command, and the files added or changed. C
 
 - Writing a second formal verification skill beside an existing one
 - Choosing the easiest property to check instead of the costliest one to break
-- A green check outside the repo's check entry point, or a checker version that can move, such as the rolling TLA+ prerelease
+- A green check outside the repo's check entry point, or a checker version that can move
 - A parser over the checker's output where its exit status already fails the check
 - An action that bundles steps the code can interleave, or one with no file and symbol behind it
 - Loosening a property or the model to turn a red check green
