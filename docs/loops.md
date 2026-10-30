@@ -88,7 +88,7 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 
 ### What the loop changes
 
-The loop changes nothing on its own: each change comes to me first, and a conflict also names the decision I have to make, as [workflow-review](../skills/workflow/workflow-review/SKILL.md) lists.
+The loop proposes changes to skills, agents, hooks, checks and repo rules, and none lands until I accept it; a change that crosses my boundary, as [workflow-review](../skills/workflow/workflow-review/SKILL.md) lists, comes as a conflict naming the decision I have to make.
 
 ### Lean practice
 

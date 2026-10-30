@@ -20,7 +20,7 @@ Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set and proposes changes; each lands only once I accept it, and the [signals](docs/loops.md#signals) keep or revert it, as [the improvement loop](docs/loops.md#the-improvement-loop) says.
+- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set and proposes changes, and reverts of those the [signals](docs/loops.md#signals) show did not help; each lands only once I accept it, as [the improvement loop](docs/loops.md#the-improvement-loop) says.
 
 One task's life, from my request through its landed branch, or its stop, to the daily review that reads its sessions with the rest of the day's work:
 
@@ -36,7 +36,7 @@ flowchart LR
   coord -- "report" --> you
 ```
 
-The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger and the reviews that keep or revert each change.
+The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger and the later reviews that judge each change I accepted.
 
 ## Install
 
