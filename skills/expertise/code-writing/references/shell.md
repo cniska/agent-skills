@@ -43,6 +43,7 @@ Suggested tools; whatever a project already runs in their place takes precedence
 
 - Executables start `#!/usr/bin/env bash` and carry no extension; a library meant to be sourced ends in `.sh` and sets no shell options, so it does not change its caller's shell. `#!/bin/sh` only for a strictly POSIX script.
 - A runner-fixed script that takes arguments prints its usage, prerequisites and exit statuses on `--help` and on a usage error.
+- Long options are parsed with a `while (($#)); do case "$1" in … esac; done` loop; `getopts` has no long options.
 - Code lives in functions, with `main "$@"` as the last line. A script a test sources guards its entry point: `(return 0 2>/dev/null) && return`, then strict mode, then `main "$@"`, so strict mode stays out of the test that sources it.
 - The script's own directory comes from `"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"`, never `$0` or the working directory.
 - Function variables are `local`, declared on one line and assigned on the next when the value comes from a command.
@@ -73,7 +74,7 @@ Suggested tools; whatever a project already runs in their place takes precedence
 
 ## Child processes
 
-- A test suite or any command that may hang runs under [`scripts/bounded`](../scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` runs the command as its direct child in its own process group, ends the whole group at the deadline, TERM then KILL, and exits 124 as `timeout` does, or with the command's own status. `timeout` is GNU coreutils, absent from macOS, so the bound is bash.
+- A test suite or any command that may hang runs under [`scripts/bounded`](../scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` ends the command's whole process group at the deadline and exits 124.
 - A script that starts children traps INT and TERM, ends their process group and exits 130 or 143, so the group dies with the script instead of outliving it.
 - A background child gets explicit stdin (`</dev/null`) and its output redirected to a file or `/dev/null`; a child that keeps the caller's stdout holds a pipe or `$(...)` open until it exits, long after the script has.
 
