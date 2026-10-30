@@ -111,5 +111,19 @@ assert "the plugin config starts this server" \
   "$(jq -r '.mcpServers.report.command' "$HERE/../.mcp.json")" '${CLAUDE_PLUGIN_ROOT}/mcp/report-server.sh'
 assert "the server is executable" "$([ -x "$SERVER" ] && echo yes)" yes
 
+serve_as_claude_code_launches() {
+  local assignments
+  assignments=()
+  local assignment
+  while IFS= read -r assignment; do
+    assignments+=("$assignment")
+  done < <(jq -r --arg root "$HERE/.." --arg data "$DATA" \
+    '{CLAUDE_PLUGIN_ROOT: $root, CLAUDE_PLUGIN_DATA: $data} + (.mcpServers.report.env // {}) | to_entries[] | "\(.key)=\(.value)"' \
+    "$HERE/../.mcp.json")
+  printf '%s\n' "$@" | env -u CLAUDE_PLUGIN_DATA "${assignments[@]}" "$SERVER"
+}
+assert "the server Claude Code launches from the plugin config reads the reports the hooks store" \
+  "$(serve_as_claude_code_launches "$(call read_report '{"id": "a1b2"}')" | jq -c '.result.structuredContent.agent_id')" '"a1b2"'
+
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
