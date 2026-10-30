@@ -50,7 +50,7 @@ flowchart TD
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
   day["The day's sessions"] --> review["Daily workflow review"]
   review -- "proposals, and keep, revert or trim for each recent change" --> lead
-  lead -- "applies each change, its commit paired in the ledger" --> change["Recent change"]
+  lead -- "applies each change I accept, its commit paired in the ledger" --> change["Recent change"]
   change -- "friction before and after, at the following days' runs" --> review
 ```
 
@@ -61,13 +61,15 @@ flowchart TD
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork, and the coordinator applies it.
+The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork. The coordinator whose ledger covers the skills and tools puts each proposal to me and applies only the ones I accept.
 
 ```mermaid
 flowchart LR
   day["A day's work"] -- "its sessions" --> review["Daily workflow review"]
   rec[("agent-record")] -- "earlier sessions, signals" --> review
   review -- "proposals, keep, revert or trim" --> lead["Coordinator"]
+  lead -- "each proposal" --> you(["You"])
+  you -- "accepted ones" --> lead
 ```
 
 Over the following days, each review compares the friction a recent change aimed at before and after it landed, and proposes its revert or trim when it did not help. An eval I approve can check a change before it lands, and the signals judge it after.
@@ -86,7 +88,7 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 
 ### What the loop changes
 
-The loop changes skills, agents, hooks and checks on its own; anything else comes to me as a conflict, as [workflow-review](../skills/workflow/workflow-review/SKILL.md) lists.
+The loop changes nothing on its own: each change comes to me first, and a conflict also names the decision I have to make, as [workflow-review](../skills/workflow/workflow-review/SKILL.md) lists.
 
 ### Lean practice
 

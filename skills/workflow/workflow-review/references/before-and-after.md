@@ -12,7 +12,7 @@ Before comparing, apply these to the tasks Compare step 2 counts on each side, s
 
 ## Compare
 
-Compare each applied proposal the coordinator's ledger, as the routine or the owner names it, pairs with the commit that landed it: the review's date, the proposal's Where and Change, and the commit's sha. The friction it aimed at is that proposal's Evidence, in that date's report among the earlier reports the routine or the owner names. A commit with no pairing is never compared, so a drift or defect fix is never judged here.
+Compare each proposal the owner accepted that the coordinator's ledger, as the routine or the owner names it, pairs with the commit that landed it: the review's date, the proposal's Where and Change, and the commit's sha. The friction it aimed at is that proposal's Evidence, in that date's report among the earlier reports the routine or the owner names. A commit with no pairing is never compared, so a drift or defect fix is never judged here.
 
 1. **Confirm the new version ran** in the after window, since an installed copy can lag the repo: the version the session record shows for those sessions, or the changed skill among their loads. The after window starts when the new version first ran, or at the commit time where the record cannot show which version ran; say which.
 2. **Pick and count the tasks** on each side: for a skill change, only the tasks that loaded that skill, on the same route on both sides. Never pool tasks across a change to a route, a hook or the model. Apply the Thresholds to the count.
@@ -36,4 +36,4 @@ The before and after are the evidence, so a verdict needs no second session.
 
 ## Report
 
-A `Recent changes` heading after the kinds, one entry per change compared: its commit and the friction it aimed at, the tasks on each side, the before and after with what each counts, the verdict, and for a revert, trim or install the change to make, and for not installed yet, what the record shows ran in the after window in place of the tasks and the before and after. Each verdict is a proposal; the review changes nothing.
+A `Recent changes` heading after the kinds, one entry per change compared: its commit and the friction it aimed at, the tasks on each side, the before and after with what each counts, the verdict, and for a revert, trim or install the change to make, and for not installed yet, what the record shows ran in the after window in place of the tasks and the before and after. Each verdict is a proposal to the owner; the review changes nothing.
