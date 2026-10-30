@@ -9,7 +9,7 @@ Find where the workflow failed the owner, and say what should change so it does 
 
 ## The rules
 
-- **Evidence is quoted, never paraphrased.** Each piece is cited by session, time and project.
+- **Evidence states what was said, never a guess at it.** Each piece is restated, as verify at the source in `principles` says, and cited by session, time and project.
 - **Propose only a change whose benefit the evidence clearly shows, never a guess.** A pattern needs two independent sessions: one sighting is usually that session's judgment call, so list it and propose nothing. An eval or check finding rests on the case and its result instead.
 - **The owner's correction is the evidence.** When the agent followed a skill and the owner corrected it, the skill is in question, not the owner.
 - **Cut before adding.** A step that routinely finds nothing, or a rule models now follow unprompted, is a proposal to remove it.
@@ -53,7 +53,7 @@ The owner's boundary is a repo's rules file, permissions, how much autonomy the 
 One heading per kind, one proposal per finding, within each kind the costliest first:
 
 - **Where:** the skill, agent or rules file, and the line; for a missing tool, where the friction occurs.
-- **Evidence:** the quotes, each with its citation, or for an eval or check finding, the case and the result that shows it.
+- **Evidence:** what each session showed, each with its citation, or for an eval or check finding, the case and the result that shows it.
 - **Waste and cause:** what it cost, and the reachable cause the whys stopped at.
 - **Change:** the smallest edit that would have prevented it, cuts first; for a missing tool, the smallest tool.
 - **Check:** the cheapest test or check that would catch it coming back. Propose an eval only when the change's risk justifies one: a behavior the skill exists for, a past regression, or a change no cheaper check can judge, and say why. A proposed eval goes to the owner as its own Conflict, naming the change it judges; the change stays in its kind, and the following days' before and after judge it until the owner decides.
@@ -66,13 +66,13 @@ A conflict's proposal also names the decision the owner has to make. Then the re
 - `skill-writing` — makes an accepted change to a skill or agent
 - `agents-md` — makes an accepted change to a repo's rules
 - `design-review` — the same judgment, applied to code
-- `principles` — mistake-proofing, no drift
+- `principles` — mistake-proofing, no drift, and verify at the source, for how evidence is restated
 
 ## Red flags
 
 - A proposal resting on one session, or on a guess at its benefit
 - A proposal whose cause is the symptom, such as "the agent forgot"
-- Paraphrasing what the owner said instead of quoting it
+- Evidence that quotes the owner's wording instead of restating it
 - Proposing a rule the current version already states
 - Proposing an edit to an installed skill, or a change for its author, instead of a rule in the repo's `AGENTS.md`
 - Siding with a skill over the owner's correction instead of naming the conflict

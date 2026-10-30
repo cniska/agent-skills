@@ -23,7 +23,7 @@ Three modes, inferred from the request:
 - **A record states the decision that holds today.** When the decision changes, edit its record; when it stops holding, delete it. Git keeps the history, so no status, date, or supersede chain.
 - **Short.** The why and the cost. Where the owning doc already states the decision, its alternatives, and its reasons, the record is a link to it, or no record at all.
 - **Facts are verified at their source** — the code, migration, config, or owning doc — and a fact that cannot be verified is deleted.
-- **Reasons and alternatives come from the owner** — their own words, or an argument they explicitly accepted, about this decision. Cite who said it; an assistant's proposal or summary is not the owner's reason. A reason that is a consequence of the decision, or that would equally reject something the system does elsewhere, is not the reason.
+- **Reasons and alternatives come from the owner** — what they said, or an argument they explicitly accepted, about this decision, restated as verify at the source in `principles` says. Cite who said it; an assistant's proposal or summary is not the owner's reason. A reason that is a consequence of the decision, or that would equally reject something the system does elsewhere, is not the reason.
 - **Never invent an alternative or a reason.** Search past sessions first (the `search-sessions` skill), then ask the owner. When the owner is not available, draft only what the sources support and list the open questions with the draft.
 - **Find the repo's convention before writing** — existing records, their README or template, the agent rules, and tooling such as an `.adr-dir` file or an `adr-tools` setup. Continue its directory, markup, and numbering; never start a second scheme.
 - **The existing format keeps its structure; these content rules still apply.** Structure is the section set, markup, and numbering; a template's example titles and placeholder text are not. Where the structure conflicts with these rules, such as a required status section, keep it, fill it with the value that means the decision holds today, and raise the conflict with the owner rather than reformatting the set. With no format, propose a home and a shape and ask before writing.
@@ -62,6 +62,7 @@ Three modes, inferred from the request:
 - `search-sessions` — mining past discussion for reasons and alternatives
 - `second-opinion` — the independent check of a drafted set
 - `why` — tracing recorded rationale and whether it still applies
+- `principles` — verify at the source, for how the owner's reasons are restated
 
 ## Red flags
 
