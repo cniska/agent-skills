@@ -27,6 +27,6 @@ GitHub renders a ```mermaid block in Markdown natively, so the chart stays text:
 
 ## Render check
 
-- **The repo checks every chart.** A repo with charts pins Mermaid's CLI, `@mermaid-js/mermaid-cli` with its `mmdc` command, in its own tool setup, as `code-writing` says. One task runs `mmdc` on every Mermaid block in the repo's Markdown, and the repo's check entry point calls it, so a syntax error that GitHub would show as a broken block fails the check.
+- **The repo checks every chart.** Its check entry point renders every Mermaid block in the repo's Markdown, so a syntax error that GitHub would show as a broken block fails the check.
 - **Look at a changed chart.** Render it to PNG and read the image, since a chart that parses can still cross its lines or cut its labels.
-- **Proven able to fail**, as `principles` says: the task goes red once on a deliberately broken chart before it is trusted.
+- **Proven able to fail**, as `principles` says: the check goes red once on a deliberately broken chart before it is trusted.
