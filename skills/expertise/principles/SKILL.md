@@ -20,7 +20,6 @@ A principle that more than one skill needs lives here once, so every skill that 
 | Review report | Every review reports in one shape, fixes what the change causes and what blocks it, queues other real defects, and accepts only when there is no finding | [review-report.md](references/review-report.md) |
 | Current rules | Recheck a branch against the skills and agent definitions that wrote and judged it before it moves on | [current-rules.md](references/current-rules.md) |
 | Verify at the source | Settle each factual claim where it is defined, and cite that place | [verify-at-source.md](references/verify-at-source.md) |
-| Owner's order | Build and queue first what the owner will use first; a spec's listing sets no order | [owners-order.md](references/owners-order.md) |
 
 A principle only one skill uses stays in that skill. It moves here when a second skill needs it.
 
@@ -30,7 +29,6 @@ A principle only one skill uses stays in that skill. It moves here when a second
 - the other review skills and `audit`, which report in the review report shape
 - `code-writing`, `simplify`, `debug`, `test-writing`, `deprecation`, `docs-writing`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply
 - `task` and `coordinate`, which recheck a branch under current rules before it lands or reaches the owner
-- `coordinate`, `plan` and `build`, which order a queue, a plan and a feature's slices by owner's order
 
 ## Red flags
 

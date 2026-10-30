@@ -39,7 +39,7 @@ Tag each finding with the waste it cost, as [references/waste-and-cause.md](refe
 | Kind | What happened | Proposal |
 |---|---|---|
 | Conflict | The agent followed a skill and the owner corrected it, or the change crosses the owner's boundary | The change; the owner decides whether it stands |
-| Unstated rule | The owner enforces it and nothing states it | Add it to the skill that owns that step, or make it a check |
+| Unstated rule | The owner enforces it and nothing states it | Change or cut the line that allowed it, else add a line or check |
 | Dead weight | A step routinely finds nothing or repeats another, or a skill a route names does not load or changes nothing | Cut it, scale it to the work, or fix what keeps it from loading |
 | False stop | A gate refused correct work | Fix the gate, not the work |
 | One-off | One session | None; list it |

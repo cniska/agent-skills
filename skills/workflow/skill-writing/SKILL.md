@@ -10,7 +10,7 @@ A skill is a self-contained instruction to a model — a directory holding a `SK
 Two modes, inferred from the request:
 
 - **Create** — a capability has no skill yet. Clone the shape of the closest existing skill; the repo's validator catches what is missing.
-- **Update** — a skill exists and a rule needs adding or sharpening. Merge into the right section and trim what it duplicates; never blind-append. Updating is the harder half.
+- **Update** — a rule needs sharpening or cutting. Add one only when it holds in any project, two independent sessions saw its failure, and no existing line fits.
 
 ## Workflow
 
