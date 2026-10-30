@@ -29,6 +29,6 @@ Naming actual models here would be wrong within months, so this column gives the
 
 Each principle lives in one place, and the reviewer cites the rule behind each finding.
 
-- **A principle more than one skill applies** lives in [principles](../skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, mistake-proofing, no text heuristics, no drift, review report, current rules, and verify at the source.
+- **A principle more than one skill applies** lives in [principles](../skills/expertise/principles/SKILL.md), one file each: no comments, Chesterton's Fence, proven able to fail, fix the cause, no transitional architecture, mistake-proofing, no text heuristics, no drift, review report, current rules, verify at the source, and owner's order.
 - **The design rules** live in [design-review's patterns](../skills/expertise/design-review/references/patterns.md), in two parts: Architecture, such as one reason to change per module, building only what the job needs (YAGNI), and parsing what crosses a boundary; and Code, such as no abstraction before the third copy (rule of three).
 - **The rest** live in the skill that applies them.

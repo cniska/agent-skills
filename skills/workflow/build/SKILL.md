@@ -15,6 +15,8 @@ A brief or a plan that already slices the work is the input, not a reason to ski
 - **Contract-first**: the schema and types land first, then each consumer as a slice of its own.
 - **Risk-first**: the uncertain part goes first, so the plain parts build on something proven.
 
+Order the paths by owner's order in `principles`.
+
 A slice is a path, never a layer. Good: `POST /orders`, the form that calls it, and one test. Bad: every endpoint, then every screen, then every test.
 
 ## Stop and hand back
@@ -25,6 +27,7 @@ A run takes slice after slice with no reader in between, and its scope stays wit
 - one slice has failed verification twice, since a third try is a guess
 - a fix reaches a file or contract outside the plan's boundary
 - the right behavior is unclear and nobody is there to ask
+- the order the owner will use the paths in is unclear and no brief or plan settles it
 
 Name what stopped the run and which slices were committed. The per-slice commits are the record; keep no progress log beside them.
 
@@ -37,11 +40,13 @@ Name what stopped the run and which slices were committed. The per-slice commits
 - `design-review` and `doc-review` — the reviews each slice waits on, on code and on docs
 - `ui-review` — the review a slice that changes an interface also waits on
 - `git` — how each slice is committed
+- `principles` — owner's order, for the order the slices are cut in
 
 ## Red flags
 
 - Skipping this skill because a brief or plan already sliced the work
 - A slice that is one layer of the stack rather than one path through it
+- Paths built in the order a spec lists them rather than the order the owner will use them
 - Reordering, merging or splitting a brief's slices without saying why
 - Starting the next slice before the last one is accepted and committed
 - Widening the plan mid-run instead of stopping to hand back

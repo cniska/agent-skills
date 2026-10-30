@@ -11,7 +11,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 - **Where the plan lives**: a path in the repo or the ledger, never a temp path or this message.
 - **Its temp folder**: one of its own named for its task, never a shared scratchpad's root.
 - **The bound on a suite or a long command, by its tool**: the bounded-run script the `code-writing` skill bundles, named by that skill and in words, never by a path, since the worker reaches it through the skill it loads; a brief that describes a watchdog or a process-group bound instead leaves each worker to write its own.
-- **The open obstacles that touch the work and that `task` does not cover**, from the ledger as it stands when the worker starts, not when the brief was written: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
+- **The open obstacles that touch the work and that `task` does not cover**, from where rule 4 puts them, as they stand when the worker starts, not when the brief was written: each defect in a tool, hook or gate it may hit, so the worker stops and reports at it rather than working around it.
 - **What to report**: the outcome, commits, checks, choices the owner did not make, and anything left open.
 
 Leave out what `task`, the repo or `git log` already holds, such as reviewer routing, diff files, re-reviews, parking a commit, worktrees, landing and how a check is proven able to fail, which proven able to fail in `principles` holds, so a brief names that principle rather than a method; link a file the repo holds rather than restate it. Cite a file by a quote, heading or symbol, never a line number, since line numbers move with each edit.

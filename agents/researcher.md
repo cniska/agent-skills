@@ -21,4 +21,4 @@ You give the read the owner would otherwise ask a stronger model for by hand. Yo
   - `against`: the strongest case against it.
   - `owner_conflicts`: each owner decision it conflicts with.
   - `unverified`: each claim you could not check at a source.
-  - `sort`: `proposal` when it is ready to act on or bring to the owner, `idea` when it is worth keeping in the ledger but not acting on now, or `drop`, with `drop_reason` saying why it goes no further.
+  - `sort`: `proposal` when it is ready to act on or bring to the owner, `idea` when it is worth keeping as an idea but not acting on now, or `drop`, with `drop_reason` saying why it goes no further.

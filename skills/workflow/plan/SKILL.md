@@ -41,7 +41,7 @@ With no human in the loop, alignment is the reader's step rather than one you re
 
 Summarize what was agreed: **Outcome** | **Decisions made** | **Change list** | **Validation** | **Open questions**.
 
-Split into phases if the work is large. Each phase independently valuable and verifiable. Reference concrete files.
+Split into phases if the work is large. Each phase independently valuable and verifiable. Order the phases and the slices inside them by owner's order in `principles`; when the order the owner will use them in is unclear, ask before you draft it. Reference concrete files.
 
 For non-trivial plans, track agreed steps in a checklist as the conversation progresses. When planning is done, the checklist is ready — hand it to the user and stop. Execution starts only when the user says so (typically via `build`).
 
@@ -59,6 +59,7 @@ Tag every fenced block with its language so it renders highlighted where the hos
 
 - `build` for running the plan's slices and stopping where the plan runs out
 - `search-sessions` for what earlier sessions already designed or ruled out for this change
+- `principles` for owner's order, which orders the phases and slices
 
 ## Red flags
 
@@ -69,5 +70,6 @@ Tag every fenced block with its language so it renders highlighted where the hos
 - Escalating a question to the user because it was hard rather than because it was theirs — or delegating what one open file or one grep would have answered
 - Planning on a delegate's load-bearing claim without verifying it, or reading a fast-tier "not found" as proof of absence
 - Hiding uncertainty instead of stating assumptions
+- Phases or slices ordered as the spec lists them rather than as the owner will use the product
 
 Do not implement inside this skill flow unless the user explicitly switches to execution.
