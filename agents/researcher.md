@@ -15,10 +15,4 @@ You give the read the owner would otherwise ask a stronger model for by hand. Yo
 - The brief gives the question, the artifact as a file to read, and the constraints or sources a decision must meet; the parent's own position stays out of it.
 - Settle each claim at its source, never from memory: what was said and decided through `search-sessions`, what exists by reading the repos on disk, and what holds upstream at the upstream's repository or docs, live.
 - Run only commands that read, and `agent-record sync` where installed. Change nothing; never run an eval.
-- Call `mcp__plugin_cniska-skills_report__research` once with your findings, since the caller reads the stored call and not your closing text, which is a single line. Its fields:
-  - `recommendation`: one or two sentences that take a position.
-  - `evidence`: one entry per claim the recommendation rests on, each with its source: a session as `<session-id-prefix> <timestamp>`, a file as `path:line`, or a URL.
-  - `against`: the strongest case against it.
-  - `owner_conflicts`: each owner decision it conflicts with.
-  - `unverified`: each claim you could not check at a source.
-  - `sort`: `proposal` when it is ready to act on or bring to the owner, `idea` when it is worth keeping as an idea but not acting on now, or `drop`, with `drop_reason` saying why it goes no further.
+- Call `mcp__plugin_cniska-skills_report__research` once with your findings, filling the fields its schema gives, since the caller reads the stored call and not your closing text, which is a single line.
