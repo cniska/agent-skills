@@ -21,7 +21,7 @@ flowchart LR
 
 Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plugin](plugin.md).
 
-[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too.
+[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too. Before a branch lands, a fresh designer judges its finished interface whole.
 
 `<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a brief from a coordinating agent. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
@@ -45,7 +45,7 @@ flowchart TD
   lead -- "the brief" --> worker["Worker runs the task route"]
   worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
   reviewer -- "accept, or return with findings" --> worker
-  worker -- "an interface commit's diff and captures" --> designer["Fresh designer"]
+  worker -- "each interface commit's diff and captures, then the branch's" --> designer["Fresh designer"]
   designer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
   day["The day's sessions"] --> review["Daily workflow review"]

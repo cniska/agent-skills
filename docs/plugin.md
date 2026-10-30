@@ -83,6 +83,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 `cniska-skills:designer` judges a change to a running interface it did not make, as [its agent file](../agents/designer.md) says.
 
 - It runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
+- It also judges a branch's finished interface whole, once, before the branch lands.
 - Its shell only reads, and syncs the session record, where it looks up the owner's past UI corrections.
 - It reports through the same `verdict` tool, with the reasons its agent file lists. The commit gate does not record its verdicts, so a designer accept never stands in for the reviewer's; [task](../skills/workflow/task/SKILL.md) is what makes an interface commit wait for it.
 
