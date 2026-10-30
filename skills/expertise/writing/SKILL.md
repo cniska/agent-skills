@@ -34,7 +34,6 @@ Preserve the intended meaning and level of confidence. Remove words or structure
 
 - **Email:** Keep the directness and leave room for warmth.
 - **Chat:** Put the point first. Use bullets only when they improve scanning.
-- **Slack:** Write plain text Slack formats on paste: `-` list items, bare URLs, no headings or `**`. Copy it to the clipboard as well as showing it.
 - **Docs and proposals:** Structure the argument around decisions, tradeoffs, and evidence. State assumptions.
 - **Public writing:** Allow rhetorical emphasis when the substance earns it.
 - **PR review replies:** Lead with the action or finding. Let the thread carry its own history and references.
