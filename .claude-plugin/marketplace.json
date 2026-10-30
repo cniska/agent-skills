@@ -44,7 +44,7 @@
         "url": "cniska/agent-task",
         "path": "plugin"
       },
-      "description": "Puts the running agent-task tasks in the context of a session whose directory holds one of their briefs."
+      "description": "Tells every session that queued and running work lives in agent-task, and adds the running and in-review tasks where the session's directory holds one of their briefs."
     }
   ]
 }

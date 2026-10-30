@@ -12,7 +12,7 @@ Transcripts sit one JSON object per line at `~/.claude/projects/<slug>/<session-
 
 Search before deciding something that may already be settled.
 
-Ask `agent-record` (github.com/cniska/agent-record) first, where installed: it indexes every session and the commits they led to. Run `agent-record sync` before the first query, so the record holds the latest sessions. If it fails with `error.code` `lock_held`, another sync is running: search anyway, say the record may lag one sync, and do not retry. `agent-record query search "<words>"` finds a message, `agent-record query thread <session> --at <at>` reads the exchange a hit sits in, with the hit's `at` copied whole, its `Z` included, since a time with no zone is refused `not_a_time`; `agent-record query prior-art "<path fragment>"` finds where a shape already exists on disk, and `agent-record sql "<select>"` reads anything else. The workflow below is for when it is missing or finds nothing.
+Ask the session record first, where one is installed. The workflow below is for when it is missing or finds nothing.
 
 ## Workflow
 
@@ -35,8 +35,6 @@ Say plainly what the search did not find — an absence you looked for is a find
 
 ## Red flags
 
-- Querying `agent-record`, where installed, without syncing first, or retrying a sync the lock refused
-- Passing `--at` a hit's time with its zone dropped
 - Searching the current directory's slug alone, so another worktree's conversation reads as never having happened
 - Paraphrasing a decision instead of quoting it
 - Parsing every transcript instead of grepping for candidates first, or grepping them all before a bounded scan came back empty

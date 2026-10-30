@@ -165,7 +165,9 @@ It reports the comments each edit adds, in the words of the [agent-gates](https:
 
 ### cniska-task
 
-Whenever a session starts, resumes, clears or compacts in a directory that holds a running task's brief, it adds the tasks the [agent-task](https://github.com/cniska/agent-task) CLI runs, as `agent-task list` prints them, to the session's context.
+It tells every session that queued and running work lives in the [agent-task](https://github.com/cniska/agent-task) CLI, not in a ledger, a notes file or a plan.
 
-- It needs `jq` and `realpath`, and does nothing unless the agent-task CLI is on PATH.
+- Whenever a session starts, resumes, clears or compacts, it adds a note naming the commands that queue, start, hand back and close a task.
+- In a directory holding the brief of a running or in-review task, it adds those tasks after the note, as `agent-task list --started` prints them, each flagged when its brief changed.
+- It needs `jq` to add the tasks, and does nothing unless the agent-task CLI is on PATH.
 - Install it with `claude plugin install cniska-task@cniska`.
