@@ -4,7 +4,7 @@ A brief is the worker's whole context: it starts with none of yours. Write it so
 
 ## What it holds
 
-- **The repo and the goal**, every decision the owner settled and every design choice rule 7 has you take, each stated as the outcome it settles, not its history; the requirement, skill or doc text written for it is the worker's, like every other choice of how the change is built, which the worker's `design-review` judges, except an owner's own words, quoted as the owner's.
+- **The repo and the goal**: the outcome the work achieves, and every decision the owner settled, stated as the outcome it settles, not its history. Quote the owner's own words and any copy the owner set as the owner's. Leave how the work is built to the worker and its reviews: its design, its implementation, and the requirement, skill or doc text written for it. Put no design choice of your own in a brief. Name code only to point at where to look, never to say what to build.
 - **Each defect the task fixes, as it was seen**: the command run and what it printed; the goal states done as proof of the behavior, not of the cause.
 - **Another repo's rules**: for a repo other than the one this session started in, name its instruction file and each of its project skills by path, and tell the worker to read them: a worker starts in this session's project and loads neither.
 - **Each limit with what it still allows**: a limit such as "stay out of other repos" names what it leaves open, such as reading them for a sibling to clone, so it cuts no step the work needs.
