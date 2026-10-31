@@ -1,29 +1,27 @@
 ---
 name: issue
-description: Create a GitHub issue from a short description. Use when filing a bug, feature request, or task.
+description: Create a GitHub issue from a short description, checking for duplicates and filing it once the user approves the draft. Use when asked to file a bug, feature request or task as an issue.
 ---
 
 # Issue
 
-Create a GitHub issue from a short description.
+Turn a short description into a GitHub issue that anyone reading the repo can act on. The issue says what is wanted and why, and leaves how to build it to the branch that does.
 
 ## Conventions
 
-- The repo's own issue template, labels and commit subject rules win over the defaults below
-- Title: `type(scope): description`, under 60 characters, no closing period
-- Label: `enhancement` for features, `bug` for bugs
-- Body sections (in order): **What would you like?**, **Motivation**, **Proposed approach**, **Scope**
-- Each section is a `##` heading followed by 1-3 short paragraphs; a single sentence is fine
-- Write plainly — no code blocks, no bullet-heavy lists, no implementation detail
-- Focus on *what* and *why*, not *how* — leave implementation to the branch
-- Scope section uses a flat bullet list of affected areas
-- Self-contained: the issue must stand alone for anyone reading the repo. No links to private or local docs (e.g. a planning file) and no internal shorthand (`P1`, `RC4`, `C2`) — spell the point out or drop it
+The repo's own issue template, labels and commit subject rules win over these defaults.
+
+- **Title:** `type(scope): description`, under 60 characters, ending without a period.
+- **Label:** `enhancement` for a feature, `bug` for a bug.
+- **Body:** four `##` sections in order, **What would you like?**, **Motivation**, **Proposed approach** and **Scope**. Each holds one to three short paragraphs of plain prose, and a single sentence is fine. Scope alone is a flat bullet list of the affected areas.
+- **What and why:** describe the outcome and its motivation in plain words. Leave code, file-level detail and the implementation plan to the branch.
+- **Self-contained:** the issue stands alone for a reader who has only the repo. Spell each point out in full or drop it, in place of a link to a private or local doc such as a planning file, or internal shorthand such as `P1` or `RC4`.
 
 ## Workflow
 
-1. **Understand the idea**: read the user's description — ask if intent or scope is unclear
-2. **Check for duplicates**: scan the open issues for overlap
-3. **Draft the issue**: write title and body following the conventions above, the body worded as `writing` says
-4. **Show the draft**: present the title and body to the user for approval before creating
-5. **Create the issue** with the approved title, label and body
-6. **Return only the issue URL**
+1. **Understand the idea.** Read the user's description, and ask when its intent or scope is unclear.
+2. **Check for duplicates** among the open issues.
+3. **Draft** the title, label and body as the conventions say, the body worded as `writing` says.
+4. **Show the draft** to the user and wait for approval.
+5. **Create the issue** with the approved title, label and body.
+6. **Return only the issue URL.**

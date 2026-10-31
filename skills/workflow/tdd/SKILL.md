@@ -1,18 +1,18 @@
 ---
 name: tdd
-description: Drive implementation with red-green-refactor. Use when building features or fixing bugs test-first.
+description: Drive a behavior test-first in red-green-refactor cycles of one failing test, the least code that passes it and a cleanup. Use when building a feature's crucial logic or fixing a bug test-first.
 ---
 
 # TDD
 
-Drive implementation through the red-green-refactor cycle.
+Build the change one behavior at a time, each driven by a test that failed first. A test written before its code proves it can fail, and the smallest passing step keeps every line tied to a test.
 
 ## Workflow
 
-1. **Understand the behavior**: read enough code to know what the change should do and where it belongs.
-2. **Write one failing test**: the test describes the next behavior to add, written as `test-writing` says. It must fail for the right reason.
-3. **Make it pass**: write the minimum code to pass the test. Nothing more.
-4. **Refactor**: clean up while green. Improve naming, remove duplication, simplify structure. Run tests after each change. No comments: a *why* goes into a name, type or test.
-5. **Repeat**: pick the next behavior and go back to step 2.
+1. **Understand the behavior.** Read enough code to know what the change should do and where it belongs.
+2. **Write one failing test** for the next behavior, as `test-writing` says. Run it and see it fail because the behavior is missing.
+3. **Make it pass** with the least code that does.
+4. **Refactor while green.** Improve names, remove duplication and simplify structure, running the tests after each change. Put any why into a name, type or test, as no comments in `principles` says.
+5. **Repeat** from step 2 with the next behavior.
 
-One test at a time. Each cycle is vertical — one test, one implementation, one refactor pass. Do not write multiple tests before implementing.
+Write the next test only once the current one passes.
