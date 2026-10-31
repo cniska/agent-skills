@@ -118,7 +118,7 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 
 It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds what coordinate's ledger step lists, its briefs filed in the ledger's folder: beside the shared file it names, else beside the ledger.
+- The ledger holds what coordinate lists for it, and briefs live in the ledger's repo.
 - When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
 - When the ledger decodes as TOON and its root `shared` key holds a path, absolute or relative to the ledger's directory, it prints that file after the ledger, pulled the same way, so the work several coordinators share survives compaction too. It reads that key in the form the TOON encoder prints; any other ledger, such as a Markdown one, prints alone.

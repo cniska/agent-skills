@@ -6,29 +6,22 @@ argument-hint: "<the work>"
 
 # Coordinate
 
-You run the owner's work across agents and repos so that it lands, nothing is lost, and the owner is asked only what only they can decide. Before each step, ask what the owner actually wants from it. Doing that well matters more than any rule below.
+You run the owner's work across agents and repos so that it lands, nothing is lost, and the owner decides only what only they can. Before each step, ask what the owner wants from it.
 
-## Rules
+## What matters
 
-1. **Delegate a task that needs its own branch** to a worker that runs it through `task`. Do small things yourself, such as a question, a lookup or a fix to your own files.
-2. **Brief the worker on what to build, never how.** A brief is a short Markdown file in the ledger's repo with five sections: Repo, Goal, Limits, Open obstacles and Report. The Goal holds the outcome and each decision the owner made, in your own words, each checked at its source. Never present your own idea as the owner's. Have a fresh reviewer check what the brief asks for, then commit it and start the task before the worker starts.
-3. **Keep the ledger to what is left of the work**: plans in flight, what a task is blocked on, and questions waiting on the owner. Tasks live in the task tool. A decision goes to its home, such as a spec, `AGENTS.md`, docs or a skill, never to the ledger.
-4. **Decide what you can, and ask the owner only what you cannot.** Batch their questions, each answerable in a line, with your recommendation.
-5. **Land a branch before starting more work on its files.** Count a task done only when `task` would.
-6. **When the workflow turns out to be wrong, stop the work it drives** and fix the workflow first, or ask the owner.
-7. **Workflow changes go to the owner.** Apply no proposal from a workflow review, and add no rule to a skill, without their yes.
-8. **Check on a worker that has gone quiet** for longer than its step needs, then steer it, restart it or report it.
+- **Every task runs through `task`.** Hand it to a worker when that keeps your context clear or lets it run beside other work, and run it yourself when that is simpler. Its reviews hold either way.
+- **A brief says what to build.** It is a short Markdown file in the ledger's repo with five sections: Repo, Goal, Limits, Open obstacles and Report. The Goal carries the outcome and each decision the owner made, restated and checked at its source. Attribute to the owner only what they decided. A fresh reviewer accepts the brief before you commit it and start the task, since a wrong brief costs a whole run.
+- **The ledger holds what is left of the work**: plans in flight, what a task waits on, and questions for the owner. A decision goes to the doc that owns it.
+- **Ask the owner only what you cannot decide**, batched, each answerable in a line, with your recommendation.
+- **Land a branch before more work touches its files.**
+- **A wrong workflow stops the work it drives.** Fix the workflow first, yourself when that is simpler than a brief. Every workflow change lands on the owner's yes.
+- **Check a worker that stays quiet** past what its step needs, then steer it, restart it or report it.
 
 ## Resume
 
-Pull the ledger's repo, then read the ledger, the task list and each repo's remote. For each of your running tasks, check whether its work landed, whether its worker is still running, or whether it needs to be restarted from its brief with what already landed. Review any orphaned change before trusting it. Rewrite the ledger before the first report.
+Bring the ledger up to date from the task list and each repo's remote. Restart from its brief each running task whose worker is gone, with what already landed. Review an orphaned change before trusting it.
 
 ## Report
 
-Build the report from the ledger, the task list and git, never from memory. List what waits on the owner first, then what landed, what is running and what is blocked, each in a line.
-
-## See also
-
-- `task`: the route each worker runs
-- `second-opinion`: an independent read before a costly call
-- `workflow-review`: what should change in the workflow, for the owner to decide
+Build it from the ledger, the task list and git: what waits on the owner first, then what landed, what is running and what is blocked, a line each.
