@@ -14,7 +14,7 @@ Two parts carry the workflow:
 
 A separate designer judges every commit that changes an interface on its merits, from captures of the running app, in [ui-review](skills/expertise/ui-review/SKILL.md). Before the branch lands, a fresh one judges its finished interface whole.
 
-Inspired by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills); routes adapted from [pstack](https://github.com/cursor/plugins/tree/main/pstack), the plugin from [superpowers](https://github.com/obra/superpowers).
+Influenced by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skills), [obra/superpowers](https://github.com/obra/superpowers), [pstack](https://github.com/cursor/plugins/tree/main/pstack) and [mattpocock/skills](https://github.com/mattpocock/skills).
 
 ## Three loops
 
