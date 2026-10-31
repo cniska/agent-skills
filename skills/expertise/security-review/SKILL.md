@@ -1,65 +1,64 @@
 ---
 name: security-review
-description: Review security risks, trust boundaries, and unsafe defaults — concrete attack paths only. Use when reviewing security posture or assessing risk before release.
+description: Review a change for security failures an attacker can reach, finding broken trust boundaries, unsafe execution, exposed secrets and insecure defaults, each with its attack path. Use when reviewing any diff, or when assessing a system's security before a release.
 ---
 
 # Security Review
 
-Review the diff for exploitable security failures. Report only findings with a concrete attack path, trust-boundary failure, or unsafe default — the Scope buckets below are where attack paths hide, not a checklist to sweep.
+Review the diff for security failures someone can exploit. The Scope buckets below are where attack paths hide, not a checklist to sweep.
 
 ## Scope
 
 ### 1. Trust boundaries and access control
 
 - auth and trust boundaries
-- authorization gaps between clients, sessions, and operations
+- authorization gaps between clients, sessions and operations
 - endpoint exposure and listener defaults
 
 ### 2. Transport and encryption
 
 - transport security (HTTP vs HTTPS, WS vs WSS)
-- sensitive payloads traversing insecure channels
-- key/secret handling: env-based sourcing, redacted logs, no plaintext persistence
+- sensitive payloads crossing an insecure channel
+- keys and secrets sourced from the environment and stored encrypted
 
 ### 3. Execution boundaries
 
-- path boundary enforcement for file operations
-- path traversal and escaping project roots
-- shell/command execution safety
-- queries or commands built by string concatenation instead of parameterization
-- dynamic operations without an explicit allowlist
-- destructive operations without appropriate guards
+- path boundaries on file operations, and traversal out of the project root
+- shell and command execution
+- queries or commands built by string concatenation where parameterization is available
+- dynamic operations with no explicit allowlist
+- destructive operations with no guard
 
 ### 4. Protocol abuse and resource exhaustion
 
-- malformed payload handling and schema validation
-- queue flooding, oversized input, replayable requests
-- timeout/retry/cancel consistency
-- unbounded work, logs, or memory growth
+- malformed payloads and schema validation
+- queue flooding, oversized input and replayable requests
+- inconsistent timeout, retry and cancel handling
+- unbounded work, logs or memory growth
 
 ### 5. Secret exposure
 
-- secrets in logs, errors, traces, or test fixtures
-- error messages exposing tokens, paths, or private context
+- secrets in logs, errors, traces or test fixtures
+- error messages that expose tokens, paths or private context
 
 ### 6. Defaults and dependencies
 
-- config defaults creating insecure behavior
+- config defaults that make behavior insecure
 - unsafe opt-out flags or weak default modes
-- broad bypass options that disable enforcement when a narrower exception would do
+- a broad bypass that disables enforcement where a narrower exception would do
 - unpinned or known-vulnerable dependencies
 
 ## Evidence threshold
 
-Only report findings with a concrete attack path, trust-boundary failure, or unsafe default. No speculative recommendations without a plausible abuse path.
+Report only a concrete attack path, trust-boundary failure or unsafe default, and say who can reach it. A recommendation with no plausible abuse path is no finding.
 
 ## Workflow
 
-1. Map entry points and trust boundaries in the diff. Sort a hole that was there before the change as the review report in `principles` says.
-2. Classify each: local-only, authenticated, remote-accessible, privileged.
-3. Check validation, authorization, safe defaults at each boundary. For large audits, fan out **fast-tier** readers — one per boundary or subsystem — to collect raw candidates. Verify each against the code before reporting.
-4. Identify exploitable paths (read, write, execute, network, persist).
-5. Report each exploitable path found.
+1. Map the entry points and trust boundaries in the diff. Sort a hole that was there before the change as the review report in `principles` says.
+2. Classify each entry point as local-only, authenticated, remote-accessible or privileged.
+3. Check validation, authorization and safe defaults at each boundary. When an audit spans more than one pass can cover and you can start agents, start a fast-tier reader per boundary or subsystem to gather candidates, then check each against the code yourself.
+4. Find the exploitable paths: read, write, execute, network and persist.
+5. Report each exploitable path.
 
 ## Output
 
