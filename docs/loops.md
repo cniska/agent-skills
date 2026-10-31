@@ -56,7 +56,7 @@ flowchart TD
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
-- It [reports](../skills/workflow/coordinate/references/report.md) what is in flight.
+- It [reports](../skills/workflow/coordinate/SKILL.md#report) what is in flight.
 - It keeps its state in a [ledger](plugin.md#ledger-hook), so a session that dies, or moves to another machine or account, resumes from it.
 
 ## The improvement loop
