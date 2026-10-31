@@ -37,7 +37,7 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - infer a title from the commits and diff
    - fill in the template body (or use a sensible default structure)
    - render the title and body in the conversation and wait for approval — do not push before sign-off
-6. **Push the branch** if it does not yet track a remote
+6. **Push the branch** unless the remote already holds every local commit
 7. **Create the PR** with the approved title and body
 8. **Return only the PR URL**
 
@@ -53,6 +53,6 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
 - Skipping verification because "tests passed earlier"
 - Skipping the review because it takes time
 - Opening a PR with commits that bundle unrelated changes (e.g. a refactor and a feature in one commit)
-- Pushing before checking if the branch already tracks a remote
+- Opening the PR before the remote holds the branch's latest commits
 - Creating the PR without checking the project's tracker for an associated issue
 - A closing word (`Fixes`, `Closes`) on an issue the merge does not complete
