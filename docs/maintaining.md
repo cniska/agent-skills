@@ -2,7 +2,7 @@
 
 These are built for my own use, in my own tone and decision style. The goal is consistent execution quality across sessions, not generic prompt patterns.
 
-I run the whole set with an `AGENTS.md` in every repo. Skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [agents-md](../skills/workflow/agents-md/SKILL.md) skill to create that file first.
+I run the whole set with an `AGENTS.md` in every repo. Skills defer to it for project-specific facts, such as verify and release commands, invariants and conventions, rather than restating them. Each skill still installs and runs on its own, and falls back to sensible defaults in a repo without one. Use the [rules-writing](../skills/workflow/rules-writing/SKILL.md) skill to create that file first.
 
 What feeds the maintenance: daily use in my own projects, gaps observed in real sessions, and external feedback when it aligns with these principles.
 

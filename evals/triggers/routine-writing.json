@@ -8,7 +8,7 @@
   ],
   "negative": [
     { "prompt": "can you fix the build skill here_", "owner": "skill-writing" },
-    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "agents-md" },
+    { "prompt": "how do we make sure you dont miss it? add to @AGENTS.md to check before starting work?", "owner": "rules-writing" },
     { "prompt": "okay commit everything and make a new release?", "owner": "ship" }
   ]
 }

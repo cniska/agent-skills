@@ -1,9 +1,9 @@
 ---
-name: agents-md
+name: rules-writing
 description: Create and update AGENTS.md project rules. Use when authoring or amending the cross-tool conventions agents must follow.
 ---
 
-# AGENTS.md
+# Rules writing
 
 `AGENTS.md` holds the cross-tool project rules — the conventions any coding agent must follow in this repo. Two modes, detected by whether one already exists at the target: **Create** (none exists) infers rules from evidence; **Update** (one exists) merges a new rule into the right section and trims what it duplicates. Updating is the harder half: never blind-append.
 
