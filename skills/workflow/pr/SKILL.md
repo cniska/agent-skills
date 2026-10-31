@@ -39,7 +39,6 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
    - infer a title from the commits and diff
    - fill in the template body (or use a sensible default structure)
    - render the title and body in the conversation and wait for approval — do not push before sign-off
-   - if the branch has a throwaway name, rename it first: `git branch -m <topic>`
 6. **Push if needed**:
    - check remote tracking: `git status -sb`
    - if not pushed: `git push -u origin HEAD`
