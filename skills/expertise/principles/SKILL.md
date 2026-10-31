@@ -9,7 +9,7 @@ A principle that more than one skill needs lives here once, so every skill that 
 
 | Principle | The rule in one line | File |
 |---|---|---|
-| No comments | The why lives in names, tests, tool config or the owning doc, never in a comment | [no-comments.md](references/no-comments.md) |
+| No comments | Put the why in a name, test, tool config or the owning doc, and leave source code without comments | [no-comments.md](references/no-comments.md) |
 | Chesterton's Fence | Learn why a thing is there before changing it | [chestertons-fence.md](references/chestertons-fence.md) |
 | Proven able to fail | Trust a check only once it has gone red | [proven-able-to-fail.md](references/proven-able-to-fail.md) |
 | Fix the cause | Remove the state behind a failure, not its symptom | [fix-the-cause.md](references/fix-the-cause.md) |
