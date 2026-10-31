@@ -5,9 +5,9 @@ description: Review a whole change, always for correctness, tests and security a
 
 # Review
 
-Review a whole change and return one report of its findings to whoever ran the review. `correctness-review`, `test-review` and `security-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing, in any mode: whoever ran the review fixes its findings and queues its follow-ups.
+Review a whole change and return one report of its findings to whoever ran the review. `correctness-review`, `test-review` and `security-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing: whoever ran the review fixes its findings and queues its follow-ups.
 
-Two modes: **Self** (no argument, or a commit range) — the current branch's diff against the branch it lands on, or the given range, or the diff and log files the brief names; **PR** (URL or number) — someone else's PR. Code already on the default branch with no change to bound it is `audit`.
+The change is the current branch's diff against the branch it lands on, a given commit range, the diff and log files a brief names, or someone else's PR by URL or number. Code already on the default branch with no change to bound it is `audit`.
 
 ## Scope
 
@@ -40,22 +40,13 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ## Workflow
 
-### Self
-
-1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, or the diff and log files the brief names. If the scope holds no commit, report and stop.
-2. Read changed files in full, plus any project-level convention docs. On a complex or unfamiliar change, run `explain-diff` first for the understanding the review judges against. **Review tests first** — they reveal intent and coverage gaps.
+1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, the diff and log files the brief names, or a PR's description and diff. If the scope holds no commit, report and stop.
+2. Read changed files in full, plus the project-level convention docs, such as `AGENTS.md`, `CLAUDE.md` and `CONTRIBUTING.md`. On a complex or unfamiliar change, run `explain-diff` first for the understanding the review judges against. **Review tests first** — they reveal intent and coverage gaps.
 3. Pick the areas from the table, reading each "Runs when" against the diff.
-4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
-5. Load each picked area's skill and apply its criteria to the diff, one pass per area. Run Design first when it runs; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so under that area rather than improvising.
+4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each yourself before including it.
+5. Load each picked area's skill and apply its criteria to the diff, one pass per area, attaching evidence to every finding. Run Design first when it runs; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so under that area rather than improvising.
 6. Merge findings: deduplicate, keep the strongest framing per root issue.
-7. Return the report to whoever ran the review.
-
-### PR (URL or number)
-
-1. Read the PR's description and diff, and the repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
-2. Fan out as in Self step 4. Verify findings yourself.
-3. Pick and run the areas as in Self steps 3 and 5. Attach evidence to every finding.
-4. Return the report; post it with `gh pr review` only when asked.
+7. Return the report to whoever ran the review. Post a PR's report with `gh pr review` only when asked.
 
 ## Review checks
 

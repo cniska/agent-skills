@@ -7,12 +7,6 @@ description: Create or update architecture decision records. Use when an importa
 
 An architecture decision record states one important technical decision: the problem it solves, what was chosen, what was ruled out, and what the choice costs. It exists so a settled question is not argued again, by a person or an agent.
 
-Three modes, inferred from the request:
-
-- **New** — a decision was just made and has no record.
-- **Edit** — a recorded decision changed, stopped holding, or the records need bringing up to date.
-- **Backfill** — decisions made earlier need records, mined from history.
-
 ## Conventions this skill enforces
 
 - **`writing`'s rules for documents that last hold:** link the doc that owns a detail rather than restating it, and leave out volatile numbers such as counts, ports and sizes.
@@ -28,27 +22,8 @@ Three modes, inferred from the request:
 - **Find the repo's convention before writing** — existing records, their README or template, the agent rules, and tooling such as an `.adr-dir` file or an `adr-tools` setup. Continue its directory, markup, and numbering; never start a second scheme.
 - **The existing format keeps its structure; these content rules still apply.** Structure is the section set, markup, and numbering; a template's example titles and placeholder text are not. Where the structure conflicts with these rules, such as a required status section, keep it, fill it with the value that means the decision holds today, and raise the conflict with the owner rather than reformatting the set. With no format, propose a home and a shape and ask before writing.
 
-## Workflow
+## Modes
 
-### New mode
-
-1. **Check it earns a record** against the conventions above.
-2. **Read the code and the owning doc** the decision touches, and search past sessions for its alternatives and reasons.
-3. **Create the file** with the repo's tool, or the next number in the ADR directory, listed in the index.
-4. **Write the four sections**, linking the owning doc for detail.
-5. **Run the repo's guard**, if it has one, and check the links it does not.
-
-### Edit mode
-
-1. **Read the record, what changed, and the code it claims** — re-verify every claim, not only the ones the change touches; drift is found here.
-2. **Find everything the change touches** — search the topic, not only links to the record number, across the other records and the owning docs.
-3. **Still holds?** Rewrite the record to the current state; a rejected alternative that became the choice moves into the Decision.
-4. **No longer holds, never earned a record, or duplicates its owning doc?** Delete it and its index line; move a convention to the agent rules. Never mark a record superseded.
-5. **Change the owning docs and the other records in the same change**, so no doc contradicts a record.
-
-### Backfill mode
-
-1. **Mine the history** — past sessions under every path the repo has lived at, commits, PR bodies, founding documents — for decisions, with dates to order them, options, and reasons.
-2. **List candidates oldest first** with their sources, and let the owner cut it to the important technical ones that still hold.
-3. **Ask the owner for every missing reason or alternative** before drafting.
-4. **Draft each record as in New mode**, then have an independent reader check every claim against its source, including who said it and about which question.
+- **New**, when a decision was just made and has no record: follow [new](references/new.md).
+- **Edit**, when a recorded decision changed or stopped holding, or the records need bringing up to date: follow [edit](references/edit.md).
+- **Backfill**, when decisions made earlier need records mined from history: follow [backfill](references/backfill.md).

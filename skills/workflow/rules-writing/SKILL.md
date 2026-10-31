@@ -5,7 +5,7 @@ description: Create and update AGENTS.md project rules. Use when authoring or am
 
 # Rules writing
 
-`AGENTS.md` holds the cross-tool project rules — the conventions any coding agent must follow in this repo. Two modes, detected by whether one already exists at the target: **Create** (none exists) infers rules from evidence; **Update** (one exists) merges a new rule into the right section and trims what it duplicates. Updating is the harder half: never blind-append.
+`AGENTS.md` holds the cross-tool project rules — the conventions any coding agent must follow in this repo.
 
 Not the same as adjacent artifacts — keep them distinct:
 
@@ -27,50 +27,7 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 - Always carry a comment ban — one bullet stating no comments from `principles`. Scope it to new and changed code, so it states the convention going forward rather than a claim about the tree. Where the project can run one, a check that scans the lines a diff adds holds it; a whole-tree scan would fail on every existing comment. Put it where code rules already live.
 - If a `SPEC.md` exists, the opening line must reference it as the source of truth for requirements and require keeping it current in the same change that changes behavior — the spec never lags the code. Invariants, code and unit test names cite no spec ID, since renumbering would leave them stale — describe behavior in plain terms; acceptance test names cite criteria, as `spec` says, and the spec is the reference for why.
 
-## Sections to consider
+## Modes
 
-A menu of common dimensions, not a required skeleton. Shape the actual sections from the project's evidence — draw from these, rename them, add what this project needs, and drop what it doesn't. Use only sections with something concrete to say; an empty section is noise. Order so the load-bearing rules come first. The useful taxonomy differs per project and shifts as tools change — that structure is your call, not a fixed recipe.
-
-- **Architecture** — module boundaries, entry points, what depends on what. Usually long and rarely needed in full — the clearest case for the placement principle above: keep a load-bearing pointer to a dedicated architecture doc here, not the map itself.
-- **Invariants** — rules that must never break; the non-negotiables. Each one has a test or a review that checks it.
-- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag), the checks every commit runs, and the channels a release publishes to. The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
-- **Process** — development and agent-behavior rules that are neither code contracts nor commands: branching and PR-vs-direct policy, worktrees, when to commit, autonomous-execution and sign-off expectations. Distinct from Workflow (commands) and Invariants (code contracts).
-- **Commits** — message format and discipline (defer to the `git` skill's Conventional Commits only where the log shows no established format of its own).
-- **Pull requests** — when to open one, the review gate, title and body rules (omit if the project doesn't use PRs).
-- **Code** — language and structure rules specific to this repo.
-- **Style** — formatting, naming, lint/format tool of record.
-- **Docs** — where docs live and when to update them.
-- **Testing** — test layout, how to run them, what a test may mock at a boundary, coverage expectations.
-
-## Workflow
-
-### Create mode
-
-No AGENTS.md exists. Infer the project's *real* conventions from evidence — never invent aspirational rules the code doesn't follow.
-
-1. Gather evidence:
-   - lint/format config (`.oxlintrc.json`, `.oxfmtrc.json`, `.eslintrc*`, `.prettierrc*`, `rustfmt.toml`, `ruff.toml`) — the style section writes itself from these.
-   - test layout and scripts (`package.json` scripts, test dirs, CI config).
-   - framework and runtime (manifest files, lockfiles).
-   - commit style from `git log --oneline -30` — the log is the authority, so copy the format actually in use. A log that consistently isn't Conventional Commits is the repo's rule, not drift to correct. Where a format leads but isn't universal, name it as house style and say it isn't enforced; where the log is genuinely formatless, say that instead of dignifying the largest pile as a convention.
-   - any existing `CLAUDE.md` or `.cursorrules` — migrate real rules, drop tool-specific memory.
-2. Draft sections from the menu above **only where evidence supports a concrete rule**, shaping them to this project. Skip the rest.
-3. Follow every convention above — one rule per bullet, no hard wrap, terse.
-4. Wire up tool bridges. A tool that reads its own memory file rather than `AGENTS.md` needs a one-line pointer — for Claude Code, a `CLAUDE.md` containing only `@AGENTS.md`. Write that one by default; bridge any *other* tool only where the repo shows it in use (`.cursorrules`, `.windsurfrules`, `copilot-instructions.md`). Skip it in a repo whose conventions aren't yours to set — a public project with no agent tooling anywhere, where a tool-specific file reads as noise in review; report that you skipped it and why.
-5. Report which sections you filled and what evidence backed each.
-
-### Update mode
-
-AGENTS.md exists and you're adding a rule or change. This is a merge, not an append.
-
-Often no specific rule comes with the request — "bring this file up to standard" on a file that has drifted. Then the conventions above are themselves the incoming rules: audit the whole file against them, and verify each existing bullet still matches the code before keeping it. A file can be duplication-free and still assert things that stopped being true. Steps 2–3 apply per rule you land; the rest apply to the pass as a whole.
-
-1. Read the whole file first — you can't dedupe what you haven't read.
-2. Find the section the rule belongs in. Match the file's existing vocabulary and structure — unless that vocabulary is factually wrong or tool-specific, which you fix rather than preserve.
-3. **Merge, don't append:**
-   - if an existing bullet overlaps, rewrite that one bullet to cover both — don't add a second.
-   - if the rule generalizes several existing bullets, replace them with the one general rule.
-   - if the same rule is stated in two sections, dedupe to the single correct home.
-4. Trim collateral duplication the change exposes, and apply no drift from `principles` to what it made stale, even outside the target section.
-5. Re-check the file still follows every convention above (no hard wraps, one rule per bullet), and that a bridge exists for each agent tool the repo uses.
-6. Report **added / merged / trimmed** explicitly — which bullets changed and why.
+- **Create**, when no `AGENTS.md` exists at the target: infer the rules from evidence, as [create](references/create.md) says.
+- **Update**, when one exists: merge each new rule into the right section and trim what it duplicates, as [update](references/update.md) says. Updating is the harder half, since a blind append grows the file and repeats what it already says.

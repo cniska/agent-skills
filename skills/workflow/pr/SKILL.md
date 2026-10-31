@@ -5,7 +5,7 @@ description: Create a pull request with review and verify. Use when the branch i
 
 # PR
 
-Two modes: **Create** (default) — push and open a PR; **Update** — rewrite an existing PR's description without pushing. Detect which by checking for an open PR on the current branch before acting.
+Push the branch and open a pull request for it, or, when one is already open on the branch, rewrite its description without pushing. Check for an open PR on the current branch before acting: with one open, run only steps 3 and 5, then replace its description with the approved one.
 
 ## Conventions
 

@@ -7,10 +7,7 @@ description: Create and maintain a specification that states what to build, not 
 
 A spec states what must be true, never how to achieve it. Algorithms, specific API calls, data structures, byte offsets: those live in code or an architecture doc. The spec must be complete enough to reimplement from and precise enough to verify against. Every requirement is a claim someone can later prove or disprove. The prose follows `writing`'s rules for documents that last.
 
-Two modes, inferred from the request:
-
-- **New** — draft a spec from a rough idea or a design conversation. Supply the structure so the user describes intent, not format.
-- **Edit** — refine an existing spec: add requirements, strip the *how* that crept in, cross-check completeness against the code.
+Draft a spec from a rough idea or a design conversation, supplying the structure so the user describes intent, not format, or refine one that exists: add requirements, strip the *how* that crept in, and cross-check it against the code.
 
 A spec need not arrive complete. It may start with a handful of FRs and grow one change at a time — the ID rules below make later growth safe.
 
