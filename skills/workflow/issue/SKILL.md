@@ -22,10 +22,10 @@ Create a GitHub issue from a short description.
 ## Workflow
 
 1. **Understand the idea**: read the user's description — ask if intent or scope is unclear
-2. **Check for duplicates**: run `gh issue list --state open --limit 50` and scan for overlap
+2. **Check for duplicates**: scan the open issues for overlap
 3. **Draft the issue**: write title and body following the conventions above
 4. **Show the draft**: present the title and body to the user for approval before creating
-5. **Create the issue**: `gh issue create --title "..." --label "..." --body "..."`
+5. **Create the issue** with the approved title, label and body
 6. **Return only the issue URL**
 
 ## See also

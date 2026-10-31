@@ -75,8 +75,6 @@ Often no specific rule comes with the request — "bring this file up to standar
 5. Re-check the file still follows every convention above (no hard wraps, one rule per bullet), and that a bridge exists for each agent tool the repo uses.
 6. Report **added / merged / trimmed** explicitly — which bullets changed and why.
 
-Concrete target behavior: adding a "naming" rule should absorb a pre-existing "no abbreviations" bullet into it, not sit beside it; a rule that appears in both Style and Code should end up in one section only.
-
 ## See also
 
 AGENTS.md is the hub that gives the other skills their project-specific grounding. Each skill reads it to understand what the project considers non-negotiable.

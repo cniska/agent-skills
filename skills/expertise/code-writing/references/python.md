@@ -122,6 +122,4 @@ asyncio_default_fixture_loop_scope = "function"
 
 - `requires-python` is a narrow range so a new interpreter is an explicit decision; dependencies carry a lower bound and a major cap, and ruff, being pre-1.0, a minor cap.
 - ruff: `line-length = 120`, `select = ["ALL"]`, with `D` off, since its fix is a docstring no comments forbids, and `COM812` off, since `ruff format` owns trailing commas and rewrites them; in `tests/`, `S101` off for the plain `assert` above and `PLR2004` off for wire values pinned as literals. Every other rule stays on. Adjust `extend-exclude` and `known-first-party` locally.
-- `mise.toml` pins `python`, `uv` and `prek`, with `boot` (`mise install --locked`, `uv sync --locked`, `prek install`), `lint` (`prek run -a --hook-stage manual`) and `test` (`uv run --locked pytest`) tasks.
 - `prek` runs `ruff check --fix` and `ruff format` on commit, `uv lock` when a manifest changes, and mypy plus the import linters at the `manual` stage. An agent harness also runs `ruff format` on each written file.
-- CI: OIDC to the index (`id-token: write`), `astral-sh/setup-uv` with `enable-cache: true` and `prune-cache: false`, `actions/setup-python` with `python-version-file: pyproject.toml`, `uv sync --locked`, then `mise run lint` and `mise run test`. Third-party actions are pinned to a full commit SHA.
