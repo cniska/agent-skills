@@ -1,6 +1,6 @@
 # Spec template
 
-Copy the skeleton into the project's spec. Keep the section order. Drop sections that don't apply, and add domain requirement families (`ST`, `AU`, …) where the project needs them. Angle-bracket text is guidance; replace it. Refine this template over time: when a spec pattern repeats across projects, encode it here.
+Copy the skeleton into the project's spec. Keep the section order. Drop sections that don't apply, and add domain requirement families (`ST`, `AU`, …) where the project needs them. Angle-bracket text is guidance; replace it.
 
 ---
 
@@ -77,7 +77,7 @@ This document specifies what the tool must do, not how. Implementation choices a
 
 ## 8. Constraints (fixed)
 
-<Decisions the builder may not revisit: runtime, language, key libraries, engineering conventions. State the decision, not the mechanism.>
+<Decisions the builder may not revisit: runtime, language, key libraries, distribution. State the decision, not the mechanism.>
 
 - **C-1** — <…>
 

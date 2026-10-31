@@ -18,8 +18,8 @@ Which chart a doc needs, how to write it, and the check that renders it.
 
 ## Write it
 
-- **One question per chart**, judged by whether a reader understands it at a glance, not by its size: short node names, edge labels of a few words and a handful of nodes usually get it there. The prose beside it stays the source and holds the caveats.
-- **Labels in the reader's words**, the terms the doc around it uses, never function, class or variable names.
+- **One question per chart**, judged by whether a reader understands it at a glance: short node names, edge labels of a few words and a handful of nodes usually get it there. The prose beside it stays the source and holds the caveats.
+- **Labels in the reader's words**, the terms the doc around it uses.
 
 ## Why Mermaid
 

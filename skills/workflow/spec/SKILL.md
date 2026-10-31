@@ -1,53 +1,49 @@
 ---
 name: spec
-description: Create and maintain a specification that states what to build, not how. Use when writing a spec, editing requirements, or defining acceptance criteria.
+description: Create and maintain a specification that states what to build, not how, in labelled requirements traced to acceptance criteria and tests. Use when writing a spec, editing requirements, or defining acceptance criteria.
 ---
 
 # Spec
 
-A spec states what must be true, never how to achieve it. Algorithms, specific API calls, data structures, byte offsets: those live in code or an architecture doc. The spec must be complete enough to reimplement from and precise enough to verify against. Every requirement is a claim someone can later prove or disprove. The prose follows `writing`'s rules for documents that last.
+A spec states what must be true and leaves how to the code and the architecture docs, where algorithms, API calls, data structures and byte offsets live. Make it complete enough to reimplement from and precise enough to verify against, so every requirement is a claim someone can later prove or disprove. Write it as `writing` says for documents that last.
 
-Draft a spec from a rough idea or a design conversation, supplying the structure so the user describes intent, not format, or refine one that exists: add requirements, strip the *how* that crept in, and cross-check it against the code.
-
-A spec need not arrive complete. It may start with a handful of FRs and grow one change at a time — the ID rules below make later growth safe.
-
-When the source is an existing codebase rather than a design conversation, you are reverse-engineering the *what* from the *how*: the code says what the system does, never what the author intended. State each requirement as observed behavior and flag the ones you can't confirm as deliberate — a stopgap or a tuned default frozen as contract will drive future work toward preserving it. Mark the draft reverse-engineered and unverified against intent, and remove the mark once a reviewer accepts the spec and the acceptance suite proves every criterion. Where the owner has made a reviewer's accept their standing sign-off, that accept is their confirmation, so no spec says a requirement awaits the owner's confirmation.
+Draft a spec from a rough idea or a design conversation, supplying the structure so the owner describes intent rather than format. Or refine one that exists: add requirements, move out the how that crept in, and cross-check it against the code. A spec may start with a handful of requirements and grow one change at a time, since the ID rules below keep later growth safe.
 
 ## Labelled requirements
 
-Every requirement gets an ID: a short family prefix and a number (`FR-12`, `NF-3`, `AC-9`). IDs are the spec's addressing system. Acceptance criteria cite the requirements they verify, acceptance tests cite the criteria they prove, and cross-references point by ID, not by prose. Every spec has an acceptance suite and a check that ties it to the spec, set up as [`references/acceptance-tests.md`](references/acceptance-tests.md) describes.
+Every requirement gets an ID: a short family prefix and a number, such as `FR-12`, `NF-3` or `AC-9`. Acceptance criteria cite the requirements they verify, acceptance tests cite the criteria they prove, and cross-references point by ID rather than by prose. Every spec has an acceptance suite and a check that ties it to the spec, set up as [acceptance tests](references/acceptance-tests.md) says.
 
-Core families. Add domain families as the project needs (`ST` styling, `AU` auth, `SEC` security):
+The core families are below. Add a domain family where the project needs one, such as `ST` for styling, `AU` for auth or `SEC` for security.
 
-- **FR** — functional: what the tool does.
-- **NF** — non-functional: performance, reliability, error behavior, testing.
-- **AC** — acceptance criteria: the conditions that together mean "done".
-- **D** — deliverables: the artifacts that must ship.
-- **C** — constraints: fixed decisions the builder may not revisit — language, runtime, distribution, hard exclusions (step 4 draws the line against mere conventions).
+- **FR**, functional: what the tool does.
+- **NF**, non-functional: performance, reliability, error behavior and testing.
+- **AC**, acceptance criteria: the conditions that together mean done.
+- **D**, deliverables: the artifacts that must ship.
+- **C**, constraints: fixed decisions the builder may not revisit, such as language, runtime, distribution and hard exclusions. Step 4 draws the line against conventions.
 
-Rules:
+The rules:
 
-- **Renumber with every citation.** A new item may sit beside a related one, and a removed one is deleted; the IDs after either are renumbered in the same change as every citation, in the spec, its tests or any other file that cites one, so the check finds no gap and no dangling ID.
-- **No sub-numbered IDs** — never `FR-21a` or `FR-21.1`. Each ID is a family prefix and a whole number; the change that meets a sub-numbered one renumbers it away.
-- **One claim per ID.** A requirement with two independently-verifiable claims is two requirements.
-- **Earn each family and each ID.** A dimension gets its own family only when it carries distinct, independently-verifiable claims, not just functional surface that could sit under FR. Aim for a spec you could reimplement from, not an exhaustive inventory; when two readers would land far apart on the requirement count, you are enumerating mechanism, not contract.
+- **Renumber with every citation.** A new item may sit beside a related one, and a removed one is deleted. The IDs after either are renumbered in the same change as every citation, in the spec, its tests and any other file that cites one, so the check finds no gap and no dangling ID.
+- **Give each ID a whole number.** An ID is a family prefix and a whole number. A change that meets a sub-numbered ID, such as `FR-21a` or `FR-21.1`, renumbers it away.
+- **One claim per ID.** A requirement with two claims that can be verified apart is two requirements.
+- **Earn each family and each ID.** Give a dimension its own family only when it carries distinct claims that can be verified apart, rather than functional surface that fits under FR. Aim for a spec you could reimplement from, not an inventory. When two readers would land far apart on the requirement count, the spec is listing mechanism rather than contract.
 
 ## Workflow
 
-1. **Gather intent.** For a new spec, read the reference the user points to and the conversation so far; for an edit, read the current spec in full. Resolve remaining ambiguity by asking one question at a time, each with your recommended answer, instead of guessing.
-2. **Cross-check against code** (when it exists). Every shipped behavior needs a requirement; every requirement needs a way to verify it. Enumerate the real surface from the source, not from memory: CLI flags, config format, error paths. A requirement the code contradicts is stale. Reconcile it.
-3. **Draft from the template.** Fill the section skeleton in [`template.md`](template.md), assigning IDs as you go. Done when every section is filled or explicitly marked not-applicable.
-4. **Sort what from how.** Any sentence naming an algorithm, a request shape, or an offset is *how*. Move it to the architecture doc and leave the requirement stating only the observable outcome. A fixed decision stays under Constraints only if reversing it would force a rewrite or change what the deliverable *is* — language, runtime, distribution form, hard exclusions like "no telemetry". A decision a tool could re-apply mechanically with every AC still passing — formatter, lint rules, indent width — is a convention: it lives in AGENTS.md, not the spec. A user-observable default (a default port, a timeout) is a requirement; the internal tuning value behind the same behavior is an open decision.
-5. **Make edge cases requirements.** The constructs a naive build gets wrong are requirements, not nice-to-haves. Give each its own ID so it earns its own test.
-6. **Separate constraints from open decisions.** Close with two explicit lists: what is fixed, and what is deliberately left to the builder. The silence between them is where scope disputes grow.
-7. **Verify the traces close.** Each AC cites the requirements it exercises and exercises every case, clause and app or surface each of them names, and every FR, NF and domain-family requirement is cited by at least one AC; deliverables and constraints are not cited. Before the first review and again after each fix, list each added or modified requirement's cases against the criteria that test them: a case no criterion tests, or an AC that verifies nothing, is the gap. Fix it before the spec is done.
+1. **Gather intent.** For a new spec, read the reference the owner points to and the conversation so far. For an edit, read the current spec in full. Resolve what is still ambiguous by asking one question at a time, each with your recommended answer. When the source is an existing codebase rather than a design conversation, draft as [from code](references/from-code.md) says.
+2. **Cross-check against the code**, where it exists. Every shipped behavior needs a requirement, and every requirement needs a way to verify it. List the real surface from the source, such as CLI flags, config format and error paths, rather than from memory. A requirement the code contradicts is stale, so reconcile it.
+3. **Draft from the [template](references/template.md)**, assigning IDs as you go. The draft is done when every section is filled or marked not applicable.
+4. **Sort what from how.** A sentence naming an algorithm, a request shape or an offset is how. Move it to the architecture doc, and leave the requirement stating only the observable outcome. A fixed decision stays under Constraints only when reversing it would force a rewrite or change what the deliverable is, such as language, runtime, distribution form or a hard exclusion like no telemetry. A decision a tool could re-apply mechanically with every AC still passing, such as the formatter, lint rules or indent width, is a convention, and it goes in the repo's rules file. A default the user observes, such as a default port or a timeout, is a requirement. The internal tuning value behind the same behavior is an open decision.
+5. **Make edge cases requirements.** The constructs a naive build gets wrong each get their own ID, so each earns its own test.
+6. **Separate constraints from open decisions.** Close with two explicit lists: what is fixed, and what is left to the builder. Scope disputes grow in whatever neither list covers.
+7. **Close the traces.** Each AC cites the requirements it exercises and exercises every case, clause and surface each of them names. Every FR, NF and domain-family requirement is cited by at least one AC; deliverables and constraints are not cited. Before the first review and again after each fix, list each added or modified requirement's cases against the criteria that test them. A case no criterion tests, or an AC that verifies nothing, is a gap to fix before the spec is done.
 
 ## Editing an existing spec
 
-Before touching the living doc, think the change as a delta of IDs — what is **added**, **modified**, **removed**, and which traces it moves (which ACs gain or lose an FR):
+Before touching the spec, write the change as a delta of IDs: what is added, modified and removed, and which traces it moves, meaning which ACs gain or lose a requirement.
 
 ```
 REMOVED FR-9; FR-10..FR-37 → FR-9..FR-36; ADDED FR-37; MODIFIED FR-11 (narrowed); AC-4 now also cites FR-37
 ```
 
-The delta names a removed ID by its old number, then the renumbering a removal or an inserted item causes, and every other ID by its new number. It needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A policy's `serves FR-x` pointer is the one exception: a trace to the requirement it serves, not motivation.
+The delta names a removed ID by its old number, then the renumbering that a removal or an inserted item causes, and every other ID by its new number. It needs no document of its own, and the spec stays a statement of the current contract. Put load-bearing rationale in the PR description or an ADR, and keep the spec to the contract itself. A policy's `serves FR-x` pointer is the one exception, since it is a trace to the requirement the policy serves.
