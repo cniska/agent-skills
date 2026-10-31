@@ -1,44 +1,33 @@
 ---
 name: git
-description: Manage commits, branches, and change history. Use when committing, branching, or managing version control.
+description: Manage commits, branches and landings in git so each task lands as one topic branch with a readable history. Use when committing, branching, rewriting unpushed history, landing a branch or managing worktrees.
 ---
 
 # Git
 
-Commits are save points, branches are disposable, history is read later by people who weren't there. Treat them accordingly.
+Commits are save points, a branch lasts as long as its task, and people who weren't there read the history later. Keep each of them fit for that use.
 
-The project's own conventions override everything below on message format, cadence, branch naming and how a branch lands; a topic branch per task, landed whole, holds in every project. `AGENTS.md` or a contributing guide states them; where neither mentions the subject, `git log` is the authority — read the recent subjects and match what the project does, including how a branch lands and whether an agent may run write commands unasked.
+The project's own conventions win on message format, cadence, branch naming and how a branch lands. Its `AGENTS.md` or contributing guide states them. Where neither covers a subject, read the recent `git log` and match what the project does, including how a branch lands and whether an agent may run write commands unasked. A topic branch per task, landed whole, holds in every project.
 
-## Commit messages
+## Commits
 
-Conventional Commits — `type(scope): subject`. Types: `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci`, `perf`. Single-line subject, aim under 50 characters and never over 72. The subject names what changed in the plainest words; the why goes in the PR body, where a reviewer reads it beside the diff. Do not hand-write issue references in the subject (`(#123)`, `Fixes #123`) — those belong in the PR body. A `(#N)` suffix a squash merge appends is the forge's and stays.
+- **Write the subject as a Conventional Commit**, `type(scope): subject`, with one of `feat`, `fix`, `refactor`, `chore`, `docs`, `test`, `build`, `ci` or `perf`. Keep it to one line, under 50 characters where it fits and never over 72, naming what changed in the plainest words. The why goes in the PR body, where a reviewer reads it beside the diff.
+- **Commit after each slice that passes.** A commit is a point to return to, so commit early on an uncertain change and a dead end reverts cleanly.
+- **Make each commit one logical change.** Separate a refactor from the feature it enables, and formatting from behavior.
+- **Size commits for review.** About 100 lines is good, and about 300 is fine for one logical change. Split anything of 1000 lines or more.
 
-## Commit discipline
+## Branches
 
-- **Commit after each successful slice (the save-point pattern).** A commit is a point you can return to; when exploring an uncertain change, commit early so a dead end reverts cleanly instead of being lost.
-- **One logical change per commit.** A commit that refactors and adds a feature is two commits.
-
-## Change sizing
-
-- ~100 lines per commit: good.
-- ~300 lines: acceptable if one logical change.
-- 1000+ lines: too large — split it.
-
-Separate refactoring from feature work. Separate formatting from behavior changes.
-
-## Branch workflow
-
-- Every task gets a topic branch of its own and lands whole, never commit by commit. How it lands is the project's: where its rules say nothing, its log answers, squash-merged pull requests meaning a pull request and a linear run of direct commits meaning straight onto the base.
-- Start task branches from the current integration base, which on a project with release lines is often not `main`. Fetch first rather than updating a shared primary checkout.
-- Name a topic branch for the work, with dashes and no type or ticket prefix, e.g. `signal-toolkit`, not `feat/signal-toolkit` or `PROJ-12-signal-toolkit`.
-- Keep branches short-lived — merge within days, not weeks.
-- Rebase to sync with the base, never merge it in.
-- Rewrite local history before pushing — amend, rebase, squash to keep history clean. Commit noise should never become permanent. Drop an unpushed commit by resetting it out, never by reverting.
-- Never amend commits already pushed to remote, and never push a shared branch without the owner's sign-off.
-- Use `--force-with-lease` over `--force`.
-- Land PRs with the repo's configured merge method. When none is set, default to squash — keeps history linear, one merge commit per PR.
-- After a branch lands, by pull request or straight onto the base, prune it on the remote and here, then `git fetch --prune` to clear stale tracking refs.
+- **Give every task its own topic branch and land it whole.** How it lands is the project's choice. Where its rules say nothing, its log answers: squash-merged pull requests mean a pull request, and a linear run of direct commits means straight onto the base.
+- **Start from the current integration base**, which on a project with release lines is often not `main`. Fetch the base instead of updating a shared primary checkout.
+- **Name the branch for the work**, with dashes and no type or ticket prefix: `signal-toolkit`, not `feat/signal-toolkit`.
+- **Merge within days.** A branch that lives for weeks drifts from its base.
+- **Sync with the base by rebasing onto it.** A merge of the base into the branch leaves merge commits in history.
+- **Clean up local history before pushing**: amend, rebase and squash so commit noise never becomes permanent. Drop an unpushed commit by resetting it out, since a revert leaves both commits behind.
+- **Once a commit is pushed, fix it with a new commit.** Push a shared branch only with the owner's sign-off.
+- **Land a pull request with the repo's configured merge method**, or a squash where none is set, for a linear history with one commit per pull request.
+- **After a branch lands, prune it** on the remote and locally, then fetch with prune to clear stale tracking refs.
 
 ## Worktrees
 
-A worktree is a throwaway checkout for one branch, created fresh per task, run from its own directory, and removed once the branch merges or is abandoned — never with uncommitted changes in it. Follow repository-specific worktree commands when they exist; they determine the task's base. `git worktree list` before creating or removing one, and `git worktree prune` when one is gone outside Git and has left stale metadata behind.
+A worktree is a checkout for one task's branch: create it fresh per task, work from its own directory, and follow the repo's worktree commands where it has them, since they set the task's base. Remove it once its branch lands or is abandoned, after its changes are committed or knowingly discarded. List worktrees before creating or removing one, and prune the stale metadata of one deleted outside git.
