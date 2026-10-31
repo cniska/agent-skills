@@ -53,7 +53,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ### PR (URL or number)
 
-1. `gh pr view <N>` for metadata; `gh pr diff <N>` for the diff. Read repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
+1. Read the PR's description and diff, and the repo conventions — `AGENTS.md`, `CLAUDE.md`, `CONTRIBUTING.md`.
 2. Fan out as in Self step 4. Verify findings yourself.
 3. Pick and run the areas as in Self steps 3 and 5. Attach evidence to every finding.
 4. Return the report; post it with `gh pr review` only when asked.
