@@ -1,0 +1,7 @@
+# Searching the raw transcripts
+
+Transcripts sit one JSON object per line at `~/.claude/projects/<slug>/<session-id>.jsonl`, with a subagent's own lines under `<session-id>/subagents/*.jsonl`. The slug is the working directory path with `/` replaced by `-`.
+
+1. **List every slug for the repo.** A worktree or a sibling checkout gets a slug of its own, so one project spreads over several, such as `-Users-me-code-apps` and `-Users-me-code-apps--claude-worktrees-puzzles`. Glob for the repo's name and take them all, since a conversation held in another checkout sits under its own slug.
+2. **Narrow by file first.** A line carries whole tool results and file contents, so a transcript runs to megabytes. List the files that contain the subject's terms across the candidate slugs, and parse only those. Honor a stated time window by modification time. With none given, start at the last three days and below 20 MB, and widen only when that finds nothing. When a scan runs into the command timeout, stop it and narrow the next one.
+3. **Read messages, skip the machinery.** Keep events whose `type` is `user` or `assistant`, and take `message.content`: a string, or the `text` parts of a list. Drop tool calls and their results, skill preambles (`Base directory for this skill:`), briefs pasted in as an opening message, and image placeholders. Search both sides, since a decision is often stated only in the reply.

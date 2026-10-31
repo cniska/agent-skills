@@ -109,7 +109,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [pr](skills/workflow/pr/SKILL.md) | Self-review gated PR create or description update |
 | [ship](skills/workflow/ship/SKILL.md) | Pre-release gate, version bump from commits, cut the tag, verify every channel |
 | [review](skills/workflow/review/SKILL.md) | Correctness, tests and security on a whole branch or PR, and each other area the diff touches |
-| [audit](skills/workflow/audit/SKILL.md) | All review dimensions on existing code, read-only, with per-dimension coverage |
+| [audit](skills/workflow/audit/SKILL.md) | All review areas on existing code, read-only, with per-area coverage |
 | [explain-diff](skills/workflow/explain-diff/SKILL.md) | Explain a diff's intent and risk in the session |
 | [second-opinion](skills/workflow/second-opinion/SKILL.md) | Have a different model attack a consequential call or a document's facts |
 | [issue](skills/workflow/issue/SKILL.md) | File a GitHub issue — check duplicates, draft, get approval |
