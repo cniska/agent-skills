@@ -20,9 +20,9 @@ Influenced by [addyosmani/agent-skills](https://github.com/addyosmani/agent-skil
 
 - **The inner loop is one task:** [task](skills/workflow/task/SKILL.md) takes it from request to landed branch, step by step.
 - **The outer loop is all the work:** [coordinate](skills/workflow/coordinate/SKILL.md) hands each task to an agent running the inner loop, keeps the agents moving, and asks me only what it cannot answer.
-- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads a day of work on a schedule I set and proposes changes, and reverts of those the [signals](docs/loops.md#signals) show did not help; each lands only once I accept it, as [the improvement loop](docs/loops.md#the-improvement-loop) says.
+- **The improvement loop changes the workflow:** [workflow-review](skills/workflow/workflow-review/SKILL.md) reads at least four weeks of work on a schedule I set and proposes changes, and reverts of those the [signals](docs/loops.md#signals) show did not help; each lands only once I accept it, as [the improvement loop](docs/loops.md#the-improvement-loop) says.
 
-One task's life, from my request through its landed branch, or its stop, to the daily review that reads its sessions with the rest of the day's work:
+One task's life, from my request through its landed branch, or its stop, to the workflow review that reads its sessions with weeks of other work:
 
 ```mermaid
 flowchart LR
@@ -122,7 +122,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [routine-writing](skills/workflow/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
 | [verification-setup](skills/workflow/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
 | [formal-verification-setup](skills/workflow/formal-verification-setup/SKILL.md) | Create or update a project skill that model-checks or proves one costly property, pinned and run as one of the repo's checks |
-| [workflow-review](skills/workflow/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by two sessions of cited evidence and named by the waste it cost and its cause |
+| [workflow-review](skills/workflow/workflow-review/SKILL.md) | Turn how the work actually went into proposed changes to skills, agents and repo rules, each backed by cited evidence from several independent sessions and named by the waste it cost and its cause |
 
 ### Expertise skills
 

@@ -1,6 +1,6 @@
 ---
 name: principles
-description: Apply a named engineering principle that more than one skill relies on, by reading only that principle's file. Use when a skill or route names a principle, or to cite the rule behind a review finding.
+description: Apply an engineering principle that several skills share, reading only that principle's file. Use when a skill or route step names a principle, or to cite the rule behind a review finding.
 ---
 
 # Principles

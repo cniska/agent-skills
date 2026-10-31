@@ -1,6 +1,6 @@
 ---
 name: task
-description: Run one task along the route its kind needs — feature, bug fix, refactor, test or review — on its own branch, loading each step's skill in order (a feature plans the design, validates it, then builds). Use at the start of any task that changes code or reviews a change, and again to re-enter its route after a host resume or fork. A skill, loaded with the Skill tool; not a host's Task tool.
+description: Run one task on its own branch along the route its kind needs — feature, bug fix, refactor, test or review — loading each step's skill in order, so a feature plans the design, validates it, then builds it. Use at the start of any task that changes code or reviews a change, and again to re-enter its route after a host resume or fork. It is a skill loaded with the Skill tool, not a host's Task tool.
 ---
 
 # Task

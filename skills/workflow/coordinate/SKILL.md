@@ -1,6 +1,6 @@
 ---
 name: coordinate
-description: Run and coordinate work across several agents or repos for an owner — delegate each task, keep a ledger, batch the owner's questions and keep every agent moving. Use when you run work across several agents or repos for an owner, or pick up or resume a coordinating session and its workers after it stopped or moved, or when asked for a report on what's in flight (inflight), the status of all work or how to prioritize it.
+description: Run an owner's work across several agents and repos — brief and delegate each task, keep a ledger of what is left, batch the owner's questions and keep every worker moving until the work lands. Use when you coordinate work for an owner, when you pick up a coordinating session and its running workers after it stopped, or when asked what work is inflight and what waits on the owner.
 ---
 
 # Coordinate
@@ -11,7 +11,7 @@ You run the owner's work across agents and repos so that it lands, nothing is lo
 
 - **Every task runs through `task`.** Hand it to a worker when that keeps your context clear or lets it run beside other work, and run it yourself when that is simpler. Its reviews hold either way.
 - **Settle what to build before you brief it.** Ask the owner about anything in it that does not make sense to you, since each question left open costs a review round.
-- **A brief says what to build.** It is a short Markdown file in the ledger's repo with five sections: Repo, Goal, Limits, Open obstacles and Report. The Goal carries the outcome and each decision the owner made, restated and checked at its source. Attribute to the owner only what they decided. A fresh reviewer accepts the brief before you commit it and start the task, since a wrong brief costs a whole run.
+- **A brief says what to build.** It is a Markdown file in the ledger's repo with five sections: Repo, Goal, Limits, Open obstacles and Report. The Goal carries the outcome and each decision the owner made, each checked at its source. A fresh reviewer accepts the brief before you commit it and start the task, since a wrong brief costs a whole run.
 - **The ledger holds what is left of the work**: plans in flight, what a task waits on, and questions for the owner. A decision goes to the doc that owns it.
 - **Ask the owner only what you cannot decide**, batched, each answerable in a line, with your recommendation.
 - **Land a branch before more work touches its files.**

@@ -24,4 +24,4 @@ When something breaks, find out why before changing anything else. Keep the evid
 
 ## When the design is the cause
 
-When the root cause turns out to be the approach itself, stop debugging and load `plan`. Fix the cause in `principles` names the signal. A patch on a wrong design returns as more bugs in other shapes.
+When the root cause turns out to be the approach itself, stop debugging and load `refactor`. Fix the cause in `principles` names the signal. A patch on a wrong design returns as more bugs in other shapes.
