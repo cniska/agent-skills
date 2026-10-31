@@ -24,6 +24,6 @@ Ask the session record first, where one is installed. The workflow below is for 
 
 ## Reporting
 
-Lead with the answer to the question asked, then the evidence: restate what each message said, as verify at the source in `principles` says, and cite `<session-id-prefix> <timestamp>` after each. Group by decision rather than by session.
+Lead with the answer to the question asked, then the evidence: restate what each message said, as `writing` says, and cite `<session-id-prefix> <timestamp>` after each. Group by decision rather than by session.
 
 Say plainly what the search did not find — an absence you looked for is a finding, and it is what keeps the same question from being asked again. Where a decision lives in a transcript but not in the repo, name the gap and what would close it.

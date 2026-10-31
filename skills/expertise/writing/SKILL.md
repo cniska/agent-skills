@@ -20,6 +20,7 @@ Write naturally for the intended reader. Lead with the point, then give the deta
 Preserve the intended meaning and level of confidence. Remove words or structure that make the reader work harder without adding a fact.
 
 - Cut marketing language, vague enthusiasm, filler transitions, corporate padding, and summary lines that sound wise but state nothing a reader could check.
+- Restate what the owner said or decided in clear English, as theirs, rather than quoting their wording. Carry copy the owner set on purpose for a product as they set it.
 - Name the source behind an attribution or remove the claim. Replace vague claims with a concrete mechanism, result, or example.
 - Prefer plain words and active actors. Split dense sentences; repeat the same term instead of cycling through synonyms.
 - Break a noun cluster of more than three words with a verb or a preposition: "the worker brief temp folder path" becomes "the path to the worker's temp folder".
