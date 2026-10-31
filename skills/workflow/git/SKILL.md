@@ -29,14 +29,13 @@ Separate refactoring from feature work. Separate formatting from behavior change
 ## Branch workflow
 
 - Every task gets a topic branch of its own and lands whole, never commit by commit. How it lands is the project's: where its rules say nothing, its log answers, squash-merged pull requests meaning a pull request and a linear run of direct commits meaning straight onto the base.
-- Start task branches from the current integration base; `git symbolic-ref refs/remotes/origin/HEAD` names it, and on a project with release lines it is often not `main`. Fetch first rather than updating a shared primary checkout.
+- Start task branches from the current integration base, which on a project with release lines is often not `main`. Fetch first rather than updating a shared primary checkout.
 - Name a topic branch for the work, with dashes and no type or ticket prefix, e.g. `signal-toolkit`, not `feat/signal-toolkit` or `PROJ-12-signal-toolkit`.
 - Keep branches short-lived — merge within days, not weeks.
 - Rebase to sync with the base, never merge it in.
 - Rewrite local history before pushing — amend, rebase, squash to keep history clean. Commit noise should never become permanent. Drop an unpushed commit by resetting it out, never by reverting.
 - Never amend commits already pushed to remote, and never push a shared branch without the owner's sign-off.
 - Use `--force-with-lease` over `--force`.
-- Never use `git -C <path>` — always `cd` into the target first. It hides the real working directory and risks operating on the wrong repo.
 - Land PRs with the repo's configured merge method. When none is set, default to squash — keeps history linear, one merge commit per PR.
 - After a branch lands, by pull request or straight onto the base, prune it on the remote and here, then `git fetch --prune` to clear stale tracking refs.
 
@@ -54,7 +53,7 @@ A worktree is a throwaway checkout for one branch, created fresh per task, run f
 
 - Long-lived topic branches diverging from the integration base — a permanent release line is not this
 - Imposing this file's commit format on a repo whose log already shows a different one
-- Running a write command — commit, fetch, push, `worktree prune` — in a repo whose rules say to ask first. Tidying up is still writing, and a hook's prompt to commit or push is not the owner asking
+- Running a write command in a repo whose rules say to ask first
 - Commits with "misc", "fix", "update" as the entire message
 - Force-pushing to shared branches
 - Mixing unrelated changes in one commit
