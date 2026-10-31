@@ -27,7 +27,7 @@ Format: `type(scope): description` — types: `feat`, `fix`, `refactor`, `docs`,
 
 ## Pull requests
 
-- Gate: run `/review` (multi-dimension, not `/code-review`) and fix all findings before opening.
+- Gate: run `<review command>` and fix all findings before opening.
 - Title: conventional-commit form, under 50 characters, no trailing period; it becomes the squash-merge subject.
 - Body follows `.github/pull_request_template.md`: brief motivation (omit when obvious), then a flat summary; cut anything a reviewer would infer from the diff.
 - End with `Fixes #N` when an issue matches. Never push or open a PR without approval.
@@ -35,14 +35,12 @@ Format: `type(scope): description` — types: `feat`, `fix`, `refactor`, `docs`,
 ## Code
 
 - No transitional architecture: land the canonical owner, contract, and single source of truth.
-- Define string unions and shared types as a schema first (e.g. Zod), infer the type from it.
-- Import from the canonical module — no re-export layers.
 - No comments in new or changed code, other than one a tool reads, such as a shebang or a build constraint, and never a suppression, doc comment or tool setting; a *why* goes into a name, type, test or the tool's config.
 
 ## Style
 
 - <Formatter and linter of record, with the command to run them.>
-- <Naming conventions that deviate from the language default — e.g. `create*` factories, direct `export const` over alias + re-export.>
+- <Naming conventions that deviate from the language default.>
 
 ## Docs
 
