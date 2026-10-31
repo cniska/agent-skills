@@ -51,7 +51,7 @@ A README, a spec, an architecture doc, a decision record or an agent rules file 
 - It changes in the same commit as the behavior it describes, as no drift in `principles` says.
 - It states what holds now, never how it got there; history lives in version control.
 - Each fact lives in one place; link to its owner rather than restating it.
-- No volatile numbers (sizes, line counts, latency), and no counting a collection that can grow.
+- No volatile numbers (sizes, ports, line counts, latency), and no counting a collection that can grow.
 - Say what is, not what isn't. Plain words over metaphor such as spine, rail, seam, blast radius, theater or posture. Cut restatement and filler: any word or sentence whose deletion loses nothing.
 - A page takes the structure, depth and voice of the pages beside it.
 - US spelling, unless the repo already uses another.

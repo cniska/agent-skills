@@ -5,7 +5,7 @@ description: Review a whole change, always for correctness, tests and security a
 
 # Review
 
-Review a whole change and return one report of its findings to whoever ran the review. `correctness-review`, `test-review` and `security-review` run on every change; each other area runs only when the diff touches it. Change nothing and commit nothing: whoever ran the review fixes its findings and queues its follow-ups.
+Review a whole change and return one report of its findings to whoever ran the review. `correctness-review`, `test-review` and `security-review` run on every change, and each other area runs only when the diff touches it. Leave the code and the history as you found them: whoever ran the review fixes its findings and queues its follow-ups.
 
 The change is the current branch's diff against the branch it lands on, a given commit range, the diff and log files a brief names, or someone else's PR by URL or number. Code already on the default branch with no change to bound it is `audit`.
 
@@ -13,15 +13,15 @@ The change is the current branch's diff against the branch it lands on, a given 
 
 Review the diff, reading enough surrounding code and docs to understand conventions and boundaries. Sort each problem you find, there or in the diff, by whether the change caused it, as the review report in `principles` says.
 
-Do not duplicate the same issue across areas. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability; one that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
+Report each issue under one area. A finding backed by the repo's own docs, contracts or nearby code belongs to Architecture or Maintainability. One that holds regardless of the repo belongs to Design. Where a Design rule and a documented repo convention conflict, the convention wins: Design raises nothing, and Maintainability reports only a departure from the convention.
 
 ## Change sizing
 
 Before reviewing, check the diff size:
 
-- ~100 lines: good, reviewable in one pass.
-- ~300 lines: fine when it is one logical change.
-- ~1000 lines: too large — ask the author to split before reviewing.
+- About 100 lines: reviewable in one pass.
+- About 300 lines: fine when it is one logical change.
+- About 1000 lines or more: ask the author to split it before reviewing.
 
 Refactoring mixed with feature work is two changes. Flag it.
 
@@ -40,36 +40,25 @@ Refactoring mixed with feature work is two changes. Flag it.
 
 ## Workflow
 
-1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, the diff and log files the brief names, or a PR's description and diff. If the scope holds no commit, report and stop.
-2. Read changed files in full, plus the project-level convention docs, such as `AGENTS.md`, `CLAUDE.md` and `CONTRIBUTING.md`. On a complex or unfamiliar change, run `explain-diff` first for the understanding the review judges against. **Review tests first** — they reveal intent and coverage gaps.
+1. Determine the scope: the commits and the files changed against the branch the change lands on, the same over a given range, the diff and log files the brief names, or a PR's description and diff. When the scope holds no commit, report that and stop.
+2. Read the changed files in full, plus the project's convention docs, such as `AGENTS.md`, `CLAUDE.md` and `CONTRIBUTING.md`. On a complex or unfamiliar change, run `explain-diff` first for the understanding the review judges against. **Review the tests first**, since they reveal intent and coverage gaps.
 3. Pick the areas from the table, reading each "Runs when" against the diff.
-4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each yourself before including it.
-5. Load each picked area's skill and apply its criteria to the diff, one pass per area, attaching evidence to every finding. Run Design first when it runs; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so under that area rather than improvising.
-6. Merge findings: deduplicate, keep the strongest framing per root issue.
-7. Return the report to whoever ran the review. Post a PR's report with `gh pr review` only when asked.
+4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents, one per independent question rather than one per file, to surface candidate findings. Verify each one yourself before including it.
+5. Load each picked area's skill and apply its criteria to the diff, one pass per area, attaching evidence to every finding. Run Design first when it runs, so Architecture and Maintainability report only what Design did not. When a skill fails to load, say so under that area.
+6. When the change adds a dependency or a database migration, check it as [dependencies and migrations](references/dependencies-and-migrations.md) says.
+7. Merge the findings: deduplicate, and keep the strongest framing of each root issue.
+8. Return the report to whoever ran the review. Post a PR's report to the PR only when asked.
 
 ## Review checks
 
 Look for these patterns in every review:
 
-- term drift across code, schemas, tests, and docs after a rename or protocol change
+- term drift across code, schemas, tests and docs after a rename or protocol change
 - shared contracts that blur distinct intent where separate variants or schemas would be clearer
-- escape hatches, bypass flags, and special-case options that are broader than the behavior they enable
-- updated implementation that leaves stale references behind in tests or docs
-- for a small diff with effects beyond the changed files, name the fact its safety depends on, trace the relevant callers or contracts, and run a focused check when practical; report it as unproven if the check cannot run
-
-## Dependency review
-
-If the change adds a dependency, check:
-- Does the existing stack already solve this?
-- Is it actively maintained?
-- What's the size impact?
-- Any known vulnerabilities?
-
-## Migration review
-
-If the change includes database migrations, load `database-design` and check the migration against its rules, filing findings under the areas above — a schema defect is a correctness or security finding, not an area of its own. Trace every view and function that joins a changed table.
+- escape hatches, bypass flags and special-case options that are broader than the behavior they enable
+- an updated implementation that leaves stale references behind in tests or docs
+- a small diff with effects beyond the changed files: name the fact its safety depends on, trace the relevant callers or contracts, and run a focused check when practical, reporting it as unproven when the check cannot run
 
 ## Report
 
-One report, in the review report shape from `principles`, so the area skills' findings merge without translation; each area skill hands its findings back to this review, and only this review makes a report tool's call, once, after merging. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. Clean names every area that ran and what it checked. Name each area the table skipped, with the "Runs when" it failed: under `not_run` in a report tool's call that has the field, or else in a closing line after the four sections, `Not run: <area> (<reason>), ...` or `Not run: none`, above any closing lines the caller asks for.
+One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each area skill hands its findings back to this review, and only this review makes a report tool's call, once, after merging. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. Clean names every area that ran and what it checked. Name each area the table skipped, with the "Runs when" it failed: under `not_run` in a report tool's call that has the field, or else in a closing line after the four sections, `Not run: <area> (<reason>), ...` or `Not run: none`, above any closing lines the caller asks for.

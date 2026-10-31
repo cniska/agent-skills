@@ -1,26 +1,26 @@
 ---
 name: adr
-description: Create or update architecture decision records. Use when an important technical decision is made, changed, or needs recording after the fact.
+description: Write, update or delete architecture decision records, each stating one important technical or design decision with the owner's reasons and the alternatives ruled out. Use when such a decision is made or changes, or when earlier decisions need records mined from history.
 ---
 
 # ADR
 
-An architecture decision record states one important technical decision: the problem it solves, what was chosen, what was ruled out, and what the choice costs. It exists so a settled question is not argued again, by a person or an agent.
+An architecture decision record states one important technical decision: the problem it solves, what was chosen, what was ruled out, and what the choice costs. It exists so a person or an agent does not argue a settled question again.
 
-## Conventions this skill enforces
+## What matters
 
-- **`writing`'s rules for documents that last hold:** link the doc that owns a detail rather than restating it, and leave out volatile numbers such as counts, ports and sizes.
-- **Technical and important only** — expensive to reverse, or relied on by more than one part of the system, and surprising without context: a reader of the code would wonder why, or a constraint the code cannot show forced it. A deliberate departure from the obvious path qualifies; the obvious choice made for the obvious reason does not. Product scope belongs to the spec, a convention to the agent rules; a record may hold the why behind a convention, while the rule itself stays where agents read it.
-- **One decision per record.** A detail of a recorded decision, such as how one function implements it, belongs in that record or its owning doc, not a record of its own.
-- **The title names the problem, never the technology** — "Backend platform", not "Use Postgres". The chosen technology goes in the Decision.
-- **Sections:** Context, Decision, Alternatives (only when known), Consequences. A rejection that is not obvious is the most valuable line, since it is the one that would otherwise be suggested again.
-- **A record states the decision that holds today.** When the decision changes, edit its record; when it stops holding, delete it. Git keeps the history, so no status, date, or supersede chain.
-- **Short.** The why and the cost. Where the owning doc already states the decision, its alternatives, and its reasons, the record is a link to it, or no record at all.
-- **Facts are verified at their source** — the code, migration, config, or owning doc — and a fact that cannot be verified is deleted.
-- **Reasons and alternatives come from the owner** — what they said, or an argument they explicitly accepted, about this decision, restated as `writing` says. Cite who said it; an assistant's proposal or summary is not the owner's reason. A reason that is a consequence of the decision, or that would equally reject something the system does elsewhere, is not the reason.
-- **Never invent an alternative or a reason.** Search past sessions first (the `search-sessions` skill), then ask the owner. When the owner is not available, draft only what the sources support and list the open questions with the draft.
-- **Find the repo's convention before writing** — existing records, their README or template, the agent rules, and tooling such as an `.adr-dir` file or an `adr-tools` setup. Continue its directory, markup, and numbering; never start a second scheme.
-- **The existing format keeps its structure; these content rules still apply.** Structure is the section set, markup, and numbering; a template's example titles and placeholder text are not. Where the structure conflicts with these rules, such as a required status section, keep it, fill it with the value that means the decision holds today, and raise the conflict with the owner rather than reformatting the set. With no format, propose a home and a shape and ask before writing.
+- **Write it as `writing` says for documents that last.**
+- **Record only what is technical and important**: expensive to reverse or relied on by more than one part of the system, and surprising without context, because a reader of the code would wonder why or a constraint the code cannot show forced it. A deliberate departure from the obvious path qualifies. The obvious choice made for the obvious reason does not. Product scope belongs to the spec and a convention to the agent rules. A record may hold the why behind a convention, while the rule itself stays where agents read it.
+- **One decision per record.** A detail of a recorded decision, such as how one function implements it, belongs in that record or its owning doc.
+- **Title the problem**, such as "Backend platform", and put the chosen technology in the Decision.
+- **Write four sections**: Context, Decision, Alternatives when any are known, and Consequences. A rejection that is not obvious is the most valuable line, since it is the one someone would otherwise suggest again.
+- **State the decision that holds today.** When the decision changes, edit its record. When it stops holding, delete the record. Git keeps the history, so the record carries the decision alone, with no status, date or chain of superseded records.
+- **Keep it short**: the why and the cost. Where the owning doc already states the decision, its alternatives and its reasons, the record is a link to that doc, or there is no record.
+- **Verify each fact at its source**, such as the code, a migration, the config or the owning doc, and delete a fact you cannot verify.
+- **Take reasons and alternatives from the owner**: what they said about this decision, or an argument they explicitly accepted, restated as `writing` says. Cite who said it. An assistant's proposal or summary counts only once the owner has accepted it. A reason that is a consequence of the decision, or that would equally reject something the system does elsewhere, is not the reason.
+- **Source every alternative and reason.** Run `search-sessions` first, then ask the owner. When the owner is not available, draft only what the sources support and list the open questions with the draft.
+- **Continue the repo's convention.** Before writing, find the existing records, their README or template, the agent rules, and any ADR tooling the repo has set up. Continue its directory, markup and numbering.
+- **Keep the existing format's structure, and apply these content rules inside it.** Structure is the section set, the markup and the numbering. A template's example titles and placeholder text are not structure. Where the structure conflicts with these rules, such as a required status section, keep it, fill it with the value that means the decision holds today, and raise the conflict with the owner. When the repo has no format, propose a home and a shape and ask before writing.
 
 ## Modes
 
