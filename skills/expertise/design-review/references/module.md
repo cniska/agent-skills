@@ -16,7 +16,7 @@ State in one sentence what the module is for, taken from the doc that owns the s
 
 ## What reaches it
 
-For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search with `rg -n '\b<name>\b'`, counting imports and calls only. A piece nothing reaches is a cut candidate; one that other code or a deployed caller still reaches is removed by deprecating it, replacement first. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
+For each export, command, flag, table, column and config key the module owns, find what reaches it: callers, entry points, hooks, scheduled jobs and the repo's skills. Search for the whole word, counting imports and calls only. A piece nothing reaches is a cut candidate; one that other code or a deployed caller still reaches is removed by deprecating it, replacement first. For a table, find the columns that are never set and the values no row carries; each is a cut candidate. A path taken only when something goes wrong, such as a conflict or a crash recovery, is judged by whether it has ever run, from logs or history, not by how often it ran recently.
 
 ## Damage
 
@@ -26,16 +26,7 @@ A damage clause rests on one fact, such as "nothing reads this table". State it,
 
 ## Causes
 
-Gather the module's fix history, following renames:
-
-```sh
-for f in <module files>; do
-  git log --follow --format='C %h %s' --numstat -- "$f" |
-    awk -v f="$f" '/^C /{fix=($3 ~ /^fix/); next} NF==3 && fix {n++; add+=$1} END{print n+0, "+"add+0, f}'
-done | sort -rn
-```
-
-The output gives each file's `fix:` commit count and the lines those commits added. Read the largest fixes with `git show --stat`. Add every backlog entry that names one of the module's files.
+Gather the module's fix history, following renames: for each file, the number of fix commits and the lines they added, largest first. Read the largest fixes. Add every backlog entry that names one of the module's files.
 
 Group the symptoms by the design decision behind them, and name each cause in one sentence with `file:line`. A fix that added hundreds of lines marks a place where the design was wrong. For each axis the module varies on, list the files that change when one value is added; an axis that touches more than one place is a cause, whether or not it has drawn a fix yet. Run the design review over the module's code, and treat each violation as a cause.
 
