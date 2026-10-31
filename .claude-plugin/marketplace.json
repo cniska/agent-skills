@@ -45,6 +45,15 @@
         "path": "plugin"
       },
       "description": "Tells every session that queued and running work lives in agent-task, and adds the running and in-review tasks where the session's directory holds one of their briefs."
+    },
+    {
+      "name": "cniska-ship",
+      "source": {
+        "source": "git-subdir",
+        "url": "cniska/agent-ship",
+        "path": "plugin"
+      },
+      "description": "Maps each step of the ship skill to the agent-ship command that does it, and names the upgrade when a newer agent-ship is out."
     }
   ]
 }

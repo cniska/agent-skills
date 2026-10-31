@@ -172,3 +172,12 @@ It tells every session that queued and running work lives in the [agent-task](ht
 - In a directory holding the brief of a running or in-review task, it adds those tasks after the note, as `agent-task list --started` prints them, each flagged when its brief changed.
 - It needs `jq` to add the tasks, and does nothing unless the agent-task CLI is on PATH.
 - Install it with `claude plugin install cniska-task@cniska`.
+
+### cniska-ship
+
+It maps each step of the `ship` skill to the [agent-ship](https://github.com/cniska/agent-ship) command that does it: `check`, `release`, `release --dry-run` and `status <tag>`.
+
+- Whenever a session starts, resumes, clears or compacts, it adds that map as a note.
+- When a newer agent-ship is out, it adds the command that upgrades the installed copy after the note.
+- It does nothing unless the agent-ship CLI is on PATH.
+- Install it with `claude plugin install cniska-ship@cniska`.

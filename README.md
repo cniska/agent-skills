@@ -70,6 +70,7 @@ These tools make an agent's work easier. Each one works on its own in any agent 
 - [agent-record](https://github.com/cniska/agent-record): a session record for coding agents, every past session queryable and joined to its commits
 - [agent-gates](https://github.com/cniska/agent-gates): commit gates for coding agents, git hooks and CI checks that refuse a bad commit
 - [agent-worktree](https://github.com/cniska/agent-worktree): task worktrees for coding agents, one checkout per task, set up and torn down by the project's own commands
+- [agent-ship](https://github.com/cniska/agent-ship): release tooling for coding agents, a release checked, made and published to every channel a project ships to
 
 ## The plugin
 
