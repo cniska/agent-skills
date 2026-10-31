@@ -5,12 +5,12 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 ## Authoring a skill
 
 - A skill is one of two kinds. `skills/workflow/` holds steps that produce an output; an unused one is fixed or dropped. `skills/expertise/` holds rules for what good looks like in one kind of work; it may go unused for a while.
-- Frontmatter `name` matches the directory; `description` starts with an imperative verb and states when to use the skill.
+- Frontmatter holds only the fields agentskills.io defines; `name` matches the directory; `description` starts with an imperative verb and states when to use the skill.
 - A skill leaves tools, their use and project specifics to repo rules, this one's included, and tool session notes, as `skill-writing` says.
-- Self-contained: depend on nothing outside the skill's own directory, and reference other skills by bare name in `## See also`, never by path — `npx skills add` copies only that directory.
+- Self-contained: depend on nothing outside the skill's own directory, and name another skill by bare name, never by path, only at a step that runs it — `npx skills add` copies only that directory.
 - Keep the body terse and imperative.
 - Name capability tiers (`fast` / `balanced` / `powerful`), never specific models.
-- The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, every link resolving inside the skill's own directory or to a web page on the validator's allowlist of tool links an agent follows to use a tool, no backticked path into another skill's directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
+- The validator enforces the mechanical rules — the two kind folders, no expertise skill naming a workflow skill in any of its files, frontmatter fields, every link resolving inside the skill's own directory or to a web page on the validator's allowlist of tool links an agent follows to use a tool, no backticked path into another skill's directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
 - Clean, lean, project-agnostic: fix failures two independent sessions show by editing their cause first.
 
 ## Code

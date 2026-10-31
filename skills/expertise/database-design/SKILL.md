@@ -11,6 +11,7 @@ Design the schema as the domain's record, with the database holding its own inva
 
 - Where the schema doc and the DDL or code that enforces it differ, the code wins and the doc is fixed in the same change.
 - Find how this repo changes its schema: forward-only migrations, or derived tables rebuilt from their sources. Never mix the two for one table.
+- Record a schema decision that is expensive to reverse in a decision record.
 - Search the repo's history and past sessions for schema corrections, and treat a repeated fix as a requirement.
 
 ## Columns and constraints
@@ -52,9 +53,3 @@ Where more than one kind of caller reaches the database:
 ## Review gate
 
 Before calling a schema change done, apply it to an empty database and to one at the largest size its data plausibly reaches, running any rebuild or drop the change implies at that size, and, where callers are isolated, exercise access as another owner, as each other kind of caller, and anonymously. Report each finding with the table, column or policy, and the state it allows or forbids.
-
-## See also
-
-- `review` for the migration checks at review time
-- `adr` for recording a schema decision that is expensive to reverse
-- `security-review` for trust-boundary risk beyond the schema

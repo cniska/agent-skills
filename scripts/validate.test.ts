@@ -96,6 +96,29 @@ describe("validate", () => {
     expect(run.output).toContain("imperative verb");
   });
 
+  test("passes every frontmatter field the Agent Skills specification defines", () => {
+    const root = fixture();
+    write(
+      root,
+      "skills/workflow/demo/SKILL.md",
+      skill(
+        `${REVIEW}\nlicense: MIT\ncompatibility: Requires git\nmetadata:\n  author: demo\nallowed-tools: Read`,
+        BODY,
+      ),
+    );
+    expect(validate(root).code).toBe(0);
+  });
+
+  test("fails a frontmatter field the Agent Skills specification does not define", () => {
+    const root = fixture();
+    write(root, "skills/workflow/demo/SKILL.md", skill(`${REVIEW}\nargument-hint: "<task>"`, BODY));
+    const run = validate(root);
+    expect(run.code).toBe(1);
+    expect(run.output).toContain(
+      "frontmatter field 'argument-hint' is not in the Agent Skills specification, in skills/workflow/demo/SKILL.md",
+    );
+  });
+
   describe("links and references", () => {
     const root = fixture();
     write(
@@ -379,7 +402,7 @@ describe("validate", () => {
       const run = validate(kinds(`Carry the fix out with \`demo\`.\n\n${BODY}`));
       expect(run.code).toBe(1);
       expect(run.output).toContain(
-        "expertise skill names a workflow skill outside ## See also in skills/expertise/rules/SKILL.md",
+        "expertise skill names a workflow skill in skills/expertise/rules/SKILL.md",
       );
       expect(run.output).toContain("8:Carry the fix out with `demo`.");
     });
@@ -389,43 +412,19 @@ describe("validate", () => {
       write(root, "skills/expertise/rules/references/more.md", "# More\n\nLoad `demo` next.\n");
       const run = validate(root);
       expect(run.code).toBe(1);
-      expect(run.output).toContain("outside ## See also in skills/expertise/rules/references/more.md");
+      expect(run.output).toContain(
+        "expertise skill names a workflow skill in skills/expertise/rules/references/more.md",
+      );
     });
 
-    test("passes an expertise skill that names a workflow skill under See also", () => {
-      expect(validate(kinds(`## See also\n\n- \`demo\` for the steps\n\n${BODY}`)).code).toBe(0);
+    test("fails an expertise skill that names a workflow skill under a See also heading", () => {
+      const run = validate(kinds(`## See also\n\n- \`demo\` for the steps\n\n${BODY}`));
+      expect(run.code).toBe(1);
+      expect(run.output).toContain("10:- `demo` for the steps");
     });
 
     test("passes a span that only starts with a workflow skill's name", () => {
       expect(validate(kinds(`Run \`demo log\` and \`demo-x\`.\n\n${BODY}`)).code).toBe(0);
-    });
-
-    test("fails a See also name that is no skill in the repo", () => {
-      const run = validate(kinds(`## See also\n\n- \`demo\` and \`ghost\` for the steps\n\n${BODY}`));
-      expect(run.code).toBe(1);
-      expect(run.output).toContain(
-        "## See also names 'ghost', which is no skill in this repo, in skills/expertise/rules/SKILL.md",
-      );
-      expect(run.output).toContain("10:- `demo` and `ghost` for the steps");
-      expect(run.output).not.toContain("names 'demo'");
-    });
-
-    test("fails a See also name in a reference file", () => {
-      const root = kinds(BODY);
-      write(root, "skills/expertise/rules/references/more.md", "# More\n\n## See also\n\n- `ghost`\n");
-      const run = validate(root);
-      expect(run.code).toBe(1);
-      expect(run.output).toContain(
-        "names 'ghost', which is no skill in this repo, in skills/expertise/rules/references/more.md",
-      );
-    });
-
-    test("passes a See also link to a file in the skill and a name outside See also", () => {
-      const root = kinds(
-        `Run \`ghost\` first.\n\n## See also\n\n- [\`notes\`](notes.md) for detail\n\n${BODY}`,
-      );
-      write(root, "skills/expertise/rules/notes.md", "# Notes\n");
-      expect(validate(root).code).toBe(0);
     });
 
     test("passes an expertise skill that names another expertise skill", () => {

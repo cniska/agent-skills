@@ -42,9 +42,3 @@ Separate refactoring from feature work. Separate formatting from behavior change
 ## Worktrees
 
 A worktree is a throwaway checkout for one branch, created fresh per task, run from its own directory, and removed once the branch merges or is abandoned — never with uncommitted changes in it. Follow repository-specific worktree commands when they exist; they determine the task's base. `git worktree list` before creating or removing one, and `git worktree prune` when one is gone outside Git and has left stale metadata behind.
-
-## See also
-
-- `build` — the slice boundary each commit records
-- `pr` — opening the branch for merge, and the history audit that precedes it
-- `ship` — the version bump reads the commit subjects this skill shapes

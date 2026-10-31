@@ -40,10 +40,3 @@ One move at a time. Run tests after each change. If tests fail, revert and recon
 ### 4. Verify
 
 All existing tests must pass without modification — if tests needed updating, you likely changed behavior. The diff should be clean with no unrelated changes mixed in.
-
-## See also
-
-- `principles` for Chesterton's Fence and no comments
-- `review` for the loop that surfaces these findings
-- `architecture-review` for finding misplaced logic and indirection
-- `maintainability-review` for finding naming and hygiene drift

@@ -47,7 +47,3 @@ Design the interface as a coherent product surface, not as a collection of techn
 ## Review gate
 
 Before calling a design done, use representative fixture data that exercises the meaningful domain states, long labels and empty or stale sources. Before the owner sees it, capture each state it touches in each theme the product ships, light and dark, at the target sizes and, where the platform scales text, the largest text size, plus what the screen's platform reference adds in its Proof, and check the captures for alignment, equal margins, shared baselines and type size; automated checks do not stand in for this. Then a fresh agent that did not make the change runs `ui-review` on the same shots, the `designer` agent where the host can start one and otherwise a subagent that loads `ui-review`, and the change waits for its accept; the author's own look never stands in for it.
-
-## See also
-
-- `ui-review` — how a fresh agent judges the running interface against these rules

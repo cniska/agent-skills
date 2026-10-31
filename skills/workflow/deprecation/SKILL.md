@@ -16,9 +16,3 @@ Code is a liability: every line costs maintenance, so when equivalent functional
 3. **Migrate consumers**, verifying each.
 4. **Verify zero usage.** Confirm no remaining references before removing. Where a static check can't prove it, say which check you ran.
 5. **Remove completely.** Delete code, tests, documentation, configuration. No commented-out remnants.
-
-## See also
-
-- `principles` — no transitional architecture
-- `build` — migrate consumers one verified slice at a time
-- `architecture-review` — find the coupling that makes a consumer hard to migrate

@@ -7,7 +7,7 @@ description: Design a feature or behavior change through dialogue. Use when aske
 
 Design a feature or behavior change through dialogue.
 
-If an issue number is given, read it and use it as the starting point.
+If an issue number is given, read it and use it as the starting point. Run `search-sessions` for what earlier sessions already designed or ruled out for this change.
 
 Have a design conversation about this task. Read the relevant code, share what you find, say what you think, and let the user shape the direction. The plan emerges from the dialogue — do not build it in isolation.
 
@@ -54,8 +54,3 @@ For a change past a single file, make its shape concrete before handing off — 
 - **Call path** — the entry-to-leaf path through those signatures.
 
 Sketch the shape in the conversation, not a separate document. If drawing it surfaces a decision, resolve it with the user here — that is the point.
-
-## See also
-
-- `build` for running the plan's slices and stopping where the plan runs out
-- `search-sessions` for what earlier sessions already designed or ruled out for this change

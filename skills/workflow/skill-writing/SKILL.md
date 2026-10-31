@@ -10,7 +10,7 @@ A skill is a self-contained instruction to a model — a directory holding a `SK
 Two modes, inferred from the request:
 
 - **Create** — a capability has no skill yet. Clone the shape of the closest existing skill; the repo's validator catches what is missing.
-- **Update** — a rule needs sharpening or cutting. Add one only when it holds in any project, two independent sessions saw its failure, and no existing line fits.
+- **Update** — a rule needs sharpening or cutting. Add one only when it holds in any project, two independent sessions saw its failure, and no existing line fits. Run `search-sessions` for those two sessions before adding it.
 
 ## Workflow
 
@@ -21,10 +21,3 @@ Two modes, inferred from the request:
 5. **Validate** with the repo's validator. Reach for an eval ([evals](references/evals.md)) only when the change's risk needs one, such as a behavior the skill exists for or a past regression no cheaper check can judge; a model run needs the owner's approval, so name the run and why in the report instead of starting it.
 6. **Commit** the way the repo's rules say, only once the user gives the go.
 7. **Check it in real use** once it lands: `workflow-review` judges the skill as a whole after weeks of work.
-
-## See also
-
-- `principles` — no drift, for the description, index and siblings a change leaves stale, and no text heuristics, for an output a tool or file receives
-- `writing` — how a skill's body is worded for the agent that follows it
-- `search-sessions` — evidence that a friction repeats across sessions before adding guidance for it
-- `workflow-review` — judges a skill whole over weeks of real use

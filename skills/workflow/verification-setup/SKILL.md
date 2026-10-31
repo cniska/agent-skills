@@ -1,7 +1,6 @@
 ---
 name: verification-setup
 description: Create or update a project-local skill that lets agents drive and inspect a running interface. Use when an agent cannot directly verify changed app behavior, or when an existing verify skill may have drifted from the app.
-argument-hint: "[surface-or-area]"
 ---
 
 # Verification setup
@@ -49,8 +48,3 @@ When the skill falls short of anything Create steps 2 and 3 ask, whether a secti
 ## Output
 
 Name the mode, the skill and files added or changed, the behavior driven, the evidence captured and its path, and any step that could not be run. Update ends in one outcome: **clean** (every feature covered, nothing to change, no branch), **changed** (one branch of proven corrections, listing any feature it could not drive and why), or **blocked** (exactly what stopped coverage). An unexecuted recipe is a draft.
-
-## See also
-
-- `task` for the Close step that runs this proof on each change
-- `skill-writing` for proving a changed skill in real use

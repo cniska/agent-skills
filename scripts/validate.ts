@@ -45,9 +45,6 @@ const SKIPPED_LINK = /^(mailto:|#)/;
 const WEB_LINK = /^https?:/;
 const TOOL_LINKS: ReadonlySet<string> = new Set(["https://code.claude.com/docs/en/plugin-evals"]);
 const SKILL_NAME = /`([a-z0-9]+(?:-[a-z0-9]+)*)`/g;
-const SEE_ALSO = /^## See also$/;
-const HEADING = /^## /;
-const LINKED_TEXT = /\[[^\]\n]*\]\([^)\n]+\)/g;
 const CODE_SPAN = /`([^`\n]+)`/g;
 const PATH_LIKE = /^[\w.-]+(?:\/[\w.-]*)*$/;
 const SKILL_PATH = /(?:^|\/)skills\/([a-z]+)\/([a-z0-9-]+)\//;
@@ -58,6 +55,8 @@ const KIND_CHOICES = SKILL_KINDS.map((kind) => `skills/${kind}/ if it is ${SKILL
 );
 const NEW_SKILL = "the skill-writing skill";
 const SHARED_RUN_WORDS = 10;
+const SPEC_FIELDS = ["name", "description", "license", "compatibility", "metadata", "allowed-tools"] as const;
+const SPEC_FIELD_SET: ReadonlySet<string> = new Set(SPEC_FIELDS);
 const SCANNED_FILES = ["README.md", "AGENTS.md"] as const;
 const SCANNED_DIRS = ["skills", "docs", "agents"] as const;
 
@@ -75,12 +74,10 @@ type Skill = {
   readonly docs: readonly Doc[];
   readonly declaredName: string | null;
   readonly description: string | null;
+  readonly fields: readonly string[];
 };
 
-type NumberedLine = { readonly shown: string; readonly inSeeAlso: boolean };
-
 type RepoSkills = {
-  readonly all: ReadonlySet<string>;
   readonly workflow: ReadonlySet<string>;
   readonly dirs: readonly SkillDir[];
 };
@@ -113,8 +110,8 @@ function textField(fields: Frontmatter, key: string): string | null {
   return typeof value === "string" && value !== "" ? value : null;
 }
 
-function modelLines(text: string): string[] {
-  return text.split("\n").flatMap((line, index) => (MODEL_NAME.test(line) ? [`  ${index + 1}:${line}`] : []));
+function linesWhere(text: string, holds: (line: string) => boolean): string[] {
+  return text.split("\n").flatMap((line, index) => (holds(line) ? [`  ${index + 1}:${line}`] : []));
 }
 
 function firstWord(description: string): string {
@@ -136,6 +133,15 @@ function resolvesInside(dir: string, doc: Doc, target: string): boolean {
 function fieldProblems({ skillDoc, declaredName, description }: Skill): string[] {
   if (declaredName !== null && description !== null) return [];
   return [`frontmatter requires both name and description in ${skillDoc.shown}`];
+}
+
+function specFieldProblems({ skillDoc, fields }: Skill): string[] {
+  return fields
+    .filter((field) => !SPEC_FIELD_SET.has(field))
+    .map(
+      (field) =>
+        `frontmatter field '${field}' is not in the Agent Skills specification, in ${skillDoc.shown}`,
+    );
 }
 
 function nameProblems({ name, skillDoc, declaredName }: Skill): string[] {
@@ -182,50 +188,14 @@ function linkProblems({ name, dir, docs }: Skill): string[] {
   );
 }
 
-function numberedLines(text: string): NumberedLine[] {
-  let inSeeAlso = false;
-  return text.split("\n").map((line, index) => {
-    if (HEADING.test(line)) inSeeAlso = SEE_ALSO.test(line);
-    return { shown: `  ${index + 1}:${line}`, inSeeAlso };
-  });
-}
-
-function outsideSeeAlso(text: string): string[] {
-  return numberedLines(text)
-    .filter((line) => !line.inSeeAlso)
-    .map((line) => line.shown);
-}
-
-function seeAlsoLines(text: string): string[] {
-  return numberedLines(text)
-    .filter((line) => line.inSeeAlso)
-    .map((line) => line.shown);
-}
-
-function unknownNames(line: string, skills: ReadonlySet<string>): string[] {
-  return [...line.replace(LINKED_TEXT, "").matchAll(SKILL_NAME)]
-    .map((match) => match[1] ?? "")
-    .filter((name) => !skills.has(name));
-}
-
-function seeAlsoProblems({ docs }: Skill, skills: ReadonlySet<string>): string[] {
-  return docs.flatMap((doc) =>
-    seeAlsoLines(doc.text).flatMap((line) =>
-      unknownNames(line, skills).map((name) =>
-        withDetail(`## See also names '${name}', which is no skill in this repo, in ${doc.shown}`, [line]),
-      ),
-    ),
-  );
-}
-
 function routeProblems({ kind, docs }: Skill, workflow: ReadonlySet<string>): string[] {
   if (kind !== "expertise") return [];
   return docs.flatMap((doc) => {
-    const lines = outsideSeeAlso(doc.text).filter((line) =>
+    const lines = linesWhere(doc.text, (line) =>
       [...line.matchAll(SKILL_NAME)].some((match) => workflow.has(match[1] ?? "")),
     );
     if (lines.length === 0) return [];
-    return [withDetail(`expertise skill names a workflow skill outside ## See also in ${doc.shown}`, lines)];
+    return [withDetail(`expertise skill names a workflow skill in ${doc.shown}`, lines)];
   });
 }
 
@@ -272,7 +242,7 @@ function otherSkillPathProblems({ dir, docs }: Skill, dirs: readonly SkillDir[])
 
 function namedModelProblems(docs: readonly Doc[]): string[] {
   return docs.flatMap((doc) => {
-    const lines = modelLines(doc.text);
+    const lines = linesWhere(doc.text, (line) => MODEL_NAME.test(line));
     if (lines.length === 0) return [];
     return [withDetail(`named model in ${doc.shown}`, lines)];
   });
@@ -288,6 +258,10 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
     problems: fieldProblems,
   },
   {
+    resolve: `drop the field; the Agent Skills specification defines only ${SPEC_FIELDS.join(", ")}`,
+    problems: specFieldProblems,
+  },
+  {
     resolve: "set the frontmatter name to the directory's name, or rename the directory to match it",
     problems: nameProblems,
   },
@@ -297,7 +271,7 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
   },
   {
     resolve:
-      "point the link at a file that exists inside the skill's own directory, or name another skill by bare name under ## See also",
+      "point the link at a file that exists inside the skill's own directory, or name another skill by bare name",
     problems: linkProblems,
   },
   {
@@ -308,11 +282,7 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
   { resolve: "name a fast, balanced or powerful tier instead of the model", problems: modelProblems },
 ];
 
-const SEE_ALSO_RESOLVE =
-  "name a skill that exists under skills/, or say it in plain words outside backticks if it is not a skill";
-
-const ROUTE_RESOLVE =
-  "state the rule without loading or routing to the workflow skill, and name it under ## See also if a reader needs it";
+const ROUTE_RESOLVE = "state the rule without loading or routing to the workflow skill";
 
 const OTHER_SKILL_PATH_RESOLVE =
   "name the other skill by bare name and its principle or section in words, never a path into its directory";
@@ -350,6 +320,7 @@ function load(root: string, { name, kind, dir }: SkillDir): Loaded {
       docs,
       declaredName: textField(fields, "name"),
       description: textField(fields, "description"),
+      fields: Object.keys(fields),
     },
   };
 }
@@ -358,7 +329,6 @@ function skillProblems(skill: Skill, repo: RepoSkills): Problem[] {
   return [
     ...CHECKS.flatMap(({ resolve, problems }) => problems(skill).map((message) => ({ message, resolve }))),
     ...routeProblems(skill, repo.workflow).map((message) => ({ message, resolve: ROUTE_RESOLVE })),
-    ...seeAlsoProblems(skill, repo.all).map((message) => ({ message, resolve: SEE_ALSO_RESOLVE })),
     ...otherSkillPathProblems(skill, repo.dirs).map((message) => ({
       message,
       resolve: OTHER_SKILL_PATH_RESOLVE,
@@ -443,7 +413,6 @@ runMain((args) => {
   if (!existsSync(skillsDir)) throw new CodedError("skills_missing", { dir: root });
   const skills = skillDirs(skillsDir);
   const repo: RepoSkills = {
-    all: new Set(skills.map((skill) => skill.name)),
     workflow: new Set(skills.filter((skill) => skill.kind === "workflow").map((skill) => skill.name)),
     dirs: skills,
   };

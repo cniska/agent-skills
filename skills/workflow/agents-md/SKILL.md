@@ -32,15 +32,15 @@ When a rule belongs in AGENTS.md, put it there — don't scatter the same rule a
 A menu of common dimensions, not a required skeleton. Shape the actual sections from the project's evidence — draw from these, rename them, add what this project needs, and drop what it doesn't. Use only sections with something concrete to say; an empty section is noise. Order so the load-bearing rules come first. The useful taxonomy differs per project and shifts as tools change — that structure is your call, not a fixed recipe.
 
 - **Architecture** — module boundaries, entry points, what depends on what. Usually long and rarely needed in full — the clearest case for the placement principle above: keep a load-bearing pointer to a dedicated architecture doc here, not the map itself.
-- **Invariants** — rules that must never break; the non-negotiables.
-- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag), and the channels a release publishes to. The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
+- **Invariants** — rules that must never break; the non-negotiables. Each one has a test or a review that checks it.
+- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag), the checks every commit runs, and the channels a release publishes to. The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
 - **Process** — development and agent-behavior rules that are neither code contracts nor commands: branching and PR-vs-direct policy, worktrees, when to commit, autonomous-execution and sign-off expectations. Distinct from Workflow (commands) and Invariants (code contracts).
 - **Commits** — message format and discipline (defer to the `git` skill's Conventional Commits only where the log shows no established format of its own).
 - **Pull requests** — when to open one, the review gate, title and body rules (omit if the project doesn't use PRs).
 - **Code** — language and structure rules specific to this repo.
 - **Style** — formatting, naming, lint/format tool of record.
 - **Docs** — where docs live and when to update them.
-- **Testing** — test layout, how to run them, coverage expectations.
+- **Testing** — test layout, how to run them, what a test may mock at a boundary, coverage expectations.
 
 ## Workflow
 
@@ -74,19 +74,3 @@ Often no specific rule comes with the request — "bring this file up to standar
 4. Trim collateral duplication the change exposes, and apply no drift from `principles` to what it made stale, even outside the target section.
 5. Re-check the file still follows every convention above (no hard wraps, one rule per bullet), and that a bridge exists for each agent tool the repo uses.
 6. Report **added / merged / trimmed** explicitly — which bullets changed and why.
-
-## See also
-
-AGENTS.md is the hub that gives the other skills their project-specific grounding. Each skill reads it to understand what the project considers non-negotiable.
-
-- `writing` — the prose rules this file shares with every lasting doc: rules not history, one place per fact
-- `principles` — the comment ban, mistake-proofing for deciding what becomes executable, and no drift
-- `code-writing` — the code rules; the Code section carries the ones every contributor must keep.
-- `spec` — if SPEC.md exists, reference it in the opening line; defer all requirement details there. Invariants, code and unit tests cite no spec ID.
-- `git` — the Commits section falls back to the `git` skill's Conventional Commits format only where the log shows no format of its own; an established house format wins.
-- `task` — the Workflow section names the checks a task's Close step runs on every commit.
-- `tdd` — the Testing section describes the surface the `tdd` skill drives against: test layout, run command, boundary mocking policy.
-- `pr` — the Pull requests section states the review gate and title/body rules the `pr` skill fills in.
-- `review` — the Invariants section is the checklist this skill verifies. An invariant with no test and no review coverage is incomplete.
-- `doc-review` — the Docs section states when to update canonical docs; the `doc-review` skill enforces it.
-- `ship` — the Workflow section's release command is the entry point the `ship` skill invokes to cut a release, and the channels it lists are the ones `ship` checks serve the new version; the script it names owns the pre-release gates.

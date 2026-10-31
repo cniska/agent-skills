@@ -51,9 +51,3 @@ Use the review report from `principles`. Each bug's **Rule** is its Scope bucket
 - Good: **Why:** `pricing.ts:40` `applyDiscount` uses `>` not `>=`, so an order exactly at the threshold gets nothing (total 100, threshold 100 → 0% instead of 10%).
 
 If nothing breaks under a concrete input, there is no finding — don't invent worries.
-
-## See also
-
-- `test-review` for whether the bug's absence is guarded by a test
-- `debug` for reproducing and root-causing a confirmed bug
-- `principles` for the review report a bug is filed in

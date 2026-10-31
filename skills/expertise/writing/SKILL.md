@@ -58,9 +58,3 @@ A README, a spec, an architecture doc, a decision record or an agent rules file 
 ## Final pass
 
 Check that the draft starts with the point, supports strong claims, removes repeated framing, and sounds like clear judgment rather than generated polish. Preserve the user's intent over stylistic performance.
-
-## See also
-
-- `principles` — no drift, for what a change leaves stale
-- `agents-md` for an `AGENTS.md`, and `spec` for a `SPEC.md`
-- `docs-writing` for a chart in a PR description or other prose

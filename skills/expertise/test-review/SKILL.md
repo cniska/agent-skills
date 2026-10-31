@@ -67,9 +67,3 @@ For a new or changed test, identify the behavior, a regression it would catch, a
 ## Output
 
 Give each finding as the review report in `principles` lays out: **Where** names the source file and test file, **Rule** its label (`Restore`, `Must-add`, `Should-add` or `Remove`), **Why** what is untested and the concrete bug a test would catch, and **Instead** the fix direction. Severity follows the label: `Restore` is critical, `Must-add` major, `Should-add` and `Remove` minor. An optional test is not a finding. If nothing clears the threshold, there is no finding.
-
-## See also
-
-- `tdd` for implementation-time test discipline
-- `review`, which runs this review on every branch
-- `principles` for the review report each test gap takes

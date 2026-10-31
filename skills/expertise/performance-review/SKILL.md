@@ -49,9 +49,3 @@ Flag a performance issue only with a concrete trigger: name the input, request p
 Write each hot spot in the `principles` review report: **Why** carries the triggering workload, its impact and the evidence, and **Instead** the fix direction.
 
 With nothing over the threshold, there is no finding.
-
-## See also
-
-- `correctness-review` for behavior changes caused by timeouts, limits, or concurrency
-- `architecture-review` for boundary and ownership changes behind performance fixes
-- `principles` for the review report a hot spot goes in

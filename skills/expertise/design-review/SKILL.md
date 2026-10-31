@@ -1,7 +1,6 @@
 ---
 name: design-review
 description: Review code against the owner's design rules and say directly what is wrong and what it should be instead; for a whole module, trace its bugs to the design that causes them and propose the smallest redesign, cuts first. Use on files, a diff or a module before accepting it, and instead of fixing a module's bugs one by one.
-argument-hint: "<files, diff range, or module>"
 ---
 
 # Design review
@@ -44,14 +43,3 @@ Order the findings by reach: first a design every new case of the same kind, suc
 ## Report
 
 Report in the review report shape from `principles`.
-
-## See also
-
-- `principles` holds the shared principles findings cite
-- `review` runs correctness, tests, security and each other area a whole branch touches, and this review too where its commits had none
-- `test-review` for how the tests are written, and whether they adapt to the change
-- `simplify` for the named move that fixes a local smell
-- `second-opinion` to challenge a module redesign
-- `refactor` to carry out an approved redesign
-- `deprecation` to remove a piece that something still reaches
-- `search-sessions` for earlier returns on a module

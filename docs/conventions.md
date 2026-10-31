@@ -4,10 +4,10 @@ How a skill is written, which models it asks for, and where each principle lives
 
 ## Skill conventions
 
-Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, where the kind is `workflow` or `expertise`, plus any `references/` files it loads only when a task needs them, and `scripts/` where the skill bundles an executable it names, reached by the path the skill loaded from. `SKILL.md` has YAML frontmatter (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
+Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, where the kind is `workflow` or `expertise`, plus any `references/` files it loads only when a task needs them, and `scripts/` where the skill bundles an executable it names, reached by the path the skill loaded from. `SKILL.md` has YAML frontmatter holding only the fields the [Agent Skills specification](https://agentskills.io/specification) defines (`name` matching the directory, `description` starting with an imperative verb) and a terse Markdown body.
 
 - **Self-contained.** A skill depends on nothing outside its own directory, because `npx skills add` copies only that directory, so shared or repo-root files never ship. Every link resolves inside the skill, and the only web links are the tool docs an agent opens to run a tool, which the validator allowlists.
-- **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path, so there are no cross-directory links to break.
+- **Compose by name.** A skill names another (`build`, `review`, …) only at a step that runs it, by bare name, never by path, so there are no cross-directory links to break. Otherwise the model finds a skill by its description.
 - **Terse and imperative.** Each skill states its intent and workflow. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models.
 

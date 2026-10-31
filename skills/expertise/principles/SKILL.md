@@ -21,9 +21,3 @@ A principle that more than one skill needs lives here once, so every skill that 
 | Verify at the source | Settle each factual claim where it is defined, and cite that place; restate the owner in clear English, never quoting the owner's wording | [verify-at-source.md](references/verify-at-source.md) |
 
 A principle only one skill uses stays in that skill. It moves here when a second skill needs it.
-
-## See also
-
-- `design-review`, which cites these principles behind its findings
-- the other review skills and `audit`, which report in the review report shape
-- `code-writing`, `simplify`, `debug`, `test-writing`, `deprecation`, `docs-writing`, `agents-md`, `writing`, `skill-writing`, which each name the principles their steps apply

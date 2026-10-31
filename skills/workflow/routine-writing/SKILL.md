@@ -9,7 +9,7 @@ A routine runs on a schedule with no one to answer a question, approve a step or
 
 ## The file is the source
 
-- **Keep the routine in a file in a repo**, its setup in frontmatter and what the run does in the body, so a change is a reviewed commit with history.
+- **Keep the routine in a file in a repo**, its setup in frontmatter and what the run does in the body, so a change is a reviewed commit with history. Word the file as `writing` says for instructions an agent follows.
 - **The scheduled prompt only points at the file**: sync, read the file, do what it says. A prompt that carries the body drifts from the file.
 - **Check the live routine against its file** after every change and on a schedule, reporting drift and changing nothing without the owner's go. Retire the old copy when a routine moves, so no one edits the wrong one.
 
@@ -29,9 +29,3 @@ A routine runs on a schedule with no one to answer a question, approve a step or
 - **Grant only the access the run needs.** A scheduler's default may attach everything the owner has connected; name each connection and clear the rest.
 - **Probe a capability before trusting a routine to it.** A probe is a one-off run in the same environment: read-only, one exact script, no secret printed (names, codes and booleans only), a failure taken as the answer, and a one-line result. Probe network reach, tools, credentials, browser sign-ins and the notification channel.
 - **Run it once by hand while the owner is present.** The first run turns up the approval prompt that would stall it, the setup step that is missing, and the source that fails. Fix the file and run again until a run finishes clean.
-
-## See also
-
-- `skill-writing` — for the skill a routine's body runs
-- `agents-md` — where the repo states where its routines live and how they are applied
-- `writing` — the file is a document that lasts

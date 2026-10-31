@@ -1,7 +1,6 @@
 ---
 name: refactor
 description: Run a refactor or a rewrite the owner's way — choose which the problem needs and carry it out so the new design copies nothing from the old. Use when a module's design is wrong, after a design review proposes a redesign, or before a feature the current structure makes hard.
-argument-hint: "<module, files, or the redesign to carry out>"
 ---
 
 # Refactor
@@ -36,11 +35,3 @@ The repo's own rules hold throughout: its commit gate, its docs-with-behavior ru
 5. **Do not rebuild the old feature set.** The spec decides what exists. An old behavior the spec does not require is not rebuilt; list it for the owner. Resist the second-system effect: a capability deferred in the old system stays deferred unless the spec asks for it.
 6. **Build to the tests, part by part,** refactoring as you go by the steps above, with `design-review` on each finished part.
 7. **Land in one change.** The replacement passes its acceptance tests, then lands with the old code gone, so no commit on the default branch runs two designs. Nothing runs old and new side by side.
-
-## See also
-
-- `design-review` — the rules every new shape follows, and the module review that diagnoses what to change
-- `simplify` — behavior-preserving local moves inside a slice
-- `deprecation` — removing an interface other code still depends on
-- `spec` — writing the requirements a rewrite starts from
-- `second-opinion` — the challenge a rewrite's design must survive

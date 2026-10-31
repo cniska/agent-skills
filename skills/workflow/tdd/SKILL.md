@@ -16,9 +16,3 @@ Drive implementation through the red-green-refactor cycle.
 5. **Repeat**: pick the next behavior and go back to step 2.
 
 One test at a time. Each cycle is vertical — one test, one implementation, one refactor pass. Do not write multiple tests before implementing.
-
-## See also
-
-- `build` for slice-by-slice execution
-- `test-writing` for what to test, assertions, and mocking
-- `test-review` for review-time test adequacy checks

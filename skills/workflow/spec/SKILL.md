@@ -54,11 +54,3 @@ REMOVED FR-9; FR-10..FR-37 → FR-9..FR-36; ADDED FR-37; MODIFIED FR-11 (narrowe
 ```
 
 The delta names a removed ID by its old number, then the renumbering a removal or an inserted item causes, and every other ID by its new number. It needs no separate document — the spec stays a clean statement of the *current* contract. Load-bearing rationale goes in a PR description or an ADR, never as motivation prose in the spec. A policy's `serves FR-x` pointer is the one exception: a trace to the requirement it serves, not motivation.
-
-## See also
-
-- `writing` — the prose rules a spec shares with every lasting doc
-- `plan` — design and decompose once the spec is stable
-- `architecture-review`, `doc-review` — where the *how* lives, and keeping the spec free of drift
-- [`template.md`](template.md) — the canonical section skeleton to copy from
-- [`references/acceptance-tests.md`](references/acceptance-tests.md) — the acceptance suite and the check tying it to the spec

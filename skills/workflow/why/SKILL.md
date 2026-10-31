@@ -17,9 +17,3 @@ Find the recorded reason for a design, then check whether it still applies. Curr
 ## Output
 
 Answer the question first. Cite each reason at its source. Distinguish the original reason from the case for keeping the design today. If the reason is unknown, name the records checked and what remains unknown.
-
-## See also
-
-- `search-sessions` for decisions recorded in earlier conversations
-- `explain-diff` for the intent and risk of a specific change
-- `debug` when the question starts with a current failure

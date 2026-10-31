@@ -69,8 +69,3 @@ Report each attack path in the review report shape from `principles`: **Where** 
 - Report, as critical: **Why:** `server.ts:42` binds `0.0.0.0` with `auth:false` by default, so any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).
 
 No finding is a valid result.
-
-## See also
-
-- `review`, which runs this review on a branch beside the others
-- `principles` for the review report an attack path is written in

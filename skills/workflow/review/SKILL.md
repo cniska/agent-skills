@@ -1,7 +1,6 @@
 ---
 name: review
 description: Review a whole change, always for correctness, tests and security and in each other area only when the diff touches it, and return the findings to whoever ran the review. Use when a feature branch is ready to land, on a change whose commits already landed, or on someone else's PR.
-argument-hint: "[pr-url-or-number | commit-range]"
 ---
 
 # Review
@@ -44,7 +43,7 @@ Refactoring mixed with feature work is two changes. Flag it.
 ### Self
 
 1. Determine the scope: `git log <base>..HEAD --oneline` and `git diff <base>...HEAD --stat` against the branch it lands on, the same over a given range, or the diff and log files the brief names. If the scope holds no commit, report and stop.
-2. Read changed files in full, plus any project-level convention docs. **Review tests first** — they reveal intent and coverage gaps.
+2. Read changed files in full, plus any project-level convention docs. On a complex or unfamiliar change, run `explain-diff` first for the understanding the review judges against. **Review tests first** — they reveal intent and coverage gaps.
 3. Pick the areas from the table, reading each "Runs when" against the diff.
 4. When the diff is wider than you can hold in one read and you can start agents, fan out **fast-tier** sub-agents — one per independent question, not one per file — to surface candidate findings. Verify each before including it.
 5. Load each picked area's skill and apply its criteria to the diff, one pass per area. Run Design first when it runs; Architecture and Maintainability then report only what Design did not. If a skill fails to load, say so under that area rather than improvising.
@@ -83,11 +82,3 @@ If the change includes database migrations, load `database-design` and check the
 ## Report
 
 One report, in the review report shape from `principles`, so the area skills' findings merge without translation; each area skill hands its findings back to this review, and only this review makes a report tool's call, once, after merging. Each finding's **Rule** names its area and the rule or check it breaks, and keeps the severity its area skill gave it. Clean names every area that ran and what it checked. Name each area the table skipped, with the "Runs when" it failed: under `not_run` in a report tool's call that has the field, or else in a closing line after the four sections, `Not run: <area> (<reason>), ...` or `Not run: none`, above any closing lines the caller asks for.
-
-## See also
-
-- the area skills step 5 loads, for each area's depth
-- `audit` for a read-only sweep of code already on the default branch
-- `database-design` for the schema rules a migration is checked against
-- `principles` for the review report this skill returns
-- `explain-diff` for building the understanding this skill judges against, on a complex or unfamiliar change

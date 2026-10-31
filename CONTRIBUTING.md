@@ -30,6 +30,6 @@ mise run validate
 - Use Conventional Commit format: `type(scope): description`.
 - Subject line only. No commit body.
 - For skill changes, each skill must live in `skills/workflow/<name>/SKILL.md` or `skills/expertise/<name>/SKILL.md`.
-- For skill changes, YAML frontmatter must include `name` and `description`.
+- For skill changes, YAML frontmatter must include `name` and `description`, and no field the Agent Skills specification does not define.
 - For skill changes, frontmatter `name` must match the directory name.
 - For skill changes, `description` must start with an imperative verb.

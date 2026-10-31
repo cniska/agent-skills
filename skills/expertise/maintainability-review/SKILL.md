@@ -62,9 +62,3 @@ Follow the review report in `principles`. For each departure from convention, **
 - Good: **Why:** `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`).
 
 If nothing clears the threshold, there is no finding — don't pad. Aggregate repeated instances of one smell into a single finding carrying a count and two or three representative locations; ten separate entries for one pattern drown the review they sit in.
-
-## See also
-
-- `design-review` and `code-writing` for the rules that hold regardless of local convention
-- `simplify` for performing the cleanups this review identifies
-- `principles` for the review report every departure is given in

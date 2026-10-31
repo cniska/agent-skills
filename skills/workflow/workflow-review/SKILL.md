@@ -32,9 +32,3 @@ Lead with the skills that need a rewrite or a cut. For each one, give:
 - the change: a rewrite from its purpose, a cut, or, rarely, a rule or check
 
 Then list the one-offs one line each, and what you searched for and did not find.
-
-## See also
-
-- `search-sessions`: finds the evidence
-- `skill-writing`: makes an accepted change to a skill or agent
-- `agents-md`: makes an accepted change to a repo's rules

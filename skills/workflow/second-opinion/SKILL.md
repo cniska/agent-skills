@@ -15,8 +15,3 @@ One model agreeing with itself is not verification. Have a different model attac
 4. **Require a citation for every factual finding**, such as `file:line` or a URL. Read any finding you act on at its source, and report the rest as unverified rather than dropping or adopting them.
 5. **Weigh, don't adopt.** Where the reviewer reports through a tool, read its recommendation, evidence and sort from the stored report, not its closing message. Compare the findings with the position you wrote down, apply what survives the source check, and report each disagreement with both positions.
 6. **Stop when a pass surfaces nothing new.** Run another pass only after a material change.
-
-## See also
-
-- `skill-writing` — judges a changed skill by its real-use signals instead of debating it
-- `review` — structured review of a diff

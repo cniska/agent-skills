@@ -52,14 +52,3 @@ Three modes, inferred from the request:
 2. **List candidates oldest first** with their sources, and let the owner cut it to the important technical ones that still hold.
 3. **Ask the owner for every missing reason or alternative** before drafting.
 4. **Draft each record as in New mode**, then have an independent reader check every claim against its source, including who said it and about which question.
-
-## See also
-
-- `writing` — the prose rules a record shares with every lasting doc: link the owner, no volatile numbers
-- `docs-writing` — the owning doc a record links to
-- `spec` — product requirements, which are not records
-- `agents-md` — conventions, which are not records
-- `search-sessions` — mining past discussion for reasons and alternatives
-- `second-opinion` — the independent check of a drafted set
-- `why` — tracing recorded rationale and whether it still applies
-- `principles` — verify at the source, for how the owner's reasons are restated

@@ -52,11 +52,3 @@ Report each finding as `principles`' review report says: **Where** is the file a
 - Good: **Why:** `README.md:12` says the cache "is designed to make sure that reads are generally fast"; **Instead:** "The cache serves repeated reads."
 
 If nothing drifted, breaks the shape or can go, there is no finding.
-
-## See also
-
-- `docs-writing`, whose shape and brevity rules this review checks
-- `writing`, whose rules for documents that last a doc is held to
-- `review`, which runs this review when docs or the behavior they describe change
-- `principles` for the review report shape a finding takes
-- `design-review`, the counterpart for code

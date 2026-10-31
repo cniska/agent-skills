@@ -51,9 +51,3 @@ Report each boundary breach in the review report shape `principles` holds: **Whe
 - Good: **Why:** `src/api/client.ts` imports `src/auth/session.ts`, which imports it back (runtime cycle), against the api→auth dependency direction in `docs/architecture.md`.
 
 No finding is a valid, complete result.
-
-## See also
-
-- `design-review` for indirection, YAGNI, cohesion and duplication, judged against the owner's rules rather than the repo's
-- `simplify` for performing the moves this review identifies
-- `principles` for the review report each breach is written in

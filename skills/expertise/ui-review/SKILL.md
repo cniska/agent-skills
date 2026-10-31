@@ -1,7 +1,6 @@
 ---
 name: ui-review
 description: Review a change to a running interface, its UI and its UX, from measured captures of every state it touches, set beside the reference screen it follows, and say what is wrong and what it should be instead. Use on each commit that changes an interface, on a branch's finished interface before it lands, and before the owner sees any of its screens.
-argument-hint: "<diff, captures, reference captures, verify skill and unreached list>"
 ---
 
 # UI review
@@ -32,12 +31,3 @@ Judge a running interface the way the owner does on looking at it: whether each 
 ## Report
 
 Report in the review report shape from `principles`, with the verdict the caller asks for. Each finding's **Where** names the screen, the state, the theme, the size and the capture or frame it rests on, plus `file:line` where the diff holds the cause. **Severity:** critical when a state hides, clips or loses what the user needs or cannot be operated; major when it breaks a rule, the reference or an owner correction; minor for the rest.
-
-## See also
-
-- `ui-design` — the rules a screen is held to, and its platform references
-- `design-review` — the same judgment on how the code is built
-- `principles` — the review report shape
-- `search-sessions` — the owner's past corrections on a screen's subject
-- `workflow-review` — turns the owner's repeated UI corrections into rules for `ui-design` or this skill
-- `verification-setup` — the verify skill whose run produces the captures, their reference captures and the frame dumps

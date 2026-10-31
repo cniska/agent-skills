@@ -24,7 +24,7 @@ The repo's own `CLAUDE.md` or `AGENTS.md` overrides anything here.
    | Shell | [references/shell.md](references/shell.md) |
 
 3. Read the repo's manifest, toolchain pins and lint config, and match them.
-4. Run the repo's declared format, lint, type and test tasks before declaring done. Run a test suite, and any command that may hang, under [`scripts/bounded`](scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` ends the command's whole process group at the deadline and exits 124.
+4. Write each test as `test-writing` says. Run the repo's declared format, lint, type and test tasks before declaring done. Run a test suite, and any command that may hang, under [`scripts/bounded`](scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` ends the command's whole process group at the deadline and exits 124.
 
 ## Language
 
@@ -106,10 +106,3 @@ Load `principles` and apply six of them to every change: no comments, mistake-pr
 Run the repo's declared tasks, or the reference's commands where it declares none. A failing check is a stop signal, not a warning to silence. A check that cannot run, because a tool or registry is unavailable, is reported as unrun, never worked around by dropping it or installing from an unvetted source; tests written but never run count as unwritten. Wire format-on-write so the format check is a formality.
 
 - **A rule that flags code is fixed in the code.** When a linter, type checker or analyzer rule flags code, rewrite the code. A rule is turned off in the project's config, for the whole project or one directory, only when no rewrite satisfies it without making the code worse, such as one whose fix is a comment that no comments forbids, and it is named there with why, where the project documents its lint. Adopting a linter, or raising its strictness, turns its rules on and fixes the hits rather than turning off what the code breaks. A suppression comment in source is never the fix; a language whose reference names a per-site form uses that form under the same test.
-
-## See also
-
-- `principles` for the six principles every change applies
-- `tdd` for crucial logic driven test-first
-- `test-writing` for tests that are proven able to fail
-- `database-design` for schemas the types are parsed from

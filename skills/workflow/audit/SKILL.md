@@ -1,7 +1,6 @@
 ---
 name: audit
 description: Audit existing code across every review dimension. Use for a read-only sweep of a project or path already on the default branch.
-argument-hint: "[project-or-path]"
 ---
 
 # Audit
@@ -27,10 +26,3 @@ Size the area so each reader can read its relevant paths in full. Divide a large
 State the revision and inspected scope, and each dimension that is `not_applicable` or `incomplete` with its reason, then report in the review report shape from `principles`. Each finding's **Rule** names its dimension and the rule it breaks, and its **Why** the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
 
 `## Clean` lists only the dimensions that are clear. Clear requires reading the relevant paths in full, not a search. A clean audit means every applicable dimension was checked in the stated scope and no finding survived verification.
-
-## See also
-
-- `review` for judging a diff or PR
-- the dimension skills step 2 spawns, for each dimension's depth
-- `simplify` for acting on structural findings once the user requests the work
-- `principles` for the review report the audit's findings follow

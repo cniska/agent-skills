@@ -1,7 +1,6 @@
 ---
 name: search-sessions
 description: Search past session transcripts for what was said and decided about a subject. Use when a decision, number, or plan was discussed earlier and is not in the repo, or not where you expect it.
-argument-hint: "<subject>"
 ---
 
 # Search sessions
@@ -28,8 +27,3 @@ Ask the session record first, where one is installed. The workflow below is for 
 Lead with the answer to the question asked, then the evidence: restate what each message said, as verify at the source in `principles` says, and cite `<session-id-prefix> <timestamp>` after each. Group by decision rather than by session.
 
 Say plainly what the search did not find — an absence you looked for is a finding, and it is what keeps the same question from being asked again. Where a decision lives in a transcript but not in the repo, name the gap and what would close it.
-
-## See also
-
-- `git` — find the commit or branch a transcript names
-- `principles` — verify at the source, for how what was said is restated

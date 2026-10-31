@@ -35,15 +35,8 @@ Two modes: **Create** (default) — push and open a PR; **Update** — rewrite a
      then re-audit — do not open the PR on non-compliant commits
 5. **Draft the PR**:
    - infer a title from the commits and diff
-   - fill in the template body (or use a sensible default structure)
+   - fill in the template body (or use a sensible default structure), worded as `writing` says; a chart in it follows `docs-writing`
    - render the title and body in the conversation and wait for approval — do not push before sign-off
 6. **Push the branch** unless the remote already holds every local commit
 7. **Create the PR** with the approved title and body
 8. **Return only the PR URL**
-
-## See also
-
-- `writing` — voice and plain wording for the description
-- `git` for commit conventions and rewriting history before push
-- `review` for the findings that hold a PR back
-- `doc-review` for user-facing drift checks before merge

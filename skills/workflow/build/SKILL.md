@@ -27,13 +27,3 @@ A run takes slice after slice with no reader in between, and its scope stays wit
 - the right behavior is unclear and nobody is there to ask
 
 Name what stopped the run and which slices were committed. The per-slice commits are the record; keep no progress log beside them.
-
-## See also
-
-- `plan` — the scope and slices a run takes as its input
-- `tdd` — red-green-refactor inside a slice of crucial logic
-- `code-writing` — how each slice's code is written and verified
-- `simplify` — cutting complexity from code that works, without changing what it does
-- `design-review` and `doc-review` — the reviews each slice waits on, on code and on docs
-- `ui-review` — the review a slice that changes an interface also waits on
-- `git` — how each slice is committed

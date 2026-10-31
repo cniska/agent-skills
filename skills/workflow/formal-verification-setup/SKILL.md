@@ -1,7 +1,6 @@
 ---
 name: formal-verification-setup
 description: Create or update a project-local formal verification skill whose check model-checks or proves the costliest promise the tests seldom exercise, run as one of the repo's checks. Use when concurrency, retry logic, a state machine, a parser or unsafe memory handling needs a guarantee a test suite cannot give, or when an existing formal verification skill may have drifted from the code.
-argument-hint: "[area-or-property]"
 ---
 
 # Formal verification setup
@@ -44,12 +43,3 @@ When the skill falls short of Create, first add what Create step 3 and the recor
 ## Output
 
 Name the mode, the skill, the check's command, and the files added or changed. Create states the property and its harm, the tool and why, the bounds, the wall-clock time, what the check found, and what it leaves out. Update gives each check one outcome, **in sync** (nothing since the sync commit changes what it describes, and it passes), **updated** (revised to match today's code, and green), **bug** (the model matches the code, which violates the property), or **blocked** (realigning or running it failed, with the cause), and a check may be updated and bug at once; with the commits read, each change to the model and its reason, the break used to prove a rerun pass, each bug in plain steps, and what is still uncovered. A pass that turned into a failure after the update is named as a stale pass. Model updates land in their own commit, never mixed with a product fix.
-
-## See also
-
-- `task` for the Close step that runs the repo's checks, this one included, on every change
-- `principles` for proven able to fail
-- `test-writing` for the test that replays a counterexample
-- `skill-writing` for the generated skill's shape
-- `verification-setup` for the sibling skill that drives the running app
-- `docs-writing` for a chart of a model's states or of a counterexample's steps
