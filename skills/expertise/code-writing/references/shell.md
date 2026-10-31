@@ -1,6 +1,6 @@
 # Shell
 
-Shell is for scripts that run a fixed sequence of commands: orchestrating processes, wiring tools together, short installers. It never builds a command-line program, as [Command-line programs](../SKILL.md#command-line-programs) defines one, and a shell file stays within 100 lines; past that, or once the logic needs real data structures or parsing, it moves to the repo's own language. A runner-fixed script, as [Language](../SKILL.md#language) defines it, takes its language and size from the repo's rules instead.
+Shell is for scripts that run a fixed sequence of commands: orchestrating processes, wiring tools together, short installers. It never builds a command-line program, as [Command-line programs](../SKILL.md#command-line-programs) defines one, and a shell file stays within 100 lines; past that, or once the logic needs real data structures or parsing, it moves to the repo's own language. A runner-fixed script, as [Language](stack.md#language) defines it, takes its language and size from the repo's rules instead.
 
 ## Bash version
 
@@ -61,7 +61,7 @@ Suggested tools; whatever a project already runs in their place takes precedence
 - Diagnostics go to stderr as `tool: message`; the result goes to stdout.
 - A script's own exits are 0 on success and 1 on failure; a signal ends it with 130 or 143, as [Child processes](#child-processes) says. A runner-fixed script follows [Command-line programs](../SKILL.md#command-line-programs) for its statuses, and when a caller or test must tell its failures apart, the message carries a stable code after the tool name (`tool: checksum-mismatch: …`).
 - Required input is checked first, `: "${VAR:?VAR is required}"`; a runner-fixed script that takes arguments reports every argument problem at once.
-- A prerequisite is checked by running it (`jq --version`), not only by `command -v`, and a missing one is named. Never `which`.
+- A prerequisite is checked by running it (`jq --version`), not only by `command -v`, and a missing one is named; `which` is not that check.
 
 ## Safe changes
 
@@ -69,7 +69,7 @@ Suggested tools; whatever a project already runs in their place takes precedence
 - A second run finds the work done and says so rather than redoing it or failing.
 - A file is written to a temporary file in the same directory and moved into place.
 - Anything that becomes a path component is validated, then canonicalized.
-- Never `eval`, and never build a command string from input; pass values as quoted arguments.
+- Pass values as quoted arguments, never through `eval` or a command string built from input.
 - Downloads use `curl -fsSL --max-time N`, and a checksum is verified before anything downloaded runs. Never pipe a download into a shell.
 
 ## Child processes
@@ -86,7 +86,7 @@ Parse structured output with the tool built for it: `jq` for JSON, a machine-rea
 - Quote every expansion. Build argument lists as arrays (`args=(--flag "$value")`, `"${args[@]}"`), never as a string split later.
 - Filenames are read with `while IFS= read -r` or NUL-delimited (`find -print0`, `git ls-files -z`, `xargs -0`); never parse `ls`.
 - `printf` over `echo` for anything containing a variable.
-- No `# shellcheck` directive: fix the code, and turn a check off in `.shellcheckrc` only as the skill's rule on flagged code allows. An SC2086 that keeps coming back means an argument string should be an array.
+- Fix the code rather than writing a `# shellcheck` directive, and turn a check off in `.shellcheckrc` only as the skill's rule on flagged code allows. An SC2086 that keeps coming back means an argument string should be an array.
 - Scratch space is `mktemp -d` plus a cleanup trap on `EXIT`; never a fixed path under `/tmp`.
 
 ## Output and portability

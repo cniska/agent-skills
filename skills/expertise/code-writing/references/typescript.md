@@ -10,7 +10,7 @@ Drift a model's memory gets wrong:
 - zod 4 moved string formats to top-level schemas (`z.email()`, `z.uuid()`, `z.url()`), replaced `.passthrough()` and `.merge()` with `z.looseObject()` and `.extend(other.shape)`, folded `z.nativeEnum` into `z.enum`, and renamed the `message` parameter to `error`.
 - Next.js 16 ships its docs in `node_modules/next/dist/docs/`; its APIs and file conventions differ from what a model remembers, so read them there first.
 
-A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or `node --experimental-strip-types <path>.ts`), never a new `.mjs`. Shell stays shell where the job is process orchestration.
+A repo script is TypeScript too, run through type stripping (`bun <path>.ts`, or `node --experimental-strip-types <path>.ts`) rather than written as a new `.mjs`. Shell stays shell where the job is process orchestration.
 
 ## Stack defaults
 
@@ -41,10 +41,10 @@ On a project with nothing chosen yet; libraries and test tools already in the tr
 - **Non-empty** is `[T, ...T[]]`.
 - **Brand primitives that must not be mixed** (`type UserId = string & { readonly __brand: "UserId" }`), built only by the parser that validates them.
 - **`unknown`, never `any`**, for external data. `JSON.parse` and `response.json()` return `any`, which satisfies every type it is assigned to; take the result as `unknown` and parse it.
-- **No `as` to silence the compiler.** Narrow with a check, assert with `invariant(condition, message)`, or fix the type. A type parameter that claims a shape nothing checks, such as `db.query<T>`, is a cast too: parse the row, or read it through a checked helper. `as const` and `satisfies` check rather than claim.
+- **Narrow instead of casting with `as`.** Narrow with a check, assert with `invariant(condition, message)`, or fix the type. A type parameter that claims a shape nothing checks, such as `db.query<T>`, is a cast too: parse the row, or read it through a checked helper. `as const` and `satisfies` check rather than claim.
 - **A `switch` over a union** ends in `default: return unreachable(value)` with `value: never`. Find the repo's `invariant` / `unreachable` helpers, or add them, before reaching for `!` or `as`.
 - **`readonly`** on every field and array that crosses a module boundary.
-- **No barrel `index.ts`** and no `export * from`.
+- **Import from the defining file**, with no barrel `index.ts` and no `export * from` between.
 
 ## Errors and async
 
@@ -52,12 +52,12 @@ On a project with nothing chosen yet; libraries and test tools already in the tr
 - Rethrow with the original attached: `new ServiceError("fetch failed", { cause: err })`. Catch as `unknown` and narrow; never assume `err.message` exists.
 - A promise is awaited, returned, or detached with a handler.
 - `Promise.allSettled` when one failure must not cancel the rest; deadlines through `AbortSignal.timeout()` passed to `fetch` and long operations.
-- No `@ts-expect-error`, `@ts-ignore`, lint-suppression comment of any linter or JSDoc types: fix the type or parse the value, and turn a rule off only as the skill's rule on flagged code allows. Typed code is TypeScript.
+- Fix the type or parse the value instead of writing `@ts-expect-error`, `@ts-ignore`, any linter's suppression comment or JSDoc types, and turn a rule off only as the skill's rule on flagged code allows. Typed code is TypeScript.
 
 ## React
 
 - **A surface has one data owner.** Server components read and render by default, refreshed with `router.refresh()`; a surface whose reads change with interaction rather than navigation owns its data in TanStack Query end to end. A server prop copied into `useState` is a second owner that goes stale — pass it as the query's initial data. A draft being typed is client state and stays local.
-- **An effect is the last resort.** What `useEffect` gets reached for is usually derived state, a handler on the event itself, or a subscription (`useSyncExternalStore`). Where an app names its effect shapes in one module, import them from there, never `useEffect` raw.
+- **An effect is the last resort.** What `useEffect` gets reached for is usually derived state, a handler on the event itself, or a subscription (`useSyncExternalStore`). Where an app names its effect shapes in one module, import them from there instead of calling `useEffect` directly.
 
 ## Verification
 

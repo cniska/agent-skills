@@ -14,7 +14,7 @@ Suggestions for a project starting out; an existing project's tools win. `mise` 
 - `dart analyze --fatal-infos`: lints report at info level, and without the flag a lint never fails the run. `flutter analyze` in a Flutter package makes infos fatal by default.
 - `dart format`. Since 3.7 the formatter adds and removes trailing commas itself; do not place them to force a layout.
 - `dart test`, or `flutter test` in a package that depends on Flutter.
-- If `dio` is in the tree, don't add `http`.
+- With `dio` in the tree, use it rather than adding `http`.
 - Generated `*.g.dart` files come from `build_runner` and are never edited by hand; change the source and regenerate.
 
 A model's memory of Dart lags the language, so check the SDK lower bound before writing a feature from memory, and before rejecting one as invalid:
@@ -29,7 +29,7 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 - **Read decoded data with a pattern.** `jsonDecode`, platform channels, files and another program's output arrive as `dynamic`. Read them once at the edge, `switch (json) { {'id': final String id, 'moves': final List<Object?> moves} => …, _ => throw FormatException('expected a game', json) }`, so a bad shape fails there with the input attached. A chain of `json['id']! as String` fails deep in the code with `Null check operator used on a null value`, naming no field.
 - **Two pattern traps on decoded JSON.** A map pattern fails when a key it names is absent, so an optional key is read on its own (`json['name']`), never as `'name': final String? name`. Decoded lists are `List<dynamic>`, so `final List<String> moves` never matches real input; match `List<Object?>` and check each element. A test that passes typed literals (`<String>['e2e4']`) hides both, so feed readers `jsonDecode` output.
 - **Decoded JSON is `Map<String, Object?>`**, never `Map<String, dynamic>`: `dynamic` turns every later member access into an unchecked call.
-- **No `!` to silence the analyzer.** Promote with a check (`if (x case final value?)`, an early return on `null`), or fix the type. `late` makes the same unchecked claim about initialization; use it only where a framework guarantees the order, as `initState` does.
+- **Promote with a check instead of `!`.** Use `if (x case final value?)` or an early return on `null`, or fix the type. `late` makes the same unchecked claim about initialization; use it only where a framework guarantees the order, as `initState` does.
 - **A switch over a sealed class or enum has no `_` or `default` arm.** The analyzer then rejects every switch that misses a new subtype; a wildcard arm makes it accept them all. The analyzer's own fix suggests adding a default case — add the missing case instead.
 - **Fields are `final`**, and a value type gets a `const` constructor. A class meant to be implemented or extended says so with `interface`, `base` or `sealed`; any other public class is `final`.
 
@@ -49,7 +49,7 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 ## Testing
 
 - No real time: inject `package:clock` and drive timers with `fakeAsync`.
-- No `// ignore:` or `// ignore_for_file:`: fix the code, and turn a lint off in `analysis_options.yaml` only when the skill's rule on flagged code allows it.
+- Fix the code rather than writing `// ignore:` or `// ignore_for_file:`, and turn a lint off in `analysis_options.yaml` only when the skill's rule on flagged code allows it.
 
 ## Setup
 

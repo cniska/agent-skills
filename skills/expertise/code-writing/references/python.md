@@ -39,7 +39,7 @@ Defaults for a new project; the libraries already in use win.
 - `Protocol` for structural interfaces, especially a test double that satisfies a boundary without inheriting; `ABC` only when shared implementation lives in the base.
 - `StrEnum` when a value crosses a wire or lands in a file; `Literal` when it stays in-process.
 - `from __future__ import annotations` only in a module that needs a forward reference.
-- No `Any` where a type can be written; parse the value into one instead.
+- Write a type wherever one can be written, and parse a value into it rather than typing it `Any`.
 
 ## Errors
 
@@ -72,7 +72,7 @@ Defaults for a new project; the libraries already in use win.
 
 ## Verification
 
-Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Never `noqa` or `type: ignore` in source: fix the code, and turn a rule off in the project's tool config only as the skill's rule on flagged code allows.
+Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Fix the code rather than writing `noqa` or `type: ignore` in source, and turn a rule off in the project's tool config only as the skill's rule on flagged code allows.
 
 ## Setup
 

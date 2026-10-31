@@ -21,13 +21,13 @@ Defaults where nothing is in the tree yet; a crate already used wins.
 | Async traits | native `async fn` in traits | `async-trait` 0.1 only when `dyn Trait` object safety is required |
 | Parameterized tests | `rstest` | — |
 
-`tokio` enables only the features used (`rt-multi-thread`, `net`, `time`, `macros`, `signal`), never `full` in a library crate; `tracing-subscriber` likewise, since its defaults pull a large tree. serde reads a missing `Option<T>` field as `None`, so an absent key and `null` are one value unless the shape says otherwise; decide which the format means and pin it with a test. If `hyper` is in the tree, don't add `reqwest`; if `std::time` covers the work, don't add `chrono`.
+`tokio` enables only the features used (`rt-multi-thread`, `net`, `time`, `macros`, `signal`), never `full` in a library crate; `tracing-subscriber` likewise, since its defaults pull a large tree. serde reads a missing `Option<T>` field as `None`, so an absent key and `null` are one value unless the shape says otherwise; decide which the format means and pin it with a test. With `hyper` in the tree, use it rather than adding `reqwest`; where `std::time` covers the work, use it rather than adding `chrono`.
 
 ## Module structure
 
 - An area is a directory one level under `src/`, whose `mod.rs` declares its files and nothing else. Both layouts are idiomatic — `foo/mod.rs`, or `foo.rs` beside `foo/` — so a crate picks one and holds to it.
 - A sub-thing spanning several files takes a name prefix (`lfs.rs`, `lfs_handler.rs`, `lfs_forward.rs`) rather than nesting a directory inside an area.
-- No `pub use` re-export in `mod.rs`; import a crate item from the file that defines it.
+- Import a crate item from the file that defines it, with no `pub use` re-export in `mod.rs`.
 - `mod x;` (no `pub`) for a file nothing outside its area needs. Not a 300-line `lib.rs`.
 
 ## Errors
@@ -38,7 +38,7 @@ Defaults where nothing is in the tree yet; a crate already used wins.
 
 ## Logging
 
-Log through the workspace's shared logger crate; in a standalone repo, wrap `tracing` in a local `logger` module so policy lives in one place. Never `use tracing::...` outside the wrapper.
+Log through the workspace's shared logger crate; in a standalone repo, wrap `tracing` in a local `logger` module so policy lives in one place. Import `tracing` only inside the wrapper.
 
 ## Types and dispatch
 
@@ -57,7 +57,7 @@ Log through the workspace's shared logger crate; in a standalone repo, wrap `tra
 
 ## Documentation
 
-No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its README carries the usage example. Lint levels live in `Cargo.toml`'s `[lints]`; a single site's exception, only where no rewrite satisfies the lint, is `#[expect(lint, reason = "...")]`, the per-site form the skill's rule on flagged code allows, an attribute the compiler reads that warns once the lint no longer fires.
+A crate's README carries its usage example, on a crate published to crates.io too, instead of `///`, `//!` or `#[doc = …]`. Lint levels live in `Cargo.toml`'s `[lints]`; a single site's exception, only where no rewrite satisfies the lint, is `#[expect(lint, reason = "...")]`, the per-site form the skill's rule on flagged code allows, an attribute the compiler reads that warns once the lint no longer fires.
 
 ## Verification
 
@@ -93,4 +93,4 @@ Cargo:
 
 - `[workspace.dependencies]` for shared crates; `[workspace.package]` for `version`, `edition`, `license`, `repository`.
 - Internal crates declare both `version = "x.y.z"` and `path = "..."`; cargo-deny rejects path-only deps on published crates.
-- Publish through CI, never `cargo publish` locally. Suggested for bumps: Conventional Commits and release-please, with `CHANGELOG.md` `[Unreleased]` updated per change.
+- Publish through CI only, not with a local `cargo publish`. Suggested for bumps: Conventional Commits and release-please, with `CHANGELOG.md` `[Unreleased]` updated per change.

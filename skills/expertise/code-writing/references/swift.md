@@ -53,14 +53,14 @@ What to reach for with nothing chosen yet; a project's own frameworks and test t
 
 - One `enum <Module>Error: Error` per module, its facts as associated values; callers `catch` a case, never match on `localizedDescription`. An `OSStatus`, `NSError` or framework error such as `LAError` is mapped into the module's enum where it arrives.
 - **Typed throws where the error set is closed** (SE-0413): `throws(ModuleError)` inside a module or package, and on a public API whose errors are its own. A public function that forwards errors it did not make, or whose errors may grow, throws untyped. `throws(Never)` is a non-throwing function, not a claim.
-- **No `try!`, `!`, `as!` or `fatalError()` outside tests.** `precondition` marks an invariant the caller broke. `try?` is a silent catch-and-continue, kept only where `nil` is the honest answer and the function's name says so.
+- **Outside tests, handle the failure instead of `try!`, `!`, `as!` or `fatalError()`.** `precondition` marks an invariant the caller broke. `try?` is a silent catch-and-continue, kept only where `nil` is the honest answer and the function's name says so.
 - `throws` over `Result`; `Result` stores an outcome, it does not replace control flow.
 - The text shown to a person comes from one `LocalizedError.errorDescription` per module, so a message is never assembled at a call site.
 
 ## Concurrency
 
 - **Structured first.** `async let` and `withThrowingTaskGroup` run children that finish or cancel with their parent. `Task { }` starts only where no async context exists, such as a button action; SwiftUI's `.task` modifier owns the view's async work and cancels with it. `Task.detached` almost never.
-- **No GCD and no completion handlers in new code**: no `DispatchQueue`, `DispatchGroup`, `DispatchSemaphore`, `OperationQueue` or `Thread`, and nothing that blocks a thread waiting on async work. A framework API that still takes a completion handler is wrapped once in `withCheckedThrowingContinuation`, resumed exactly once.
+- **Write new concurrency with `async`/`await`**, with no GCD and no completion handlers: no `DispatchQueue`, `DispatchGroup`, `DispatchSemaphore`, `OperationQueue` or `Thread`, and nothing that blocks a thread waiting on async work. A framework API that still takes a completion handler is wrapped once in `withCheckedThrowingContinuation`, resumed exactly once.
 - **Isolation is a module decision.** An app and its UI-facing packages build with `MainActor` default isolation (SE-0466) and approachable concurrency, so unannotated code is main-actor and a model class needs no `@MainActor`. A library package keeps the `nonisolated` default so callers choose where its code runs. Under `NonisolatedNonsendingByDefault` a nonisolated `async` function runs where it is called; CPU-heavy work off the main actor is `@concurrent` and takes only `Sendable` arguments.
 - **Shared mutable state off the main actor is an `actor`.** Model classes stay on the main actor and are not `Sendable`; `Sendable` belongs to value types. `@unchecked Sendable` and `nonisolated(unsafe)` are claims the compiler cannot check; where a lock really earns its place it is `Mutex`.
 - **Cancellation is cooperative.** A loop calls `try Task.checkCancellation()`, `Task.sleep(for:)` throws when cancelled, and time comes from a `Clock` so a test can drive it.
