@@ -1,11 +1,16 @@
 # No drift
 
-A change also updates, in the same commit, everything that describes, repeats, names or depends on what it changed. Left alone, each of these goes stale:
+Update, in the same commit, everything that describes, repeats, names or depends on what a change redefines.
 
-- **Rules:** a description, summary or message restating guidance that moved or changed.
-- **Names:** references, error messages, docs and test names after a rename.
-- **Behavior:** docs, help text, READMEs and examples describing what the code used to do.
-- **Contracts:** callers, config, fixtures and schemas built for an interface's old shape.
-- **Decisions:** a spec, decision record or `AGENTS.md` line the change contradicts.
+A place left alone goes stale, and the next reader acts on it.
 
-Before committing, search for the old wording, names and shapes, and for each place that acts on what the change redefines, whatever its wording, and fix each hit or point it at the one place that owns it. Where the repo's validator refuses a run of words two files share, the second place names the source instead of rewording the copy. Name in the report anything found that belongs to another change.
+- Search for the old wording, names and shapes, and for each place that acts on what changed, whatever its wording:
+  - a description, summary or message restating guidance that moved or changed
+  - references, error messages, docs and test names after a rename
+  - docs, help text, READMEs and examples describing the old behavior
+  - callers, config, fixtures and schemas built for an interface's old shape
+  - a spec, decision record or rules-file line the change contradicts
+- Fix each hit, or point it at the one place that owns it.
+- Name in the report anything found that belongs to another change.
+
+Example: renaming the flag `--dry` to `--check` also changes the help text, the README's example and the test named for `--dry`.
