@@ -1,56 +1,30 @@
 ---
 name: plan
-description: Design a feature or behavior change through dialogue. Use when asked to plan, scope, design, or break down work before coding.
+description: Design a feature or behavior change with the owner before code is written, settling its shape, its slices and the questions only they can answer. Use when asked to plan, scope, design or break down work, or when a task's shape is unclear.
 ---
 
 # Plan
 
-Design a feature or behavior change through dialogue.
+Design a change through dialogue with the owner, so the shape they agree to is the one that gets built. Start from the issue when one is given. Run `search-sessions` for what earlier sessions already designed or ruled out for this change.
 
-If an issue number is given, read it and use it as the starting point. Run `search-sessions` for what earlier sessions already designed or ruled out for this change.
+## What matters
 
-Have a design conversation about this task. Read the relevant code, share what you find, say what you think, and let the user shape the direction. The plan emerges from the dialogue — do not build it in isolation.
+- **Question the premise.** The framed change is a proposal. Ask whether it is the right unit of work, whether removing something would serve better than adding, and whether the feature still earns its keep. Prefer deletion and fixes at the source to accretion. When the framing is off, say so before designing to it.
+- **Build the plan in the dialogue.** Read the code the change touches, share what you find, say what you think, and let the owner steer. Bring your findings back to them before drafting, as a turn of the conversation.
+- **Ground every recommendation** in current code, docs and project rules. Read enough yourself to know which files carry the change before fanning work out to subagents ([research](references/research.md)).
+- **Settle what evidence settles.** A hard technical question, such as whether a pattern exists, which shape fits this codebase or what a migration costs, has an evidence-based answer, so it is yours. When an open file or one search settles it, settle it and state the grounding. When it needs real work, give it to a powerful-tier subagent and come back with the answer and its grounding.
+- **Ask the owner only what evidence cannot settle:** product intent, priority, risk appetite and which tradeoff they want to live with. Split a mixed question, settle its evidence half, and ask only the rest. Before each question, name what you tried first. Ask one question at a time, in dependency order, each with your recommended answer. Research raises new questions, so judge each new one the same way as it arrives.
+- **Size by decisions.** Count the files that carry a decision a reviewer could push back on: mechanical churn and doc or spec updates that mirror a decision already made add none, and a file that carries several decisions counts as several. By that count, 1 to 2 is a small slice, 3 to 5 is one feature slice through the stack, and 5 to 8 is large and worth splitting. Split anything past 8. Slice vertically, each slice a complete path through the stack.
+- **Make the shape concrete** for a change past one file, while a decision is still cheap to change ([program design](references/program-design.md)).
 
-Question the premise before designing to it. The framed change is a proposal, not a given: is it the right unit of work, would removing something serve better than adding, is the feature still earning its keep or has the world moved past it? Prefer deletion and source fixes to accretion. Say so when the framing is off; don't silently build to spec.
+## With no one to ask
 
-Before asking the user anything, decide whether the question is actually theirs. A hard technical design question has an evidence-based answer — does this pattern already exist, which of two shapes fits this codebase, what breaks if we take that seam, what does the migration cost — and it is yours to answer, not theirs to adjudicate. Difficulty is the reason to delegate it, never the reason to escalate it.
-
-Three dispositions, not two: answer it, delegate it, or ask. Ease is the reason not to delegate — where a file already open or one grep settles it, settle it and state the grounding; a subagent that only confirms a call you had already made is pure overhead, though one that re-derives it and comes back with provenance you lacked is not. Delegate what needs real work to a **powerful-tier** subagent, and return with the answer and its grounding rather than the question.
-
-What stays with the user is what no amount of evidence settles — product intent, priority, risk appetite, which tradeoff they want to live with. Most questions that feel like theirs are tangled: split off the evidence half, settle it, and put only the residue to them. Before each question, name what you tried first — if that answer is "nothing," you are not ready to ask. Research is a loop, not a pass: delegation surfaces questions that didn't exist before it ran, so re-run the disposition on each rather than batching whatever accumulated. Ask one at a time, in dependency order, each with your recommended answer.
-
-Asking has two terminal forms. With a human, it's a question. With none — invoked from a subagent, a schedule, a batch run — the dialogue gates can't be met, so don't stall on them and don't fake agreement: state the question as a marked assumption carrying the answer you'd have recommended and the alternative's cost, then keep going. On that path the dialogue gates are suspended, not violated; you are producing a document for approval because there is no one to converse with.
-
-Ground every recommendation in current code, docs, and project rules. Read enough yourself to pick the task before fanning out — which files are load-bearing is itself a finding, and a fan-out that precedes it is guessing. Then spawn readers in parallel, one per independent question rather than one per file (cap ~5), each tiered to its own question as below — file count is a poor proxy for difficulty, and a reader that summarizes a file you could have read costs more than it saves while losing the exact signatures you need. Where a grep would do, or the load-bearing material — code, spec, or prose — runs to a few hundred lines, read it yourself.
-
-Match the tier to the question: **fast-tier** for retrieval (where a thing lives, what it does), **powerful-tier** for judgment (which shape fits, what breaks, what it costs). "Does X exist anywhere in here?" only looks like retrieval — it takes judgment to know what counts as an X, so a fast-tier "not found" is not evidence of absence. Verify any load-bearing claim a delegate returns before you plan on it: a confident wrong answer reads exactly like a right one, and the cost lands in the plan. Bring what you found back to the user before drafting — the read-back is a conversation turn, not a silent research phase. With no one to bring it to, it collapses into the plan's grounding: show the evidence rather than dropping the step.
-
-## Task sizing
-
-- **Small (1-2 files):** single endpoint, component, or utility
-- **Medium (3-5 files):** one feature slice through the stack
-- **Large (5-8 files):** multi-component feature — consider splitting
-
-Anything larger needs further decomposition. Count decisions a reviewer could push back on, not files touched: mechanical churn (one derive added to fifteen types) and mandated doc or spec updates that mirror a decision already made don't move the band, while in a large codebase a single file can carry several. Slice vertically (complete paths through the stack), not horizontally (all types, then all implementations, then all tests).
+When the plan runs from a subagent, a schedule or a batch run, nobody can answer. State each question as a marked assumption, carrying the answer you would have recommended and the cost of the alternative, and keep going. Show your evidence in the plan's grounding in place of the read-back. Label the plan unratified at its top, and give the checklist unchecked as the proposed sequence, so nothing reads as agreed.
 
 ## When aligned
 
-Aligned means the user has explicitly agreed to a concrete proposal — not merely heard it. If you haven't gotten a confirming response, you're not aligned yet.
+The plan is aligned once the owner has explicitly agreed to a concrete proposal. Hearing it is not agreeing to it.
 
-With no human in the loop, alignment is the reader's step rather than one you reached: label the plan unratified at the top, not in a footer, and emit the checklist unchecked as the proposed sequence — nothing was agreed, and a checklist that reads as agreed would be the fake agreement you were told to avoid.
-
-Summarize what was agreed: **Outcome** | **Decisions made** | **Change list** | **Validation** | **Open questions**.
-
-Split into phases if the work is large. Each phase independently valuable and verifiable. Reference concrete files.
-
-For non-trivial plans, track agreed steps in a checklist as the conversation progresses. When planning is done, the checklist is ready — hand it to the user and stop. Execution starts only when the user says so (typically via `build`).
-
-## Program design
-
-For a change past a single file, make its shape concrete before handing off — a decision on the table is cheaper to change now than at review time:
-
-- **File-tree diff** — files added, changed, or deleted, one line of intent each; for an edit to just a file or two, a sentence beats a block.
-- **Key signatures** — the new or changed function and type signatures the slice introduces.
-- **Call path** — the entry-to-leaf path through those signatures.
-
-Sketch the shape in the conversation, not a separate document. If drawing it surfaces a decision, resolve it with the user here — that is the point.
+- Summarize what was agreed: **Outcome** | **Decisions made** | **Change list** | **Validation** | **Open questions**.
+- Split large work into phases, each valuable and verifiable on its own, naming concrete files.
+- For any plan past one small step, keep the agreed steps in a checklist as the conversation goes. When planning is done, hand the checklist to the owner and stop. Execution starts when the owner says so, usually through `build`.
