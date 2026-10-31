@@ -74,7 +74,6 @@ Suggested tools; whatever a project already runs in their place takes precedence
 
 ## Child processes
 
-- A test suite or any command that may hang runs under [`scripts/bounded`](../scripts/bounded), bundled with this skill: `bounded <seconds> <command> [args...]` ends the command's whole process group at the deadline and exits 124.
 - A script that starts children traps INT and TERM, ends their process group and exits 130 or 143, so the group dies with the script instead of outliving it.
 - A background child gets explicit stdin (`</dev/null`) and its output redirected to a file or `/dev/null`; a child that keeps the caller's stdout holds a pipe or `$(...)` open until it exits, long after the script has.
 
