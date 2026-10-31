@@ -27,7 +27,7 @@ Run one task so that it lands whole, does what was asked, and is reviewed by an 
 | Test | A change only to tests, or to the spec wording they prove | [references/test.md](references/test.md) |
 | Review | Someone else's change, or a change that already landed | [references/review.md](references/review.md) |
 
-In the routes, Open loads `code-writing` before the first edit, and `skill-writing` or `docs-writing` too when the change touches a skill or a doc. Challenge is a `second-opinion` on a design you proposed, and Close is the reviews above, then landing.
+In the routes, Open loads a writing skill before the first edit to each type of file: `code-writing` for code, `skill-writing` for a skill or agent definition, `agents-md` for a rules file and `docs-writing` for any other doc. Challenge is a `second-opinion` on a design you proposed, and Close is the reviews above, then landing.
 
 ## Report
 
