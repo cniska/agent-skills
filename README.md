@@ -31,7 +31,7 @@ flowchart LR
   worker <-- "diff, verdict" --> reviewer["Reviewer"]
   worker <-- "interface diff, captures, verdict" --> designer["Designer"]
   worker -- "hands back, or stops" --> coord
-  worker -- "its sessions" --> review["Daily workflow review"]
+  worker -- "its sessions" --> review["Workflow review"]
   review -- "proposals" --> coord
   coord -- "report" --> you
 ```

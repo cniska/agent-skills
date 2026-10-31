@@ -35,7 +35,7 @@ Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plug
 
 ## The outer loop
 
-The coordinator runs all the work in one long session on autocompaction, from my request to the changes the daily workflow review proposes.
+The coordinator runs all the work in one long session on autocompaction, from my request to the changes the workflow review proposes.
 
 ```mermaid
 flowchart TD
@@ -48,10 +48,9 @@ flowchart TD
   worker -- "each interface commit's diff and captures, then the branch's" --> designer["Fresh designer"]
   designer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
-  day["The day's sessions"] --> review["Daily workflow review"]
-  review -- "proposals, and keep, revert or trim for each recent change" --> lead
-  lead -- "applies each change I accept, its commit paired in the ledger" --> change["Recent change"]
-  change -- "friction before and after, at the following days' runs" --> review
+  day["Weeks of sessions"] --> review["Workflow review"]
+  review -- "proposals" --> lead
+  lead -- "applies each change I accept" --> skills["Skills and rules"]
 ```
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
@@ -61,18 +60,18 @@ flowchart TD
 
 ## The improvement loop
 
-The workflow changes only on evidence, and a change stays only if it helps. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over each day's work to find what to change; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork. The coordinator whose ledger covers the skills and tools puts each proposal to me and applies only the ones I accept.
+The workflow changes only on evidence. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over weeks of work and judges each skill as a whole, so it finds patterns rather than one day's incidents; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork. The coordinator whose ledger covers the skills and tools puts each proposal to me and applies only the ones I accept.
 
 ```mermaid
 flowchart LR
-  day["A day's work"] -- "its sessions" --> review["Daily workflow review"]
+  day["Weeks of work"] -- "its sessions" --> review["Workflow review"]
   rec[("agent-record")] -- "earlier sessions, signals" --> review
-  review -- "proposals, keep, revert or trim" --> lead["Coordinator"]
+  review -- "proposals" --> lead["Coordinator"]
   lead -- "each proposal" --> you(["You"])
   you -- "accepted ones" --> lead
 ```
 
-Over the following days, each review compares the friction a recent change aimed at before and after it landed, and proposes its revert or trim when it did not help. An eval I approve can check a change before it lands, and the signals judge it after.
+A skill that grew by patches gets a rewrite from its purpose, not another clause. An eval I approve can check a change before it lands.
 
 ### Signals
 
@@ -94,7 +93,7 @@ The loop proposes changes to skills, agents, hooks, checks and repo rules, and n
 
 It follows lean practice, in plain terms first:
 
-- The skills are the standard way of working, changed in small steps the evidence supports and reverted when the signals show no gain (kaizen).
+- The skills are the standard way of working, changed when weeks of evidence show a pattern, and rewritten short when patches pile up (kaizen).
 - Each finding names what it cost and is traced back to a skill line, a repo rule, a check or a missing tool (waste, 5 whys).
 - Rules become checks, as [principles](conventions.md#principles) says, and a gate that stops correct work counts against the gate (jidoka, false stops).
 - An agent that hits a defect stops and reports it rather than working around it, the stop-the-line rule in [debug](../skills/workflow/debug/SKILL.md) (andon).
