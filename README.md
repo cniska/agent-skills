@@ -118,7 +118,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | [adr](skills/workflow/adr/SKILL.md) | Record an important technical decision by the problem it solves, current state only |
 | [docs-writing](skills/workflow/docs-writing/SKILL.md) | Create or update project documentation: each claim checked at its source, each fact in the doc that owns it, every mention of a changed behavior swept |
 | [agents-md](skills/workflow/agents-md/SKILL.md) | Create or update AGENTS.md project rules |
-| [skill-writing](skills/workflow/skill-writing/SKILL.md) | Create or update a skill — clone the closest sibling, keep project specifics out, reach for an eval only when the change's risk needs one, then check it in real use |
+| [skill-writing](skills/workflow/skill-writing/SKILL.md) | Write, fix or cut a skill or agent definition: short where it loads often, found by its description, tools left to the repo, an eval only when the risk needs one; and decide where a rule belongs |
 | [routine-writing](skills/workflow/routine-writing/SKILL.md) | Write a scheduled, unattended agent run: the file as the source, hard limits, loud failures, a probe and a manual run before it runs alone |
 | [verification-setup](skills/workflow/verification-setup/SKILL.md) | Create or update a project skill that drives and inspects the running app |
 | [formal-verification-setup](skills/workflow/formal-verification-setup/SKILL.md) | Create or update a project skill that model-checks or proves one costly property, pinned and run as one of the repo's checks |

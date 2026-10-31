@@ -7,12 +7,12 @@ An eval case measures what a skill changes, so a change whose risk needs one is 
 A case measures something only where the model without the skill gets it wrong.
 
 1. List the skill's rules a model would plausibly break unprompted — a house format, a default the skill overrides, a step it forbids.
-2. Take the prompt from real use, in the user's own wording, never naming the skill. Where the user's real prompts name the fix itself ("rebase on main"), keep their register and drop the mechanism; phrasing that leans toward the wrong default ("pull main into my branch") is fair.
+2. Take the prompt from real use, in the user's own wording, with the skill left unnamed. Where the user's real prompts name the fix itself ("rebase on main"), keep their register and drop the mechanism; phrasing that leans toward the wrong default ("pull main into my branch") is fair.
 3. Run it once against the set with the skill removed and read what that side did. Keep the case only if it breaks the rule on a behavior check — failing the skill-fired check alone proves nothing, since a run without the skill always fails it. A case both sides pass sits at the ceiling and measures nothing. A case the skill's own side fails too is kept: it is a tuning target, the gap the next change to the skill should close. A suite that drives changes needs such cases; once the skill passes them all, add harder prompts or rules rather than relaxing graders. A triggering case — one that checks only that the skill loads for a request — is the exception: it cannot separate anything from no skill, and exists to compare versions of the skill's description.
 
 ## Trigger prompts
 
-Where the repo has a trigger check, a written or changed description adds or updates that skill's positive and negative trigger prompts in the same change, as does a skill seen loading for the wrong request or not loading for its own. Take every prompt from a real request in the session record, never a guessed one: positives that loaded the skill or that the owner had to steer to it, negatives that went to a neighbouring skill. A skill with no real requests yet gets no trigger prompts.
+Where the repo has a trigger check, a written or changed description adds or updates that skill's positive and negative trigger prompts in the same change, as does a skill seen loading for the wrong request or not loading for its own. Take every prompt from a real request in the session record: positives that loaded the skill or that the owner had to steer to it, negatives that went to a neighbouring skill. A skill with no real requests yet gets no trigger prompts.
 
 ## Write the case
 
@@ -21,7 +21,7 @@ Where the repo has a trigger check, a written or changed description adds or upd
 - Graders, one per rule, read from structured targets wherever the rule allows: `tool_used` and `tool_order`, each with `input_match` over a call's input JSON, and a regex over a file's contents or the trace. Set every regex grader's `target`, since the eval format's default is the final message, and the final message is prose, as no text heuristics in `principles` says. A model judge only for prose a person reads, such as a report, kept short, with concrete PASS and FAIL conditions. Pair a check on the result with one on the steps.
 - `file_exists` counts only files the run created, so a file that arrives by checkout or rebase, or that the scaffold made, is invisible to it; check a change to the workspace by grading the file's contents.
 - Saved traces, real and hand-written, that show every grader both passing and failing, where the repo grades them offline, in the layout its eval docs set.
-- Name nothing the run can see — directory, prompt, files — after evals or tests.
+- Name everything the run can see — directory, prompt, files — for the task it sets, so nothing tells the run it is under test.
 - A scaffold that contains examples — sibling skills, existing files in the house style — teaches both sides; such a case separates only on rules the examples do not show.
 
 ## Make each grader trustworthy
