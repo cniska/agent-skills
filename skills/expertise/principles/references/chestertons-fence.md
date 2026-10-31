@@ -1,7 +1,12 @@
 # Chesterton's Fence
 
-Before removing or changing something, find out why it exists: read its history (`git blame`, `git log -S`), its callers, its tests and the repo's recorded decisions.
+Find out why something exists before you remove or change it.
 
-- When the reason still holds, such as a hot path or a contract another system depends on, leave it, and that ends the matter.
-- When the reason no longer holds, it goes, and the change says what the reason was.
-- When no reason can be found after that search, say what was checked; an unknown reason is not permission to keep it forever, nor to remove it blind.
+Something that looks pointless often guards a case its author met and you have not, such as a hot path or a contract another system depends on. Removing it brings that case back.
+
+- Read its history, its callers, its tests and the repo's recorded decisions.
+- When the reason still holds, leave it.
+- When the reason no longer holds, remove it, and say in the change what the reason was.
+- When no reason turns up, say what was checked, then keep or remove it on what the change needs; an unknown reason alone justifies neither.
+
+Example: a retry around a file read looks redundant. Its history shows it was added for a network drive that returns stale reads, which the project still supports, so it stays.

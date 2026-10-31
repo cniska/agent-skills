@@ -10,10 +10,10 @@ A principle that more than one skill needs lives here once, so every skill that 
 | Principle | The rule in one line | File |
 |---|---|---|
 | No comments | The why lives in names, tests, tool config or the owning doc, never in a comment | [no-comments.md](references/no-comments.md) |
-| Chesterton's Fence | Find out why something exists before removing or changing it | [chestertons-fence.md](references/chestertons-fence.md) |
+| Chesterton's Fence | Learn why a thing is there before changing it | [chestertons-fence.md](references/chestertons-fence.md) |
 | Proven able to fail | Trust a check only once it has gone red | [proven-able-to-fail.md](references/proven-able-to-fail.md) |
-| Fix the cause | Remove the state that causes a failure, never guard in front of it | [fix-the-cause.md](references/fix-the-cause.md) |
-| No transitional architecture | Replace, migrate and remove; never keep the old path alive beside the new | [no-transitional-architecture.md](references/no-transitional-architecture.md) |
+| Fix the cause | Remove the state behind a failure, not its symptom | [fix-the-cause.md](references/fix-the-cause.md) |
+| No transitional architecture | Replace, migrate and remove, so one path runs | [no-transitional-architecture.md](references/no-transitional-architecture.md) |
 | Mistake-proofing | Make a mistake impossible; else catch it with a lint, test or hook; ask anyone to remember only as a last resort | [mistake-proofing.md](references/mistake-proofing.md) |
 | No text heuristics | A step reads structured data or an explicit command, never the phrasing a writer happened to choose | [no-text-heuristics.md](references/no-text-heuristics.md) |
 | No drift | A change updates what describes, repeats, names or depends on it | [no-drift.md](references/no-drift.md) |

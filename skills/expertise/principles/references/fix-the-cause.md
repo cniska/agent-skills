@@ -1,8 +1,12 @@
 # Fix the cause
 
-A fix removes the state that causes the failure. A change that adds a condition in front of state it leaves in place is a symptom fix.
+Remove the state that causes a failure, rather than adding a condition in front of it.
 
-- A second fix resting on the same assumption as one that already failed the same check is the signal to question the assumption before writing a third.
-- A constant no test can prove correct, such as a hardcoded offset or a nudge, is the tell that the cause is untouched.
-- No fallback, default or catch-and-continue written because the correct behavior was unclear. Ask, or fail where the caller can see it. Degradation chosen on purpose names itself and records what it drops.
-- Where the cause is out of reach, stop and state the real options rather than patching around it.
+A condition in front of the cause is a symptom fix: it leaves the state in place, so the failure returns by another path.
+
+- When a second fix rests on the same assumption as one that already failed the same check, question the assumption before writing a third.
+- Read a constant no test can prove correct, such as a hardcoded offset or a nudge, as the sign that the cause is untouched.
+- When the correct behavior is unclear, ask, or fail where the caller can see it. Degradation chosen on purpose names itself and records what it drops.
+- When the cause is out of reach, stop and state the real options.
+
+Example: a list shows a deleted item until refresh. Filtering it out in the view hides it; dropping it from the cache on delete fixes it.
