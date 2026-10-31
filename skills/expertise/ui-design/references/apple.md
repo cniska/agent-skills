@@ -10,7 +10,7 @@ Load this for a native screen on macOS or iOS built from system components, befo
 
 ## System components, never hand-rolled styles (macOS, iOS)
 
-- Build from system controls and containers, in SwiftUI `Form`, `GroupBox`, `Grid`, `LabeledContent` and the built-in button styles, with system text styles and semantic colors at their default metrics. No custom padding, font size, weight, corner radius, color or material where the system has one.
+- Build from system controls and containers, in SwiftUI `Form`, `GroupBox`, `Grid`, `LabeledContent` and the built-in button styles, with system text styles and semantic colors at their default metrics. Leave padding, font size, weight, corner radius, color and material to the system wherever it has one.
 - To remove a hand-set value, choose the container whose default gives the reference screen's spacing, such as a `Form` section in place of a stack, rather than deleting the value and taking whatever default is left.
 - A notice the user must act on, such as a wrong PIN, takes the text style the reference screen gives it, never footnote or caption type.
 - In a grouped settings form, each field takes the alignment the reference capture shows from the container's default, never a hand-set alignment; where the default differs from the capture, change the container, as above. Its width takes a token, as the next line says.
