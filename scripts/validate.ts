@@ -40,8 +40,6 @@ const IMPERATIVE_VERBS = [
 const IMPERATIVE = new Set<string>(IMPERATIVE_VERBS);
 const MODEL_NAME = /(?<!\w)(sonnet|opus|haiku|fable|gpt|gemini|llama|mistral|grok|deepseek|qwen)(?!\w)/i;
 const FIRST_WORD = /^\s*([A-Za-z-]+)/;
-const RED_FLAGS = /^## Red flags$/m;
-const ANTI_PATTERNS = /^## Anti-patterns$/m;
 const LINK = /\]\(([^)\n]+)\)/g;
 const SKIPPED_LINK = /^(mailto:|#)/;
 const WEB_LINK = /^https?:/;
@@ -153,15 +151,6 @@ function imperativeProblems({ skillDoc, description }: Skill): string[] {
       `  got first word: '${word}'`,
     ]),
   ];
-}
-
-function redFlagsProblems({ skillDoc }: Skill): string[] {
-  return RED_FLAGS.test(skillDoc.text) ? [] : [`missing '## Red flags' section in ${skillDoc.shown}`];
-}
-
-function antiPatternsProblems({ skillDoc }: Skill): string[] {
-  if (!ANTI_PATTERNS.test(skillDoc.text)) return [];
-  return [`use '## Red flags' instead of '## Anti-patterns' in ${skillDoc.shown}`];
 }
 
 function linkTargets(doc: Doc): string[] {
@@ -306,11 +295,6 @@ const CHECKS: readonly { readonly resolve: string; readonly problems: (skill: Sk
     resolve: `start the description with one of: ${IMPERATIVE_VERBS.join(", ")}`,
     problems: imperativeProblems,
   },
-  {
-    resolve: "end SKILL.md with a '## Red flags' section listing the skill's failure modes",
-    problems: redFlagsProblems,
-  },
-  { resolve: "rename the '## Anti-patterns' heading to '## Red flags'", problems: antiPatternsProblems },
   {
     resolve:
       "point the link at a file that exists inside the skill's own directory, or name another skill by bare name under ## See also",

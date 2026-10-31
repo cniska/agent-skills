@@ -33,4 +33,3 @@ mise run validate
 - For skill changes, YAML frontmatter must include `name` and `description`.
 - For skill changes, frontmatter `name` must match the directory name.
 - For skill changes, `description` must start with an imperative verb.
-- For skill changes, use `## Red flags` (not `## Anti-patterns`).

@@ -74,10 +74,3 @@ No finding is a valid result.
 
 - `review`, which runs this review on a branch beside the others
 - `principles` for the review report an attack path is written in
-
-## Red flags
-
-- Fear-driven recommendations without concrete attack paths
-- Policy-heavy rewrites instead of minimal hardening
-- Treating hypothetical deployment models as current vulnerabilities
-- Security advice that is not actionable or testable

@@ -8,9 +8,9 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 - Frontmatter `name` matches the directory; `description` starts with an imperative verb and states when to use the skill.
 - A skill leaves tools, their use and project specifics to repo rules, this one's included, and tool session notes, as `skill-writing` says.
 - Self-contained: depend on nothing outside the skill's own directory, and reference other skills by bare name in `## See also`, never by path — `npx skills add` copies only that directory.
-- End with a `## Red flags` section (never `## Anti-patterns`); keep the body terse and imperative.
+- Keep the body terse and imperative.
 - Name capability tiers (`fast` / `balanced` / `powerful`), never specific models.
-- The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, `## Red flags`, every link resolving inside the skill's own directory or to a web page on the validator's allowlist of tool links an agent follows to use a tool, no backticked path into another skill's directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
+- The validator enforces the mechanical rules — the two kind folders, an expertise skill naming a workflow skill only under `## See also`, every `## See also` name a skill in this repo, frontmatter, every link resolving inside the skill's own directory or to a web page on the validator's allowlist of tool links an agent follows to use a tool, no backticked path into another skill's directory, and no run of ten words shared by two files under `skills/`, `docs/`, `agents/`, `README.md` and `AGENTS.md`.
 - Clean, lean, project-agnostic: fix failures two independent sessions show by editing their cause first.
 
 ## Code

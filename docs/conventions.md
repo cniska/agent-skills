@@ -8,7 +8,7 @@ Each skill is one self-contained directory: `skills/<kind>/<name>/SKILL.md`, whe
 
 - **Self-contained.** A skill depends on nothing outside its own directory, because `npx skills add` copies only that directory, so shared or repo-root files never ship. Every link resolves inside the skill, and the only web links are the tool docs an agent opens to run a tool, which the validator allowlists.
 - **Compose by name.** Skills reference each other by name in `## See also` (`build`, `review`, …), never by path, so there are no cross-directory links to break.
-- **Terse and imperative.** Each skill states its intent and workflow, and ends with a `## Red flags` section of failure modes. No filler.
+- **Terse and imperative.** Each skill states its intent and workflow. No filler.
 - **Provider-neutral.** Skills name capability tiers (`fast` / `balanced` / `powerful`), not specific models.
 
 `mise run validate` enforces the mechanical parts, which the repo's [`AGENTS.md`](../AGENTS.md) lists.

@@ -63,16 +63,6 @@ On a project with nothing chosen yet; libraries and test tools already in the tr
 
 Without declared tasks: `bunx oxfmt .`, `bunx oxlint --type-aware`, `bunx tsc --noEmit`, `bun test`.
 
-## Red flags
-
-- `x !== undefined` on a value typed `T | null`, or an optional field standing for a deliberately empty value
-- `as T` on parsed data, `!`, `any`, or a `@ts-` or lint suppression
-- A type parameter such as `db.query<Row>` claiming a shape nothing checks
-- A bare `z.object`
-- `enum` or `namespace` in new code
-- A tsconfig option TypeScript 7 removed, or a zod 3 API in a zod 4 tree
-- A second linter or formatter beside the project's own
-
 ## Setup
 
 A suggested starting `tsconfig.json`:

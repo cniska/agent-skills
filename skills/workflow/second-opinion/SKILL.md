@@ -20,13 +20,3 @@ One model agreeing with itself is not verification. Have a different model attac
 
 - `skill-writing` — judges a changed skill by its real-use signals instead of debating it
 - `review` — structured review of a diff
-
-## Red flags
-
-- The opinion came from the same model that made the call
-- The reviewer was chosen for being another provider rather than for knowing the subject
-- The prompt telegraphs the answer you want
-- Accepting "both approaches are valid" as an outcome
-- Acting on a finding without checking its citation
-- Silently adopting whichever opinion is more convenient
-- Asking for a second opinion on trivia

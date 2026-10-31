@@ -14,10 +14,6 @@ description: Review a change for problems. Use when reviewing a diff.
 # Demo
 
 One line of intent.
-
-## Red flags
-
-- A failure mode
 `;
 
 function skill(frontmatter: string, body: string): string {
@@ -25,7 +21,7 @@ function skill(frontmatter: string, body: string): string {
 }
 
 const REVIEW = "name: demo\ndescription: Review a change. Use when reviewing.";
-const RED_FLAGS = "## Red flags\n\n- x";
+const BODY = "Body.";
 
 type Run = { readonly code: number; readonly output: string };
 
@@ -65,7 +61,7 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `Read the repo's CLAUDE.md before running Claude Code.\n\n${RED_FLAGS}`),
+      skill(REVIEW, `Read the repo's CLAUDE.md before running Claude Code.\n\n${BODY}`),
     );
     expect(validate(root).code).toBe(0);
   });
@@ -81,27 +77,11 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill("name: other\ndescription: Review a change. Use when reviewing.", RED_FLAGS),
+      skill("name: other\ndescription: Review a change. Use when reviewing.", BODY),
     );
     const run = validate(root);
     expect(run.code).toBe(1);
     expect(run.output).toContain("must match directory");
-  });
-
-  test("fails a skill with no Red flags section", () => {
-    const root = fixture();
-    write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, "No red flags here."));
-    const run = validate(root);
-    expect(run.code).toBe(1);
-    expect(run.output).toContain("missing '## Red flags'");
-  });
-
-  test("rejects an Anti-patterns heading", () => {
-    const root = fixture();
-    write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, "## Anti-patterns\n\n- x"));
-    const run = validate(root);
-    expect(run.code).toBe(1);
-    expect(run.output).toContain("use '## Red flags' instead");
   });
 
   test("fails a description that does not start with an imperative verb", () => {
@@ -109,7 +89,7 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill("name: demo\ndescription: Quickly patches things. Use when needed.", RED_FLAGS),
+      skill("name: demo\ndescription: Quickly patches things. Use when needed.", BODY),
     );
     const run = validate(root);
     expect(run.code).toBe(1);
@@ -121,7 +101,7 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `See [the checklist](references/checklist.md).\n\n${RED_FLAGS}`),
+      skill(REVIEW, `See [the checklist](references/checklist.md).\n\n${BODY}`),
     );
 
     test("fails a link to a file that does not exist", () => {
@@ -149,7 +129,7 @@ describe("validate", () => {
       write(
         root,
         "skills/workflow/demo/references/checklist.md",
-        "# Checklist\n\nSee [the rules](../SKILL.md#red-flags).\n",
+        "# Checklist\n\nSee [the rules](../SKILL.md#see-also).\n",
       );
       expect(validate(root).code).toBe(0);
     });
@@ -166,12 +146,8 @@ describe("validate", () => {
 
   test("fails a link to an existing file outside the skill's directory", () => {
     const root = fixture();
-    write(
-      root,
-      "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `See [plan](../plan/SKILL.md).\n\n${RED_FLAGS}`),
-    );
-    write(root, "skills/workflow/plan/SKILL.md", skill(REVIEW.replace("demo", "plan"), RED_FLAGS));
+    write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `See [plan](../plan/SKILL.md).\n\n${BODY}`));
+    write(root, "skills/workflow/plan/SKILL.md", skill(REVIEW.replace("demo", "plan"), BODY));
     const run = validate(root);
     expect(run.code).toBe(1);
     expect(run.output).toContain(
@@ -184,8 +160,8 @@ describe("validate", () => {
 
     function withOther(demoBody: string): string {
       const root = fixture();
-      write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `${demoBody}\n\n${RED_FLAGS}`));
-      write(root, "skills/expertise/other/SKILL.md", skill(OTHER, RED_FLAGS));
+      write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `${demoBody}\n\n${BODY}`));
+      write(root, "skills/expertise/other/SKILL.md", skill(OTHER, BODY));
       write(root, "skills/expertise/other/references/x.md", "# X\n");
       write(root, "skills/expertise/other/references/y.md", "# Y\n");
       return root;
@@ -219,7 +195,7 @@ describe("validate", () => {
 
     test("names the skill a relative path climbs into, not a sibling it climbs out of", () => {
       const root = withOther("Read `../../expertise/other/references/x.md`.");
-      write(root, "skills/workflow/alpha/SKILL.md", skill(REVIEW.replace("demo", "alpha"), RED_FLAGS));
+      write(root, "skills/workflow/alpha/SKILL.md", skill(REVIEW.replace("demo", "alpha"), BODY));
       const run = validate(root);
       expect(run.code).toBe(1);
       expect(run.output).toContain(
@@ -271,18 +247,14 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `See [b](mailto:a@example.com) and [c](#red-flags).\n\n${RED_FLAGS}`),
+      skill(REVIEW, `See [b](mailto:a@example.com) and [c](#see-also).\n\n${BODY}`),
     );
     expect(validate(root).code).toBe(0);
   });
 
   test("fails a web link that is not a tool link", () => {
     const root = fixture();
-    write(
-      root,
-      "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `Per [a](https://example.com/x).\n\n${RED_FLAGS}`),
-    );
+    write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `Per [a](https://example.com/x).\n\n${BODY}`));
     write(root, "skills/workflow/demo/references/notes.md", "# Notes\n\nSee [b](http://example.com/y).\n");
     const run = validate(root);
     expect(run.code).toBe(1);
@@ -295,10 +267,7 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(
-        REVIEW,
-        `Cases follow the [eval docs](https://code.claude.com/docs/en/plugin-evals).\n\n${RED_FLAGS}`,
-      ),
+      skill(REVIEW, `Cases follow the [eval docs](https://code.claude.com/docs/en/plugin-evals).\n\n${BODY}`),
     );
     expect(validate(root).code).toBe(0);
   });
@@ -308,7 +277,7 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `Fetch \`https://example.com/<path>.json\`.\n\n${RED_FLAGS}`),
+      skill(REVIEW, `Fetch \`https://example.com/<path>.json\`.\n\n${BODY}`),
     );
     expect(validate(root).code).toBe(0);
   });
@@ -318,14 +287,14 @@ describe("validate", () => {
     write(
       root,
       "skills/workflow/demo/SKILL.md",
-      skill(REVIEW, `Write \`](\` to open a link target.\n\nThen close it (once).\n\n${RED_FLAGS}`),
+      skill(REVIEW, `Write \`](\` to open a link target.\n\nThen close it (once).\n\n${BODY}`),
     );
     expect(validate(root).code).toBe(0);
   });
 
   test("fails a skill with no frontmatter", () => {
     const root = fixture();
-    write(root, "skills/workflow/demo/SKILL.md", `# Demo\n\nNo frontmatter at all.\n\n${RED_FLAGS}\n`);
+    write(root, "skills/workflow/demo/SKILL.md", `# Demo\n\nNo frontmatter at all.\n\n${BODY}\n`);
     const run = validate(root);
     expect(run.code).toBe(1);
     expect(run.output).toContain("missing YAML frontmatter");
@@ -353,22 +322,23 @@ describe("validate", () => {
 
   test("names the fix once for every skill that breaks the same rule", () => {
     const root = fixture();
-    write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, "No red flags here."));
-    write(
-      root,
-      "skills/workflow/other/SKILL.md",
-      skill(REVIEW.replace("demo", "other"), "No red flags here."),
-    );
+    const vague = "name: demo\ndescription: A change review. Use when reviewing.";
+    write(root, "skills/workflow/demo/SKILL.md", skill(vague, "Body."));
+    write(root, "skills/workflow/other/SKILL.md", skill(vague.replace("demo", "other"), "Body."));
     const run = validate(root);
     expect(run.code).toBe(1);
-    expect(run.output).toContain("missing '## Red flags' section in skills/workflow/demo/SKILL.md");
-    expect(run.output).toContain("missing '## Red flags' section in skills/workflow/other/SKILL.md");
-    expect(run.output.split("to resolve: end SKILL.md with a '## Red flags' section")).toHaveLength(2);
+    expect(run.output).toContain(
+      "description should start with an imperative verb in skills/workflow/demo/SKILL.md",
+    );
+    expect(run.output).toContain(
+      "description should start with an imperative verb in skills/workflow/other/SKILL.md",
+    );
+    expect(run.output.split("to resolve: start the description with one of")).toHaveLength(2);
   });
 
   test("reports a frontmatter line the parser cannot read, with its fix", () => {
     const root = fixture();
-    write(root, "skills/workflow/demo/SKILL.md", skill(`${REVIEW}\ntags:\n  - git`, RED_FLAGS));
+    write(root, "skills/workflow/demo/SKILL.md", skill(`${REVIEW}\ntags:\n  - git`, BODY));
     const run = validate(root);
     expect(run.code).toBe(1);
     expect(run.output).toContain("skills/workflow/demo/SKILL.md: frontmatter unsupported line in:   - git");
@@ -388,7 +358,7 @@ describe("validate", () => {
     test("fails a skill outside the workflow and expertise folders", () => {
       const root = fixture();
       write(root, "skills/workflow/demo/SKILL.md", WELL_FORMED);
-      write(root, "skills/loose/SKILL.md", skill(REVIEW.replace("demo", "loose"), RED_FLAGS));
+      write(root, "skills/loose/SKILL.md", skill(REVIEW.replace("demo", "loose"), BODY));
       const run = validate(root);
       expect(run.code).toBe(1);
       expect(run.output).toContain("skills/loose is outside skills/workflow/ and skills/expertise/");
@@ -406,7 +376,7 @@ describe("validate", () => {
     });
 
     test("fails an expertise skill that routes to a workflow skill", () => {
-      const run = validate(kinds(`Carry the fix out with \`demo\`.\n\n${RED_FLAGS}`));
+      const run = validate(kinds(`Carry the fix out with \`demo\`.\n\n${BODY}`));
       expect(run.code).toBe(1);
       expect(run.output).toContain(
         "expertise skill names a workflow skill outside ## See also in skills/expertise/rules/SKILL.md",
@@ -415,7 +385,7 @@ describe("validate", () => {
     });
 
     test("fails an expertise reference that routes to a workflow skill", () => {
-      const root = kinds(RED_FLAGS);
+      const root = kinds(BODY);
       write(root, "skills/expertise/rules/references/more.md", "# More\n\nLoad `demo` next.\n");
       const run = validate(root);
       expect(run.code).toBe(1);
@@ -423,15 +393,15 @@ describe("validate", () => {
     });
 
     test("passes an expertise skill that names a workflow skill under See also", () => {
-      expect(validate(kinds(`## See also\n\n- \`demo\` for the steps\n\n${RED_FLAGS}`)).code).toBe(0);
+      expect(validate(kinds(`## See also\n\n- \`demo\` for the steps\n\n${BODY}`)).code).toBe(0);
     });
 
     test("passes a span that only starts with a workflow skill's name", () => {
-      expect(validate(kinds(`Run \`demo log\` and \`demo-x\`.\n\n${RED_FLAGS}`)).code).toBe(0);
+      expect(validate(kinds(`Run \`demo log\` and \`demo-x\`.\n\n${BODY}`)).code).toBe(0);
     });
 
     test("fails a See also name that is no skill in the repo", () => {
-      const run = validate(kinds(`## See also\n\n- \`demo\` and \`ghost\` for the steps\n\n${RED_FLAGS}`));
+      const run = validate(kinds(`## See also\n\n- \`demo\` and \`ghost\` for the steps\n\n${BODY}`));
       expect(run.code).toBe(1);
       expect(run.output).toContain(
         "## See also names 'ghost', which is no skill in this repo, in skills/expertise/rules/SKILL.md",
@@ -441,7 +411,7 @@ describe("validate", () => {
     });
 
     test("fails a See also name in a reference file", () => {
-      const root = kinds(RED_FLAGS);
+      const root = kinds(BODY);
       write(root, "skills/expertise/rules/references/more.md", "# More\n\n## See also\n\n- `ghost`\n");
       const run = validate(root);
       expect(run.code).toBe(1);
@@ -452,21 +422,21 @@ describe("validate", () => {
 
     test("passes a See also link to a file in the skill and a name outside See also", () => {
       const root = kinds(
-        `Run \`ghost\` first.\n\n## See also\n\n- [\`notes\`](notes.md) for detail\n\n${RED_FLAGS}`,
+        `Run \`ghost\` first.\n\n## See also\n\n- [\`notes\`](notes.md) for detail\n\n${BODY}`,
       );
       write(root, "skills/expertise/rules/notes.md", "# Notes\n");
       expect(validate(root).code).toBe(0);
     });
 
     test("passes an expertise skill that names another expertise skill", () => {
-      const root = kinds(`Use \`rules\` and \`other\` here.\n\n${RED_FLAGS}`);
+      const root = kinds(`Use \`rules\` and \`other\` here.\n\n${BODY}`);
       expect(validate(root).code).toBe(0);
     });
 
     test("passes a workflow skill that names a workflow skill", () => {
       const root = fixture();
-      write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `Then load \`plan\`.\n\n${RED_FLAGS}`));
-      write(root, "skills/workflow/plan/SKILL.md", skill(REVIEW.replace("demo", "plan"), RED_FLAGS));
+      write(root, "skills/workflow/demo/SKILL.md", skill(REVIEW, `Then load \`plan\`.\n\n${BODY}`));
+      write(root, "skills/workflow/plan/SKILL.md", skill(REVIEW.replace("demo", "plan"), BODY));
       expect(validate(root).code).toBe(0);
     });
   });

@@ -93,25 +93,6 @@ What to reach for with nothing chosen yet; a project's own frameworks and test t
 
 The project's own commands; without declared tasks: `swift format format --in-place --recursive Sources Tests`, `swift format lint --strict --recursive --parallel Sources Tests`, `swift build`, `swift test`, and for an app `xcodebuild -scheme <scheme> -destination <destination> test`, and where the project keeps `.xcode-version`, after `xcodebuild -version` matches it.
 
-## Red flags
-
-- `!`, `try!`, `as!` or `fatalError()` outside a test, or `try?` where `nil` is not the honest answer
-- A `default` arm on a switch over an enum you own
-- A state struct with a flag and optional fields
-- `[String: Any]` held past the line that decoded it, or an owned `Decodable` shape that accepts unknown keys
-- `ObservableObject`, `@Published`, `@StateObject`, `@ObservedObject`, `@EnvironmentObject` or Combine in new code
-- `DispatchQueue`, `DispatchSemaphore` or a completion handler in new code; `Task { }` in `onAppear` where `.task` does; `Task.detached`
-- `@unchecked Sendable` or `nonisolated(unsafe)`
-- A model class marked `Sendable`, or an `actor` holding UI state
-- Swift 5 language mode left from a template, or `SWIFT_STRICT_CONCURRENCY` set beside Swift 6 mode
-- A lint run that prints warnings and exits 0, so it never fails, such as `swift format lint` without `--strict`
-- `evaluatePolicy`'s `Bool` guarding a secret the keychain could bind
-- A Secure Enclave key built with the default access control, or without `.privateKeyUsage`
-- `kSecAttrAccessibleAlways`, a secret logged `.public` or printed, or `HKDF` used as a password hash
-- `XCTAssert` and `#expect` mixed in one suite
-- A dependency where an Apple framework covers the job
-- A kept `.xcode-version` disagreeing with `xcodebuild -version`
-
 ## Setup
 
 Suggested for a new package. If the project keeps `.xcode-version`, it holds one line, such as `26.6`.

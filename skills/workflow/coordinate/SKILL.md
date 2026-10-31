@@ -32,9 +32,3 @@ Build the report from the ledger, the task list and git, never from memory. List
 - `task`: the route each worker runs
 - `second-opinion`: an independent read before a costly call
 - `workflow-review`: what should change in the workflow, for the owner to decide
-
-## Red flags
-
-- A brief, rule or report written without first asking what the owner wants from it
-- Your own idea stated as the owner's decision
-- A rule added to a skill to patch one slip

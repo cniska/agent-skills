@@ -45,9 +45,3 @@ Lead with the outcome. Then give what needs the owner's decision, each choice yo
 
 - `coordinate`: runs work across several agents, each task through this skill
 - `principles`: the review report every reviewer fills
-
-## Red flags
-
-- Following a step without knowing what it is for in this task
-- A commit made before its fresh review accepts it
-- Working around a tool, hook or gate instead of reporting it

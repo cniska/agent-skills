@@ -51,14 +51,3 @@ Before calling a design done, use representative fixture data that exercises the
 ## See also
 
 - `ui-review` — how a fresh agent judges the running interface against these rules
-
-## Red flags
-
-- Choosing a new visual language before reading the existing one
-- Using color, animation or decorative metrics to manufacture hierarchy
-- Treating a passing test suite as evidence of visual quality
-- Letting narrow layouts clip, collide or hide the primary question
-- An element that shifts because a message or control appeared beside it
-- A native screen designed from the guidelines' prose with no first-party screen copied
-- A screen held to the platform's own look where the product has a design system of its own
-- Adding one-off tokens or state flags instead of extending the shared model

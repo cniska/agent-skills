@@ -51,21 +51,6 @@ A model's memory of Dart lags the language, so check the SDK lower bound before 
 - No real time: inject `package:clock` and drive timers with `fakeAsync`.
 - No `// ignore:` or `// ignore_for_file:`: fix the code, and turn a lint off in `analysis_options.yaml` only when the skill's rule on flagged code allows it.
 
-## Red flags
-
-- `as String`, `as int` or `!` chained over decoded JSON instead of one pattern at the edge
-- A map pattern naming an optional key, or `List<String>` matched against decoded JSON
-- `Map<String, dynamic>` held past the line that decoded it
-- A `_` or `default` arm on a switch over a sealed class or enum
-- `!` or `late` where a null check or a non-nullable type would do
-- `setState` after an `await` guarded by `mounted` alone, where a later request may already have answered
-- `on Object` or `catch (_)` around a reader, where `FormatException` is the failure meant
-- Catching `Error`
-- A write or request left unawaited, or wrapped in `unawaited` so its error is lost
-- An import of another package's `src/`
-- A hand edit to a generated `*.g.dart` file
-- A language feature newer than the package's SDK lower bound, or a valid newer one rewritten as if it were an error
-
 ## Setup
 
 Suggested config bodies for a new package with none of its own.

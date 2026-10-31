@@ -19,7 +19,7 @@ Three dispositions, not two: answer it, delegate it, or ask. Ease is the reason 
 
 What stays with the user is what no amount of evidence settles — product intent, priority, risk appetite, which tradeoff they want to live with. Most questions that feel like theirs are tangled: split off the evidence half, settle it, and put only the residue to them. Before each question, name what you tried first — if that answer is "nothing," you are not ready to ask. Research is a loop, not a pass: delegation surfaces questions that didn't exist before it ran, so re-run the disposition on each rather than batching whatever accumulated. Ask one at a time, in dependency order, each with your recommended answer.
 
-Asking has two terminal forms. With a human, it's a question. With none — invoked from a subagent, a schedule, a batch run — the dialogue gates can't be met, so don't stall on them and don't fake agreement: state the question as a marked assumption carrying the answer you'd have recommended and the alternative's cost, then keep going. On that path the dialogue red flags below are suspended, not violated; you are producing a document for approval because there is no one to converse with.
+Asking has two terminal forms. With a human, it's a question. With none — invoked from a subagent, a schedule, a batch run — the dialogue gates can't be met, so don't stall on them and don't fake agreement: state the question as a marked assumption carrying the answer you'd have recommended and the alternative's cost, then keep going. On that path the dialogue gates are suspended, not violated; you are producing a document for approval because there is no one to converse with.
 
 Ground every recommendation in current code, docs, and project rules. Read enough yourself to pick the task before fanning out — which files are load-bearing is itself a finding, and a fan-out that precedes it is guessing. Then spawn readers in parallel, one per independent question rather than one per file (cap ~5), each tiered to its own question as below — file count is a poor proxy for difficulty, and a reader that summarizes a file you could have read costs more than it saves while losing the exact signatures you need. Where a grep would do, or the load-bearing material — code, spec, or prose — runs to a few hundred lines, read it yourself.
 
@@ -59,15 +59,3 @@ Sketch the shape in the conversation, not a separate document. If drawing it sur
 
 - `build` for running the plan's slices and stopping where the plan runs out
 - `search-sessions` for what earlier sessions already designed or ruled out for this change
-
-## Red flags
-
-- Disappearing to build a plan and returning with a document for approval
-- Presenting options instead of surfacing the underlying problem
-- Accepting the framing when the real move is deletion or a smaller source fix
-- Planning from intuition without reading current code
-- Escalating a question to the user because it was hard rather than because it was theirs — or delegating what one open file or one grep would have answered
-- Planning on a delegate's load-bearing claim without verifying it, or reading a fast-tier "not found" as proof of absence
-- Hiding uncertainty instead of stating assumptions
-
-Do not implement inside this skill flow unless the user explicitly switches to execution.

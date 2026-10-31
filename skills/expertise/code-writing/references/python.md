@@ -74,18 +74,6 @@ Defaults for a new project; the libraries already in use win.
 
 Through the repo's mise tasks (`mise run lint`, `mise run test`) where they exist; otherwise the project's own format, lint, type and test commands, such as `uv run ruff format --check .`, `uv run ruff check .`, `uv run mypy`, `uv run pytest`. Never `noqa` or `type: ignore` in source: fix the code, and turn a rule off in the project's tool config only as the skill's rule on flagged code allows.
 
-## Red flags
-
-- A hand-written tool config in a repo whose shared template already carries it
-- A package installed outside the project's own package manager and lockfile
-- `typing.List` / `Dict` / `Optional` / `Union` in new code
-- A public function with no annotations, or an `Any` where a type could be written
-- `except Exception: pass`, a bare `except:`, or `raise` inside an `except` without `from`
-- f-strings inside a `logger.*` call, or `logging.basicConfig` in a library
-- A `noqa` or `type: ignore` in source, or a docstring, one `argparse` reads as `__doc__` included
-- `datetime.now()` without a timezone
-- A mutable default argument
-
 ## Setup
 
 A starting point for a project with no template of its own; where a template exists, copy its config rather than writing an equivalent.

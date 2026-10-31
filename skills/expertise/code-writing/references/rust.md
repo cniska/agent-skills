@@ -63,16 +63,6 @@ No `///`, `//!` or `#[doc = …]`, on a crate published to crates.io too: its RE
 
 The project's own commands; otherwise `cargo fmt --all -- --check`, `cargo xc` (or `cargo clippy --workspace -- -W warnings`), `cargo xt` (or `cargo test --workspace`).
 
-## Red flags
-
-- A `pub fn` returning `Result<T, String>` at a module boundary — promote to `thiserror`
-- `anyhow` in a library crate
-- `use tracing::{...};` outside the logging wrapper
-- `Box<dyn Trait>` for a fixed in-tree set of implementations
-- `lazy_static`, `once_cell` or `async-trait` where std or native async traits cover it
-- `unwrap()` or `expect()` on a `Result` where the failure mode is reachable
-- `#[allow(...)]` where `[lints]` or `#[expect(..., reason = "...")]` fits, an advisory ignore without its reason, a doc comment, or `unsafe` outside a small safe function that carries its `#[expect(unsafe_code, …)]`
-
 ## Setup
 
 Suggestions, and versions are starting points; when a workspace `Cargo.toml` or `rust-toolchain.toml` is present, use what's already pinned.

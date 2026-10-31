@@ -33,15 +33,3 @@ Say plainly what the search did not find — an absence you looked for is a find
 
 - `git` — find the commit or branch a transcript names
 - `principles` — verify at the source, for how what was said is restated
-
-## Red flags
-
-- Searching the current directory's slug alone, so another worktree's conversation reads as never having happened
-- Quoting the owner's wording instead of restating what the owner said or decided
-- Parsing every transcript instead of grepping for candidates first, or grepping them all before a bounded scan came back empty
-- Waiting on a scan that ran into the command timeout instead of stopping and narrowing it
-- Pulling raw transcript JSON into the answer, or into context when a targeted extract would do
-- Reporting a hit without the session id and timestamp that let someone else find it
-- Searching only the user's messages, when the decision was stated in the reply
-- Treating a matched line as the decision without reading the exchange around it
-- Reporting a decision as recorded without checking whether the artifact exists on the current branch
