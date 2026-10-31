@@ -22,9 +22,7 @@ Where the repo has a trigger check, a written or changed description adds or upd
 - `file_exists` counts only files the run created, so a file that arrives by checkout or rebase, or that the scaffold made, is invisible to it; check a change to the workspace by grading the file's contents.
 - Saved traces, real and hand-written, that show every grader both passing and failing, where the repo grades them offline, in the layout its eval docs set.
 - Name nothing the run can see — directory, prompt, files — after evals or tests.
-- Run a scaffold's check gate with the test runner itself (`node --test`, `pytest`), not through a package manager script that reaches a registry: the sandbox blocks the network, and the gate then fails for a reason the case is not about.
 - A scaffold that contains examples — sibling skills, existing files in the house style — teaches both sides; such a case separates only on rules the examples do not show.
-- A system binary the sandbox breaks on every run gets a one-line machine note in `append_system_prompt`, the same for both sides; the eval fixes each run's `PATH`, so the note is the only lever.
 
 ## Make each grader trustworthy
 
@@ -34,7 +32,7 @@ A grader that cannot fail, or fails on a good run, poisons every score after it:
 - Match a skill by its plugin-prefixed name (`<plugin>:<name>`): a tool's built-in skill can share the bare name, and the side without the skill would then pass a skill-fired check.
 - Confine a trace regex to the tool calls it judges — for a shell command, the JSON text of its `command` field. The trace also holds the skill's own text, which names the very things the skill forbids.
 - Prove each grader passes on a good trace and fails on a hand-written bad one, for every spelling: on saved traces before any paid run, where the repo can grade them offline; otherwise read a first run's trace against each grader by hand. A `tool_used` `input_match` runs against the call's input as JSON.
-- The sandbox takes some mechanisms away: git hooks do not run, and a system binary may fail to write its cache — on macOS `/usr/bin/git`, and with it git's own subprocesses. Grade from the trace rather than working around it in the scaffold, expect a result check to fail for environment reasons, and let the check on the steps carry the verdict. A failure can be the run never seeing its input because a tool failed; check that it saw the input before counting the failure.
+- The sandbox takes some mechanisms away: git hooks do not run, and a system binary may fail. Grade from the trace rather than working around it in the scaffold, expect a result check to fail for environment reasons, and let the check on the steps carry the verdict. A failure can be the run never seeing its input because a tool failed; check that it saw the input before counting the failure.
 
 ## Calibrate and score
 
