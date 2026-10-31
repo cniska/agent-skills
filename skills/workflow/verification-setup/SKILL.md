@@ -1,19 +1,19 @@
 ---
 name: verification-setup
-description: Create or update a project-local skill that lets agents drive and inspect a running interface. Use when an agent cannot directly verify changed app behavior, or when an existing verify skill may have drifted from the app.
+description: Create or update the project-local skill that launches a changed build, drives it the way a user does and captures what the user sees, proven by a run before it is committed. Use when an agent cannot verify changed app behavior by running it, or when the project's verify skill may have drifted from the app.
 ---
 
 # Verification setup
 
-Give the next agent an executable path to launch a changed build, drive a feature the way a user does, and inspect what a user sees. Its reader opens it cold, mid-task. Automated tests support that judgment but do not replace the agent's own run.
+Give the next agent an executable path to launch a changed build, drive a feature the way a user does, and inspect what a user sees. That agent opens the skill cold, mid-task. Automated tests support its judgment, and its own run of the app is what settles it.
 
 ## What matters
 
-- **One verification skill per project**, or in a monorepo one per area with a user surface, each area its own run. Its surfaces share it, with a recipe of their own where their launch or controls differ. Any project-local skill that launches, drives and observes the app counts, hand-written ones included, so update the one that exists rather than writing a second beside it. An existing skill that covers one narrow path becomes one feature file, and the skill grows around it the other sections [create](references/create.md)'s step 2 lists.
-- **A shared skill installed from elsewhere is a harness** the project skill calls, used as it is and left unedited.
+- **One verification skill per project**, or in a monorepo one per area with a user surface, each area its own run. Its surfaces share it, with a recipe of their own where their launch or controls differ. Any project-local skill that launches, drives and observes the app counts, hand-written ones included, so update the one that exists. An existing skill that covers one narrow path becomes one feature file, and the skill grows around it the other sections [create](references/create.md)'s step 2 lists.
+- **A shared skill installed from elsewhere is a harness** the project skill calls, used as it is.
 - **The skill lives with the skills the repo's agents load**, apart from any skills the repo ships to others. With none, infer the team's tools from the agent config the repo carries, and ask only when that leaves it open.
 - **Work on a topic branch in a worktree and commit locally**, leaving pushing and the PR to the user.
-- **A recipe counts once it has run.** Every step is filled from the repo and proven by a run through cleanup, since an unexecuted recipe is a draft.
+- **A recipe counts once it has run.** Fill every step from the repo and prove it by a run through cleanup, since an unexecuted recipe is a draft.
 
 ## Modes
 

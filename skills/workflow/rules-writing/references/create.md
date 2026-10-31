@@ -1,29 +1,29 @@
 # Create
 
-No `AGENTS.md` exists at the target. Infer the project's *real* conventions from evidence — never invent aspirational rules the code doesn't follow.
+No `AGENTS.md` exists at the target. Write only rules the code already follows, inferred from evidence.
 
 1. Gather evidence:
-   - lint/format config (`.oxlintrc.json`, `.oxfmtrc.json`, `.eslintrc*`, `.prettierrc*`, `rustfmt.toml`, `ruff.toml`) — the style section writes itself from these.
-   - test layout and scripts (`package.json` scripts, test dirs, CI config).
-   - framework and runtime (manifest files, lockfiles).
-   - commit style from `git log --oneline -30` — the log is the authority, so copy the format actually in use. A log that consistently isn't Conventional Commits is the repo's rule, not drift to correct. Where a format leads but isn't universal, name it as house style and say it isn't enforced; where the log is genuinely formatless, say that instead of dignifying the largest pile as a convention.
-   - any existing `CLAUDE.md` or `.cursorrules` — migrate real rules, drop tool-specific memory.
-2. Draft sections from the menu below **only where evidence supports a concrete rule**, shaping them to this project. Skip the rest.
-3. Follow every convention in the skill — one rule per bullet, no hard wrap, terse.
-4. Wire up tool bridges. A tool that reads its own memory file rather than `AGENTS.md` needs a one-line pointer — for Claude Code, a `CLAUDE.md` containing only `@AGENTS.md`. Write that one by default; bridge any *other* tool only where the repo shows it in use (`.cursorrules`, `.windsurfrules`, `copilot-instructions.md`). Skip it in a repo whose conventions aren't yours to set — a public project with no agent tooling anywhere, where a tool-specific file reads as noise in review; report that you skipped it and why.
-5. Report which sections you filled and what evidence backed each.
+   - lint and format config, from which the style rules follow.
+   - test layout and scripts, the manifest's tasks and the CI config.
+   - framework and runtime, from manifests and lockfiles.
+   - commit style from the recent log. The log is the authority, so copy the format in use, Conventional Commits or not. Where one format leads but is not universal, name it as house style and say nothing enforces it. Where the log has no format, say so.
+   - any existing `CLAUDE.md` or `.cursorrules`: migrate the real rules and leave the tool-specific memory behind.
+2. Draft sections from the menu below only where evidence supports a concrete rule, shaped to this project.
+3. Follow every rule in the skill's What matters.
+4. Wire up tool bridges. A tool that reads its own memory file rather than `AGENTS.md` gets a one-line pointer, for Claude Code a `CLAUDE.md` holding only `@AGENTS.md`. Write that one by default, and bridge another tool only where the repo shows it in use (`.cursorrules`, `.windsurfrules`, `copilot-instructions.md`). In a repo whose conventions are not yours to set, such as a public project with no agent tooling, skip the bridge and report why.
+5. Report which sections you filled and the evidence behind each.
 
 ## Sections to consider
 
-A menu of common dimensions, not a required skeleton. Shape the actual sections from the project's evidence — draw from these, rename them, add what this project needs, and drop what it doesn't. Use only sections with something concrete to say; an empty section is noise. Order so the load-bearing rules come first. The useful taxonomy differs per project and shifts as tools change — that structure is your call, not a fixed recipe.
+A menu of common sections, not a skeleton. Draw from it, rename, add what the project needs and leave out what it does not, since an empty section is noise. Put the load-bearing rules first.
 
-- **Architecture** — module boundaries, entry points, what depends on what. Usually long and rarely needed in full — the clearest case for the skill's rule on deciding placement by cost: keep a load-bearing pointer to a dedicated architecture doc here, not the map itself.
-- **Invariants** — rules that must never break; the non-negotiables. Each one has a test or a review that checks it.
-- **Workflow** — how to build, run, verify, and release locally, each as a one-line command reference (for a release with no single command, name the trigger instead — e.g. push a `vX.Y.Z` tag), the checks every commit runs, and the channels a release publishes to. The executable it names (a release script, a CI workflow) owns the procedure and any pre-release gates; keep this section to commands and put development-process rules under Process. That split is the default for a file you're shaping, not a mandate to impose on one you're updating — where a file already houses both under its own heading, leave it rather than churn through a rename.
-- **Process** — development and agent-behavior rules that are neither code contracts nor commands: branching and PR-vs-direct policy, worktrees, when to commit, autonomous-execution and sign-off expectations. Distinct from Workflow (commands) and Invariants (code contracts).
-- **Commits** — message format and discipline (defer to the `git` skill's Conventional Commits only where the log shows no established format of its own).
-- **Pull requests** — when to open one, the review gate, title and body rules (omit if the project doesn't use PRs).
-- **Code** — language and structure rules specific to this repo.
-- **Style** — formatting, naming, lint/format tool of record.
-- **Docs** — where docs live and when to update them.
-- **Testing** — test layout, how to run them, what a test may mock at a boundary, coverage expectations.
+- **Architecture**: module boundaries, entry points, what depends on what. The map is long and rarely needed whole, so keep a pointer to an architecture doc here, as placement by cost says.
+- **Invariants**: the rules that must always hold, each checked by a test or a review.
+- **Workflow**: how to build, run, verify and release, each a one-line command reference, or the trigger where a release has no single command, such as pushing a `vX.Y.Z` tag. Add the checks every commit runs and the channels a release publishes to. The executable it names owns the procedure and its gates, and development-process rules go under Process. In a file that already keeps commands and process under one heading of its own, leave that heading.
+- **Process**: development and agent-behavior rules that are neither code contracts nor commands, such as branching, pull request or direct landing, worktrees, when to commit, and sign-off.
+- **Commits**: message format and discipline. Defer to the `git` skill's Conventional Commits only where the log shows no format of its own.
+- **Pull requests**: when to open one, the review gate, and title and body rules, where the project uses them.
+- **Code**: language and structure rules particular to this repo.
+- **Style**: formatting, naming, and the lint and format tools of record.
+- **Docs**: where docs live and when they change.
+- **Testing**: test layout, how to run the suite, what a test may mock at a boundary, and coverage expectations.
