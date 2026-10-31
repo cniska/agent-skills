@@ -21,7 +21,7 @@ What stays with the user is what no amount of evidence settles — product inten
 
 Asking has two terminal forms. With a human, it's a question. With none — invoked from a subagent, a schedule, a batch run — the dialogue gates can't be met, so don't stall on them and don't fake agreement: state the question as a marked assumption carrying the answer you'd have recommended and the alternative's cost, then keep going. On that path the dialogue red flags below are suspended, not violated; you are producing a document for approval because there is no one to converse with.
 
-Ground every recommendation in current code, docs, and project rules. Read enough yourself to pick the task before fanning out — which files are load-bearing is itself a finding, and a fan-out that precedes it is guessing. Then spawn readers in parallel, one per independent question rather than one per file (cap ~5), each tiered to its own question as below — file count is a poor proxy for difficulty, and a reader that summarizes a file you could have read costs more than it saves while losing the exact signatures you need. Where a grep would do, or the load-bearing material — code, spec, or prose — runs to a few hundred lines, read it yourself; measure it before deciding, since byte size misleads badly on markdown that never hard-wraps.
+Ground every recommendation in current code, docs, and project rules. Read enough yourself to pick the task before fanning out — which files are load-bearing is itself a finding, and a fan-out that precedes it is guessing. Then spawn readers in parallel, one per independent question rather than one per file (cap ~5), each tiered to its own question as below — file count is a poor proxy for difficulty, and a reader that summarizes a file you could have read costs more than it saves while losing the exact signatures you need. Where a grep would do, or the load-bearing material — code, spec, or prose — runs to a few hundred lines, read it yourself.
 
 Match the tier to the question: **fast-tier** for retrieval (where a thing lives, what it does), **powerful-tier** for judgment (which shape fits, what breaks, what it costs). "Does X exist anywhere in here?" only looks like retrieval — it takes judgment to know what counts as an X, so a fast-tier "not found" is not evidence of absence. Verify any load-bearing claim a delegate returns before you plan on it: a confident wrong answer reads exactly like a right one, and the cost lands in the plan. Bring what you found back to the user before drafting — the read-back is a conversation turn, not a silent research phase. With no one to bring it to, it collapses into the plan's grounding: show the evidence rather than dropping the step.
 
@@ -49,11 +49,11 @@ For non-trivial plans, track agreed steps in a checklist as the conversation pro
 
 For a change past a single file, make its shape concrete before handing off — a decision on the table is cheaper to change now than at review time:
 
-- **File-tree diff** — files added, changed, or deleted, one line of intent each; for an edit to just a file or two, a sentence beats a block (see below).
+- **File-tree diff** — files added, changed, or deleted, one line of intent each; for an edit to just a file or two, a sentence beats a block.
 - **Key signatures** — the new or changed function and type signatures the slice introduces.
 - **Call path** — the entry-to-leaf path through those signatures.
 
-Tag every fenced block with its language so it renders highlighted where the host supports it — `diff` for the file-tree, the source language (`ts`, `py`, …) for signatures — and keep the tag accurate; where none fits, use prose. A `diff` fence earns its place only when it has `+`/`-` lines to color (marker at column 0; a modified file is a plain line with a trailing note); a change that is mostly edits to existing files goes in a sentence or a plain list instead, and one glob line covers many files of the same kind. Sketch the shape in the conversation, not a separate document. If drawing it surfaces a decision, resolve it with the user here — that is the point.
+Sketch the shape in the conversation, not a separate document. If drawing it surfaces a decision, resolve it with the user here — that is the point.
 
 ## See also
 
