@@ -5,16 +5,11 @@ description: Review docs as prose for a reader, not as code — drift, shape, ve
 
 # Documentation Review
 
-Judge each doc the way a reader meets it: whether it is still true, easy to scan, and short. Findings are stated as findings, never softened into suggestions.
+Judge each doc the way a reader meets it: whether it is still true, easy to scan, and short.
 
 A diff gets the review below. A whole doc, meaning its purpose, its outline and a restructure, gets [the whole-doc review](references/whole-doc.md). [The patterns](references/patterns.md) name the shapes a doc falls into and the form each should take instead; a finding cites one by name as its **Rule**.
 
 ## Scope
-
-Report what the diff causes, such as a line it leaves as it was but makes wrong; place what it did not cause where the review report in `principles` puts it.
-
-- **A diff that adds to a section that already breaks the shape** grew it, so that section's structure is the change's finding, and its **Instead** restructures the section.
-- **A doc's structure that was wrong before the diff**, such as a wall, a subject with no heading or a mapping written as prose, hides facts from every reader, so it is a real defect, not a style point: report it as a follow-up for a whole-doc review of that doc. A single long sentence or bullet left as it was is a style point, and dropped; a list whose bullets run long, as in the long bullets pattern, is structure and goes to that follow-up.
 
 ### 1. Drift
 
@@ -38,13 +33,20 @@ Report what the diff causes, such as a line it leaves as it was but makes wrong;
 
 Verbosity is a finding: a fact said twice, hedges, history, filler, or any word whose deletion loses nothing.
 
+## Evidence threshold
+
+Report what the diff causes, such as a line it leaves as it was but makes wrong. Place what it did not cause where the review report in `principles` puts it.
+
+- **A diff that adds to a section that already breaks the shape** grew it, so that section's structure is the change's finding, and its **Instead** restructures the section.
+- **A doc's structure that was wrong before the diff**, such as a wall, a subject with no heading or a mapping written as prose, hides facts from every reader, so it is a real defect, not a style point. Report it as a follow-up for a whole-doc review of that doc. A single long sentence or bullet left as it was is a style point, and dropped. A list whose bullets run long, as in the long bullets pattern, is structure and goes to that follow-up.
+
 ## Workflow
 
-Read the diff, then each doc it changes or makes stale, whole. For changes touching many docs, fan out **fast-tier** readers, one per doc, to surface candidates. Verify each before reporting.
+Read the diff, then each doc it changes or makes stale, whole. When it touches more docs than one read can cover, a fast-tier reader per doc can surface candidates; verify each before reporting.
 
 ## Output
 
-Report each finding as `principles`' review report says: **Where** is the file and line, **Why** what drifted, breaks the shape or can go, in one sentence about this doc, and **Instead** the fix written out: the shorter wording, the new headings, or the table with its rows. No "consider", no "might", no praise.
+Report each finding as `principles`' review report says: **Where** is the file and line, **Why** what drifted, breaks the shape or can go, in one sentence about this doc, and **Instead** the fix written out: the shorter wording, the new headings, or the table with its rows. Word each finding as a plain statement.
 
 - Bad: "README could explain the retry architecture in more depth."
 - Bad: "The setup section might benefit from some restructuring."
