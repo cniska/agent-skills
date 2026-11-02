@@ -15,7 +15,9 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 
 ## Code
 
-- The plugin's `hooks/` run in other people's sessions, in whatever project is open, so they stay bash that needs only `jq` beyond git and the base system, never Bun or Node; repo scripts that parse or check are TypeScript on Bun, and scripts that orchestrate other tools stay shell.
+- The plugin's `hooks/` run in other people's sessions, in whatever project is open, so they stay bash that needs only `jq` beyond git and the base system, never Bun or Node.
+- The coordinator hook alone also runs the agent-task CLI, and only in a session started with a project.
+- Repo scripts that parse or check are TypeScript on Bun, and scripts that orchestrate other tools stay shell.
 - No comments in new or changed code; the agent-gates no-comments hook and workflow check every file a commit changes.
 
 ## Workflow

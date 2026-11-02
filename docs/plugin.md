@@ -118,7 +118,7 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 
 It prints a [coordinate](../skills/workflow/coordinate/SKILL.md) session's project and tasks into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- A coordinator is an [agent-task](https://github.com/cniska/agent-task) project. Start its session with the project id in `AGENT_TASK_PROJECT`, as in `AGENT_TASK_PROJECT=<id> claude`, from the directory the project records.
+- A coordinator is an [agent-task](https://github.com/cniska/agent-task) project. Start its session with the project id in `AGENT_TASK_PROJECT`, as in `AGENT_TASK_PROJECT=<id> claude`, from the repository the project records.
 - The hook names the project and the `agent-task` commands that read and write its tasks, then prints them as `agent-task list --project <id> --full` does, refusal included.
 - Before that, it fast-forwards the directory the project records, where briefs and plans live, from its remote under a five-second deadline.
 - When it could not (offline, diverged, uncommitted changes), it says so and how far behind the directory is.

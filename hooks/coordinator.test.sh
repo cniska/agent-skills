@@ -49,7 +49,7 @@ code() {
   echo "$?"
 }
 
-commands="This session coordinates the agent-task project loop, and its tasks are its state. Read them with \`agent-task list --project loop --full\`. Queue one with \`agent-task add <name> --project loop --repo <path> --goal <text>\`, giving its plan with \`--plan <file>\` and what it waits on with \`--waits <text>\`. Start one with \`agent-task start <name> --project loop --repo <path> --brief <file>\`, change what one waits on with \`agent-task wait <name> --waits <text>\`, and close one with \`agent-task done <name>\`."
+commands="This session coordinates the agent-task project loop, and its tasks are its state. Read them with \`agent-task list --project loop --full\`. Queue one with \`agent-task add <name> --project loop --repo <path> --goal <text>\`, giving its plan with \`--plan <file>\` and what it waits on with \`--waits <text>\`. Start one with \`agent-task start <name> --project loop --repo <path> --brief <file>\`, replace all that one waits on with \`agent-task wait <name> [--after <name>]... [--waits <text>] [--until <command>]\`, and close one with \`agent-task done <name>\`."
 tasks="tasks of loop, update check 1"
 
 assert "no project id prints nothing" "$(run)" ""

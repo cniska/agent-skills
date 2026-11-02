@@ -83,7 +83,7 @@ commands() {
   printf 'This session coordinates the agent-task project %s, and its tasks are its state. ' "$1"
   printf 'Read them with `agent-task list --project %s --full`. ' "$1"
   printf 'Queue one with `agent-task add <name> --project %s --repo <path> --goal <text>`, giving its plan with `--plan <file>` and what it waits on with `--waits <text>`. ' "$1"
-  printf 'Start one with `agent-task start <name> --project %s --repo <path> --brief <file>`, change what one waits on with `agent-task wait <name> --waits <text>`, and close one with `agent-task done <name>`.\n\n' "$1"
+  printf 'Start one with `agent-task start <name> --project %s --repo <path> --brief <file>`, replace all that one waits on with `agent-task wait <name> [--after <name>]... [--waits <text>] [--until <command>]`, and close one with `agent-task done <name>`.\n\n' "$1"
 }
 
 main() {
