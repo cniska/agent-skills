@@ -54,7 +54,8 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 - **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
 - **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's agent id, so a later accept from that agent for that repository is `same_reviewer`.
 - **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back` and resets the bound, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current.
-- **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, returns_on_commit}` for the caller to read. `returns_on_commit` counts the returns from distinct reviewers on one `HEAD` of `repo` whose read diffs share a path.
+- **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, finding_returns_on_commit}` for the caller to read.
+- **Return count:** `finding_returns_on_commit` is the most returns that carry any one of this return's findings. A finding is its `rule`, matched exactly, plus the path of its first `where`. Each reviewer counts once, and only returns on the same `HEAD` of `repo` whose read diffs share a path count. A return with no finding counts 0.
 
 ### `verdict`
 

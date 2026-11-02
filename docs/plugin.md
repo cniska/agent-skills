@@ -76,7 +76,7 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
 - A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
 - An accept whose diffs match no checkout, or one from a reviewer that returned the repo earlier, is stored with a note and not recorded.
-- The stored report counts a return's place on its commit, so `task` parks a commit after its third return. One commit's returns are those from distinct reviewers on the same `HEAD` whose read diff files share a path, so a landed commit, or a change replaced by one on other paths, starts the count over.
+- The stored report counts how often its most-repeated finding has come back on its commit, so `task` parks a commit when one finding comes back a third time, and new findings each round never park it. [The hook reference](../hooks/events.md) defines a finding and a commit's returns.
 
 ## Designer agent
 

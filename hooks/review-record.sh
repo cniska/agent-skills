@@ -161,16 +161,29 @@ returns_file() {
   printf '%s.returns\n' "$(review_state_file "$1")"
 }
 
-record_return() {
-  local repo="$1" agent="$2" paths="$3" returns head
-  returns="$(returns_file "$repo")"
-  head="$(head_commit "$repo")"
-  mkdir -p "$(dirname "$returns")"
+findings_file() {
+  printf '%s.findings\n' "$(review_state_file "$1")"
+}
+
+finding_keys() {
+  jq -r '.findings[]? | objects | [(.rule | strings), (.where[0]?.path | strings)] | tojson' 2>/dev/null
+}
+
+append_lines() {
+  local file="$1"
+  mkdir -p "$(dirname "$file")"
   {
-    [ ! -f "$returns" ] || cat "$returns"
-    printf '%s\n' "$paths" | RETURN_HEAD="$head" AGENT="$agent" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["AGENT"] "\t" $0 }'
-  } | sort -u >"$returns.tmp"
-  mv "$returns.tmp" "$returns"
+    [ ! -f "$file" ] || cat "$file"
+    RETURN_HEAD="$2" AGENT="$3" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["AGENT"] "\t" $0 }'
+  } | sort -u >"$file.tmp"
+  mv "$file.tmp" "$file"
+}
+
+record_return() {
+  local repo="$1" agent="$2" paths="$3" keys="$4" head
+  head="$(head_commit "$repo")"
+  append_lines "$(returns_file "$repo")" "$head" "$agent" <<<"$paths"
+  [ -z "$keys" ] || append_lines "$(findings_file "$repo")" "$head" "$agent" <<<"$keys"
 }
 
 returned_before() {
@@ -179,16 +192,19 @@ returned_before() {
   [ -f "$returns" ] && AGENT="$agent" awk -F '\t' '$2 == ENVIRON["AGENT"] { found = 1 } END { exit !found }' "$returns"
 }
 
-returns_on_commit() {
-  local repo="$1" paths="$2" returns
+finding_returns_on_commit() {
+  local repo="$1" paths="$2" keys="$3" returns findings
   returns="$(returns_file "$repo")"
-  if [ ! -f "$returns" ] || [ -z "$paths" ]; then
+  findings="$(findings_file "$repo")"
+  if [ ! -f "$returns" ] || [ ! -f "$findings" ] || [ -z "$paths" ] || [ -z "$keys" ]; then
     printf '0\n'
     return
   fi
-  path_entries "$returns" <<<"$paths" | RETURN_HEAD="$(head_commit "$repo")" awk -F '\t' '
-    $1 == ENVIRON["RETURN_HEAD"] && !seen[$2]++ { count++ }
-    END { print count + 0 }'
+  RETURN_HEAD="$(head_commit "$repo")" awk -F '\t' '
+    FILENAME == ARGV[1] { if ($1 == ENVIRON["RETURN_HEAD"]) on_work[$2]; next }
+    FILENAME == ARGV[2] { wanted[$0]; next }
+    $1 == ENVIRON["RETURN_HEAD"] && ($2 in on_work) && ($3 in wanted) && !seen[$3, $2]++ && ++count[$3] > most { most = count[$3] }
+    END { print most + 0 }' <(path_entries "$returns" <<<"$paths") <(printf '%s\n' "$keys") "$findings"
 }
 
 named_before() {
@@ -212,12 +228,12 @@ returned_paths() {
 }
 
 void_returns() {
-  local input="$1" reviewer="$2" returned="$3" named repo
-  jq -r '.tool_input.judgments[]? | objects | select(.verdict == "return") | .repo | strings | select(startswith("/"))' <<<"$input" 2>/dev/null |
-    while IFS= read -r named; do
-      repo="$(repo_root "$named")" && [ -n "$repo" ] || continue
+  local input="$1" reviewer="$2" returned="$3" judgment repo
+  jq -c '.tool_input.judgments[]? | objects | select(.verdict == "return" and (.repo | strings | startswith("/")))' <<<"$input" 2>/dev/null |
+    while IFS= read -r judgment; do
+      repo="$(repo_root "$(jq -r .repo <<<"$judgment")")" && [ -n "$repo" ] || continue
       void_paths "$(review_state_file "$repo")" "$returned"
-      record_return "$repo" "$reviewer" "$returned"
+      record_return "$repo" "$reviewer" "$returned" "$(finding_keys <<<"$judgment")"
     done
 }
 
@@ -271,7 +287,7 @@ record_verdict() {
     verdict="$(jq -r .verdict <<<"${judgments[$i]}")"
     code="" fix="" count=0 entries[i]=""
     if [ "$verdict" = return ]; then
-      count="$(returns_on_commit "$repo" "$returned")"
+      count="$(finding_returns_on_commit "$repo" "$returned" "$(finding_keys <<<"${judgments[$i]}")")"
     elif returned_before "$repo" "$reviewer"; then
       code=same_reviewer fix="$SAME_REVIEWER_FIX"
     else
@@ -286,7 +302,7 @@ record_verdict() {
       fi
     fi
     notes[i]="$(jq -cn --arg repo "$repo" --arg verdict "$verdict" --arg code "$code" --arg fix "$fix" --argjson count "$count" \
-      '{repo: $repo, verdict: $verdict, recorded: ($code == ""), code: (if $code == "" then null else $code end), fix: (if $fix == "" then null else $fix end), returns_on_commit: $count}')"
+      '{repo: $repo, verdict: $verdict, recorded: ($code == ""), code: (if $code == "" then null else $code end), fix: (if $fix == "" then null else $fix end), finding_returns_on_commit: $count}')"
   done
 
   local state counts
