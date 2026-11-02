@@ -1,7 +1,7 @@
 ---
 name: worker
 description: Run one task from a coordinator's brief along the route the task skill picks for it, from its own worktree through landing, with task and principles preloaded. Use for every task a coordinating session delegates.
-disallowedTools: Artifact, ArtifactComments, ArtifactData, CronCreate, CronDelete, CronList, DesignSync, EnterWorktree, ExitWorktree, ListMcpResourcesTool, LSP, NotebookEdit, PushNotification, ReadMcpResourceDirTool, ReadMcpResourceTool, RemoteTrigger, ReportFindings, ScheduleWakeup, ShareOnboardingGuide, TodoWrite
+tools: Bash, Read, Edit, Write, Agent, Skill, SendMessage, ListAgents, SubagentHandback, ToolSearch, Monitor, TaskStop, WebFetch, WebSearch, mcp__plugin_cniska-skills_report__task_report, mcp__plugin_cniska-skills_report__read_report, mcp__ccd_turn__update_plan, mcp__Claude_Browser__*, mcp__Claude_Code_iOS_Simulator__*, mcp__chrome-devtools__*
 skills:
   - cniska-skills:task
   - cniska-skills:principles

@@ -60,12 +60,24 @@ It sends every task through `task`, so a plain prompt takes the same route as `/
 
 ## Worker agent
 
-`cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says.
+`cniska-skills:worker` carries one task a [coordinate](../skills/workflow/coordinate/SKILL.md) session delegates, from its brief to the landed commit, as [its agent file](../agents/worker.md) says. It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
 
-- It starts with [task](../skills/workflow/task/SKILL.md) and [principles](../skills/expertise/principles/SKILL.md) preloaded and no other skill, and loads each step's skill as `task` directs.
-- It drops the built-in tools no route calls, such as `Artifact`, `NotebookEdit`, `LSP` and the cron tools, since every tool definition it carries is re-read on each model call. It keeps the shell and file tools to edit and commit, `Agent` and `SendMessage` to start the reviewer, designer and researcher agents and answer its coordinator, `ListAgents` to find the sessions a repo's rules say to message, `Skill` for each step, `Monitor` and `TaskStop` for long runs, and `WebFetch` and `WebSearch` for docs.
-- It states its final report through the [report server](#report-server)'s `task_report` tool.
-- It inherits every MCP tool, so whatever server a project's verify skill drives stays reachable, and `ToolSearch` keeps each one the host defers out of context until a step searches for it.
+It names the tools its tasks call and no others, since every tool definition it carries, and every deferred tool's name, is re-read on each model call.
+
+| Tools | Used for |
+|---|---|
+| `Bash`, `Read`, `Edit`, `Write` | Edit and commit |
+| `Agent`, `SendMessage` | Start the reviewer, designer and researcher agents and answer its coordinator |
+| `ListAgents` | Find the sessions a repo's rules say to message |
+| `Skill` | Load each step's skill |
+| `Monitor`, `TaskStop` | Long runs |
+| `WebFetch`, `WebSearch` | Docs |
+| `update_plan` | The host's task list |
+| `SubagentHandback` | Hand back to its coordinator |
+| `task_report`, `read_report` | State its final report and read its reviewers' reports, through the [report server](#report-server) |
+| The built-in browser, iOS Simulator and Chrome DevTools servers, whole | Verification, each deferred tool loaded through `ToolSearch` |
+
+It has no other MCP tool, such as Slack or Linear, so a task that needs one goes to a session that has it.
 
 ## Reviewer agent
 
