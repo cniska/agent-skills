@@ -5,8 +5,8 @@
 The project's tools stand. Where it has none, suggest `mise` pinning the interpreter and tools, StyLua to format, selene to lint (luacheck where a project already runs it), the Lua Language Server (LuaLS) to type check from annotations, and busted to test.
 
 - **StyLua formats.** Its `stylua.toml` sets `syntax` to the runtime's dialect, such as `"Lua51"`, so a construct the runtime lacks fails to parse instead of being formatted. `stylua --check .` exits 1 on any unformatted file.
-- **selene lints.** `selene.toml` names its `std`; a custom std file sets `base: lua51` and lists the host's globals, so a misspelled global or one the host never defines is an error. luacheck's `.luacheckrc` does the same with `std`, `globals` (writable) and `read_globals` (read-only).
-- **LuaLS carries the types.** `.luarc.json` sets `runtime.version` to the runtime's version and `workspace.library` to the host API's annotation files. `lua-language-server --check .` reports the diagnostics a CI job fails on.
+- **selene lints.** `selene.toml` names its `std`; a custom std is `<name>.yml` beside it, YAML that sets `base: lua51` and lists the host's globals under `globals:`, so a misspelled global or one the host never defines is an error. luacheck's `.luacheckrc` does the same with `std`, `globals` (writable) and `read_globals` (read-only).
+- **LuaLS carries the types.** `.luarc.json` sets `runtime.version` to the runtime's version and `workspace.library` to the host API's annotation files. `lua-language-server --check .` exits 1 on any diagnostic at Warning or above; `--checklevel=Information` lowers that bar.
 
 Modern means: `local` for every name, a file that returns one module table, LuaLS annotations on every function that crosses a file, and the formatter, linter and type check run on every commit. A runtime pinned to Lua 5.1 keeps all of that; what it lacks is listed under [WoW addons](#wow-addons).
 
@@ -46,7 +46,7 @@ For a new project; a library the tree already holds wins.
 
 ## WoW addons
 
-World of Warcraft runs addons in its own Lua 5.1, and the stack for WoW: Forever is plain Lua against Blizzard's API. Take no framework such as Ace3 and no waypoint addon such as TomTom; embed one small library only when a job needs it, vendored under `libs/` and listed in the `.toc`.
+World of Warcraft runs addons in its own Lua 5.1. WoW: Forever runs a mainline client, with retail's UI architecture, so an addon targets the mainline API plus the changes on warcraft.wiki.gg's API changes page for Forever's patch. The stack is plain Lua against that API. Take no framework such as Ace3 and no waypoint addon such as TomTom; embed one small library only when a job needs it, vendored under `libs/` and listed in the `.toc`.
 
 ### Lua 5.1
 
@@ -56,7 +56,7 @@ World of Warcraft runs addons in its own Lua 5.1, and the stack for WoW: Forever
 
 ### The `.toc` and namespace
 
-- `## Interface:` holds the client's interface number; read it in game with `/dump select(4, GetBuildInfo())` rather than from memory. A `_Vanilla.toc` beside the plain `.toc` targets Classic Era, and the client falls back to the plain one.
+- `## Interface:` holds the client's interface number; read it in game with `/dump select(4, GetBuildInfo())` rather than from memory. Forever loads a `<AddonName>_Forever.toc` in place of the plain `.toc` when both exist, so a flavor-specific `.toc` goes beside the plain one.
 - `## SavedVariables:` and `## SavedVariablesPerCharacter:` name the globals the addon owns; beyond them it writes only the names the host reads, such as `SLASH_<NAME>1` and its `SlashCmdList` entry for a slash command.
 - Files load top to bottom in the order the `.toc` lists them, so a file that defines a module comes before the files that use it.
 - Each file opens with `local addonName, ns = ...`: the addon's name and a table every file of the addon shares. Modules hang off `ns`, never off `_G`.
@@ -74,7 +74,7 @@ World of Warcraft runs addons in its own Lua 5.1, and the stack for WoW: Forever
 
 ### Client flavors
 
-A `C_` namespace and its functions differ between retail, Classic and Classic Era, and between patches of one flavor. Check each API against that flavor's documentation, and guard one that a flavor may lack with a check that the namespace and function exist, failing loudly when a function the addon needs is missing.
+A `C_` namespace and its functions differ between client flavors, and between patches of one flavor. Check each API against the mainline documentation and that patch's API changes. Guard one a flavor may lack with a check that its namespace and function exist, and fail loudly when a function the addon needs is missing.
 
 ## Verification
 
@@ -84,5 +84,5 @@ Without declared tasks: `stylua --check .`, `selene .`, `lua-language-server --c
 
 - `mise.toml` pins `lua` (5.1 for an addon), `stylua` and `lua-language-server`, and defines `fmt`, `lint`, `typecheck` and `test` tasks that CI runs.
 - selene is installed through `mise` from its GitHub releases, and busted through LuaRocks.
-- For an addon, `.luarc.json` adds the WoW API annotations from Ketho's `vscode-wow-api` to `workspace.library` and sets `diagnostics.globals` to the addon's SavedVariables and host-read names; the selene std lists the same globals as writable and the Blizzard API as read-only.
+- For an addon, LuaLS takes the WoW API's types from Ketho's mainline annotations in `vscode-wow-api`, and `.luarc.json` sets `diagnostics.globals` to the addon's SavedVariables and host-read names; the selene std lists the same globals as writable and the Blizzard API as read-only.
 - A `PostToolUse` hook on `Edit|Write` runs `stylua` on each touched `.lua` file.
