@@ -147,6 +147,12 @@
       ]
     },
     {
+      "name": "Broken build",
+      "sources": [
+        "skills/expertise/ui-review/references/missing-captures.md"
+      ]
+    },
+    {
       "name": "Buildable alone",
       "sources": [
         "agents/reviewer.md"
@@ -521,6 +527,12 @@
       ]
     },
     {
+      "name": "No reference exists",
+      "sources": [
+        "skills/expertise/ui-review/references/missing-captures.md"
+      ]
+    },
+    {
       "name": "No tech debt",
       "sources": [
         "skills/expertise/design-review/references/patterns.md"
@@ -710,6 +722,18 @@
       ]
     },
     {
+      "name": "Run blocked",
+      "sources": [
+        "skills/expertise/ui-review/references/missing-captures.md"
+      ]
+    },
+    {
+      "name": "Run short",
+      "sources": [
+        "skills/expertise/ui-review/references/missing-captures.md"
+      ]
+    },
+    {
       "name": "Scope",
       "sources": [
         "agents/reviewer.md"
@@ -895,6 +919,12 @@
       "name": "Verify at the source",
       "sources": [
         "skills/expertise/principles/references/verify-at-source.md"
+      ]
+    },
+    {
+      "name": "Verify skill short",
+      "sources": [
+        "skills/expertise/ui-review/references/missing-captures.md"
       ]
     },
     {

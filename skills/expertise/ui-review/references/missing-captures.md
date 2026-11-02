@@ -1,6 +1,6 @@
 # Missing captures
 
-Read the verify skill the brief names, its feature map and Evidence, and the run's list of what it could not reach with the reason for each. Put each capture the brief lacks, of a touched state or of its reference screen, under the first of these cases it meets, and name every one under its case:
+Read the verify skill the brief names, its feature map and Evidence, and the run's list of what it could not reach with the reason for each. Put each capture the brief lacks, of a touched state or of its reference screen, under the first of these cases it meets, and name every one under its case. A finding or conflict on one names its case as its **Rule**:
 
 1. **No reference exists:** a reference screen's capture, where the state's platform reference in `ui-design` names no reference it can reach. A capture of the state itself never stops here. It goes under Conflicts, as "Against a named reference screen" in the skill says, and holds back no accept.
 2. **Broken build:** the run says it could not reach the state because the change fails, a product defect. It is a finding on the change.

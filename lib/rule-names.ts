@@ -46,6 +46,7 @@ export const RULE_SOURCES: readonly RuleSource[] = [
   { path: "skills/expertise/ui-design/SKILL.md", pick: SECTIONS, except: ["Review gate"] },
   { path: "skills/expertise/ui-design/references", pick: SECTIONS, except: ["Proof", "Where to look"] },
   { path: "skills/expertise/ui-review/references/heuristics.md", pick: SECTIONS },
+  { path: "skills/expertise/ui-review/references/missing-captures.md", pick: BOLD_LEADS },
   {
     path: "skills/workflow/spec/SKILL.md",
     pick: SECTIONS,
@@ -61,7 +62,7 @@ export const RULE_SOURCES: readonly RuleSource[] = [
 
 const HEADING = /^(?<marks>#{1,6})\s+(?<title>.+?)\s*$/;
 const FENCE = /^\s*(```|~~~)/;
-const BOLD_LEAD = /^- \*\*(?<lead>.+?)\*\*/;
+const BOLD_LEAD = /^(?:-|\d+\.) \*\*(?<lead>.+?)\*\*/;
 const NUMBERED = /^\d+\.\s+/;
 const TRAILING_MARK = /[.,:;]+$/;
 

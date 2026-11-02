@@ -40,6 +40,6 @@ Report a cost only with its trigger: the input, request pattern or workload, and
 
 ## Output
 
-Write each hot spot in the `principles` review report: **Why** carries the triggering workload, its cost and the evidence, and **Instead** the fix direction.
+Write each hot spot in the `principles` review report: **Rule** is its Scope bucket, **Why** carries the triggering workload, its cost and the evidence, and **Instead** the fix direction.
 
 With nothing over the threshold, there is no finding.

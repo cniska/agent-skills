@@ -62,7 +62,7 @@ Report only a concrete attack path, trust-boundary failure or unsafe default, an
 
 ## Output
 
-Report each attack path in the review report shape from `principles`: **Where** lists the affected files, **Why** the attack or failure path and who can reach it, and **Instead** the fix and a test that would prove it. Severity follows reachability: **critical** is reachable by remote unauthenticated input, **major** needs authentication or the same network, **minor** needs local access or is defense-in-depth.
+Report each attack path in the review report shape from `principles`: **Where** lists the affected files, **Rule** its Scope bucket, **Why** the attack or failure path and who can reach it, and **Instead** the fix and a test that would prove it. Severity follows reachability: **critical** is reachable by remote unauthenticated input, **major** needs authentication or the same network, **minor** needs local access or is defense-in-depth.
 
 - Reject: "The WebSocket uses WS not WSS — should be encrypted." (no reachable attack path)
 - Report, as critical: **Why:** `server.ts:42` binds `0.0.0.0` with `auth:false` by default, so any LAN host can call `/exec` and run shell commands (unauthenticated network → execute).

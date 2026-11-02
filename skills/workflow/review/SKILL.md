@@ -59,6 +59,8 @@ Look for these patterns in every review:
 - an updated implementation that leaves stale references behind in tests or docs
 - a small diff with effects beyond the changed files: name the fact its safety depends on, trace the relevant callers or contracts, and run a focused check when practical, reporting it as unproven when the check cannot run
 
+A finding from these checks names the rule it breaks: No drift for drift and stale references, One mechanism per question for a contract that blurs distinct intent, Size everything to the need for a broad escape hatch, and, for an effect beyond the changed files, the Scope bucket of the area the effect breaks, such as Contract for a broken caller.
+
 ## Report
 
 One report, in the review report shape from `principles`, so the area skills' findings merge without translation. Each area skill hands its findings back to this review, and only this review makes a report tool's call, once, after merging. Each finding keeps the **Rule** name and the severity its area skill gave it. Clean names every area that ran and what it checked. Name each area the table skipped, with the "Runs when" it failed: under `not_run` in a report tool's call that has the field, or else in a closing line after the four sections, `Not run: <area> (<reason>), ...` or `Not run: none`, above any closing lines the caller asks for.

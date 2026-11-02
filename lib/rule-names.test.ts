@@ -42,20 +42,21 @@ describe("ruleNames", () => {
     });
   });
 
-  test("takes bold leads without their closing mark, and a title from each file of a directory", () => {
+  test("takes bullet and numbered bold leads without their closing mark, and a title from each file of a directory", () => {
     const sources: RuleSource[] = [
       { path: "b.md", pick: { kind: "bold_leads" } },
       { path: "refs", pick: { kind: "title" }, except: ["Skip me"] },
     ];
     const dir = root({
       "b.md":
-        "# B\n\n- **Data flows one way.** Values go down.\n- **The prompt is ordered:** stable first.\n  - **Nested** no\n",
+        "# B\n\n- **Data flows one way.** Values go down.\n- **The prompt is ordered:** stable first.\n  - **Nested** no\n2. **Run short:** a case.\n",
       "refs/one.md": "# Fix the cause\n",
       "refs/two.md": "# Skip me\n",
     });
     expect(ruleNames(dir, sources).names.map(({ name }) => name)).toEqual([
       "Data flows one way",
       "Fix the cause",
+      "Run short",
       "The prompt is ordered",
     ]);
   });
