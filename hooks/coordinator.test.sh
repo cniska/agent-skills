@@ -103,10 +103,17 @@ Project directory not pulled: agent-task project list could not be read with jq.
 
 $tasks"
 
-printf '#!/usr/bin/env bash\n[ "$*" = "project list" ] && exit 3\nexec "%s" "$@"\n' "$scratch/stub/agent-task" >"$scratch/failing-jq/agent-task"
-chmod +x "$scratch/failing-jq/agent-task"
-assert "a refused project list says it could not be read, and the tasks still print" \
-  "$(PATH="$scratch/failing-jq:$PATH" run | grep -c '^Project directory not pulled: agent-task project list could not be read')" 1
+mkdir -p "$scratch/failing-list"
+printf '#!/usr/bin/env bash\nif [ "$*" = "project list" ]; then printf "error:\\n  code: store_version\\n" >&2; exit 3; fi\nexec "%s" "$@"\n' "$scratch/stub/agent-task" >"$scratch/failing-list/agent-task"
+chmod +x "$scratch/failing-list/agent-task"
+assert "a failing project list is named with its error, and the tasks still print" \
+  "$(PATH="$scratch/failing-list:$PATH" run)" "$commands
+
+Project directory not pulled: agent-task project list failed:
+error:
+  code: store_version
+
+$tasks"
 
 commit_file() {
   printf '%s\n' "$2" >"$1/state.md"

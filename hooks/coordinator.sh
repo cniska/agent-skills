@@ -73,12 +73,6 @@ pull_dir() {
   fi
 }
 
-project_dir() {
-  local projects
-  projects="$(agent-task project list 2>/dev/null)" || return 1
-  jq -Rsr --arg id "$1" -f "$HERE/project-dir.jq" 2>/dev/null <<<"$projects"
-}
-
 commands() {
   printf 'This session coordinates the agent-task project %s, and its tasks are its state. ' "$1"
   printf 'Read them with `agent-task list --project %s --full`. ' "$1"
@@ -94,8 +88,10 @@ main() {
     printf 'Tasks not read: agent-task is not on PATH or does not run.\n'
     return 0
   fi
-  local dir
-  if ! dir="$(project_dir "$project")"; then
+  local projects dir
+  if ! projects="$(agent-task project list 2>&1)"; then
+    printf 'Project directory not pulled: agent-task project list failed:\n%s\n\n' "$projects"
+  elif ! dir="$(jq -Rsr --arg id "$project" -f "$HERE/project-dir.jq" 2>/dev/null <<<"$projects")"; then
     printf 'Project directory not pulled: agent-task project list could not be read with jq.\n\n'
   elif [ -z "$dir" ]; then
     printf 'Project directory not pulled: agent-task project list names no directory for %s.\n\n' "$project"
