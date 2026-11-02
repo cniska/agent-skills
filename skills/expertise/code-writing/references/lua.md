@@ -6,7 +6,9 @@ The project's tools stand. Where it has none, suggest `mise` pinning the interpr
 
 - **StyLua formats.** Its `stylua.toml` sets `syntax` to the runtime's dialect, such as `"Lua51"`, so a construct the runtime lacks fails to parse instead of being formatted. `stylua --check .` exits 1 on any unformatted file.
 - **selene lints.** `selene.toml` names its `std`; a custom std is `<name>.yml` beside it, YAML that sets `base: lua51` and lists the host's globals under `globals:`, so a misspelled global or one the host never defines is an error. luacheck's `.luacheckrc` does the same with `std`, `globals` (writable) and `read_globals` (read-only).
-- **LuaLS carries the types.** `.luarc.json` sets `runtime.version` to the runtime's version and `workspace.library` to the host API's annotation files. `lua-language-server --check .` exits 1 on any diagnostic at Warning or above; `--checklevel=Information` lowers that bar.
+- **A std removes fields one by one.** Each is `io.open: removed: true`; `io: removed: true` removes nothing and reports no error.
+- **busted tests need their own std.** It sets `base: lua51` and `assert: any: true`, since `lua51+busted` keeps lua51's `assert` and flags `assert.are`.
+- **LuaLS carries the types.** `.luarc.json` sets `runtime.version` to the runtime's version and `workspace.library` to the host API's annotation files; the CLI reads that file alone, with no editor settings. `lua-language-server --check .` exits 1 on any diagnostic at Warning or above; `--checklevel=Information` lowers that bar.
 
 Modern means: `local` for every name, a file that returns one module table, LuaLS annotations on every function that crosses a file, and the formatter, linter and type check run on every commit. A runtime pinned to Lua 5.1 keeps all of that; what it lacks is listed under [WoW addons](#wow-addons).
 
@@ -35,7 +37,7 @@ For a new project; a library the tree already holds wins.
 
 - **`local` everything.** A file declares its names `local` and returns one table, and nothing assigns a global except where the host requires one by name. The linter's global check holds this.
 - **Small modules.** One concern per file, named for it. A caller reads a module through `require` or, where the host has none, through the namespace the host passes the file.
-- **Errors are tables with a code.** `error({ code = "ParseFailed", field = "x" })` through one `fail(code, facts)` per module, so every throw has the same shape and callers branch on `err.code`. Lua adds no position to a table error, so a fact that locates the failure is a field. A string error carries no code a caller can match.
+- **Errors are tables with a code.** `error({ code = "ParseFailed", field = "x" })` through one `fail(code, facts)` per module, so every throw has the same shape and callers branch on `err.code`. Lua adds no position to a table error, whatever its `level`, and `pcall` returns that same table, so a fact that locates the failure is a field. A string error carries no code a caller can match.
 - **Catch at a boundary.** `pcall` or `xpcall` wraps a host callback or a program's entry point, maps each code to what it prints in one table keyed by every code, and lets an error with no code rethrow. An expected case is a return value, such as `nil` and a code, never a caught error.
 
 ## Testing
@@ -82,7 +84,10 @@ Without declared tasks: `stylua --check .`, `selene .`, `lua-language-server --c
 
 ## Setup
 
-- `mise.toml` pins `lua` (5.1 for an addon), `stylua` and `lua-language-server`, and defines `fmt`, `lint`, `typecheck` and `test` tasks that CI runs.
-- selene is installed through `mise` from its GitHub releases, and busted through LuaRocks.
-- For an addon, LuaLS takes the WoW API's types from Ketho's mainline annotations in `vscode-wow-api`, and `.luarc.json` sets `diagnostics.globals` to the addon's SavedVariables and host-read names; the selene std lists the same globals as writable and the Blizzard API as read-only.
+- `mise.toml` pins `lua` (5.1 for an addon), `stylua`, `lua-language-server` and selene, and defines `fmt`, `lint`, `typecheck` and `test` tasks.
+- A `check` task depends on all four, and CI runs it. `mise run a b c` passes `b` and `c` to `a` as arguments, so run several tasks through `check` or as `mise run a ::: b ::: c`.
+- selene is pinned as `aqua:Kampfkarren/selene`; the `github:` backend leaves its binary without the execute bit on macOS. busted comes from LuaRocks.
+- For an addon, `.luarc.json` lists `Annotations/Core` from Ketho's `vscode-wow-api`, pinned to a release tag, in `workspace.library`, and sets `diagnostics.globals` to the addon's SavedVariables and host-read names.
+- With that library, a wrong argument to a `C_` function is a `param-type-mismatch`; without it, every `C_` call is an `undefined-global`.
+- The selene std lists the same globals as writable and the Blizzard API as read-only.
 - A `PostToolUse` hook on `Edit|Write` runs `stylua` on each touched `.lua` file.
