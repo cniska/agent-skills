@@ -1,0 +1,937 @@
+{
+  "names": [
+    {
+      "name": "A README that carries the reference",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A bad run is diagnosed as harness or model before anything changes",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "A component owns the whole markup of the thing it names",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "A contract serves its caller, not its engine",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "A diagram that does not earn its place",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A known pattern for a known problem",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A lifecycle in one paragraph",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A partial result says so",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "A restructure that adds words",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A small surface",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "A subject with no heading",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A table with a row of another kind",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "A thing is what it says it is",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "A tool is one declarative unit",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Absent is null; the caller that needs it throws",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Access fails closed",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Accessibility",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/terminal.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Aesthetic and minimalist design",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Alternatives in one code block",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "An invalid value never exists",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Before designing",
+      "sources": [
+        "skills/expertise/ui-design/SKILL.md"
+      ]
+    },
+    {
+      "name": "Boundary and contract integrity",
+      "sources": [
+        "skills/expertise/architecture-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Bounded contexts",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Brevity",
+      "sources": [
+        "skills/expertise/doc-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Buildable alone",
+      "sources": [
+        "agents/reviewer.md"
+      ]
+    },
+    {
+      "name": "Catch only at the edge",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Chesterton's Fence",
+      "sources": [
+        "skills/expertise/principles/references/chestertons-fence.md"
+      ]
+    },
+    {
+      "name": "Code shaped for its tests",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Coded errors",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Color and theme",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Components render from props",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Consistency and standards",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Context is budgeted across turns",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Contract",
+      "sources": [
+        "skills/expertise/correctness-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Control flow and async",
+      "sources": [
+        "skills/expertise/correctness-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Control flow and state modeling",
+      "sources": [
+        "skills/expertise/maintainability-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Controls and forms",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Copy a first-party screen",
+      "sources": [
+        "skills/expertise/ui-design/references/apple.md"
+      ]
+    },
+    {
+      "name": "Coverage gaps",
+      "sources": [
+        "skills/expertise/test-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Data flows one way",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Decisions settled",
+      "sources": [
+        "agents/reviewer.md"
+      ]
+    },
+    {
+      "name": "Defaults and dependencies",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Dependencies are passed in",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Dependency structure",
+      "sources": [
+        "skills/expertise/architecture-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Derive, don't sync",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Each layer owns its ids and verbs",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Each module has a public API",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Each output stream has one job",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "Edge cases",
+      "sources": [
+        "skills/expertise/correctness-review/SKILL.md",
+        "skills/expertise/test-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Effects are for the outside world only",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Error prevention",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Errors",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Every tuning constant is measured",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Execution boundaries",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Exhaustive over closed sets",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Extension points",
+      "sources": [
+        "skills/expertise/architecture-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Fix the cause",
+      "sources": [
+        "skills/expertise/principles/references/fix-the-cause.md"
+      ]
+    },
+    {
+      "name": "Fix the cause in the prompt",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Flat control flow",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Flexibility and efficiency of use",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Guards and evaluators are pure decisions",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Help",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Help and documentation",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Help users recognize, diagnose, and recover from errors",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "History in a doc",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Hot-path cost",
+      "sources": [
+        "skills/expertise/performance-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Immutable by default",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Input",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Interruptions and permissions",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md"
+      ]
+    },
+    {
+      "name": "Labelled requirements",
+      "sources": [
+        "skills/workflow/spec/SKILL.md"
+      ]
+    },
+    {
+      "name": "Layout and screen sizes",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Logic",
+      "sources": [
+        "skills/expertise/correctness-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Long bullets",
+      "sources": [
+        "skills/expertise/doc-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Match between system and the real world",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Mistake-proofing",
+      "sources": [
+        "skills/expertise/principles/references/mistake-proofing.md"
+      ]
+    },
+    {
+      "name": "Motion",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Named constants",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Names",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Naming and organization",
+      "sources": [
+        "skills/expertise/maintainability-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Navigation",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "No abstraction before the third copy",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "No comments",
+      "sources": [
+        "skills/expertise/principles/references/no-comments.md"
+      ]
+    },
+    {
+      "name": "No drift",
+      "sources": [
+        "skills/expertise/doc-review/SKILL.md",
+        "skills/expertise/principles/references/no-drift.md"
+      ]
+    },
+    {
+      "name": "No indirection",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "No mode flags",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "No tech debt",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "No text heuristics",
+      "sources": [
+        "skills/expertise/principles/references/no-text-heuristics.md"
+      ]
+    },
+    {
+      "name": "No transitional architecture",
+      "sources": [
+        "skills/expertise/principles/references/no-transitional-architecture.md"
+      ]
+    },
+    {
+      "name": "Observable by design",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "On its merits",
+      "sources": [
+        "skills/expertise/principles/references/review-report.md"
+      ]
+    },
+    {
+      "name": "One mechanism per question",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "One name per concept",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "One operation, one API",
+      "sources": [
+        "skills/expertise/design-review/references/api.md"
+      ]
+    },
+    {
+      "name": "One owner per piece of data",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "One place to add a variant",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "One reason to change per module",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "One shape per job",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Operations are idempotent",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Outcome",
+      "sources": [
+        "agents/reviewer.md"
+      ]
+    },
+    {
+      "name": "Output for people",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Owner correction",
+      "sources": [
+        "skills/expertise/principles/references/review-report.md"
+      ]
+    },
+    {
+      "name": "Pattern consistency",
+      "sources": [
+        "skills/expertise/maintainability-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Progress",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Prompts",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Prompts are short, general and direct",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Protocol abuse and resource exhaustion",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Proven able to fail",
+      "sources": [
+        "skills/expertise/principles/references/proven-able-to-fail.md"
+      ]
+    },
+    {
+      "name": "Pure decisions, separate effects",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Readability and changeability",
+      "sources": [
+        "skills/expertise/maintainability-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Recognition rather than recall",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Records are not models",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Reference screen",
+      "sources": [
+        "skills/expertise/ui-design/references/apple.md",
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/terminal.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Rendering is pure",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Repeated work",
+      "sources": [
+        "skills/expertise/performance-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Repo rule",
+      "sources": [
+        "skills/expertise/principles/references/review-report.md"
+      ]
+    },
+    {
+      "name": "Responsive and accessible behavior",
+      "sources": [
+        "skills/expertise/ui-design/SKILL.md"
+      ]
+    },
+    {
+      "name": "Scope",
+      "sources": [
+        "agents/reviewer.md"
+      ]
+    },
+    {
+      "name": "Secret exposure",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Server state is not UI state",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "Shape",
+      "sources": [
+        "skills/expertise/doc-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Shared fields plus typed details",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Size everything to the need",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "State and interaction",
+      "sources": [
+        "skills/expertise/ui-design/SKILL.md"
+      ]
+    },
+    {
+      "name": "States",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "System components, never hand-rolled styles",
+      "sources": [
+        "skills/expertise/ui-design/references/apple.md"
+      ]
+    },
+    {
+      "name": "TUI screens",
+      "sources": [
+        "skills/expertise/ui-design/references/terminal.md"
+      ]
+    },
+    {
+      "name": "Test quality",
+      "sources": [
+        "skills/expertise/test-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "The agent is judged by real runs on real tasks",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "The core is agnostic",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "The framework's primitive, not its escape hatch",
+      "sources": [
+        "skills/expertise/design-review/references/ui.md"
+      ]
+    },
+    {
+      "name": "The harness tells the model what it knows and what it does for it",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "The model can end its turn",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "The model decides; the host supports it",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "The prompt is ordered",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Three layers, used in order",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Tool errors reach the model",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Tool results carry only what the model needs",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Tools belong to the agent, and commands to the user",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Transport and encryption",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Trust boundaries and access control",
+      "sources": [
+        "skills/expertise/security-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Tune for the general case",
+      "sources": [
+        "skills/expertise/design-review/references/agent.md"
+      ]
+    },
+    {
+      "name": "Type",
+      "sources": [
+        "skills/expertise/ui-design/references/mobile.md",
+        "skills/expertise/ui-design/references/web.md"
+      ]
+    },
+    {
+      "name": "Unbounded work and resources",
+      "sources": [
+        "skills/expertise/performance-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Unnecessary tests",
+      "sources": [
+        "skills/expertise/test-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "Use what exists",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "User control and freedom",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Verify at the source",
+      "sources": [
+        "skills/expertise/principles/references/verify-at-source.md"
+      ]
+    },
+    {
+      "name": "Visibility of system status",
+      "sources": [
+        "skills/expertise/ui-review/references/heuristics.md"
+      ]
+    },
+    {
+      "name": "Visual contract",
+      "sources": [
+        "skills/expertise/ui-design/SKILL.md"
+      ]
+    },
+    {
+      "name": "Weakened checks",
+      "sources": [
+        "skills/expertise/test-review/SKILL.md"
+      ]
+    },
+    {
+      "name": "What the user sees",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Wording",
+      "sources": [
+        "skills/expertise/ui-design/references/apple.md"
+      ]
+    },
+    {
+      "name": "Writes return the record",
+      "sources": [
+        "skills/expertise/design-review/references/patterns.md"
+      ]
+    }
+  ]
+}

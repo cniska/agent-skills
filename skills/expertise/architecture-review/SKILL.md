@@ -43,7 +43,7 @@ Report a breach only with concrete evidence in the code, a contract or the depen
 
 ## Output
 
-Report each boundary breach in the review report shape `principles` holds: **Where** lists the impacted files, **Rule** the stated pattern it breaks, **Why** its evidence and **Instead** the fix direction.
+Report each boundary breach in the review report shape `principles` holds: **Where** lists the impacted files, **Rule** its Scope bucket, **Why** the stated pattern it breaks and its evidence and **Instead** the fix direction.
 
 - Bad: "UserService is doing a lot; could be more decoupled." (taste, no contract, no evidence)
 - Good: **Why:** `src/api/client.ts` imports `src/auth/session.ts`, which imports it back (runtime cycle), against the api→auth dependency direction in `docs/architecture.md`.

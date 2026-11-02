@@ -54,7 +54,7 @@ Sections 1 and 3 need evidence of a local convention: cite the nearby code that 
 
 ## Output
 
-Use the review report in `principles`. For each departure from convention, **Rule** names the convention, **Why** cites both the offending line and the code that establishes the convention, and **Instead** gives the fix direction.
+Use the review report in `principles`. For each departure from convention, **Rule** is its Scope bucket, **Why** names the convention and cites both the offending line and the code that establishes it, and **Instead** gives the fix direction.
 
 - Bad: "`getUserData` — inconsistent, should be `fetchUserData`." (no evidence)
 - Good: **Why:** `src/api/user.ts:12` `getUserData` breaks the fetch-prefix convention (9 of 10 siblings in `src/api/` use `fetch*`).

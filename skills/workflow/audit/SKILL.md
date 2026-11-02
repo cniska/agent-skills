@@ -25,6 +25,6 @@ Size the scope so each reader can read its relevant paths in full. Divide a larg
 
 ## Output
 
-State the revision and the inspected scope, and each area that is `not_applicable` or `incomplete` with its reason. Then report in the review report shape from `principles`. Each finding's **Rule** names its area and the rule it breaks, and its **Why** gives the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
+State the revision and the inspected scope, and each area that is `not_applicable` or `incomplete` with its reason. Then report in the review report shape from `principles`. Each finding's **Rule** names the rule it breaks as its area skill does, and its **Why** gives the concrete consequence and the source evidence. For each unresolved case, say what would settle it.
 
 `## Clean` lists only the areas that are clear, and an area is clear only once its relevant paths were read in full. A clean audit means every applicable area was checked in the stated scope and no finding survived verification.

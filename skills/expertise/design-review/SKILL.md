@@ -32,7 +32,7 @@ For each new helper in scope, search the whole repo, tests and fixtures included
 
 ## Judge
 
-- **Give each violation as a finding** in the review report shape `principles` holds. Its **Why** says why the code is wrong here, in one sentence about this code rather than a restatement of the rule. Its **Instead** is the shape the code should take, concrete enough to build from, and says delete when deleting the code is the answer.
+- **Give each violation as a finding** in the review report shape `principles` holds. Its **Rule** is the heading of the pattern or API rule, the bold lead of a UI or agent rule, or the principle's name. Its **Why** says why the code is wrong here, in one sentence about this code rather than a restatement of the rule. Its **Instead** is the shape the code should take, concrete enough to build from, and says delete when deleting the code is the answer.
 - **Make the fix a structure where it can be one**, in this order: a type that cannot hold the bad state, a check that fails the build, one shared helper, a runtime assertion. Agents copy what the surrounding code does, so a weaker guard becomes the next template.
 - **Name the cause a fix removes**, as fix the cause in `principles` says. A symptom fix's finding names the state it leaves in place.
 - **State findings plainly.** Write each as a finding, short and direct, without "consider", "might" or praise. When a case is truly unclear, say what would settle it.

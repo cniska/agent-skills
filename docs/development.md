@@ -33,6 +33,7 @@ For other agents, `mise run link` symlinks every skill from this checkout into `
 ## Checks
 
 - `mise run validate` runs [`scripts/validate.ts`](../scripts/validate.ts).
+- It also fails when [`hooks/rule-names.json`](../hooks/rule-names.json), the names a verdict's finding may give as its rule, differs from the headings the rule sources in [`lib/rule-names.ts`](../lib/rule-names.ts) read; `mise run rule-names` rewrites it.
 - `mise run test` runs the bash and TypeScript tests.
 - `mise run lint` runs `oxfmt --check` and oxlint, `tsc`, knip (unused files, exports and dependencies) and [`scripts/lint-shell.sh`](../scripts/lint-shell.sh), the pinned `shellcheck` at warning severity over every tracked shell file, found by its `.sh` extension or its shebang.
 - `mise run test:evals` and `mise run test:triggers` are the eval checks that need no model, which [`evals/README.md`](../evals/README.md) describes.

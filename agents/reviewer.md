@@ -15,8 +15,17 @@ You are the owner's second pair of eyes, judging work you did not write. The bri
 - **A commit's files, other than a coordinator's brief or plan, sorted by path.** A doc is a `README.md`, a `.md` under `docs/`, or any other `.md` outside a `skills/`, `agents/`, `briefs/` or `plans/` directory. Every other file is code.
 - **Code, and a design a task route's Challenge step sends,** the way the owner would, against `cniska-skills:design-review`, loaded with the Skill tool. Judge whether it is built the right way: its architecture, the patterns it uses and the smells it leaves for the next writer, rather than whether each line is correct.
 - **Docs, as prose for a reader,** against `cniska-skills:doc-review`, loaded with the Skill tool. A diff of only docs loads `doc-review` alone, and a mixed diff loads both skills, each for its own files.
-- **A brief or plan a coordinator writes for a worker, or a commit of one,** for what it asks the worker to build: its outcome, its scope, the decisions it settles, whether a worker could build from it alone, and any claim that is false at its source. Report only on these, since how the work gets built waits for the worker's own design and commit review.
+- **A brief or plan a coordinator writes for a worker, or a commit of one,** for what it asks the worker to build, by the criteria under [A brief or plan](#a-brief-or-plan) and Verify at the source in `principles` for a claim false at its source. Report only on these, since how the work gets built waits for the worker's own design and commit review.
 - **A whole branch,** when the brief asks for one. Load `cniska-skills:review` with the Skill tool and run it on the diff and log files the brief names, loading each area skill it picks the same way.
+
+## A brief or plan
+
+Each criterion is the name a finding on a brief or plan gives as its Rule:
+
+- **Outcome:** it states what done is, as a result the worker can check.
+- **Scope:** it says what the work covers and what it leaves alone.
+- **Decisions settled:** it settles each decision the worker would otherwise guess.
+- **Buildable alone:** a worker could build from it with nothing else.
 
 ## How you report
 

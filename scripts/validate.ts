@@ -8,6 +8,7 @@ import { CodedError } from "../lib/coded-error";
 import { type Frontmatter, frontmatter } from "../lib/frontmatter";
 import { ROOT_DIR } from "../lib/paths";
 import { readJson, readText } from "../lib/read-file";
+import { RULE_NAMES_FILE, ruleNames, ruleNamesJson } from "../lib/rule-names";
 import { sharedRuns } from "../lib/shared-text";
 import {
   SKILL_KIND_RULES,
@@ -400,6 +401,19 @@ function manifestProblems(root: string): Problem[] {
   ];
 }
 
+const RULE_NAMES_RESOLVE = `run mise run rule-names to rewrite ${RULE_NAMES_FILE} from the skill text, after restoring any heading a rule source in lib/rule-names.ts names`;
+
+function ruleNameProblems(root: string): Problem[] {
+  const path = join(root, RULE_NAMES_FILE);
+  if (!existsSync(path)) return [];
+  const { names, problems } = ruleNames(root);
+  const stale =
+    problems.length === 0 && readText(path) !== ruleNamesJson(names)
+      ? [`${RULE_NAMES_FILE} differs from the rule names the skill text gives`]
+      : [];
+  return [...problems, ...stale].map((message) => ({ message, resolve: RULE_NAMES_RESOLVE }));
+}
+
 function byResolve(problems: readonly Problem[]): Map<string, string[]> {
   const groups = new Map<string, string[]>();
   for (const { message, resolve } of problems) groups.set(resolve, [...(groups.get(resolve) ?? []), message]);
@@ -426,6 +440,7 @@ runMain((args) => {
     ...manifestProblems(root),
     ...proseProblems(root),
     ...sharedTextProblems(root),
+    ...ruleNameProblems(root),
   ];
   for (const [resolve, messages] of byResolve(problems)) {
     reportProblems(

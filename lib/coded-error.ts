@@ -19,6 +19,7 @@ type Facts = {
   readonly trace_gone: { readonly path: string };
   readonly installs_missing: { readonly path: string };
   readonly checkout_invalid: { readonly path: string; readonly problem: string };
+  readonly rule_sources_invalid: { readonly problems: readonly string[] };
   readonly unreachable: { readonly value: string };
 };
 
@@ -123,6 +124,12 @@ const ERRORS: { readonly [Code in ErrorCode]: Entry<Code> } = {
     exit: 1,
     message: ({ path, problem }) => `${path} is not a git checkout with a commit: ${problem}`,
     resolve: () => "pass the marketplace's source checkout, the main agent-skills checkout",
+  },
+  rule_sources_invalid: {
+    exit: 1,
+    message: ({ problems }) => problems.join("\n"),
+    resolve: () =>
+      "restore the heading the rule sources in lib/rule-names.ts name, or change that source to the file's headings",
   },
   unreachable: {
     exit: 1,

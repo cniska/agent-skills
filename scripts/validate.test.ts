@@ -1,7 +1,10 @@
 import { afterAll, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
+
+import { ROOT_DIR } from "../lib/paths";
+import { RULE_NAMES_FILE, RULE_SOURCES, ruleNames, ruleNamesJson } from "../lib/rule-names";
 
 const VALIDATOR = join(import.meta.dir, "validate.ts");
 const TEMP_ROOT = mkdtempSync(join(tmpdir(), "validate-test-"));
@@ -522,6 +525,44 @@ describe("validate", () => {
       const run = withManifest({ name: "p", skills: ["./skills/workflow"] });
       expect(run.code).toBe(1);
       expect(run.output).toContain("lists skills [./skills/workflow], not");
+    });
+  });
+
+  describe("rule names", () => {
+    const SKILL_DIR = /^(skills\/[a-z]+\/[a-z0-9-]+)\//;
+
+    function withRuleSources(): string {
+      const root = fixture();
+      write(root, "skills/workflow/demo/SKILL.md", WELL_FORMED);
+      for (const { path } of RULE_SOURCES) {
+        const copied = SKILL_DIR.exec(path)?.[1] ?? path;
+        cpSync(join(ROOT_DIR, copied), join(root, copied), { recursive: true });
+      }
+      write(root, RULE_NAMES_FILE, ruleNamesJson(ruleNames(root).names));
+      return root;
+    }
+
+    test("passes rule names that match the skill text", () => {
+      const run = validate(withRuleSources());
+      expect(run.output).toContain("OK: skill validation passed");
+    });
+
+    test("refuses rule names the skill text no longer gives", () => {
+      const root = withRuleSources();
+      const scope = join(root, "skills/expertise/correctness-review/SKILL.md");
+      writeFileSync(scope, readFileSync(scope, "utf8").replace("### 1. Logic", "### 1. Reasoning"));
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain(`${RULE_NAMES_FILE} differs from the rule names the skill text gives`);
+    });
+
+    test("refuses a rule source whose parent heading is gone", () => {
+      const root = withRuleSources();
+      const scope = join(root, "skills/expertise/correctness-review/SKILL.md");
+      writeFileSync(scope, readFileSync(scope, "utf8").replace("## Scope", "## Range"));
+      const run = validate(root);
+      expect(run.code).toBe(1);
+      expect(run.output).toContain('no heading "Scope" for the rule names to read');
     });
   });
 

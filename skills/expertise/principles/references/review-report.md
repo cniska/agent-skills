@@ -6,7 +6,7 @@ Every review reports in one shape, so a review that runs others merges their res
 ## Findings
 
 - **Where:** `file:line`, plus each other place showing the same problem
-- **Rule:** the rule or check it breaks, by its heading
+- **Rule:** the name of the rule it breaks, as Rule names below says
 - **Severity:** critical | major | minor
 - **Why:** one sentence about this code
 - **Instead:** the shape to build, or delete
@@ -35,3 +35,11 @@ Real defects, such as a bug or a security hole, that were there before the chang
 - **A re-review** judges the fix it is given and reads the change's earlier diffs, for findings as for its accept, which then covers the whole change.
 - **A later review of a change**, the branch's review included, that disagrees with a line an earlier review of it read and left unflagged, whether that review accepted or returned, raises a finding. When the disagreement is against a decision the owner settled, it is a conflict instead.
 - A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph or table.
+
+## Rule names
+
+A finding's **Rule** is one name, copied exactly from the rules the review judges by: a section's heading, or a bullet's bold lead where the rules are bullets, without its number or closing mark. It carries no area, source or detail, and the detail goes in **Why**. A finding that breaks two rules names the one its **Instead** fixes and states the other in **Why**. The review skills say which headings are their rules. A rule no heading holds takes one of these names:
+
+- **Owner correction:** a rule the owner stated in an earlier session, cited in **Why** by session and time.
+- **On its merits:** a flaw no named rule holds, judged as the owner would on seeing it.
+- **Repo rule:** a rule the repo under review states, in its `AGENTS.md`, docs or spec, or the brief or plan the change was built from, named in **Why** by file and heading.

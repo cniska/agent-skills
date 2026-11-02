@@ -11,7 +11,7 @@ A diff gets the review below. A whole doc, meaning its purpose, its outline and 
 
 ## Scope
 
-### 1. Drift
+### 1. No drift
 
 - a behavior, contract, default or name the diff changed that a doc still states the old way
 - a new term missing from the glossary where the repo keeps one
@@ -46,7 +46,7 @@ Read the diff, then each doc it changes or makes stale, whole. When it touches m
 
 ## Output
 
-Report each finding as `principles`' review report says: **Where** is the file and line, **Why** what drifted, breaks the shape or can go, in one sentence about this doc, and **Instead** the fix written out: the shorter wording, the new headings, or the table with its rows. Word each finding as a plain statement.
+Report each finding as `principles`' review report says: **Where** is the file and line, **Rule** the Scope heading or the pattern's heading, **Why** the bullet it breaks and what drifted, breaks the shape or can go, in one sentence about this doc, and **Instead** the fix written out: the shorter wording, the new headings, or the table with its rows. Word each finding as a plain statement.
 
 - Bad: "README could explain the retry architecture in more depth."
 - Bad: "The setup section might benefit from some restructuring."

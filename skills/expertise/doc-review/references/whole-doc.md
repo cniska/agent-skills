@@ -34,6 +34,6 @@ The restructure keeps every fact the doc owns; a fact that moves names the doc i
 
 ## Report
 
-Findings take the shape `principles` holds for a review report. A finding's **Where** is the section, its **Rule** the shape or named pattern it breaks, and its **Instead** that section restructured: the new headings, the table written out, or the rewritten text for a short section. Order the findings by the reader question they block, the most common question first.
+Findings take the shape `principles` holds for a review report. A finding's **Where** is the section, its **Rule** Shape or the heading of the pattern it breaks, and its **Instead** that section restructured: the new headings, the table written out, or the rewritten text for a short section. Order the findings by the reader question they block, the most common question first.
 
 Whoever ran the review carries out the restructure in one commit, which then takes the ordinary diff review.
