@@ -10,7 +10,7 @@ What an agent starts with:
 
 ```mermaid
 flowchart LR
-  ledger[("Ledger<br/>a local file, or a repo you choose")] --> hook["Hooks<br/>session, ledger, events"]
+  tasks[("agent-task<br/>the coordinator's project")] --> hook["Hooks<br/>session, coordinator, events"]
   hook --> agent(["Agent"])
   wt["agent-worktree<br/>a checkout per task"] -- "own checkout" --> agent
   rec[("agent-record<br/>session record")] -- "past decisions" --> agent
@@ -20,7 +20,7 @@ What it leaves behind:
 
 ```mermaid
 flowchart LR
-  agent(["Agent"]) -- "coordinate rewrites" --> ledger[("Ledger")]
+  agent(["Agent"]) -- "coordinate updates" --> tasks[("agent-task")]
   hook["Hooks"] -- "event log" --> rec[("agent-record")]
   rec -- "weeks of sessions" --> review["Your workflow-review routine"]
   review -- "proposals" --> agent
@@ -55,7 +55,7 @@ sequenceDiagram
 It sends every task through `task`, so a plain prompt takes the same route as `/task`.
 
 - A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept.
-- A resumed or forked session is told to load `coordinate` again and resume its ledger and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
+- A resumed or forked session is told to load `coordinate` again and resume its project's tasks and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - A compacted session is told nothing: the host re-attaches the skills it loaded after the summary, and the hook runs before that re-attachment is written, so it cannot tell when one was dropped.
 
 ## Worker agent
@@ -114,17 +114,16 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 - A command that creates its repo with `git init` or `git clone` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else blocks the commit. A command run from outside a temp directory reaches one with `-C` and a literal temp path on every commit, or with a leading `cd` to a literal temp path or to `"$(mktemp -d)"`, joined to every later step by `&&`; on the `cd` route, a target named through a variable, or a `;` or newline before the last commit, blocks the command.
 - Quoted strings and heredoc bodies are read as text, so commit text in an `echo` or a message neither opens nor blocks the gate; a quoted path after `cd`, `pushd` or `-C` still names the repo, and a quoted string that runs as code, after `sh -c` or `eval` or holding a command substitution, is still read.
 
-## Ledger hook
+## Coordinator hook
 
-It prints the [coordinate](../skills/workflow/coordinate/SKILL.md) ledger into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
+It prints a [coordinate](../skills/workflow/coordinate/SKILL.md) session's project and tasks into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
 
-- The ledger holds what coordinate lists for it, and briefs live in the ledger's repo.
-- When git tracks the ledger, the hook first fast-forwards its checkout from the remote, under a five-second deadline.
-- When it could not (offline, diverged, uncommitted changes), it says so and says how far behind the printed ledger is.
-- When the ledger decodes as TOON and its root `shared` key holds a path, absolute or relative to the ledger's directory, it prints that file after the ledger, pulled the same way, so the work several coordinators share survives compaction too. It reads that key in the form the TOON encoder prints; any other ledger, such as a Markdown one, prints alone.
-- By default each project has its own, at `~/.local/share/agent-skills/<project>/ledger.toon` (under `$XDG_DATA_HOME` when that is set to an absolute path), `<project>` being the git common directory, minus `/.git`, slashes as dashes: the main checkout for a normal repo, the git directory under `.git/modules/` for a submodule, or outside git the project's directory, so all of a repo's worktrees read one ledger. The old default `ledger.md` beside it, and the old single `agent-skills/ledger.md` under the state directory, are no longer read.
-- When the ledger is missing, it prints the path it would read, so a coordinating session creates the ledger there.
-- Set `AGENT_LEDGER` in a project's local settings to keep its ledger elsewhere, such as a file in a repo you choose, so it outlives the machine; never in user settings, which every project reads.
+- A coordinator is an [agent-task](https://github.com/cniska/agent-task) project. Start its session with the project id in `AGENT_TASK_PROJECT`, as in `AGENT_TASK_PROJECT=<id> claude`, from the directory the project records.
+- The hook names the project and the `agent-task` commands that read and write its tasks, then prints them as `agent-task list --project <id> --full` does, refusal included.
+- Before that, it fast-forwards the directory the project records, where briefs and plans live, from its remote under a five-second deadline.
+- When it could not (offline, diverged, uncommitted changes), it says so and how far behind the directory is.
+- A session started without `AGENT_TASK_PROJECT` gets nothing from it, and one without the agent-task CLI gets a line saying the tasks were not read. Without `jq` it prints the tasks but does not pull the directory.
+- The tasks live in agent-task's store on this machine, so a coordinator resumes only on the machine and account that ran it.
 
 ## Event log
 
@@ -136,7 +135,7 @@ The hooks append what a session transcript does not show plainly to `events.json
 
 ## Optional companions
 
-`cniska-skills` works without any of them.
+`cniska-skills` works without any of them, except that a coordinating session's [coordinator hook](#coordinator-hook) reads its tasks through the agent-task CLI.
 
 ### cniska-record
 

@@ -40,7 +40,7 @@ The coordinator runs all the work in one long session on autocompaction, from my
 ```mermaid
 flowchart TD
   you(["You"]) -- "a request" --> lead["Coordinator"]
-  lead -- "state, and each worker's brief" --> ledger[("Ledger")]
+  lead -- "state, and each worker's brief" --> tasks[("Its project's tasks")]
   lead -- "batched questions, report" --> you
   lead -- "the brief" --> worker["Worker runs the task route"]
   worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
@@ -56,11 +56,11 @@ flowchart TD
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
 - It [reports](../skills/workflow/coordinate/SKILL.md#report) what is in flight.
-- It keeps its state in a [ledger](plugin.md#ledger-hook), so a session that dies, or moves to another machine or account, resumes from it.
+- It keeps its state in [its project's tasks](plugin.md#coordinator-hook), so a session that dies resumes from them on the same machine.
 
 ## The improvement loop
 
-The workflow changes only on evidence. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over weeks of work and judges each skill as a whole, so it finds patterns rather than one day's incidents; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork. The coordinator whose ledger covers the skills and tools puts each proposal to me and applies only the ones I accept.
+The workflow changes only on evidence. A routine I schedule myself, written with [routine-writing](../skills/workflow/routine-writing/SKILL.md), runs [workflow-review](../skills/workflow/workflow-review/SKILL.md) over weeks of work and judges each skill as a whole, so it finds patterns rather than one day's incidents; the plugin schedules nothing. Each proposal rests on evidence that clearly shows its gain, not on guesswork. The coordinator whose project covers the skills and tools puts each proposal to me and applies only the ones I accept.
 
 ```mermaid
 flowchart LR
@@ -83,7 +83,7 @@ The signals count the friction I feel, per week, repo and route; owner interrupt
 - **Stranded work:** commits not reachable from `origin/main` within an hour of being made.
 - **False stops:** a gate that refused work which then went on with nothing the gate checks changed.
 
-[agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines each signal exactly. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. A proposal stands only when the record shows the friction it answers, or the ledger names the gap.
+[agent-record's spec](https://github.com/cniska/agent-record/blob/main/SPEC.md) defines each signal exactly. [agent-record](https://github.com/cniska/agent-record) brings the evidence: the sessions, the hook events, and the signals counted from them. A proposal stands only when the record shows the friction it answers, or a coordinator's task names the gap.
 
 ### What the loop changes
 

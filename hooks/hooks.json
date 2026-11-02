@@ -10,7 +10,7 @@
           },
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/ledger.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coordinator.sh"
           }
         ]
       },
@@ -23,7 +23,7 @@
           },
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/ledger.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coordinator.sh"
           }
         ]
       },
@@ -32,7 +32,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/ledger.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/coordinator.sh"
           }
         ]
       }

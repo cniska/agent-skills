@@ -36,7 +36,7 @@ flowchart LR
   coord -- "report" --> you
 ```
 
-The [outer loop chart](docs/loops.md#the-outer-loop) adds the ledger and the later reviews that judge each change I accepted.
+The [outer loop chart](docs/loops.md#the-outer-loop) adds the coordinator's tasks and the later reviews that judge each change I accepted.
 
 ## Install
 
@@ -84,7 +84,7 @@ These tools make an agent's work easier. Each one works on its own in any agent 
 | Designer agent | Judges each commit that changes an interface it did not make, and a branch's finished interface whole, from captures of every state, through `ui-review`, and ends with accept or return. |
 | Report server | Takes each agent's report as data checked against a schema, so its caller reads fields rather than parsing prose. |
 | Commit gate | Holds each commit for the reviewer's accept. |
-| Ledger hook | Prints the coordinator's ledger, and the shared file it names, into each session, so coordinating work survives restarts and compaction. |
+| Coordinator hook | Prints a coordinating session's [agent-task](https://github.com/cniska/agent-task) project and its tasks into each session, so coordinating work survives restarts and compaction. |
 | Event log | Records commit-gate and verdict-check decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 
 ## Skills
@@ -96,7 +96,7 @@ Steps that produce an output; one that goes unused is fixed or dropped.
 | Skill | Description |
 |-------|------------|
 | [task](skills/workflow/task/SKILL.md) | Pick a route by what the task changes and load each step's skill |
-| [coordinate](skills/workflow/coordinate/SKILL.md) | Run work across agents and repos from a ledger, asking the owner only what it cannot answer |
+| [coordinate](skills/workflow/coordinate/SKILL.md) | Run work across agents and repos from a project's tasks, asking the owner only what it cannot answer |
 | [plan](skills/workflow/plan/SKILL.md) | Design through dialogue, slice vertically |
 | [spec](skills/workflow/spec/SKILL.md) | State what to build, not how; labelled, traceable requirements |
 | [build](skills/workflow/build/SKILL.md) | Cut work into slices, take a brief's slices in order, and stop where the plan runs out |
