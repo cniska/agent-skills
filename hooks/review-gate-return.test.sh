@@ -52,6 +52,10 @@ land
 edit app.py 'print(4)'
 assert "a commit that lands starts the count over" "$(returns_after "$(returning app.py 'No dead structure')")" '[1]'
 assert "a second return of it on the new commit counts two" "$(returns_after "$(returning app.py 'No dead structure')")" '[2]'
+assert "the same finding at another line counts three" \
+  "$(returns_after "$(returning app.py 'No dead structure' | jq -c '.findings[0].where[0].line = 40')")" '[3]'
+assert "a finding whose first place is another path is new, though a later place repeats" \
+  "$(returns_after "$(returning README.md 'No dead structure' | jq -c --arg path "$top/app.py" '.findings[0].where += [{path: $path, line: 1}]')")" '[1]'
 
 (cd "$repo" && git checkout -q -- app.py)
 edit README.md 'other change'
