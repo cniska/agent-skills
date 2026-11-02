@@ -39,6 +39,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `commit` | `deny` | `repo_not_found` | the directory the command names is not a repository |
 | `commit` | `deny` | `gate_error` | the gate itself failed, so it refused |
 | `verdict` | `deny` or `allow` | `payload_invalid` | the report call's input breaks its tool's schema in `mcp/report-schemas.json`, or a field is missing or given against another field's value, such as `drop_reason` without `sort` `drop`; or a judgment gives a `reason` with `verdict` `accept`, or one its agent may not give: a reviewer may give only `no_diff`, a designer also `verify_gap`, `run_blocked` or `run_short` |
+| `verdict` | `deny` or `allow` | `rule_unknown` | a `rule` in a verdict's `findings`, `conflicts` or `follow_ups` is not one of the names in `hooks/rule-names.json`; the refusal lists every name by its source file |
 | `verdict` | `deny` | `wrong_agent` | the report tool is not its caller's: `verdict` is the reviewer's and the designer's, `research` the researcher's, `task_report` the worker's; denied every time, and stores nothing |
 | `verdict` | `deny` | `already_reported` | the agent calls a report tool while its stored report awaits its hand-back; denied every time |
 | `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops with no report stored since its last hand-back |
@@ -55,7 +56,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 - **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's agent id, so a later accept from that agent for that repository is `same_reviewer`.
 - **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back` and resets the bound, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current.
 - **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, finding_returns_on_commit}` for the caller to read.
-- **Return count:** `finding_returns_on_commit` is the most returns that carry any one of this return's findings. A finding is its `rule`, matched exactly, plus the path of its first `where`. Each reviewer counts once, and only returns on the same `HEAD` of `repo` whose read diffs share a path count. A return with no finding counts 0.
+- **Return count:** `finding_returns_on_commit` is the most returns that carry any one of this return's findings. A finding is its `rule`, one of the names in `hooks/rule-names.json` and matched exactly, plus the path of its first `where`. Each reviewer counts once, and only returns on the same `HEAD` of `repo` whose read diffs share a path count. A return with no finding counts 0.
 
 ### `verdict`
 
@@ -70,7 +71,7 @@ A reviewer reported a well-formed verdict and the commit gate now holds it: one 
 | `findings` | the judgment's `findings`, each counted by its `severity` as `critical`, `major` or `minor`; `fix`, `consider` and `unrated` are always 0, since the schema has no such kinds and requires a severity |
 | `conflicts` | the judgment's `conflicts` |
 | `follow_ups` | the judgment's `follow_ups`, the defects that were there before the change and do not block it; none of them is counted under `findings` |
-| `rules` | each finding's `rule`, one entry per finding |
+| `rules` | each finding's `rule`, a name from `hooks/rule-names.json`, one entry per finding |
 
 Finding counts and the rules a review cites are written, so a reader sums them without reading the report. A count over 1000 leaves all four `null`.
 

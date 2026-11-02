@@ -45,7 +45,7 @@
         },
         "rule": {
           "$ref": "#/$defs/text",
-          "description": "The rule or check it breaks, by its heading."
+          "description": "The rule it breaks, by its name."
         },
         "severity": {
           "enum": ["critical", "major", "minor"]
@@ -106,17 +106,17 @@
         "findings": {
           "type": "array",
           "items": { "$ref": "#/$defs/finding" },
-          "description": "Problems the change causes, and older ones that block it."
+          "description": "Problems the change causes, and older ones that block it. Each rule is one name from the review skills' rules; a call naming another is refused with the list."
         },
         "conflicts": {
           "type": "array",
           "items": { "$ref": "#/$defs/finding" },
-          "description": "Findings only the owner can settle."
+          "description": "Findings only the owner can settle, each rule named as in findings."
         },
         "follow_ups": {
           "type": "array",
           "items": { "$ref": "#/$defs/finding" },
-          "description": "Real defects that were there before the change and do not block it."
+          "description": "Real defects that were there before the change and do not block it, each rule named as in findings."
         },
         "clean": {
           "type": "array",

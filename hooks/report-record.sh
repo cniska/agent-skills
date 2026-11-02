@@ -10,6 +10,7 @@ source "$HERE/report-store.sh"
 source "$HERE/review-record.sh"
 
 readonly SCHEMAS="$HERE/../mcp/report-schemas.json"
+readonly RULE_NAMES="$HERE/rule-names.json"
 readonly TOOL_PREFIX="mcp__plugin_cniska-skills_report__"
 readonly CALLERS='{"verdict": ["cniska-skills:reviewer", "cniska-skills:designer"], "research": ["cniska-skills:researcher"], "task_report": ["cniska-skills:worker"]}'
 readonly ALREADY_REPORTED_REASON="Your report is already stored, and a report is made once per hand-back. Hand back now with a one-line message."
@@ -38,6 +39,17 @@ readonly REASON_VIOLATIONS='
   | (select(.verdict != "return") | "/judgments/\($i)/reason is given only when /judgments/\($i)/verdict is \"return\""),
     (select($type == "cniska-skills:reviewer" and .reason != "no_diff") | "/judgments/\($i)/reason must be \"no_diff\" from a reviewer")'
 
+readonly RULE_VIOLATIONS='
+  [$names[0].names[].name] as $valid
+  | .tool_input.judgments | to_entries[] | .key as $i | .value
+  | ("findings", "conflicts", "follow_ups") as $field
+  | .[$field] | to_entries[] | select(.value.rule as $rule | any($valid[]; . == $rule) | not)
+  | "/judgments/\($i)/\($field)/\(.key)/rule \(.value.rule | tojson) is not a rule name"'
+
+readonly RULE_LIST='
+  [$names[0].names[] | .name as $name | .sources[] | {source: ., name: $name}]
+  | group_by(.source)[] | "\(.[0].source): \(map(.name) | join(" | "))"'
+
 readonly ID_VIOLATIONS='include "report-schema"; {id: $id} | tool_violations($schemas[0]; "read_report")'
 
 die() {
@@ -57,6 +69,14 @@ stored_report_file() {
     die "jq could not check the id a report is kept under"
   [ -z "$violations" ] || die "the hook input has no agent_id or session_id a report can be kept under"
   report_file "$id"
+}
+
+rule_unknown_reason() {
+  local names
+  names="$(jq -rn --slurpfile names "$RULE_NAMES" "$RULE_LIST")" || die "jq could not list the rule names in $RULE_NAMES"
+  printf '%s\n%s\n%s\n%s' "$1" \
+    "Give each rule as one name from this list, exactly as written, and put any detail in why. Each line is a source file, then its names, split by |:" \
+    "$names" "Call the tool again with each of these fixed."
 }
 
 reporting_tool() {
@@ -147,6 +167,14 @@ on_report_tool() {
     if [ -n "$violations" ]; then
       refuse "$input" "$tool" "$file" payload_invalid \
         "The report gives a reason it may not:"$'\n'"$violations"$'\n'"Call the tool again with each of these fixed."
+      return
+    fi
+  fi
+  if [ "$tool" = verdict ]; then
+    violations="$(jq -r --slurpfile names "$RULE_NAMES" "$RULE_VIOLATIONS" <<<"$input")" ||
+      die "jq could not check the verdict's rule names against $RULE_NAMES"
+    if [ -n "$violations" ]; then
+      refuse "$input" "$tool" "$file" rule_unknown "$(rule_unknown_reason "$violations")"
       return
     fi
   fi

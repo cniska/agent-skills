@@ -144,6 +144,32 @@ assert "past the bound, the same refusal is allowed" "$(decision "$out")" allow
 assert "past the bound, the payload is stored as not recorded" "$(stored "$agent" | jq -c .gate)" '{"recorded":false,"code":"payload_invalid"}'
 assert "the allow past the bound is logged" "$(last_gate)" '["verdict","allow","payload_invalid"]'
 
+unnamed() { jq -c --arg field "$1" --arg rule "$2" '.judgments[0][$field] = [.judgments[0].findings[0] | .rule = $rule]' <<<"$VERDICT"; }
+agent="$(fresh_agent)"
+out="$(call "$agent" "$REVIEWER" verdict "$(unnamed findings "Drift: roadmap written as shipped")")"
+assert "a finding whose rule is no rule name is refused" "$(decision "$out")" deny
+assert "the refusal names the finding and its rule" "$(reason "$out" | sed -n 1p)" \
+  '/judgments/0/findings/0/rule "Drift: roadmap written as shipped" is not a rule name'
+assert "the refusal lists the names by source file" \
+  "$(reason "$out" | grep -c '^skills/expertise/doc-review/SKILL.md: Brevity | No drift | Shape$')" 1
+assert "the refusal ends with the fix" "$(reason "$out" | tail -n 1)" "Call the tool again with each of these fixed."
+assert "a refused rule name stores nothing" "$(stored "$agent")" ""
+assert "a rule_unknown refusal is logged" "$(last_gate)" '["verdict","deny","rule_unknown"]'
+out="$(call "$agent" "$REVIEWER" verdict "$(unnamed findings "Drift")")"
+assert "past the bound, a wrong rule name is allowed" "$(decision "$out")" allow
+assert "past the bound, it is stored as not recorded" "$(stored "$agent" | jq -c .gate)" '{"recorded":false,"code":"rule_unknown"}'
+assert "a wrong rule name in a conflict is refused" \
+  "$(reason "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed conflicts "Owner taste")")" | sed -n 1p)" \
+  '/judgments/0/conflicts/0/rule "Owner taste" is not a rule name'
+assert "a wrong rule name in a follow-up is refused" \
+  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed follow_ups "No drift (principles)")")")" deny
+assert "a rule name from the set is allowed in each field" \
+  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed follow_ups "No drift" | jq -c '.judgments[0].conflicts = .judgments[0].follow_ups')")")" allow
+assert "a clean entry names its rule freely" \
+  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(jq -c '.judgments[0].clean = [{rule: "Correctness", places: [{path: "/repo/app.py"}]}]' <<<"$VERDICT")")")" allow
+assert "a task report's follow-up names its rule freely" \
+  "$(decision "$(call "$(fresh_agent)" "$WORKER" task_report "$(jq -c --argjson finding "$FINDING" '.follow_ups = [$finding | .rule = "Tool defect"]' <<<"$TASK_REPORT")")")" allow
+
 agent="$(fresh_agent)"
 out="$(call "$agent" "$RESEARCHER" verdict "$VERDICT")"
 assert "a verdict from a researcher is refused" "$(decision "$out")" deny
