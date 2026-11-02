@@ -1,6 +1,6 @@
 ---
 name: code-writing
-description: Write code whose types hold at runtime and whose failures are loud — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift, shell or a CI workflow, starting a project, or choosing a language or a library.
+description: Write code whose types hold at runtime and whose failures are loud — parsed boundaries, one empty value, exhaustive closed sets, coded errors — in the owner's stack for each language. Use when writing, changing or reviewing TypeScript, Rust, Python, Dart, Swift, Lua, shell or a CI workflow, starting a project, or choosing a language or a library.
 ---
 
 # Code writing
@@ -18,6 +18,7 @@ Write code whose types are true at runtime and whose failures are loud. The rule
    | Python | [references/python.md](references/python.md) |
    | Dart | [references/dart.md](references/dart.md) |
    | Swift | [references/swift.md](references/swift.md) |
+   | Lua | [references/lua.md](references/lua.md) |
    | Shell | [references/shell.md](references/shell.md) |
 
 2. Before writing a new program, adding a file in a language the repo does not hold yet, pinning a toolchain or adding a dependency, read [stack](references/stack.md).
