@@ -97,4 +97,38 @@ record_handback "$(returning app.py minor)" >/dev/null
 record_handback "$(returning app.py major)" >/dev/null
 assert "a later return with a major finding voids the cover" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
+reset
+edit app.py 'print(13)'
+record_handback "$(returning app.py minor)" >/dev/null
+edit app.py 'print(14)'
+edit README.md 'aside'
+(cd "$repo" && git stash -q && git stash pop -q)
+assert "a git stash and pop after a minor return keeps its cover" "$(gate 'git commit -am fix')" ""
+land
+edit app.py 'print(15)'
+(cd "$repo" && git reset -q --soft HEAD~1)
+assert "a rewind to the commit a minor return was recorded on does not bring its cover back" "$(gate 'git commit -am x')" "$(denied 'app.py (staged and working tree)')"
+
+other="$scratch/other"
+mkdir -p "$other"
+(cd "$other" && git init -q -b main && printf 'print(100)\n' >app.py && printf 'print(101)\n' >lib.py && git add -A && git commit -q -m base)
+other_top="$(cd "$other" && git rev-parse --show-toplevel)"
+(cd "$repo" && git reset -q --hard && printf 'print(16)\n' >>app.py)
+both="$(fresh_agent)"
+listed="$(scratch_file "$(diff_in "$repo" app.py)")"
+record_listing "$both" "$(report "$other" return ".findings = [$(finding "$other_top/lib.py")]")" "$(read_of "$listed")" "$listed" >/dev/null
+(cd "$other" && printf 'print(102)\n' >>app.py && printf 'print(103)\n' >>lib.py)
+assert "a minor return on one repo covers no path a diff of another repo names" "$(gate_from 'git commit -am x' "$other")" "$(denied 'app.py (working tree)')"
+
+unborn="$scratch/unborn"
+mkdir -p "$unborn"
+(cd "$unborn" && git init -q -b main && printf 'print(200)\n' >app.py && printf 'print(201)\n' >lib.py)
+unborn_top="$(cd "$unborn" && git rev-parse --show-toplevel)"
+listed="$(scratch_file "$(diff_in "$unborn" lib.py)")"
+record_listing "$(fresh_agent)" "$(report "$unborn" accept)" "$(read_of "$listed")" "$listed" >/dev/null
+first_look="$(fresh_agent)"
+listed="$(scratch_file "$(diff_in "$unborn" app.py)")"
+record_listing "$first_look" "$(report "$unborn" return ".findings = [$(finding "$unborn_top/app.py")]")" "$(read_of "$listed")" "$listed" >/dev/null
+assert "a minor return before the first commit, with no reflog to bound it, covers nothing" "$(gate_from 'git commit -am x' "$unborn")" "$(denied 'app.py (working tree)')"
+
 finish

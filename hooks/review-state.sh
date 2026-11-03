@@ -1,6 +1,11 @@
 MISSING_MODE=000000
 MISSING_BLOB=0
-MINOR_RETURN_COVER=minor-return
+
+minor_return_cover() {
+  local moves
+  moves="$({ git -C "$1" reflog show --format=%H HEAD 2>/dev/null || true; } | uniq | wc -l | tr -d ' ')"
+  [ "${moves:-0}" -eq 0 ] || printf 'minor-return %s\n' "$moves"
+}
 
 fresh_reviewer_step() {
   printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read for findings as for its accept"
@@ -158,7 +163,7 @@ void_paths() {
 }
 
 accepted_heads() {
-  path_entries "$1" <<<"$3" | CONTENT="$2" COVER="$MINOR_RETURN_COVER" HEAD_NOW="$4" awk -F '\t' '
+  path_entries "$1" <<<"$3" | CONTENT="$2" HEAD_NOW="$4" COVER="$5" awk -F '\t' '
     $2 == ENVIRON["CONTENT"] || ($2 == ENVIRON["COVER"] && $1 == ENVIRON["HEAD_NOW"]) { print $1 }'
 }
 

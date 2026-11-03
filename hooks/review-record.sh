@@ -176,17 +176,18 @@ repo_relative() {
 }
 
 minor_return_paths() {
-  local repo="$1" judgment="$2" returned="$3"
+  local repo="$1" judgment="$2" reviewed="$3"
   {
-    [ -z "$returned" ] || printf '%s\n' "$returned"
+    current_entries "$repo" <<<"$reviewed" | cut -f 2-
     jq -r '.findings[].where[].path' <<<"$judgment" | repo_relative "$repo"
   } | sort -u
 }
 
 record_minor_return() {
-  local paths="$3"
-  [ -n "$paths" ] || return 0
-  record_accept "$1" "$2" "$(MINOR_RETURN_COVER="$MINOR_RETURN_COVER" awk 'NF { print ENVIRON["MINOR_RETURN_COVER"] "\t" $0 }' <<<"$paths")"
+  local paths="$3" cover
+  cover="$(minor_return_cover "$1")"
+  [ -n "$paths" ] && [ -n "$cover" ] || return 0
+  record_accept "$1" "$2" "$(COVER="$cover" awk 'NF { print ENVIRON["COVER"] "\t" $0 }' <<<"$paths")"
 }
 
 accept_fingerprint() {
@@ -361,7 +362,7 @@ record_verdict() {
     if [ "$verdict" = accept ]; then
       record_accept "$repo" "$state" "${entries[i]}"
     elif [ "$(return_kind <<<"${judgments[$i]}")" = minor ] && ! returned_for_fresh_review "$repo" "$reviewer"; then
-      record_minor_return "$repo" "$state" "$(minor_return_paths "$repo" "${judgments[$i]}" "$returned")"
+      record_minor_return "$repo" "$state" "$(minor_return_paths "$repo" "${judgments[$i]}" "$reviewed")"
     fi
     counts="$(verdict_counts <<<"${judgments[$i]}")"
     event_log "$input" verdict --arg verdict "$verdict" --arg repo "$repo" --arg fingerprint "$(accept_fingerprint "$state")" \
