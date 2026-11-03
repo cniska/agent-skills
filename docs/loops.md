@@ -10,9 +10,9 @@ One agent runs one task, from its route to a landed branch.
 flowchart LR
   route["Route"] -- "the steps to run" --> steps["Steps load their skills"]
   steps -- "each commit's diff" --> rev["Fresh reviewer"]
-  rev -- "accept" --> commit["Commit"]
+  rev -- "accept, or minor-only return fixed" --> commit["Commit"]
   steps -- "an interface commit's diff and captures" --> des["Fresh designer"]
-  des -- "accept" --> commit
+  des -- "accept, or minor-only return fixed" --> commit
   commit -- "report" --> lead["Coordinator"]
   commit -- "sessions and events" --> rec[("agent-record")]
 ```
