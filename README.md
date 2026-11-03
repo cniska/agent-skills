@@ -83,7 +83,7 @@ These tools make an agent's work easier. Each one works on its own in any agent 
 | Reviewer agent | Judges each commit it did not write: code by the design rules, docs as prose, a coordinator's brief or plan by what it asks to build. Runs `review` on a whole branch, and ends with accept or return. |
 | Designer agent | Judges each commit that changes an interface it did not make, and a branch's finished interface whole, from captures of every state, through `ui-review`, and ends with accept or return. |
 | Report server | Takes each agent's report as data checked against a schema, so its caller reads fields rather than parsing prose. |
-| Commit gate | Holds each commit for the reviewer's accept. |
+| Commit gate | Holds each commit for the reviewer's accept, or its return with only minor findings and no conflict. |
 | Coordinator hook | Prints a coordinating session's [agent-task](https://github.com/cniska/agent-task) project and its tasks into each session, so coordinating work survives restarts and compaction. |
 | Event log | Records commit-gate and verdict-check decisions, verdicts with their finding counts and permission prompts, for [agent-record](https://github.com/cniska/agent-record) to archive where installed. |
 

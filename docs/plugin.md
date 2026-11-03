@@ -38,7 +38,7 @@ sequenceDiagram
   participant C as CI
   A->>A: task picks a route, steps load skills
   A->>V: here is the diff
-  V-->>A: verdict call: return, with findings
+  V-->>A: verdict call: return, with a major finding
   A->>R: the fix's diff in a new file, the earlier diff files beside it
   Note over R: judges the fix, reads the earlier diffs for findings and its accept
   R-->>A: verdict call: accept
@@ -54,7 +54,7 @@ sequenceDiagram
 
 It sends every task through `task`, so a plain prompt takes the same route as `/task`.
 
-- A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept.
+- A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept or a return with only minor findings and no conflict.
 - A resumed or forked session is told to load `coordinate` again and resume its project's tasks and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - A compacted session is told nothing: the host re-attaches the skills it loaded after the summary, and the hook runs before that re-attachment is written, so it cannot tell when one was dropped.
 
@@ -114,12 +114,13 @@ It serves the agents' report tools from `mcp/`, as the MCP server `report` that 
 
 ## Commit gate
 
-It blocks a commit until the reviewer has accepted the content of every changed code path, in the worktree the commit targets.
+It blocks a commit until the reviewer has accepted the content of every changed code path, in the worktree the commit targets, or returned it with only minor findings and no conflict.
 
-- It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file the reviewer read and listed in its `verdict` call's `diffs`, and a deleted side only by an accepted deletion. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
+- It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file the reviewer read and listed in its `verdict` call's `diffs`, and a deleted side only by an accepted deletion or a minor-only return's cover. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
 - The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, or once the commit it was recorded on is no longer an ancestor of `HEAD`, as after an amend, rebase or reset, so accepted content landed again after a later change needs a fresh accept, and a return voids the accept of each path in every diff file its reviewer read, leaving the repo's other accepts standing.
+- A reviewer's return of minor findings alone and no conflict covers each path in the diff files its reviewer read and each path in the repo a finding cites, whatever that path's content, until the next commit. The fix then commits without a re-review, and a later edit to any of those paths needs a review again. A fix that touches any other path needs an accept for it.
 - Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its reviewer also reads and lists the change's earlier diff files.
-- An accept from a reviewer that returned the same repo earlier is not recorded, so a re-review is always a fresh reviewer.
+- An accept from a reviewer that returned the same repo earlier is not recorded, so a re-review, needed after any return with a critical or major finding or a conflict, is always a fresh reviewer.
 - A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under follow-ups, which never hold back an accept.
 - Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
 - Only a marking committed in `HEAD` counts, so a `.gitattributes` change exempts paths from the next commit on, and a `.gitattributes` file is never exempt; the refusal names this route, a `.gitattributes` change committed alone and reviewed first. No path counts as generated while the repo's `info/attributes` holds a rule, before the first commit, or when `git check-attr` fails.

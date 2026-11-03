@@ -26,12 +26,12 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 
 | Gate | Decision | Reason | When |
 |---|---|---|---|
-| `commit` | `allow` | `accepted` | every judged side of every code path matches an accepted entry for that path |
+| `commit` | `allow` | `accepted` | every judged side of every code path matches an accepted entry for that path, or the path has an entry a minor-only return recorded on the current `HEAD` |
 | `commit` | `allow` | `no_code_change` | no code path differs from `HEAD` in the index or the working tree: only Markdown, paths `HEAD` marks `linguist-generated`, or nothing |
 | `commit` | `allow` | `scratch_repo` | the command creates its repository with `git init` or `git clone` under a temp directory (`$TMPDIR`, `/tmp`, `/private/tmp`, `/var/folders`), and every place it commits from is there too |
 | `commit` | `allow` | `outside_repo` | the working directory is not in a repository |
 | `commit` | `deny` | `not_accepted` | no accept is recorded for the repository |
-| `commit` | `deny` | `changed_since_accept` | a judged side matches no accepted entry, and an uncovered path has an accepted entry for other content, one whose accept commit is no longer an ancestor of `HEAD`, or one a commit since its accept touched |
+| `commit` | `deny` | `changed_since_accept` | a judged side matches no accepted entry, and an uncovered path has an accepted entry for other content, one whose accept commit is no longer an ancestor of `HEAD`, one a commit since its accept touched, or a minor-only return's entry recorded on an earlier `HEAD` |
 | `commit` | `deny` | `outside_accept` | a judged side matches no accepted entry, and no uncovered path has an accepted entry at all |
 | `commit` | `deny` | `multiple_commits` | the command runs more than one commit |
 | `commit` | `deny` | `repo_created` | the command creates the repository it commits to, by `git init` or `git clone`, with a commit that may land outside a temp directory |
@@ -54,6 +54,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 - **When:** a `verdict` gate judges a report at its tool's `PreToolUse`, while the agent still runs to read a deny. It judges an end without a report at `SubagentHandback`, `SubagentStop` or a top-level worker's `Stop`.
 - **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
 - **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's agent id, so a later accept from that agent for that repository is `same_reviewer`.
+- **Minor-only returns:** a recorded return with at least one finding, every finding `minor`, and no conflict then adds an entry for each path in those diff files and each path inside the repo that a finding's `where` cites. That entry covers the path whatever its content while `HEAD` is the commit it was recorded on, so the fix commits without another review and the next commit ends the cover. A designer's return adds none.
 - **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back` and resets the bound, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current.
 - **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, finding_returns_on_commit}` for the caller to read.
 - **Return count:** `finding_returns_on_commit` is the most returns that carry any one of this return's findings. A finding is its `rule`, one of the names in `hooks/rule-names.json` and matched exactly, plus the path of its first `where`. Each reviewer counts once, and only returns on the same `HEAD` of `repo` whose read diffs share a path count. A return with no finding counts 0.
@@ -66,7 +67,7 @@ A reviewer reported a well-formed verdict and the commit gate now holds it: one 
 |---|---|
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
-| `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, and its path; a return drops the entries of the paths in the diff files its reviewer read, so it carries the hash of the set that remains |
+| `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, or `minor-return` for a minor-only return's entry, and its path; a return drops the entries of the paths in the diff files its reviewer read, so it carries the hash of the set that remains, with any entries a minor-only return adds |
 | `reason` | the judgment's `reason`, `no_diff` when the brief gave no diff to read, otherwise `null` |
 | `findings` | the judgment's `findings`, each counted by its `severity` as `critical`, `major` or `minor`; `fix`, `consider` and `unrated` are always 0, since the schema has no such kinds and requires a severity |
 | `conflicts` | the judgment's `conflicts` |

@@ -297,7 +297,7 @@ uncovered_reason() {
   local items pronoun=its
   items="$(uncovered_items <<<"$1")"
   [ "$(wc -l <<<"$items")" -eq 1 ] || pronoun=their
-  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write %s current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that reviewer's verdict call accepts it." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
+  printf "Commit blocked: no diff cniska-skills:reviewer accepted covers %s, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A return whose findings are all minor, with no conflict, covers each path in the diff files its reviewer read or in its findings, whatever its content, until the next commit. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write %s current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that reviewer's verdict call accepts it." "$(awk 'NR > 1 { printf ", " } { printf "%s", $0 }' <<<"$items")" "$pronoun"
 }
 
 unresolved_reason() {
@@ -338,17 +338,17 @@ honoured() {
 }
 
 covered() {
-  local repo="$1" state="$2" content="$3" path="$4" since
+  local repo="$1" state="$2" content="$3" path="$4" head="$5" since
   while IFS= read -r since; do
     ! honoured "$repo" "$since" "$path" || return 0
-  done < <(accepted_heads "$state" "$content" "$path")
+  done < <(accepted_heads "$state" "$content" "$path" "$head")
   return 1
 }
 
 uncovered_sides() {
-  local repo="$1" state="$2" side content path
+  local repo="$1" state="$2" head="$4" side content path
   while IFS=$'\t' read -r side content path; do
-    covered "$repo" "$state" "$content" "$path" || printf '%s\t%s\n' "$side" "$path"
+    covered "$repo" "$state" "$content" "$path" "$head" || printf '%s\t%s\n' "$side" "$path"
   done <<<"$3"
 }
 
@@ -417,7 +417,7 @@ main() {
     deny "$(uncovered_reason "$(cut -f 1,3- <<<"$sides")")" not_accepted "$repo" "$head" "$fingerprint"
     return
   fi
-  uncovered="$(uncovered_sides "$repo" "$state" "$sides")"
+  uncovered="$(uncovered_sides "$repo" "$state" "$sides" "${head:--}")"
   if [ -z "$uncovered" ]; then
     record allow accepted "$repo" "$head" "$fingerprint"
     return

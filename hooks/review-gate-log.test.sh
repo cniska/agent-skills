@@ -102,7 +102,7 @@ assert "a return counts its findings by severity, its conflicts, its follow-ups 
 assert "more than 1000 findings of a kind leave the verdict uncounted" "$(counts ".findings = [range(1001) | $(at Names minor)]")" '[null,null,null,null]'
 assert "an uncounted return is still logged" "$(tail -n 1 "$log" | jq -r .verdict)" return
 assert "a verdict judging two repositories counts each judgment's own findings" \
-  "$(decided record_logged "$(report "$logged" return ".findings = [$(at Names minor)]")"$'\n'"$(report "$other" return)" | jq -sc 'map([.findings.minor, .conflicts, .follow_ups, .rules])')" \
+  "$(decided record_logged "$(report "$logged" return ".findings = [$(at Names major)]")"$'\n'"$(report "$other" return)" | jq -sc 'map([.findings.major, .conflicts, .follow_ups, .rules])')" \
   '[[1,0,0,["Names"]],[0,0,0,[]]]'
 assert "a commit after a return logs not_accepted" "$(decided gate_logged 'git commit -am x' | jq -r .reason)" not_accepted
 

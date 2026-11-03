@@ -24,12 +24,13 @@ Real defects, such as a bug or a security hole, that were there before the chang
 - **<the rule or check>:** the places it was checked in
 ```
 
-- **Severity** measures how well the work was built the first time and never gates: **critical** breaks behavior, security or data; **major** is a real defect or a broken convention; **minor** is the rest. A review skill may say how its own findings map onto the three.
+- **Severity** measures how well the work was built the first time, and settles only whether a fix needs another review, as After a return says: **critical** breaks behavior, security or data; **major** is a real defect or a broken convention; **minor** is the rest. A review skill may say how its own findings map onto the three.
 - **Sort each problem by whether the change caused it**, never by whether it sits on a changed line:
   - A problem the change causes is a finding wherever it sits, a line the diff leaves as it was included, such as a description the change makes wrong or a caller it breaks.
   - A problem that was there before the change and blocks it, such as a bug the change calls into or a hole it makes reachable, is a finding worded as its own fix, never as one the change introduced.
   - Any other problem that was there before the change, in a file or hunk the diff touches included, is a follow-up when it is a real defect and is dropped, not reported, when it is a style point.
 - **Findings:** whoever ran the review fixes every one; the review itself changes nothing. It accepts only when there is no finding; conflicts and follow-ups never hold back an accept.
+- **After a return:** when every finding of a commit's review is minor and it has no conflict, the author fixes each one and commits with no further round. Any other return goes to a re-review, and so does every return of a whole branch's review, since that review is the last read of those minor fixes.
 - **Follow-ups** go to whoever coordinates the work, or else the owner, each queued as its own task, in the task tool where one is installed, never as a backlog line.
 - **Where** may cite other places with the same problem, so the fix is one structure. A cited place whose problem the change did not cause is fixed with the finding only where the fix needs it, and is otherwise sorted like any other problem that was there before the change.
 - **A re-review** judges the fix it is given and reads the change's earlier diffs, for findings as for its accept, which then covers the whole change.

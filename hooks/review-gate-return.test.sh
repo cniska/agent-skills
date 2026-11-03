@@ -16,7 +16,7 @@ returns_after() {
 }
 returning() {
   local found rule
-  found="$(for rule in "${@:2}"; do finding "$top/$1" "$rule"; done | jq -sc .)"
+  found="$(for rule in "${@:2}"; do finding "$top/$1" "$rule" major; done | jq -sc .)"
   report "$repo" return ".findings = $found"
 }
 

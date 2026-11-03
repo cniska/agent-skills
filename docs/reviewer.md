@@ -10,7 +10,7 @@ A fresh agent that did not write the work judges each commit and each design who
 - **On how code is built, its verdict wins** over other reviewers.
 - **It leaves what the checks enforce to them**: the worker runs validate, test, lint and the commit hooks, so its report never claims one passed and still flags a change that weakens or removes one.
 
-The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts.
+The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts, or returns with only minor findings and no conflict.
 
 It judges the diff, not the screens: a commit that changes an interface also waits for a fresh [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
 
@@ -19,6 +19,7 @@ It judges the diff, not the screens: a commit that changes an interface also wai
 Its report takes the shape every review in the plugin uses, the [review report](../skills/expertise/principles/references/review-report.md) in `principles`.
 
 - It sorts each problem by whether the change caused it: one the change causes is a finding wherever it sits, and one that was there before is a finding only when it blocks the change, worded as its own fix. Any other bug or security hole that was there before, in a file the diff touches included, is a follow-up: the accept never waits on it, and it becomes a queued task, never a backlog line; a style point that was there before is dropped. A finding is fixed, so it returns the change; it accepts only when there is no finding.
+- A commit's return whose findings are all minor, with no conflict, is fixed and committed with no re-review; the branch review reads those fixes. Any other return, and any return of the branch review, gets a re-review.
 - The re-review is another fresh agent, given the fix to judge and the change's earlier diffs to read, for findings as for its accept. Where any later review, the branch review's first pass included, disagrees with a line an earlier review read and did not flag, whether that review accepted or returned, that is a finding and returns, unless it is against a decision I settled, which is a conflict for me to settle.
 - On code none of the change's diffs touch, a problem that was there before the change returns it only when it blocks the change; the fix is its own commit, accepted on its own and committed first, and the returned change's re-review is then handed that commit's diff as the fix, so the change's diff never grows to cover it.
 - Each finding names the rule it breaks by one name, the rule's heading as its skill writes it, with any detail in the finding's reason, so one rule is counted as one across reviews. The review report's Rule names section gives the names for rules no heading holds.

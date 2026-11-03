@@ -1,5 +1,6 @@
 MISSING_MODE=000000
 MISSING_BLOB=0
+MINOR_RETURN_COVER=minor-return
 
 fresh_reviewer_step() {
   printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read for findings as for its accept"
@@ -157,7 +158,8 @@ void_paths() {
 }
 
 accepted_heads() {
-  path_entries "$1" <<<"$3" | CONTENT="$2" awk -F '\t' '$2 == ENVIRON["CONTENT"] { print $1 }'
+  path_entries "$1" <<<"$3" | CONTENT="$2" COVER="$MINOR_RETURN_COVER" HEAD_NOW="$4" awk -F '\t' '
+    $2 == ENVIRON["CONTENT"] || ($2 == ENVIRON["COVER"] && $1 == ENVIRON["HEAD_NOW"]) { print $1 }'
 }
 
 accepted_any() {

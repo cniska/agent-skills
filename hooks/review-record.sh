@@ -153,6 +153,38 @@ record_accept() {
   mv "$state.tmp" "$state"
 }
 
+minor_only() {
+  jq -e '(.findings | length) > 0 and all(.findings[]; .severity == "minor") and (.conflicts | length) == 0' >/dev/null
+}
+
+repo_relative() {
+  local repo="$1" path dir rest
+  while IFS= read -r path; do
+    dir="$path" rest=""
+    while [ ! -d "$dir" ]; do
+      rest="/$(basename "$dir")$rest"
+      dir="$(dirname "$dir")"
+    done
+    dir="$(cd "$dir" && pwd -P)" || continue
+    path="$dir$rest"
+    case "$path" in "$repo"/?*) printf '%s\n' "${path#"$repo"/}" ;; esac
+  done
+}
+
+minor_return_paths() {
+  local repo="$1" judgment="$2" returned="$3"
+  {
+    [ -z "$returned" ] || printf '%s\n' "$returned"
+    jq -r '.findings[].where[].path' <<<"$judgment" | repo_relative "$repo"
+  } | sort -u
+}
+
+record_minor_return() {
+  local paths="$3"
+  [ -n "$paths" ] || return 0
+  record_accept "$1" "$2" "$(MINOR_RETURN_COVER="$MINOR_RETURN_COVER" awk 'NF { print ENVIRON["MINOR_RETURN_COVER"] "\t" $0 }' <<<"$paths")"
+}
+
 accept_fingerprint() {
   { [ ! -f "$1" ] || cat "$1"; } | set_fingerprint
 }
@@ -311,7 +343,11 @@ record_verdict() {
     ! jq -e .code <<<"${notes[$i]}" >/dev/null || continue
     verdict="$(jq -r .verdict <<<"${judgments[$i]}")"
     state="$(review_state_file "$repo")"
-    [ "$verdict" != accept ] || record_accept "$repo" "$state" "${entries[i]}"
+    if [ "$verdict" = accept ]; then
+      record_accept "$repo" "$state" "${entries[i]}"
+    elif minor_only <<<"${judgments[$i]}"; then
+      record_minor_return "$repo" "$state" "$(minor_return_paths "$repo" "${judgments[$i]}" "$returned")"
+    fi
     counts="$(verdict_counts <<<"${judgments[$i]}")"
     event_log "$input" verdict --arg verdict "$verdict" --arg repo "$repo" --arg fingerprint "$(accept_fingerprint "$state")" \
       --arg reason "$(jq -r '.reason // empty' <<<"${judgments[$i]}")" \

@@ -25,7 +25,8 @@ assert "an accept with a finding and a follow-up keeps the reviewer running" \
 assert "an accept with only a follow-up records" "$(record_handback "$(with_follow_up accept)")" "$(allowed)"
 assert "that accept lets the diff commit" "$(gate 'git commit -am x')" ""
 edit app.py 'print(41)'
-assert "a return with a finding is allowed" "$(record_handback "$(with_finding return)")" "$(allowed)"
+assert "a return with a major finding is allowed" \
+  "$(record_handback "$(report "$repo" return ".findings = [$(finding "$repo/app.py" 'Size everything to the need' major)]")")" "$(allowed)"
 assert "that return clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 record_handback "$(report "$repo" accept)" >/dev/null
