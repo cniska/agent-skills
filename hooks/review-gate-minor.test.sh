@@ -109,6 +109,22 @@ edit app.py 'print(15)'
 (cd "$repo" && git reset -q --soft HEAD~1)
 assert "a rewind to the commit a minor return was recorded on does not bring its cover back" "$(gate 'git commit -am x')" "$(denied 'app.py (staged and working tree)')"
 
+reset
+recorded_on="$(git -C "$repo" rev-parse HEAD)"
+moves() { git -C "$repo" reflog show --format=%H HEAD | uniq | wc -l | tr -d ' '; }
+edit app.py 'print(17)'
+record_handback "$(returning app.py minor)" >/dev/null
+moves_then="$(moves)"
+land
+while [ "$(moves)" -ge "$moves_then" ]; do
+  git -C "$repo" reflog delete "HEAD@{$(($(git -C "$repo" reflog show HEAD | wc -l) - 1))}"
+done
+edit app.py 'print(18)'
+(cd "$repo" && GIT_COMMITTER_DATE='@4000000000 +0000' git reset -q --soft "$recorded_on")
+assert "the rewind restores the move count the minor return was recorded at" "$(moves)" "$moves_then"
+assert "a rewind after reflog expiry restores the move count, yet its later arrival time ends the cover" \
+  "$(gate 'git commit -am x')" "$(denied 'app.py (staged and working tree)')"
+
 other="$scratch/other"
 mkdir -p "$other"
 (cd "$other" && git init -q -b main && printf 'print(100)\n' >app.py && printf 'print(101)\n' >lib.py && git add -A && git commit -q -m base)

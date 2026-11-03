@@ -2,9 +2,11 @@ MISSING_MODE=000000
 MISSING_BLOB=0
 
 minor_return_cover() {
-  local moves
-  moves="$({ git -C "$1" reflog show --format=%H HEAD 2>/dev/null || true; } | uniq | wc -l | tr -d ' ')"
-  [ "${moves:-0}" -eq 0 ] || printf 'minor-return %s\n' "$moves"
+  { git -C "$1" reflog show --date=unix --format='%H %gd' HEAD 2>/dev/null || true; } | awk '
+    $1 != last { moves++ }
+    moves == 1 { arrived = $2 }
+    { last = $1 }
+    END { if (moves > 0) print "minor-return " moves " " arrived }'
 }
 
 fresh_reviewer_step() {
