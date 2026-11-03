@@ -153,8 +153,12 @@ record_accept() {
   mv "$state.tmp" "$state"
 }
 
-minor_only() {
-  jq -e '(.findings | length) > 0 and all(.findings[]; .severity == "minor") and (.conflicts | length) == 0' >/dev/null
+return_kind() {
+  jq -r '
+    if (.findings | type) != "array" or (.conflicts | type) != "array" then "fresh"
+    elif any(.findings[]; type != "object" or .severity != "minor") or (.conflicts | length) > 0 then "fresh"
+    elif (.findings | length) == 0 then "empty"
+    else "minor" end' 2>/dev/null || printf 'fresh\n'
 }
 
 repo_relative() {
@@ -193,6 +197,10 @@ returns_file() {
   printf '%s.returns\n' "$(review_state_file "$1")"
 }
 
+fresh_review_file() {
+  printf '%s.fresh-review\n' "$(review_state_file "$1")"
+}
+
 findings_file() {
   printf '%s.findings\n' "$(review_state_file "$1")"
 }
@@ -212,16 +220,23 @@ append_lines() {
 }
 
 record_return() {
-  local repo="$1" agent="$2" paths="$3" keys="$4" head
+  local repo="$1" agent="$2" paths="$3" keys="$4" kind="$5" head
   head="$(head_commit "$repo")"
   append_lines "$(returns_file "$repo")" "$head" "$agent" <<<"$paths"
   [ -z "$keys" ] || append_lines "$(findings_file "$repo")" "$head" "$agent" <<<"$keys"
+  [ "$kind" != fresh ] || append_lines "$(fresh_review_file "$repo")" "$head" "$agent" <<<"$kind"
+}
+
+agent_listed() {
+  [ -f "$1" ] && AGENT="$2" awk -F '\t' '$2 == ENVIRON["AGENT"] { found = 1 } END { exit !found }' "$1"
 }
 
 returned_before() {
-  local repo="$1" agent="$2" returns
-  returns="$(returns_file "$repo")"
-  [ -f "$returns" ] && AGENT="$agent" awk -F '\t' '$2 == ENVIRON["AGENT"] { found = 1 } END { exit !found }' "$returns"
+  agent_listed "$(returns_file "$1")" "$2"
+}
+
+returned_for_fresh_review() {
+  agent_listed "$(fresh_review_file "$1")" "$2"
 }
 
 finding_returns_on_commit() {
@@ -265,7 +280,7 @@ void_returns() {
     while IFS= read -r judgment; do
       repo="$(repo_root "$(jq -r .repo <<<"$judgment")")" && [ -n "$repo" ] || continue
       void_paths "$(review_state_file "$repo")" "$returned"
-      record_return "$repo" "$reviewer" "$returned" "$(finding_keys <<<"$judgment")"
+      record_return "$repo" "$reviewer" "$returned" "$(finding_keys <<<"$judgment")" "$(return_kind <<<"$judgment")"
     done
 }
 
@@ -345,7 +360,7 @@ record_verdict() {
     state="$(review_state_file "$repo")"
     if [ "$verdict" = accept ]; then
       record_accept "$repo" "$state" "${entries[i]}"
-    elif minor_only <<<"${judgments[$i]}"; then
+    elif [ "$(return_kind <<<"${judgments[$i]}")" = minor ] && ! returned_for_fresh_review "$repo" "$reviewer"; then
       record_minor_return "$repo" "$state" "$(minor_return_paths "$repo" "${judgments[$i]}" "$returned")"
     fi
     counts="$(verdict_counts <<<"${judgments[$i]}")"

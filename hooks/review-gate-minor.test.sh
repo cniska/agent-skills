@@ -65,6 +65,32 @@ assert "a minor return refused for a diff its reviewer did not read covers nothi
 
 record_handback "$(returning app.py minor | jq -c --arg path "$scratch/elsewhere.py" '.findings[0].where += [{path: $path, line: 1}]')" >/dev/null
 assert "a minor return citing a path outside the repo still covers the paths inside it" "$(gate 'git commit -am x')" ""
+resumed="$(fresh_agent)"
+record_as "$resumed" "$(returning app.py major)" >/dev/null
+rm -f "$CLAUDE_PLUGIN_DATA/reports/$resumed.json"
+assert "a resumed reviewer's minor return after its own major return is still recorded" "$(record_as "$resumed" "$(returning app.py minor)")" "$(allowed)"
+assert "that minor return covers nothing, so the fix waits for a fresh reviewer" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+retried="$(fresh_agent)"
+record_as "$retried" "$(returning app.py minor | jq -c '.findings[0].rule = "Not a rule"')" >/dev/null
+assert "a reviewer's minor return refused for its rule name is corrected" "$(record_as "$retried" "$(returning app.py minor)")" "$(allowed)"
+assert "and the corrected minor return covers the fix" "$(gate 'git commit -am x')" ""
+record_handback "$(returning app.py major)" >/dev/null
+emptied="$(fresh_agent)"
+record_as "$emptied" "$(report "$repo" return)" >/dev/null
+rm -f "$CLAUDE_PLUGIN_DATA/reports/$emptied.json"
+record_as "$emptied" "$(returning app.py minor)" >/dev/null
+assert "a reviewer's minor return after its own return with no finding covers the fix" "$(gate 'git commit -am x')" ""
+record_handback "$(returning app.py major)" >/dev/null
+fresh="$(fresh_agent)"
+assert "a fresh reviewer's minor return still covers the fix" "$(record_as "$fresh" "$(returning app.py minor)")" "$(allowed)"
+assert "and the fix commits" "$(gate 'git commit -am x')" ""
+
+malformed="$(fresh_agent)"
+record_as "$malformed" "$(returning app.py minor | jq -c '.findings = ["minor"]')" >/dev/null
+rm -f "$CLAUDE_PLUGIN_DATA/reports/$malformed.json"
+record_as "$malformed" "$(returning app.py minor)" >/dev/null
+assert "a reviewer whose return was malformed gives no minor cover later" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+
 land
 edit app.py 'print(11)'
 record_handback "$(returning app.py minor)" >/dev/null
