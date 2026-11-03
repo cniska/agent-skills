@@ -39,6 +39,10 @@ edit app.py 'print(8)'
 record_handback "$(returning 'app.py lib.py' minor)" >/dev/null
 edit lib.py 'print(9)'
 assert "a path a minor finding cites, outside every diff the reviewer read, is covered" "$(gate 'git commit -m fix -- lib.py')" ""
+listed="$(scratch_file "$(diff_in "$repo" app.py)")"
+record_listing "$(fresh_agent)" "$(returning app.py major)" "$(read_of "$listed")" "$listed" >/dev/null
+assert "any later return ends the cover of a path only a minor finding cited" "$(gate 'git commit -m fix -- lib.py')" "$(denied 'app.py (working tree)' 'lib.py (working tree)')"
+record_handback "$(returning 'app.py lib.py' minor)" >/dev/null
 edit README.md 'notes'
 (cd "$repo" && git commit -q -m notes -- README.md)
 edit lib.py 'print(12)'

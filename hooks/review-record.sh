@@ -281,6 +281,7 @@ void_returns() {
     while IFS= read -r judgment; do
       repo="$(repo_root "$(jq -r .repo <<<"$judgment")")" && [ -n "$repo" ] || continue
       void_paths "$(review_state_file "$repo")" "$returned"
+      void_minor_covers "$(review_state_file "$repo")"
       record_return "$repo" "$reviewer" "$returned" "$(finding_keys <<<"$judgment")" "$(return_kind <<<"$judgment")"
     done
 }

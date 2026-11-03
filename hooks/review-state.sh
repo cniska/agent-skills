@@ -164,6 +164,13 @@ void_paths() {
   mv "$state.tmp" "$state"
 }
 
+void_minor_covers() {
+  local state="$1"
+  [ -f "$state" ] || return 0
+  awk -F '\t' '$2 !~ /^minor-return /' "$state" >"$state.tmp"
+  mv "$state.tmp" "$state"
+}
+
 accepted_heads() {
   path_entries "$1" <<<"$3" | CONTENT="$2" HEAD_NOW="$4" COVER="$5" awk -F '\t' '
     $2 == ENVIRON["CONTENT"] || ($2 == ENVIRON["COVER"] && $1 == ENVIRON["HEAD_NOW"]) { print $1 }'
