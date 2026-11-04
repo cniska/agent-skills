@@ -60,5 +60,10 @@ assert "a finding whose first place is another path is new, though a later place
 (cd "$repo" && git checkout -q -- app.py)
 edit README.md 'other change'
 assert "a change replaced by one on other paths starts the count over" "$(returns_after "$(returning app.py 'Size everything to the need')")" '[1]'
+reused="$(fresh_agent)"
+record_as "$reused" "$(returning app.py 'An invalid value never exists')" >/dev/null
+hand_back "$reused" >/dev/null
+record_as "$reused" "$(returning app.py 'An invalid value never exists')" >/dev/null
+assert "a reviewer resumed on the fix that returns a finding again counts each round" "$(counts "$reused")" '[2]'
 
 finish

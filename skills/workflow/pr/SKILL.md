@@ -21,7 +21,7 @@ Push the branch and open a pull request for it. When a pull request is already o
    - the working directory is clean
    - the branch has commits ahead of the base branch
    - the project's verification passes
-2. **Have `review` accept the branch** as it stands, by a fresh agent, unless it already has. When it returns any finding, stop and report the findings without creating the pull request. When the review reports through a tool, take its verdict and findings from the stored report, not from its closing message.
+2. **Have `review` accept the branch** as it stands, by an agent that did not write it, unless it already has. When it returns any finding, stop and report the findings without creating the pull request. When the review reports through a tool, take its verdict and findings from the stored report, not from its closing message.
 3. **Gather context:**
    - the pull request template, if one exists
    - the branch's commits and its full diff against the base branch

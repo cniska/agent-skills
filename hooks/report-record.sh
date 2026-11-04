@@ -126,6 +126,7 @@ hand_back() {
     die "the report at $file cannot be marked as handed back"
   fi
   rm -f "$(denials_file "$(reporter_id "$input")")" || die "the bound on denials cannot be reset for $file"
+  end_round "$input" || die "the round cannot be ended for $file"
 }
 
 is_report_tool() {
@@ -147,12 +148,12 @@ on_report_tool() {
     gate_line "$input" deny wrong_agent
     return
   fi
-  local reads="" reviewer="" returned=""
+  local reads="" round="" returned=""
   if [ "$tool" = verdict ] && [ "$agent_type" = cniska-skills:reviewer ]; then
     reads="$(read_files "$input")"
-    reviewer="$(reporter_id "$input")"
+    round="$(reporter_round "$input")"
     returned="$(returned_paths "$reads")"
-    void_returns "$input" "$reviewer" "$returned"
+    void_returns "$input" "$round" "$returned"
   fi
   violations="$(jq -r -L "$HERE" --slurpfile schemas "$SCHEMAS" --arg tool "$tool" "$PAYLOAD_VIOLATIONS" <<<"$input")" ||
     die "jq could not check the $tool report"
@@ -180,7 +181,7 @@ on_report_tool() {
   fi
   if [ "$agent_type" = cniska-skills:reviewer ]; then
     local judged code
-    judged="$(record_verdict "$input" "$reads" "$reviewer" "$returned")"
+    judged="$(record_verdict "$input" "$reads" "$round" "$returned")"
     code="$(jq -r '.code // empty' <<<"$judged")"
     if [ -n "$code" ]; then
       refuse "$input" "$tool" "$file" "$code" "$(jq -r .why <<<"$judged")"
@@ -211,6 +212,7 @@ on_end() {
     return
   fi
   rm -f "$file" || die "the earlier hand-back's report at $file cannot be removed"
+  end_round "$input" || die "the round cannot be ended for $file"
   gate_line "$input" allow missing_report
 }
 

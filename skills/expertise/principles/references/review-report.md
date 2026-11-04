@@ -33,7 +33,7 @@ Real defects, such as a bug or a security hole, that were there before the chang
 - **After a return:** when every finding of a commit's review is minor and it has no conflict, the author fixes each one and commits with no further round. Any other return goes to a re-review, and so does every return of a whole branch's review, since that review is the last read of those minor fixes.
 - **Follow-ups** go to whoever coordinates the work, or else the owner, each queued as its own task, in the task tool where one is installed, never as a backlog line.
 - **Where** may cite other places with the same problem, so the fix is one structure. A cited place whose problem the change did not cause is fixed with the finding only where the fix needs it, and is otherwise sorted like any other problem that was there before the change.
-- **A re-review** judges the fix it is given and reads the change's earlier diffs, for findings as for its accept, which then covers the whole change.
+- **A re-review** judges the fix it is given against the change's earlier diffs, for findings as for its accept, which then covers the whole change. The reviewer that returned the change already holds those diffs and reads again only what the fix changed; a reviewer new to the change reads them all.
 - **A later review of a change**, the branch's review included, that disagrees with a line an earlier review of it read and left unflagged, whether that review accepted or returned, raises a finding. When the disagreement is against a decision the owner settled, it is a conflict instead.
 - A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph or table.
 

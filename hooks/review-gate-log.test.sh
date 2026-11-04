@@ -134,8 +134,8 @@ returner="$(fresh_agent)"
 listed="$(scratch_file "$(diff_in "$logged" n.py)")"
 jq -cn --arg agent "$returner" --arg tool "$VERDICT_TOOL" --arg listed "$listed" --argjson judgment "$(report "$logged" return)" \
   '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: $tool, tool_input: {diffs: [$listed], judgments: [$judgment]}, agent_type: "cniska-skills:reviewer"}' | "$RECORD" >/dev/null 2>&1
-assert "an accept from the reviewer that returned logs a same_reviewer note and no verdict" \
-  "$(decided record_logged_as "$returner" "$(report "$logged" accept)" | jq -sc 'map([.gate, .decision, .reason])')" '[["verdict","allow","same_reviewer"]]'
+assert "an accept from the reviewer that returned logs its verdict" \
+  "$(decided record_logged_as "$returner" "$(report "$logged" accept)" | jq -sc 'map(.verdict)')" '["accept"]'
 assert "a repo that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
 (cd "$logged" && git checkout -q NOTES.md && printf 'n = 4\n' >n.py)

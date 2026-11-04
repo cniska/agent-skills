@@ -32,7 +32,7 @@ denied() {
   local items pronoun=its
   [ "$#" -eq 1 ] || pronoun=their
   items="$(printf '%s, ' "$@")"
-  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers ${items%, }, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A return whose findings are all minor, with no conflict, covers each path in the diff files its reviewer listed whose new side the repository held, and each path in its findings, whatever its content now, until HEAD next moves or the next return, once the repo has a commit and a HEAD reflog. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write $pronoun current diff to a new file, brief a fresh reviewer naming it by absolute path, and commit once that reviewer's verdict call accepts it."
+  refused "Commit blocked: no diff cniska-skills:reviewer accepted covers ${items%, }, which this commit can carry. A diff covers a path's staged or working-tree content while the reviewer read its file, listed it in its verdict call's diffs, and its new side is that content, until a later commit changes the path. A return whose findings are all minor, with no conflict, covers each path in the diff files its reviewer listed whose new side the repository held, and each path in its findings, whatever its content now, until HEAD next moves or the next return, once the repo has a commit and a HEAD reflog. A path a .gitattributes marks linguist-generated counts as code until HEAD holds that marking, so commit a .gitattributes change alone, reviewed, first. An edit this commit should not carry can wait in git stash (-u if untracked), voiding no accept. Otherwise write $pronoun current diff to a new file, send it by absolute path to the reviewer that judged this change through SendMessage, or brief a new cniska-skills:reviewer with it when none has or that one can no longer be reached, and commit once that reviewer's verdict call accepts it."
 }
 refused() { jq -cn --arg reason "$1" '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: $reason}}'; }
 allowed() { jq -cn '{hookSpecificOutput: {hookEventName: "PreToolUse", permissionDecision: "allow"}}'; }
@@ -121,6 +121,11 @@ record_handback() {
 }
 
 stored() { cat "$CLAUDE_PLUGIN_DATA/reports/$1.json" 2>/dev/null; }
+
+hand_back() {
+  jq -cn --arg agent "$1" --arg type "${2:-cniska-skills:reviewer}" \
+    '{hook_event_name: "PreToolUse", session_id: "s0", agent_id: $agent, agent_type: $type, tool_name: "SubagentHandback", tool_input: {message: "Done."}}' | "$RECORD" 2>/dev/null
+}
 
 report() {
   jq -cn --arg repo "$1" --arg verdict "$2" '{repo: $repo, verdict: $verdict, findings: [], conflicts: [], follow_ups: [], clean: []}' | jq -c "${3:-.}"

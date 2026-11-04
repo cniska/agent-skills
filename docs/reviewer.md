@@ -1,6 +1,6 @@
 # The reviewer
 
-A fresh agent that did not write the work judges each commit and each design whose shape is open. Before a branch lands, another fresh one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built.
+An agent that did not write the work judges each commit and each design whose shape is open, and carries its review through every round until it accepts. Before a branch lands, another one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built: only the reviewer and the designer may report a verdict, and the reviewer's tools only read.
 
 - **On a brief or plan the coordinator writes for a worker it judges what to build**: the outcome, the scope, the decisions it settles, whether a worker can build from it, and any claim false at its source. How the work is built waits for the worker's own reviews, so its report leaves that out.
 - **On code it judges the way I would in review**, against my design rules in [design-review](../skills/expertise/design-review/SKILL.md): architecture, patterns and code smells.
@@ -12,7 +12,7 @@ A fresh agent that did not write the work judges each commit and each design who
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts, or returns with only minor findings and no conflict.
 
-It judges the diff, not the screens: a commit that changes an interface also waits for a fresh [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
+It judges the diff, not the screens: a commit that changes an interface also waits for a [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
 
 ## Findings
 
@@ -20,7 +20,7 @@ Its report takes the shape every review in the plugin uses, the [review report](
 
 - It sorts each problem by whether the change caused it: one the change causes is a finding wherever it sits, and one that was there before is a finding only when it blocks the change, worded as its own fix. Any other bug or security hole that was there before, in a file the diff touches included, is a follow-up: the accept never waits on it, and it becomes a queued task, never a backlog line; a style point that was there before is dropped. A finding is fixed, so it returns the change; it accepts only when there is no finding.
 - A commit's return whose findings are all minor, with no conflict, is fixed and committed with no re-review; the branch review reads those fixes. Any other return, and any return of the branch review, gets a re-review.
-- The re-review is another fresh agent, given the fix to judge and the change's earlier diffs to read, for findings as for its accept. Where any later review, the branch review's first pass included, disagrees with a line an earlier review read and did not flag, whether that review accepted or returned, that is a finding and returns, unless it is against a decision I settled, which is a conflict for me to settle.
+- The re-review goes back to the agent that returned the change, resumed with the fix to judge. It already holds the change's earlier diffs, which it weighs for findings and for its accept, so it does not read them again. A new agent takes over only when that one can no longer be reached, given the earlier returns, the fix and those diffs to read. Where any later review, the branch review's first pass included, disagrees with a line an earlier review read and did not flag, whether that review accepted or returned, that is a finding and returns, unless it is against a decision I settled, which is a conflict for me to settle.
 - On code none of the change's diffs touch, a problem that was there before the change returns it only when it blocks the change; the fix is its own commit, accepted on its own and committed first, and the returned change's re-review is then handed that commit's diff as the fix, so the change's diff never grows to cover it.
 - Each finding names the rule it breaks by one name, the rule's heading as its skill writes it, with any detail in the finding's reason, so one rule is counted as one across reviews. The review report's Rule names section gives the names for rules no heading holds.
 - A brief that gives it no diff to read is returned as `no_diff`, never accepted on a read of something else.

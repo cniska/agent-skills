@@ -195,7 +195,7 @@ stale_reviewer="$(fresh_agent)"
 assert "an accept whose diff matches nothing in its repo lets the reviewer hand back" \
   "$(record_reading "$stale_reviewer" "$(report "$repo" accept)" "$(briefed "$stale")")" "$(allowed)"
 assert "that accept is stored with the accept_covers_nothing note" "$(stored "$stale_reviewer" | jq -c '.gate.judgments[] | [.recorded, .code, .fix]')" \
-  '[false,"accept_covers_nothing","The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a fresh diff of the change and brief a fresh reviewer with it."]'
+  '[false,"accept_covers_nothing","The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a new diff of the change and send it to this reviewer through SendMessage, or brief a new cniska-skills:reviewer with it only when this one can no longer be reached."]'
 assert "that accept logs a gate note and no verdict" "$(tail -n 1 "$log" | jq -r '[.event, .gate, .decision, .reason] | @tsv')" "gate	verdict	allow	accept_covers_nothing"
 record_reading "$(fresh_agent)" "$(report "$repo" accept)" "$(briefed "$(diff_in "$repo" app.py && printf '%s\n' "$stale_other")")" >/dev/null
 assert "an accept whose diff matches one path in its repo records that path" "$(gate 'git commit -am x')" "$(denied 'other.py (working tree)')"

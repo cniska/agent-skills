@@ -1,9 +1,8 @@
 readonly WORKTREE_MISMATCH_REASON="Name the worktree the change is in as the judgment's repo, not another checkout of its repository."
 readonly REPO_REPEATED_REASON="Give each repository one judgment."
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept has no findings: while a finding stands, the judgment's verdict is return. A defect that was there before the change and does not block it goes under follow_ups."
-SAME_REVIEWER_FIX="This accept is not recorded: its reviewer returned this repository's change earlier. $(fresh_reviewer_step)."
-readonly SAME_REVIEWER_FIX
-readonly STALE_DIFF_FIX="The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a fresh diff of the change and brief a fresh reviewer with it."
+readonly SAME_ROUND_FIX="This accept is not recorded: earlier in this run its reviewer returned this repository's change with a critical or major finding, a conflict or a malformed judgment, and no fix has come back since. Fix the change and send the fix's diff to this reviewer through SendMessage."
+readonly STALE_DIFF_FIX="The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a new diff of the change and send it to this reviewer through SendMessage, or brief a new cniska-skills:reviewer with it only when this one can no longer be reached."
 readonly MAX_COUNT=1000
 
 verdict_counts() {
@@ -155,10 +154,10 @@ record_accept() {
 
 return_kind() {
   jq -r '
-    if (.findings | type) != "array" or (.conflicts | type) != "array" then "fresh"
-    elif any(.findings[]; type != "object" or .severity != "minor") or (.conflicts | length) > 0 then "fresh"
+    if (.findings | type) != "array" or (.conflicts | type) != "array" then "rereview"
+    elif any(.findings[]; type != "object" or .severity != "minor") or (.conflicts | length) > 0 then "rereview"
     elif (.findings | length) == 0 then "empty"
-    else "minor" end' 2>/dev/null || printf 'fresh\n'
+    else "minor" end' 2>/dev/null || printf 'rereview\n'
 }
 
 repo_relative() {
@@ -198,8 +197,8 @@ returns_file() {
   printf '%s.returns\n' "$(review_state_file "$1")"
 }
 
-fresh_review_file() {
-  printf '%s.fresh-review\n' "$(review_state_file "$1")"
+rereview_file() {
+  printf '%s.rereview\n' "$(review_state_file "$1")"
 }
 
 findings_file() {
@@ -215,29 +214,21 @@ append_lines() {
   mkdir -p "$(dirname "$file")"
   {
     [ ! -f "$file" ] || cat "$file"
-    RETURN_HEAD="$2" AGENT="$3" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["AGENT"] "\t" $0 }'
+    RETURN_HEAD="$2" ROUND="$3" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["ROUND"] "\t" $0 }'
   } | sort -u >"$file.tmp"
   mv "$file.tmp" "$file"
 }
 
 record_return() {
-  local repo="$1" agent="$2" paths="$3" keys="$4" kind="$5" head
+  local repo="$1" round="$2" paths="$3" keys="$4" kind="$5" head
   head="$(head_commit "$repo")"
-  append_lines "$(returns_file "$repo")" "$head" "$agent" <<<"$paths"
-  [ -z "$keys" ] || append_lines "$(findings_file "$repo")" "$head" "$agent" <<<"$keys"
-  [ "$kind" != fresh ] || append_lines "$(fresh_review_file "$repo")" "$head" "$agent" <<<"$kind"
+  append_lines "$(returns_file "$repo")" "$head" "$round" <<<"$paths"
+  [ -z "$keys" ] || append_lines "$(findings_file "$repo")" "$head" "$round" <<<"$keys"
+  [ "$kind" != rereview ] || append_lines "$(rereview_file "$repo")" "$head" "$round" <<<"$kind"
 }
 
-agent_listed() {
-  [ -f "$1" ] && AGENT="$2" awk -F '\t' '$2 == ENVIRON["AGENT"] { found = 1 } END { exit !found }' "$1"
-}
-
-returned_before() {
-  agent_listed "$(returns_file "$1")" "$2"
-}
-
-returned_for_fresh_review() {
-  agent_listed "$(fresh_review_file "$1")" "$2"
+returned_for_rereview() {
+  [ -f "$(rereview_file "$1")" ] && ROUND="$2" awk -F '\t' '$2 == ENVIRON["ROUND"] { found = 1 } END { exit !found }' "$(rereview_file "$1")"
 }
 
 finding_returns_on_commit() {
@@ -276,18 +267,18 @@ returned_paths() {
 }
 
 void_returns() {
-  local input="$1" reviewer="$2" returned="$3" judgment repo
+  local input="$1" round="$2" returned="$3" judgment repo
   jq -c '.tool_input.judgments[]? | objects | select(.verdict == "return" and (.repo | strings | startswith("/")))' <<<"$input" 2>/dev/null |
     while IFS= read -r judgment; do
       repo="$(repo_root "$(jq -r .repo <<<"$judgment")")" && [ -n "$repo" ] || continue
       void_paths "$(review_state_file "$repo")" "$returned"
       void_minor_covers "$(review_state_file "$repo")"
-      record_return "$repo" "$reviewer" "$returned" "$(finding_keys <<<"$judgment")" "$(return_kind <<<"$judgment")"
+      record_return "$repo" "$round" "$returned" "$(finding_keys <<<"$judgment")" "$(return_kind <<<"$judgment")"
     done
 }
 
 record_verdict() {
-  local input="$1" reads="$2" reviewer="$3" returned="$4" listed reviewed file
+  local input="$1" reads="$2" round="$3" returned="$4" listed reviewed file
   listed="$(jq -r '.tool_input.diffs[]' <<<"$input")"
   reviewed="$(diff_files_paths <<<"$listed")"
 
@@ -337,8 +328,8 @@ record_verdict() {
     code="" fix="" count=0 entries[i]=""
     if [ "$verdict" = return ]; then
       count="$(finding_returns_on_commit "$repo" "$returned" "$(finding_keys <<<"${judgments[$i]}")")"
-    elif returned_before "$repo" "$reviewer"; then
-      code=same_reviewer fix="$SAME_REVIEWER_FIX"
+    elif returned_for_rereview "$repo" "$round"; then
+      code=same_round fix="$SAME_ROUND_FIX"
     else
       entries[i]="$(current_entries "$repo" <<<"$reviewed")"
       if [ -n "$reviewed" ] && [ -z "${entries[i]}" ]; then
@@ -362,7 +353,7 @@ record_verdict() {
     state="$(review_state_file "$repo")"
     if [ "$verdict" = accept ]; then
       record_accept "$repo" "$state" "${entries[i]}"
-    elif [ "$(return_kind <<<"${judgments[$i]}")" = minor ] && ! returned_for_fresh_review "$repo" "$reviewer"; then
+    elif [ "$(return_kind <<<"${judgments[$i]}")" = minor ] && ! returned_for_rereview "$repo" "$round"; then
       record_minor_return "$repo" "$state" "$(minor_return_paths "$repo" "${judgments[$i]}" "$reviewed")"
     fi
     counts="$(verdict_counts <<<"${judgments[$i]}")"

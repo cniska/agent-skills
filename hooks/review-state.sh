@@ -9,10 +9,6 @@ minor_return_cover() {
     END { if (moves > 0) print "minor-return " moves " " arrived }'
 }
 
-fresh_reviewer_step() {
-  printf '%s' "Start a fresh cniska-skills:reviewer on the fix's diff, with the change's earlier diff files to read for findings as for its accept"
-}
-
 data_key() {
   printf '%s' "$1" | shasum -a 256 | cut -d ' ' -f 1
 }

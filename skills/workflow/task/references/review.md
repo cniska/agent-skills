@@ -1,7 +1,7 @@
 # Review
 
 1. `explain-diff` when the change is complex or unfamiliar.
-2. `review` by a fresh agent.
+2. `review` by an agent that did not write the change.
 3. Post nothing to someone else's pull request unless asked.
 4. Fix the findings and hand on the follow-ups, as `task` says.
 

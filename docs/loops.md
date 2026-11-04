@@ -9,9 +9,9 @@ One agent runs one task, from its route to a landed branch.
 ```mermaid
 flowchart LR
   route["Route"] -- "the steps to run" --> steps["Steps load their skills"]
-  steps -- "each commit's diff" --> rev["Fresh reviewer"]
+  steps -- "each commit's diff" --> rev["Reviewer"]
   rev -- "accept, or minor-only return fixed" --> commit["Commit"]
-  steps -- "an interface commit's diff and captures" --> des["Fresh designer"]
+  steps -- "an interface commit's diff and captures" --> des["Designer"]
   des -- "accept, or minor-only return fixed" --> commit
   commit -- "report" --> lead["Coordinator"]
   commit -- "sessions and events" --> rec[("agent-record")]
@@ -21,7 +21,7 @@ flowchart LR
 
 Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plugin](plugin.md).
 
-[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too. Before a branch lands, a fresh designer judges its finished interface whole.
+[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too. Before a branch lands, a designer judges its finished interface whole. Each review goes back to the same agent after a return, until it accepts.
 
 `<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a brief from a coordinating agent. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 
@@ -43,9 +43,9 @@ flowchart TD
   lead -- "state, and each worker's brief" --> tasks[("Its project's tasks")]
   lead -- "batched questions, report" --> you
   lead -- "the brief" --> worker["Worker runs the task route"]
-  worker -- "each commit's diff, then the branch's" --> reviewer["Fresh reviewer"]
+  worker -- "each commit's diff, then the branch's" --> reviewer["Reviewer"]
   reviewer -- "accept, or return with findings" --> worker
-  worker -- "each interface commit's diff and captures, then the branch's" --> designer["Fresh designer"]
+  worker -- "each interface commit's diff and captures, then the branch's" --> designer["Designer"]
   designer -- "accept, or return with findings" --> worker
   worker -- "the branch, once its review accepts" --> land["Land, as the repo says"]
   day["Weeks of sessions"] --> review["Workflow review"]

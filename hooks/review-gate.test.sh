@@ -58,12 +58,21 @@ assert "a returning verdict clears the accept" "$(gate 'git commit -am x')" "$(d
 returner="$(fresh_agent)"
 record_listing "$returner" "$(report "$repo" return)" "$(briefed "$(diff_of "$(report "$repo" return)")")" "$diffs/unread.diff" >/dev/null
 assert "a return refused for a diff it did not read still clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-assert "an accept from the reviewer that returned lets it hand back" "$(record_as "$returner" "$(report "$repo" accept)")" "$(allowed)"
-assert "that accept is stored with the same_reviewer note" "$(stored "$returner" | jq -c '.gate.judgments[] | [.recorded, .code, .fix]')" \
-  "$(jq -cn '[false, "same_reviewer", "This accept is not recorded: its reviewer returned this repository'"'"'s change earlier. Start a fresh cniska-skills:reviewer on the fix'"'"'s diff, with the change'"'"'s earlier diff files to read for findings as for its accept."]')"
-assert "an accept from the reviewer that returned approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-assert "an accept from a fresh reviewer after the return records" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
-assert "that fresh accept lets the diff commit" "$(gate 'git commit -am x')" ""
+record_as "$returner" "$(report "$repo" return)" >/dev/null
+hand_back "$returner" >/dev/null
+assert "the reviewer that returned, resumed on the fix, may accept it" "$(record_as "$returner" "$(report "$repo" accept)")" "$(allowed)"
+assert "that accept is recorded with no note" "$(stored "$returner" | jq -c '.gate.judgments[] | [.recorded, .code, .fix]')" '[true,null,null]'
+assert "the accept of the reviewer that returned lets the fix commit" "$(gate 'git commit -am x')" ""
+
+edit app.py 'print(5)'
+hasty="$(fresh_agent)"
+record_as "$hasty" "$(report "$repo" return ".findings = [$(finding "$repo/app.py" 'Not a rule' major)]")" >/dev/null
+assert "an accept in the round its reviewer's major return was refused lets it hand back" "$(record_as "$hasty" "$(report "$repo" accept)")" "$(allowed)"
+assert "that accept is stored with the same_round note" "$(stored "$hasty" | jq -c '.gate.judgments[] | [.recorded, .code]')" '[false,"same_round"]'
+assert "an accept in the round of its reviewer's major return approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+hand_back "$hasty" >/dev/null
+assert "that reviewer's accept once resumed on the fix records" "$(record_as "$hasty" "$(report "$repo" accept)")" "$(allowed)"
+assert "and lets the fix commit" "$(gate 'git commit -am x')" ""
 
 spare="$scratch/spare"
 (cd "$scratch" && git init -q -b main spare)

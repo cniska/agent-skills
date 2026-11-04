@@ -71,11 +71,33 @@ left_to_handback() {
 }
 
 denials_file() {
-  printf '%s/denials/%s\n' "$CLAUDE_PLUGIN_DATA" "$(printf '%s' "$1" | shasum -a 256 | cut -d ' ' -f 1)"
+  printf '%s/denials/%s\n' "$CLAUDE_PLUGIN_DATA" "$(data_key "$1")"
 }
 
 reporter_id() {
   jq -r '.agent_id // .session_id // empty' <<<"$1"
+}
+
+rounds_file() {
+  printf '%s/rounds/%s\n' "$CLAUDE_PLUGIN_DATA" "$(data_key "$1")"
+}
+
+rounds_ended() {
+  cat "$(rounds_file "$1")" 2>/dev/null || printf '0\n'
+}
+
+reporter_round() {
+  local id
+  id="$(reporter_id "$1")"
+  printf '%s#%s\n' "$id" "$(rounds_ended "$id")"
+}
+
+end_round() {
+  local id file
+  id="$(reporter_id "$1")"
+  [ -n "$id" ] || return 0
+  file="$(rounds_file "$id")"
+  mkdir -p "$(dirname "$file")" && printf '%s\n' "$(($(rounds_ended "$id") + 1))" >"$file"
 }
 
 was_denied() {

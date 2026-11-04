@@ -32,17 +32,16 @@ One commit, start to finish, through the plugin's reviewer and commit gate and a
 sequenceDiagram
   participant A as Agent
   participant V as Reviewer
-  participant R as Fresh reviewer
   participant P as Commit gate
   participant G as Git hooks
   participant C as CI
   A->>A: task picks a route, steps load skills
   A->>V: here is the diff
   V-->>A: verdict call: return, with a major finding
-  A->>R: the fix's diff in a new file, the earlier diff files beside it
-  Note over R: judges the fix, reads the earlier diffs for findings and its accept
-  R-->>A: verdict call: accept
-  Note over R: the accept is recorded for each path's content
+  A->>V: SendMessage: the fix's diff in a new file
+  Note over V: judges the fix against the earlier diffs it already read
+  V-->>A: verdict call: accept, listing the fix's and the earlier diff files
+  Note over V: the accept is recorded for each path's content
   A->>P: git commit
   P->>G: allowed (each changed path's content accepted)
   G-->>A: the project's commit checks pass
@@ -87,7 +86,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 - It judges a coordinator's brief or plan as [the reviewer](reviewer.md) says, and loads [review](../skills/workflow/review/SKILL.md) for a whole branch.
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
 - A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
-- An accept whose diffs match no checkout, or one from a reviewer that returned the repo earlier, is stored with a note and not recorded.
+- An accept whose diffs match no checkout is stored with a note and not recorded. So is one in the same round as its reviewer's return there with a critical or major finding, a conflict or a malformed judgment, where a round is one run of the reviewer, from its start or resume to its hand-back. An accept from a reviewer that returned the same change in an earlier round is recorded like any other. The change's author never reaches the tool, since only the reviewer and the designer may call `verdict` and the reviewer's tools only read.
 - The stored report counts how often its most-repeated finding has come back on its commit, so `task` parks a commit when one finding comes back a third time in a critical or major return; a minor-only return, and new findings each round, never park it. [The hook reference](../hooks/events.md) defines a finding and a commit's returns.
 
 ## Designer agent
@@ -121,9 +120,9 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 - **Minor-only return:** a reviewer's return of minor findings alone and no conflict covers paths whatever their content, so the fix commits without a re-review.
   - **Covers:** each path whose new side the repo holds in the diff files its reviewer listed, and each path in the repo a finding cites. A fix that touches any other path needs an accept for it.
   - **Ends:** when `HEAD` next moves or at the repo's next return, so a later edit needs a review again. A return before the first commit, or with `HEAD`'s reflog off, covers nothing.
-  - **Never:** from a reviewer that returned the repo earlier with a critical or major finding, a conflict or a malformed judgment.
-- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its reviewer also reads and lists the change's earlier diff files.
-- An accept from a reviewer that returned the same repo earlier is not recorded, so a re-review, needed after any return with a critical or major finding or a conflict, is always a fresh reviewer.
+  - **Never:** from a reviewer that returned the repo with a critical or major finding, a conflict or a malformed judgment earlier in the same round. Resumed on the fix, its minor-only return covers as a new reviewer's would.
+- Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its reviewer also lists the change's earlier diff files, which a resumed reviewer has already read.
+- A re-review, needed after any return with a critical or major finding or a conflict, goes to the reviewer that returned the change, resumed through `SendMessage`. Only when that reviewer is gone, as after a session restart, does a new one take over, briefed with the earlier returns and the fix.
 - A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under follow-ups, which never hold back an accept.
 - Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
 - Only a marking committed in `HEAD` counts, so a `.gitattributes` change exempts paths from the next commit on, and a `.gitattributes` file is never exempt; the refusal names this route, a `.gitattributes` change committed alone and reviewed first. No path counts as generated while the repo's `info/attributes` holds a rule, before the first commit, or when `git check-attr` fails.
