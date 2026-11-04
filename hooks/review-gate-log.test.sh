@@ -30,7 +30,7 @@ recorder_on() { jq -r --arg event "$1" --arg matcher "${2:-}" '.hooks[$event][] 
 assert "the report recorder judges every subagent's stop" "$(recorder_on SubagentStop)" 1
 assert "the report recorder judges every session's stop" "$(recorder_on Stop)" 1
 assert "the report recorder judges every hand-back and report tool" \
-  "$(recorder_on PreToolUse 'SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report)')" 1
+  "$(recorder_on PreToolUse 'SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report|ruling)')" 1
 assert "no hook runs the review recorder as an entry" "$(grep -c 'review-record.sh' "$HERE/hooks.json")" 0
 
 logged="$scratch/logged"

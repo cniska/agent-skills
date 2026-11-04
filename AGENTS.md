@@ -29,8 +29,8 @@ Self-contained engineering skills for AI coding agents — one per directory at 
 ## Commits
 
 - Work on a topic branch in its own worktree, never on `main`; no pull request in this repo.
-- Commit each slice once validate, test and lint pass and a reviewer that did not write it accepts it, or returns minor findings alone with no conflict and you have fixed each one. Push the branch after each commit.
-- Land by rebasing on `origin/main` and fast-forwarding `main` to the branch once `review` accepts the whole branch, then push `main`; that accept is the owner's standing sign-off, so no landing waits on them.
+- Commit each slice once validate, test and lint pass and a reviewer that did not write it accepts it, or returns minor findings alone with no conflict and you have fixed each one, or a recorded ruling accepts it. Push the branch after each commit.
+- Land by rebasing on `origin/main` and fast-forwarding `main` to the branch once `review` accepts the whole branch, or a ruling stands as that accept, then push `main`; that accept is the owner's standing sign-off, so no landing waits on them.
 - After `main` is pushed, a worker names `mise run plugin:update` as due in its hand-back and never runs it; the coordinator runs it once no coordinator's in-flight list, as `coordinate` keeps it, holds a running worker, then asks the owner to restart.
 - A running session keeps the agent definitions and hooks it started with; each skill it loads, by the Skill tool or a subagent's preload, reads the plugin's source as it stands then.
 - Conventional Commits `type(scope): description`; single-line subject, no body, ASCII, under 50 characters.

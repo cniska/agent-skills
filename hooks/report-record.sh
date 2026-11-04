@@ -8,6 +8,7 @@ source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 source "$HERE/report-store.sh"
 source "$HERE/review-record.sh"
+source "$HERE/ruling-record.sh"
 
 readonly SCHEMAS="$HERE/../mcp/report-schemas.json"
 readonly RULE_NAMES="$HERE/rule-names.json"
@@ -231,6 +232,7 @@ main() {
   case "$event" in
     PreToolUse)
       case "$tool_name" in
+        "$TOOL_PREFIX"ruling) on_ruling "$input" ;;
         "$TOOL_PREFIX"*) on_report_tool "$input" "${tool_name#"$TOOL_PREFIX"}" ;;
         SubagentHandback) on_end "$input" ;;
       esac

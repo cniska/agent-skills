@@ -26,6 +26,7 @@ assert "start leaves the other skills to task" \
   "$(run start | grep -c 'load other skills only as it, or a skill it loads, directs.')" 1
 assert "start says commits wait on the reviewer" \
   "$(run start | grep -c 'waits until cniska-skills:reviewer has accepted the diff')" 1
+assert "start says a recorded ruling can accept too" "$(run start | grep -c 'or a recorded ruling accepted it')" 1
 assert "resume sends the session back into its route" \
   "$(run resume | grep -c "otherwise load the cniska-skills:task skill again and re-enter the work's route")" 1
 assert "resume sends no task session to a Resume" "$(run resume | grep -c 'cniska-skills:task[^;]*Resume')" 0

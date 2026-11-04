@@ -41,7 +41,7 @@ readonly RESEARCH='{"recommendation": "Go ahead.", "evidence": [{"claim": "It ex
 readonly SHA=0123456789abcdef0123456789abcdef01234567
 readonly TASK_REPORT='{"task": "t", "outcome": "landed", "summary": "Landed.", "landed": {"repo": "/repo", "branch": "main", "sha": "'"$SHA"'", "ci_runs": [{"workflow": "ci", "url": "https://example.com/1", "conclusion": "success"}]}, "choices": [], "owner_questions": [], "follow_ups": ['"$FINDING"'], "open": [], "steps_skipped": [], "plugin_update_due": true}'
 
-assert "the schema file lists the four tools" "$(jq -r '.tools | keys | join(" ")' "$SCHEMAS")" "read_report research task_report verdict"
+assert "the schema file lists the five tools" "$(jq -r '.tools | keys | join(" ")' "$SCHEMAS")" "read_report research ruling task_report verdict"
 assert "the schema file uses only keywords the validator checks" "$(schema_facts 'unsupported_keywords($schemas[0]) | join(" ")')" ""
 assert "a keyword the validator does not check is caught" \
   "$(schema_facts '$schemas[0] | .["$defs"].text.maxLength = 9 | unsupported_keywords(.) | join(" ")')" "maxLength"

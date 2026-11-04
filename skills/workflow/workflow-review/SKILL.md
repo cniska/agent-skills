@@ -18,7 +18,7 @@ Find where the workflow keeps failing the owner, and propose what should change 
 
 ## Steps
 
-1. Find the evidence in the window through `search-sessions`: the owner correcting an agent, a question the owner had to ask, a gate that refused correct work, a review that kept returning, and friction a session reported.
+1. Find the evidence in the window through `search-sessions`: the owner correcting an agent, a question the owner had to ask, a gate that refused correct work, a review that kept returning, a ruling on one, and friction a session reported. The record's `tag` events with key `ruling` list each ruling by its call; its reasons and the owner's words are only in that `ruling` tool call's input in the session transcript.
 2. Group the evidence by the skill, agent or repo rule each piece traces to, and trace each group to the waste it cost and its cause, as [references/waste-and-cause.md](references/waste-and-cause.md) says.
 3. For each skill with a pattern, read the current version whole and its history over the window, then judge it whole.
 4. Report.

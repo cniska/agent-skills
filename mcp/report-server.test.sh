@@ -49,7 +49,7 @@ assert "a notification gets no reply" \
   "$(serve '{"jsonrpc": "2.0", "method": "notifications/initialized"}' | wc -l | tr -d ' ')" 0
 assert "ping is answered with an empty result" "$(serve '{"jsonrpc": "2.0", "id": 3, "method": "ping"}')" '{"jsonrpc":"2.0","id":3,"result":{}}'
 
-assert "tools/list lists the four tools" "$(tools | jq -r 'map(.name) | join(" ")')" "verdict research task_report read_report"
+assert "tools/list lists the five tools" "$(tools | jq -r 'map(.name) | join(" ")')" "verdict research task_report ruling read_report"
 assert "every listed tool loads upfront" "$(tools | jq -c 'map(._meta["anthropic/alwaysLoad"]) | unique')" "[true]"
 assert "every listed tool has a description" "$(tools | jq -c 'map(.description | type) | unique')" '["string"]'
 assert "no listed schema keeps a \$ref" "$(tools | jq -c '[.. | objects | select(has("$ref"))] | length')" 0
@@ -64,6 +64,8 @@ assert "the listed schema is the schema file's, with every \$ref resolved" \
 
 assert "a report tool's call is acknowledged" \
   "$(serve "$(call verdict '{"diffs": [], "judgments": []}')" | jq -c '[.id, .result.isError, (.result.content[0].text | startswith("Report received."))]')" '[7,false,true]'
+assert "a ruling's call is acknowledged as a ruling" \
+  "$(serve "$(call ruling '{}')" | jq -c '[.id, .result.isError, (.result.content[0].text | startswith("Ruling received."))]')" '[7,false,true]'
 assert "an unknown tool is a JSON-RPC error" \
   "$(serve "$(call nothing '{}')" | jq -c '.error')" '{"code":-32602,"message":"No tool is named \"nothing\"."}'
 assert "an unknown method is a JSON-RPC error" \

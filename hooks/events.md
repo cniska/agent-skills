@@ -13,7 +13,7 @@ A plugin gate decided whether work goes on.
 
 | Field | Value |
 |---|---|
-| `gate` | `commit` (the commit gate on a `git commit`) or `verdict` (the report check: at `PreToolUse` on a report tool, `verdict`, `research` or `task_report`, and at `PreToolUse` on `SubagentHandback`, `SubagentStop` or `Stop` when the agent ends without a report) |
+| `gate` | `commit` (the commit gate on a `git commit`) or `verdict` (the report check: at `PreToolUse` on a report tool, `verdict`, `research`, `task_report` or `ruling`, and at `PreToolUse` on `SubagentHandback`, `SubagentStop` or `Stop` when the agent ends without a report) |
 | `decision` | `allow` or `deny`; for `verdict`, `deny` refuses the report call, the hand-back or the stop, so the agent keeps running |
 | `reason` | a code from the table below |
 | `repo` | the repository's absolute top level, or `null` |
@@ -40,7 +40,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `commit` | `deny` | `gate_error` | the gate itself failed, so it refused |
 | `verdict` | `deny` or `allow` | `payload_invalid` | the report call's input breaks its tool's schema in `mcp/report-schemas.json`, or a field is missing or given against another field's value, such as `drop_reason` without `sort` `drop`; or a judgment gives a `reason` with `verdict` `accept`, or one its agent may not give: a reviewer may give only `no_diff`, a designer also `verify_gap`, `run_blocked` or `run_short` |
 | `verdict` | `deny` or `allow` | `rule_unknown` | a `rule` in a verdict's `findings`, `conflicts` or `follow_ups` is not one of the names in `hooks/rule-names.json`; the refusal lists every name by its source file |
-| `verdict` | `deny` | `wrong_agent` | the report tool is not its caller's: `verdict` is the reviewer's and the designer's, `research` the researcher's, `task_report` the worker's; denied every time, and stores nothing |
+| `verdict` | `deny` | `wrong_agent` | the report tool is not its caller's: `verdict` is the reviewer's and the designer's, `research` the researcher's, `task_report` the worker's, and `ruling` refuses any `agent_id` and any `cniska-skills:` `agent_type`; denied every time, and stores nothing |
 | `verdict` | `deny` | `already_reported` | the agent calls a report tool while its stored report awaits its hand-back; denied every time |
 | `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops with no report stored since its last hand-back |
 | `verdict` | `deny` or `allow` | `diff_not_read` | a reviewer lists under `diffs` a file it did not read with `Read` |
@@ -48,11 +48,12 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` or `allow` | `repo_repeated` | two judgments name the same repository |
 | `verdict` | `deny` or `allow` | `worktree_mismatch` | a judgment cites files, in its findings, conflicts, follow-ups or clean places, in another worktree of its `repo` and none in the one it names, where files in the main checkout do not count for a linked worktree; or it accepts while the listed diffs match nothing in its `repo` and another worktree holds them |
 | `verdict` | `deny` or `allow` | `accept_with_findings` | a judgment accepts with `findings` not empty; `follow_ups` never holds back an accept |
+| `verdict` | `deny` | `payload_invalid`, `diff_not_read`, `repo_not_found`, `worktree_mismatch` or `accept_covers_nothing` | a `ruling` call has the fault the code names elsewhere in this table, or lists a diff its session's transcript does not show it read, or one matching nothing; denied every time, and records nothing |
 | `verdict` | `allow` | `same_round` | a note: a judgment accepts a repository its reviewer returned earlier in the same round with a critical or major finding, a conflict or a malformed `findings` or `conflicts`, so the accept is not recorded until the reviewer is resumed on the fix |
 | `verdict` | `allow` | `accept_covers_nothing` | a note: a judgment accepts while the listed diffs name at least one path and none has its new side in that checkout's index or working tree, and no other worktree holds them, so the diff no longer matches the change and the accept is not recorded |
 
 - **When:** a `verdict` gate judges a report at its tool's `PreToolUse`, while the agent still runs to read a deny. It judges an end without a report at `SubagentHandback`, `SubagentStop` or a top-level worker's `Stop`.
-- **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
+- **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound; a `ruling` has no bound, since no one must make one. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
 - **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's round: its agent id and the count of its runs that have ended, so an agent resumed after a hand-back starts a new round.
 - **Minor-only returns:** a recorded return with at least one finding, every finding `minor`, and no conflict covers paths whatever their content, so the fix commits without another review.
   - **Adds:** an entry for each path in the diff files it lists whose new side the repository holds, and for each path inside the repo that a finding's `where` cites.
@@ -81,6 +82,15 @@ A reviewer reported a well-formed verdict and the commit gate now holds it: one 
 | `rules` | each finding's `rule`, a name from `hooks/rule-names.json`, one entry per finding |
 
 Finding counts and the rules a review cites are written, so a reader sums them without reading the report. A count over 1000 leaves all four `null`.
+
+### `tag`
+
+A top-level session recorded a [ruling](../docs/plugin.md#rulings). It carries the call and no reason, so agent-record reads a ruling as neither a verdict nor a review.
+
+| Field | Value |
+|---|---|
+| `key` | `ruling` |
+| `value` | the call: `work_right`, `finding_right`, `owner_only`, `owner_decision` or `owner_instruction` |
 
 ### `permission_prompt`
 

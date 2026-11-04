@@ -59,7 +59,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report)",
+        "matcher": "SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report|ruling)",
         "hooks": [
           {
             "type": "command",

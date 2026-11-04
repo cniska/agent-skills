@@ -7,6 +7,7 @@ readonly SCHEMAS="$HERE/report-schemas.json"
 readonly SCHEMA_LIB="$HERE/../hooks"
 readonly SUPPORTED_VERSIONS='["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]'
 readonly SERVER_INFO='{"name": "report", "version": "1"}'
+readonly RULING_RECEIVED_TEXT="Ruling received. Pass it to the agent that waits on it, naming this ruling and each reason."
 readonly RECEIVED_TEXT="Report received. Hand back now with a one-line message; your caller reads the report itself."
 
 readonly RPC='
@@ -44,6 +45,7 @@ readonly ROUTE='include "report-schema";'"$RPC"'
           .params.name as $tool
           | .params.arguments as $arguments
           | if ($root.tools | has($tool | tostring) | not) then failure($id; -32602; "No tool is named \($tool | tojson).")
+            elif $tool == "ruling" then tool_text($id; $ruling_received; false)
             elif $tool != "read_report" then tool_text($id; $received; false)
             else
               [$arguments | tool_violations($root; "read_report") | violation_text] as $violations
@@ -85,7 +87,7 @@ read_report() {
 answer() {
   local routed
   routed="$(jq -cn -L "$SCHEMA_LIB" --slurpfile schemas "$SCHEMAS" \
-    --arg line "$1" --arg versions "$SUPPORTED_VERSIONS" --arg info "$SERVER_INFO" --arg received "$RECEIVED_TEXT" \
+    --arg line "$1" --arg versions "$SUPPORTED_VERSIONS" --arg info "$SERVER_INFO" --arg received "$RECEIVED_TEXT" --arg ruling_received "$RULING_RECEIVED_TEXT" \
     "$ROUTE")" || return 1
   [ -n "$routed" ] || return 0
   if [ "$(jq -r 'has("read")' <<<"$routed")" = true ]; then

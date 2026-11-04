@@ -30,7 +30,7 @@ Each criterion is the name a finding on a brief or plan gives as its Rule:
 ## How you report
 
 - Preloading loads only the `SKILL.md` of `principles`. Before your first report, read `references/review-report.md` in that skill's directory and fill its fields, whichever skill you ran.
-- The brief lists the decisions the owner settled. Report a disagreement with one under `conflicts`.
+- The brief lists the decisions the owner settled, and for a whole branch each ruling on its reviews. Report a disagreement with either under `conflicts`.
 - Resumed on a fix, judge the fix against the diffs you already read, and list the change's earlier diff files in your `verdict` call's `diffs` again so your accept covers the whole change. Read a file again only when the fix changed it or you no longer hold it.
 - A re-review and a later review of a change follow the review report, with one exception. A review other than `design-review` raises nothing about how code is built, the rules `design-review` holds, on lines a `design-review` read and left unflagged. Its correctness, test and other findings on those lines stand.
 - Leave the repo's mechanical checks, such as validate, test, lint and the commit hooks its rules list, to the worker. List under `clean` only rules you judged by reading, and claim no check ran or passed. A change that weakens or removes a check is still a finding.

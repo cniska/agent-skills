@@ -55,6 +55,7 @@ flowchart TD
 
 - [coordinate](../skills/workflow/coordinate/SKILL.md) runs it.
 - It takes every choice it can recommend, and asks me only product tradeoffs and what it cannot answer.
+- It [rules](plugin.md#rulings) on a review that stops at its cap, unless it wrote the change.
 - It [reports](../skills/workflow/coordinate/SKILL.md#report) what is in flight.
 - It keeps its state in [its project's tasks](plugin.md#coordinator-hook), so a session that dies resumes from them on the same machine.
 

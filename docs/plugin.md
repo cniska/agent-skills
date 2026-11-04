@@ -53,7 +53,7 @@ sequenceDiagram
 
 It sends every task through `task`, so a plain prompt takes the same route as `/task`.
 
-- A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept or a return with only minor findings and no conflict.
+- A new session is told to start each task with `cniska-skills:task`, to load other skills only as a route directs, and that a commit changing code waits for the reviewer's accept, a recorded ruling's accept, or a return with only minor findings and no conflict.
 - A resumed or forked session is told to load `coordinate` again and resume its project's tasks and workers when it coordinates other agents, or else to reload `task` and re-enter its route.
 - A compacted session is told nothing: the host re-attaches the skills it loaded after the summary, and the hook runs before that re-attachment is written, so it cannot tell when one was dropped.
 
@@ -104,16 +104,16 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 ## Report server
 
-It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, and `read_report` returns one stored report by its agent id, or a top-level worker's by its session id.
+It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, `ruling` takes a [ruling](#rulings), and `read_report` returns one stored report by its agent id, or a top-level worker's by its session id.
 
-- **Checked before the call:** the plugin's `PreToolUse` hook checks each call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes.
+- **Checked before the call:** the plugin's `PreToolUse` hook checks each `verdict`, `research` or `task_report` call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes. A `ruling` is checked and logged, never stored, as [Rulings](#rulings) says.
 - **Rule names:** each `rule` in a verdict's findings, conflicts and follow-ups must be one of the names in [`hooks/rule-names.json`](../hooks/rule-names.json), which `mise run rule-names` reads from the skills' rule headings. A call naming another is denied once with every name listed; a second such call is stored as not recorded.
 - **Once per hand-back:** a second report call before the hand-back is refused. A reviewer, designer, researcher or worker that ends with no report since its last hand-back is sent back once; handing back a report resets that, so a resumed agent reports again and its report replaces the old. One that still ends without reporting leaves no report to read.
 - **Read back:** the caller reads the report through `read_report`, never from the agent's closing message.
 
 ## Commit gate
 
-It blocks a commit until the reviewer has accepted the content of every changed code path, in the worktree the commit targets, or returned it with only minor findings and no conflict.
+It blocks a commit until the reviewer or a recorded ruling has accepted the content of every changed code path, in the worktree the commit targets, or the reviewer returned it with only minor findings and no conflict.
 
 - It judges each code path that `git diff --cached` lists against `HEAD` or whose working-tree file differs from `HEAD`, an untracked file that git does not ignore included, on each side that differs: the staged content and the working-tree file, since a commit hook, a pathspec or `-a` can carry either. A path added with `git add -N` has a working side only, since `git diff --cached` does not list it. A side is covered while its mode and content are the new side of that path in a diff file the reviewer read and listed in its `verdict` call's `diffs`, and a deleted side only by an accepted deletion or a minor-only return's cover. A commit carrying anything else is blocked, and the refusal names each uncovered path and side.
 - The accept holds per path, not for the whole diff, so an accepted diff can land over several commits, and an unrelated edit, or an untracked file, set aside with `git stash` or `git stash -u` and restored after the commit voids no accept. It lapses for a path once a commit after the accept touches that path, or once the commit it was recorded on is no longer an ancestor of `HEAD`, as after an amend, rebase or reset, so accepted content landed again after a later change needs a fresh accept, and a return voids the accept of each path in every diff file its reviewer read, leaving the repo's other accepts standing.
@@ -130,6 +130,26 @@ It blocks a commit until the reviewer has accepted the content of every changed 
 - A command that creates its repo with `git init` or `git clone` under a temp directory and commits there passes, as a scratch experiment; a repo created anywhere else blocks the commit. A command run from outside a temp directory reaches one with `-C` and a literal temp path on every commit, or with a leading `cd` to a literal temp path or to `"$(mktemp -d)"`, joined to every later step by `&&`; on the `cd` route, a target named through a variable, or a `;` or newline before the last commit, blocks the command.
 - Quoted strings and heredoc bodies are read as text, so commit text in an `echo` or a message neither opens nor blocks the gate; a quoted path after `cd`, `pushd` or `-C` still names the repo, and a quoted string that runs as code, after `sh -c` or `eval` or holding a command substitution, is still read.
 
+## Rulings
+
+A coordinator rules on a review that stopped at its cap, and any top-level session can record the owner's words, through the `ruling` tool. Its `call` says which:
+
+| Call | Means | Requires |
+|---|---|---|
+| `work_right` | Each finding is wrong or already fixed | `findings`, a reason for each |
+| `finding_right` | The work goes back with the fix | |
+| `owner_only` | Only the owner can decide | |
+| `owner_decision` | The owner accepted on a stop that went to them | `owner_words` |
+| `owner_instruction` | The owner told the session to commit; needs no earlier return | `owner_words`, `review` `commit` |
+
+- **Effect:** `work_right`, `owner_decision` and `owner_instruction` on `review` `commit` also require `diffs`. The gate takes them like a reviewer's accept, for the paths in those diffs, and they lapse as a reviewer's does.
+- **Every other ruling:** it adds no paths. A `branch` or `plan` ruling reaches the worker as a message, which [task](../skills/workflow/task/SKILL.md) treats as that review's accept. A `designer` ruling settles only the wait for the designer.
+- **Refused every time:** any caller with an `agent_id` or a `cniska-skills:` `agent_type`, even a top-level worker, a call off the schema, and on a commit a diff the session's transcript does not show it read or one that matches nothing in `repo`. [Hook events](../hooks/events.md) lists the codes.
+- **Not checked:** that a coordinator did not write what it rules on. That rule lives in [coordinate](../skills/workflow/coordinate/SKILL.md) and `task`.
+- **On the record:** each ruling logs a `tag` with key `ruling` and its call as value, so agent-record never counts it as a review. The reasons and the owner's words stay in the tool call's input in the session transcript.
+
+List the rulings with `agent-record sql "select ts, session, tag_value from hook_event where event = 'tag' and tag_key = 'ruling' order by ts"`.
+
 ## Coordinator hook
 
 It prints a [coordinate](../skills/workflow/coordinate/SKILL.md) session's project and tasks into context whenever a session starts, clears, resumes, forks or compacts, for the [outer loop](loops.md#the-outer-loop).
@@ -145,7 +165,7 @@ It prints a [coordinate](../skills/workflow/coordinate/SKILL.md) session's proje
 
 The hooks append what a session transcript does not show plainly to `events.jsonl` in the plugin's data directory, in the format [agent-record](https://github.com/cniska/agent-record) defines, for it to archive where installed.
 
-- It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict with its finding counts, each permission prompt and each auto-mode denial.
+- It holds each commit-gate and verdict-check decision with a fixed reason code, each reviewer verdict with its finding counts, each ruling, each permission prompt and each auto-mode denial.
 - A hook that cannot write the line says so on stderr and decides as it would have.
 - [`hooks/events.md`](../hooks/events.md) says what each hook writes.
 

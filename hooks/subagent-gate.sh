@@ -53,12 +53,15 @@ agent_transcript() {
   fi
 }
 
-read_files() {
-  local transcript
-  transcript="$(agent_transcript "$1")"
+transcript_reads() {
+  local transcript="$1"
   [ -n "$transcript" ] && [ -f "$transcript" ] || return 0
   jq -nrR '[inputs | fromjson? | objects | select(.type == "assistant") | .message.content[]?
     | select(.type == "tool_use" and .name == "Read") | .input.file_path? | select(type == "string" and . != "")] | unique[]' "$transcript"
+}
+
+read_files() {
+  transcript_reads "$(agent_transcript "$1")"
 }
 
 left_to_handback() {

@@ -13,7 +13,7 @@ Every review reports in one shape, so a review that runs others merges their res
 
 ## Conflicts
 
-Findings only the owner can settle, such as one against a decision the owner made, in the same bullets.
+Findings the review cannot settle, such as one against a decision the owner made or a ruling the brief names, in the same bullets.
 
 ## Follow-ups
 
@@ -30,11 +30,11 @@ Real defects, such as a bug or a security hole, that were there before the chang
   - A problem that was there before the change and blocks it, such as a bug the change calls into or a hole it makes reachable, is a finding worded as its own fix, never as one the change introduced.
   - Any other problem that was there before the change, in a file or hunk the diff touches included, is a follow-up when it is a real defect and is dropped, not reported, when it is a style point.
 - **Findings:** whoever ran the review fixes every one; the review itself changes nothing. It accepts only when there is no finding; conflicts and follow-ups never hold back an accept.
-- **After a return:** when every finding of a commit's review is minor and it has no conflict, the author fixes each one and commits with no further round. Any other return goes to a re-review, and so does every return of a whole branch's review, since that review is the last read of those minor fixes.
+- **After a return:** when every finding of a commit's review is minor and it has no conflict, the author fixes each one and commits with no further round. Any other return goes to a re-review, and so does every return of a whole branch's review, since that review is the last read of those minor fixes. A review that stops at its cap waits for a ruling on its returns.
 - **Follow-ups** go to whoever coordinates the work, or else the owner, each queued as its own task, in the task tool where one is installed, never as a backlog line.
 - **Where** may cite other places with the same problem, so the fix is one structure. A cited place whose problem the change did not cause is fixed with the finding only where the fix needs it, and is otherwise sorted like any other problem that was there before the change.
 - **A re-review** judges the fix it is given against the change's earlier diffs, for findings as for its accept, which then covers the whole change. The reviewer that returned the change already holds those diffs and reads again only what the fix changed; a reviewer new to the change reads them all.
-- **A later review of a change**, the branch's review included, that disagrees with a line an earlier review of it read and left unflagged, whether that review accepted or returned, raises a finding. When the disagreement is against a decision the owner settled, it is a conflict instead.
+- **A later review of a change**, the branch's review included, that disagrees with a line an earlier review of it read and left unflagged, whether that review accepted or returned, raises a finding. When the disagreement is against a decision the owner settled, or a ruling the brief names, it is a conflict instead.
 - A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph or table.
 
 ## Rule names

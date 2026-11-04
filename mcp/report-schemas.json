@@ -111,7 +111,7 @@
         "conflicts": {
           "type": "array",
           "items": { "$ref": "#/$defs/finding" },
-          "description": "Findings only the owner can settle, each rule named as in findings."
+          "description": "Findings the review cannot settle, such as one against an owner's decision or a ruling the brief names, each rule named as in findings."
         },
         "follow_ups": {
           "type": "array",
@@ -317,6 +317,55 @@
           },
           "plugin_update_due": {
             "type": "boolean"
+          }
+        }
+      }
+    },
+    "ruling": {
+      "description": "Record a ruling on a review that stopped at its cap, or the owner's words where the owner is the judge. Only a top-level session that no cniska-skills agent runs may call it.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "review", "call"],
+        "properties": {
+          "repo": {
+            "$ref": "#/$defs/path",
+            "description": "The repository the change is in; for a change in a worktree, that worktree's path."
+          },
+          "review": {
+            "enum": ["commit", "branch", "designer", "plan"],
+            "description": "The review ruled on; plan covers a plan, a design and a brief."
+          },
+          "call": {
+            "enum": ["work_right", "finding_right", "owner_only", "owner_decision", "owner_instruction"],
+            "description": "work_right: each finding is wrong or already fixed. finding_right: the work goes back with the fix. owner_only: only the owner can decide. owner_decision: the owner accepted on a stop that went to them. owner_instruction: the owner told you to commit."
+          },
+          "diffs": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "$ref": "#/$defs/path" },
+            "description": "Each diff file you read, by absolute path; given only when the ruling accepts a commit: review commit with work_right, owner_decision or owner_instruction."
+          },
+          "findings": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["rule", "reason"],
+              "properties": {
+                "rule": { "$ref": "#/$defs/text" },
+                "reason": {
+                  "$ref": "#/$defs/text",
+                  "description": "Why the finding is wrong or already fixed, or for finding_right the fix."
+                }
+              }
+            },
+            "description": "Each finding ruled on, by its rule; required with work_right."
+          },
+          "owner_words": {
+            "$ref": "#/$defs/text",
+            "description": "What the owner said, quoted; given with owner_decision and owner_instruction, and only then."
           }
         }
       }
