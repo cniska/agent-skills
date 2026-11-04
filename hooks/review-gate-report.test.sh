@@ -18,7 +18,7 @@ assert "that refusal is logged as accept_with_findings" "$(last_gate)" '["verdic
 twice="$(fresh_agent)"
 record_as "$twice" "$(with_finding accept)" >/dev/null
 assert "an accept with a finding on the second call lets the reviewer hand back" "$(record_as "$twice" "$(with_finding accept)")" "$(allowed)"
-assert "that call is stored as not recorded" "$(stored "$twice" | jq -c .gate)" '{"recorded":false,"code":"accept_with_findings"}'
+assert "that call is stored as not recorded" "$(stored "$twice" | jq -c 'del(.gate.returns) | .gate')" '{"recorded":false,"code":"accept_with_findings"}'
 assert "an accept with a finding approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 assert "an accept with a finding and a follow-up keeps the reviewer running" \
   "$(record_handback "$(report "$repo" accept ".findings = [$(finding "$repo/app.py")] | .follow_ups = [$(finding "$repo/README.md")]")")" "$WITH_FINDINGS"
@@ -51,7 +51,7 @@ assert "a verdict from an agent other than the reviewer or designer is refused" 
 edit app.py 'print(5)'
 designer="$(fresh_agent)"
 assert "a designer's accept is allowed" "$(record_as "$designer" "$(report "$repo" accept)" cniska-skills:designer)" "$(allowed)"
-assert "a designer's accept is stored without a judgment record" "$(stored "$designer" | jq -c .gate)" '{"recorded":true}'
+assert "a designer's accept is stored without a judgment record" "$(stored "$designer" | jq -c 'del(.gate.returns) | .gate')" '{"recorded":true}'
 assert "a designer's accept approves nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 listed="$(fresh_agent)"

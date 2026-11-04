@@ -94,6 +94,9 @@ gate_line() {
 
 store() {
   local input="$1" tool="$2" file="$3" gate="$4"
+  if [ "$tool" = verdict ]; then
+    gate="$(jq -c --argjson returns "$(return_counts "$(reporter_id "$input")")" '. + {returns: $returns}' <<<"$gate")"
+  fi
   if ! {
     mkdir -p "$(dirname "$file")" &&
       jq -c --arg tool "$tool" --argjson gate "$gate" \
@@ -181,7 +184,7 @@ on_report_tool() {
   fi
   if [ "$agent_type" = cniska-skills:reviewer ]; then
     local judged code
-    judged="$(record_verdict "$input" "$reads" "$round" "$returned")"
+    judged="$(record_verdict "$input" "$reads" "$round")"
     code="$(jq -r '.code // empty' <<<"$judged")"
     if [ -n "$code" ]; then
       refuse "$input" "$tool" "$file" "$code" "$(jq -r .why <<<"$judged")"
@@ -192,6 +195,9 @@ on_report_tool() {
     while IFS=$'\t' read -r code repo; do
       gate_line "$input" allow "$code" "$repo"
     done < <(jq -r '.judgments[] | select(.code) | [.code, .repo] | @tsv' <<<"$gate")
+  fi
+  if [ "$tool" = verdict ]; then
+    count_return "$input" || die "the return cannot be counted for $file"
   fi
   store "$input" "$tool" "$file" "$gate"
   pre_tool_allow

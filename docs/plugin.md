@@ -87,7 +87,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
 - A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
 - An accept whose diffs match no checkout is stored with a note and not recorded. So is one in the same round as its reviewer's return there with a critical or major finding, a conflict or a malformed judgment, where a round is one run of the reviewer, from its start or resume to its hand-back. An accept from a reviewer that returned the same change in an earlier round is recorded like any other. The change's author never reaches the tool, since only the reviewer and the designer may call `verdict` and the reviewer's tools only read.
-- The stored report counts how often its most-repeated finding has come back on its commit, so `task` parks a commit when one finding comes back a third time in a critical or major return; a minor-only return, and new findings each round, never park it. [The hook reference](../hooks/events.md) defines a finding and a commit's returns.
+- Its stored report, like a designer's, carries two numbers for that agent: its returns of any severity and its returns with a critical or major finding. `task` reads the number its review uses to stop the review at the third. [The hook reference](../hooks/events.md) says which returns count.
 
 ## Designer agent
 

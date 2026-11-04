@@ -22,7 +22,7 @@ assert "a relative repo keeps the reviewer running" "$(record_handback "$(report
 twice="$(fresh_agent)"
 record_as "$twice" "$no_repo" >/dev/null
 assert "a judgment with no repo on the second call lets the reviewer hand back" "$(record_as "$twice" "$no_repo")" "$(allowed)"
-assert "that call is stored as not recorded" "$(stored "$twice" | jq -c .gate)" '{"recorded":false,"code":"payload_invalid"}'
+assert "that call is stored as not recorded" "$(stored "$twice" | jq -c 'del(.gate.returns) | .gate')" '{"recorded":false,"code":"payload_invalid"}'
 assert "a reviewer let through without a repo approved nothing" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 
 assert "an accepting verdict is allowed" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"

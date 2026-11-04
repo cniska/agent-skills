@@ -59,8 +59,11 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
   - **Ends:** at the repository's next return, whatever paths it read, or when `HEAD` moves by a commit, reset or checkout. The gate reads `HEAD`'s reflog for its count of moves, a run of entries on one commit counted once so a `git stash` keeps the cover, and the time `HEAD` arrived on its commit. With no reflog, no entry is added.
   - **Never:** from a designer, or from a reviewer whose earlier return there in the same round, refused or not, had a critical or major finding, a conflict or a malformed `findings` or `conflicts`, so a minor return never stands in for the re-review its own round's return needs.
 - **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back`, resets the bound and ends the agent's round, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current, and ends the round too.
-- **Notes:** the two notes deny nothing. The stored record gives each judgment `{repo, verdict, recorded, code, fix, finding_returns_on_commit}` for the caller to read.
-- **Return count:** `finding_returns_on_commit` is the most returns that carry any one of this return's findings. A finding is its `rule`, one of the names in `hooks/rule-names.json` and matched exactly, plus the path of its first `where`. Each round counts once, so a reviewer resumed on the fix counts again, and only returns on the same `HEAD` of `repo` whose read diffs share a path count. A return with no finding counts 0.
+- **Notes:** the two notes deny nothing. The stored record gives each reviewer judgment `{repo, verdict, recorded, code, fix}` for the caller to read.
+- **Return counts:** every reviewer's or designer's stored report holds `gate.returns`, two numbers for that agent, whichever repository or `HEAD` each return was on. `any_severity` counts its returns with a finding of any severity, and `critical_or_major` those with a critical or major finding.
+  - **Counted:** a report the agent got recorded, once however many repositories it judges.
+  - **Not counted:** a return with only conflicts, one with a `reason`, since it judged nothing, and a refused call. A report stored as not recorded carries the numbers without adding to them.
+  - **Starts at zero:** for each new agent, so one that takes over after a restart counts from the start.
 
 ### `verdict`
 

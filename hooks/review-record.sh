@@ -4,6 +4,12 @@ readonly ACCEPT_WITH_FINDINGS_REASON="An accept has no findings: while a finding
 readonly SAME_ROUND_FIX="This accept is not recorded: earlier in this run its reviewer returned this repository's change with a critical or major finding, a conflict or a malformed judgment, and no fix has come back since. Fix the change and send the fix's diff to this reviewer through SendMessage."
 readonly STALE_DIFF_FIX="The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a new diff of the change and send it to this reviewer through SendMessage, or brief a new cniska-skills:reviewer with it only when this one can no longer be reached."
 readonly MAX_COUNT=1000
+readonly NO_RETURNS='{"any_severity":0,"critical_or_major":0}'
+readonly COUNTED_RETURN='
+  [.tool_input.judgments[] | select(.verdict == "return" and (has("reason") | not)) | .findings[].severity] as $severities
+  | $counts
+  | if ($severities | length) > 0 then .any_severity += 1 else . end
+  | if any($severities[]; . != "minor") then .critical_or_major += 1 else . end'
 
 verdict_counts() {
   jq -c --argjson max "$MAX_COUNT" '
@@ -193,57 +199,35 @@ accept_fingerprint() {
   { [ ! -f "$1" ] || cat "$1"; } | set_fingerprint
 }
 
-returns_file() {
-  printf '%s.returns\n' "$(review_state_file "$1")"
-}
-
 rereview_file() {
   printf '%s.rereview\n' "$(review_state_file "$1")"
 }
 
-findings_file() {
-  printf '%s.findings\n' "$(review_state_file "$1")"
-}
-
-finding_keys() {
-  jq -r '.findings[]? | objects | [(.rule | strings), (.where[0]?.path | strings)] | tojson' 2>/dev/null
-}
-
-append_lines() {
-  local file="$1"
+record_rereview() {
+  local repo="$1" file
+  file="$(rereview_file "$repo")"
   mkdir -p "$(dirname "$file")"
-  {
-    [ ! -f "$file" ] || cat "$file"
-    RETURN_HEAD="$2" ROUND="$3" awk '{ print ENVIRON["RETURN_HEAD"] "\t" ENVIRON["ROUND"] "\t" $0 }'
-  } | sort -u >"$file.tmp"
-  mv "$file.tmp" "$file"
-}
-
-record_return() {
-  local repo="$1" round="$2" paths="$3" keys="$4" kind="$5" head
-  head="$(head_commit "$repo")"
-  append_lines "$(returns_file "$repo")" "$head" "$round" <<<"$paths"
-  [ -z "$keys" ] || append_lines "$(findings_file "$repo")" "$head" "$round" <<<"$keys"
-  [ "$kind" != rereview ] || append_lines "$(rereview_file "$repo")" "$head" "$round" <<<"$kind"
+  printf '%s\t%s\n' "$(head_commit "$repo")" "$2" >>"$file"
 }
 
 returned_for_rereview() {
   [ -f "$(rereview_file "$1")" ] && ROUND="$2" awk -F '\t' '$2 == ENVIRON["ROUND"] { found = 1 } END { exit !found }' "$(rereview_file "$1")"
 }
 
-finding_returns_on_commit() {
-  local repo="$1" paths="$2" keys="$3" returns findings
-  returns="$(returns_file "$repo")"
-  findings="$(findings_file "$repo")"
-  if [ ! -f "$returns" ] || [ ! -f "$findings" ] || [ -z "$paths" ] || [ -z "$keys" ]; then
-    printf '0\n'
-    return
-  fi
-  RETURN_HEAD="$(head_commit "$repo")" awk -F '\t' '
-    FILENAME == ARGV[1] { if ($1 == ENVIRON["RETURN_HEAD"]) on_work[$2]; next }
-    FILENAME == ARGV[2] { wanted[$0]; next }
-    $1 == ENVIRON["RETURN_HEAD"] && ($2 in on_work) && ($3 in wanted) && !seen[$3, $2]++ && ++count[$3] > most { most = count[$3] }
-    END { print most + 0 }' <(path_entries "$returns" <<<"$paths") <(printf '%s\n' "$keys") "$findings"
+return_counts_file() {
+  printf '%s/return-counts/%s\n' "$CLAUDE_PLUGIN_DATA" "$(data_key "$1")"
+}
+
+return_counts() {
+  cat "$(return_counts_file "$1")" 2>/dev/null || printf '%s\n' "$NO_RETURNS"
+}
+
+count_return() {
+  local input="$1" id file next
+  id="$(reporter_id "$input")"
+  file="$(return_counts_file "$id")"
+  next="$(jq -c --argjson counts "$(return_counts "$id")" "$COUNTED_RETURN" <<<"$input")" || return 1
+  mkdir -p "$(dirname "$file")" && printf '%s\n' "$next" >"$file.tmp" && mv "$file.tmp" "$file"
 }
 
 named_before() {
@@ -273,12 +257,12 @@ void_returns() {
       repo="$(repo_root "$(jq -r .repo <<<"$judgment")")" && [ -n "$repo" ] || continue
       void_paths "$(review_state_file "$repo")" "$returned"
       void_minor_covers "$(review_state_file "$repo")"
-      record_return "$repo" "$round" "$returned" "$(finding_keys <<<"$judgment")" "$(return_kind <<<"$judgment")"
+      [ "$(return_kind <<<"$judgment")" != rereview ] || record_rereview "$repo" "$round"
     done
 }
 
 record_verdict() {
-  local input="$1" reads="$2" round="$3" returned="$4" listed reviewed file
+  local input="$1" reads="$2" round="$3" listed reviewed file
   listed="$(jq -r '.tool_input.diffs[]' <<<"$input")"
   reviewed="$(diff_files_paths <<<"$listed")"
 
@@ -321,28 +305,28 @@ record_verdict() {
     fi
   done
 
-  local notes=() entries=() code fix count worktree
+  local notes=() entries=() code fix worktree
   for i in "${!judgments[@]}"; do
     repo="${repos[$i]}"
     verdict="$(jq -r .verdict <<<"${judgments[$i]}")"
-    code="" fix="" count=0 entries[i]=""
-    if [ "$verdict" = return ]; then
-      count="$(finding_returns_on_commit "$repo" "$returned" "$(finding_keys <<<"${judgments[$i]}")")"
-    elif returned_for_rereview "$repo" "$round"; then
-      code=same_round fix="$SAME_ROUND_FIX"
-    else
-      entries[i]="$(current_entries "$repo" <<<"$reviewed")"
-      if [ -n "$reviewed" ] && [ -z "${entries[i]}" ]; then
-        worktree="$(staged_worktree "$repo" "$reviewed")"
-        if [ -n "$worktree" ]; then
-          judgment_refused worktree_mismatch "$(covers_nothing_reason "$repo" "$reviewed" "$worktree")"
-          return
+    code="" fix="" entries[i]=""
+    if [ "$verdict" = accept ]; then
+      if returned_for_rereview "$repo" "$round"; then
+        code=same_round fix="$SAME_ROUND_FIX"
+      else
+        entries[i]="$(current_entries "$repo" <<<"$reviewed")"
+        if [ -n "$reviewed" ] && [ -z "${entries[i]}" ]; then
+          worktree="$(staged_worktree "$repo" "$reviewed")"
+          if [ -n "$worktree" ]; then
+            judgment_refused worktree_mismatch "$(covers_nothing_reason "$repo" "$reviewed" "$worktree")"
+            return
+          fi
+          code=accept_covers_nothing fix="$STALE_DIFF_FIX"
         fi
-        code=accept_covers_nothing fix="$STALE_DIFF_FIX"
       fi
     fi
-    notes[i]="$(jq -cn --arg repo "$repo" --arg verdict "$verdict" --arg code "$code" --arg fix "$fix" --argjson count "$count" \
-      '{repo: $repo, verdict: $verdict, recorded: ($code == ""), code: (if $code == "" then null else $code end), fix: (if $fix == "" then null else $fix end), finding_returns_on_commit: $count}')"
+    notes[i]="$(jq -cn --arg repo "$repo" --arg verdict "$verdict" --arg code "$code" --arg fix "$fix" \
+      '{repo: $repo, verdict: $verdict, recorded: ($code == ""), code: (if $code == "" then null else $code end), fix: (if $fix == "" then null else $fix end)}')"
   done
 
   local state counts

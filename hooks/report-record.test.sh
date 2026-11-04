@@ -82,7 +82,7 @@ agent="$(fresh_agent)"
 out="$(call "$agent" "$DESIGNER" verdict "$VERDICT")"
 assert "a designer's well-formed verdict is allowed without a prompt" "$(decision "$out")" allow
 assert "the verdict is stored with who made it" "$(stored "$agent" | jq -c '[.tool, .agent_type, .agent_id, .session_id, .gate]')" \
-  '["verdict","cniska-skills:designer","'"$agent"'","parent1",{"recorded":true}]'
+  '["verdict","cniska-skills:designer","'"$agent"'","parent1",{"recorded":true,"returns":{"any_severity":1,"critical_or_major":1}}]'
 assert "the stored payload is the call's input" "$(stored "$agent" | jq -c .payload)" "$(jq -c . <<<"$VERDICT")"
 out="$(call "$agent" "$DESIGNER" verdict "$VERDICT")"
 assert "a second report is refused" "$(decision "$out")" deny
@@ -141,7 +141,7 @@ assert "a refused payload is not stored" "$(stored "$agent")" ""
 assert "a payload_invalid refusal is logged" "$(last_gate)" '["verdict","deny","payload_invalid"]'
 out="$(call "$agent" "$REVIEWER" verdict '{"diffs": "/tmp/x.diff", "judgments": []}')"
 assert "past the bound, the same refusal is allowed" "$(decision "$out")" allow
-assert "past the bound, the payload is stored as not recorded" "$(stored "$agent" | jq -c .gate)" '{"recorded":false,"code":"payload_invalid"}'
+assert "past the bound, the payload is stored as not recorded" "$(stored "$agent" | jq -c 'del(.gate.returns) | .gate')" '{"recorded":false,"code":"payload_invalid"}'
 assert "the allow past the bound is logged" "$(last_gate)" '["verdict","allow","payload_invalid"]'
 
 unnamed() { jq -c --arg field "$1" --arg rule "$2" '.judgments[0][$field] = [.judgments[0].findings[0] | .rule = $rule]' <<<"$VERDICT"; }
@@ -157,7 +157,7 @@ assert "a refused rule name stores nothing" "$(stored "$agent")" ""
 assert "a rule_unknown refusal is logged" "$(last_gate)" '["verdict","deny","rule_unknown"]'
 out="$(call "$agent" "$REVIEWER" verdict "$(unnamed findings "Drift")")"
 assert "past the bound, a wrong rule name is allowed" "$(decision "$out")" allow
-assert "past the bound, it is stored as not recorded" "$(stored "$agent" | jq -c .gate)" '{"recorded":false,"code":"rule_unknown"}'
+assert "past the bound, it is stored as not recorded" "$(stored "$agent" | jq -c 'del(.gate.returns) | .gate')" '{"recorded":false,"code":"rule_unknown"}'
 assert "a wrong rule name in a conflict is refused" \
   "$(reason "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed conflicts "Owner taste")")" | sed -n 1p)" \
   '/judgments/0/conflicts/0/rule "Owner taste" is not a rule name'

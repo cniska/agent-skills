@@ -4,66 +4,89 @@ set -u
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/review-gate.test-harness.sh"
 
+readonly DESIGNER=cniska-skills:designer
+
 top="$(cd "$repo" && git rev-parse --show-toplevel)"
 new_lines() { tail -n +"$(($1 + 1))" "$log"; }
 lines() { wc -l <"$log" | tr -d ' '; }
-counts() { stored "$1" | jq -c '.gate.judgments | map(.finding_returns_on_commit)'; }
-returns_after() {
-  local agent
-  agent="$(fresh_agent)"
-  record_as "$agent" "$1" >/dev/null
-  counts "$agent"
-}
+counts() { stored "$1" | jq -c '.gate.returns | [.any_severity, .critical_or_major]'; }
 returning() {
-  local found rule
-  found="$(for rule in "${@:2}"; do finding "$top/$1" "$rule" major; done | jq -sc .)"
-  report "$repo" return ".findings = $found"
+  local severity="$2"
+  report "$repo" return ".findings = [$(finding "$top/$1" 'Size everything to the need' "$severity")]"
+}
+next_round() {
+  hand_back "$1" "${3:-}" >/dev/null
+  record_as "$1" "$2" "${3:-}" >/dev/null
 }
 
 edit app.py 'print(2)'
 first="$(fresh_agent)"
 assert "a first return off the schema keeps its reviewer running" \
-  "$(record_as "$first" "$(returning app.py 'Size everything to the need' | jq -c 'del(.clean)')" | jq -r .hookSpecificOutput.permissionDecision)" deny
-record_as "$first" "$(returning app.py 'Size everything to the need')" >/dev/null
-assert "that reviewer's fixed first return counts its finding once" "$(counts "$first")" '[1]'
-assert "a second return with a new finding counts one" "$(returns_after "$(returning app.py 'An invalid value never exists')")" '[1]'
-assert "a third return with a new finding counts one, so new findings keep the work going" \
-  "$(returns_after "$(returning app.py 'Absent is null; the caller that needs it throws')")" '[1]'
-assert "the same rule on another path is a new finding" "$(returns_after "$(returning README.md 'Size everything to the need')")" '[1]'
-assert "a return with no finding counts none" "$(returns_after "$(report "$repo" return)")" '[0]'
-assert "a finding an earlier return made counts two" "$(returns_after "$(returning app.py 'Size everything to the need' 'No abstraction before the third copy')")" '[2]'
-edit app.py 'print(3)'
-assert "an accept between returns records no count" "$(returns_after "$(report "$repo" accept)")" '[0]'
-assert "that accept lets the change commit" "$(gate 'git commit -am x')" ""
-
-before="$(lines)"
-returner="$(fresh_agent)"
-assert "a third return of one finding is allowed" "$(record_as "$returner" "$(returning app.py 'An invalid value never exists' 'Size everything to the need')")" "$(allowed)"
-assert "its record counts that finding's third return" "$(stored "$returner" | jq -c '.gate.judgments[0] | [.repo, .verdict, .recorded, .finding_returns_on_commit]')" \
-  "$(jq -cn --arg repo "$top" '[$repo, "return", true, 3]')"
-assert "the third return logs its verdict and no gate line" \
-  "$(new_lines "$before" | jq -sc 'map([.event, .verdict, .repo, .agent])')" "$(jq -cn --arg repo "$top" --arg agent "$returner" '[["verdict", "return", $repo, $agent]]')"
-assert "the third return voids the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
-assert "a fourth return of it counts four" "$(returns_after "$(returning app.py 'Size everything to the need')")" '[4]'
-assert "an accept after the third return records as any accept" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
-assert "that accept lets the commit land" "$(gate 'git commit -am x')" ""
+  "$(record_as "$first" "$(returning app.py major | jq -c 'del(.clean)')" | jq -r .hookSpecificOutput.permissionDecision)" deny
+record_as "$first" "$(returning app.py major)" >/dev/null
+assert "the fixed return counts once in both numbers, its refused call not at all" "$(counts "$first")" '[1,1]'
+next_round "$first" "$(returning app.py minor)"
+assert "a minor-only return counts only under any severity" "$(counts "$first")" '[2,1]'
+next_round "$first" "$(returning README.md critical)"
+assert "a critical return on another path counts in both numbers" "$(counts "$first")" '[3,2]'
+next_round "$first" "$(report "$repo" return | jq -c --argjson conflict "$(finding "$top/app.py" 'Size everything to the need' major)" '.conflicts = [$conflict]')"
+assert "a return with only conflicts counts in neither" "$(counts "$first")" '[3,2]'
+next_round "$first" "$(report "$repo" return '.reason = "no_diff"')"
+assert "a return that judged nothing counts in neither" "$(counts "$first")" '[3,2]'
 
 land
+edit app.py 'print(3)'
+hand_back "$first" >/dev/null
+assert "a return past the third is allowed like any other" "$(record_as "$first" "$(returning app.py major)")" "$(allowed)"
+assert "a moved HEAD changes nothing: the count is the reviewer's" "$(counts "$first")" '[4,3]'
+next_round "$first" "$(report "$repo" accept)"
+assert "an accept keeps the count and adds nothing" "$(counts "$first")" '[4,3]'
+assert "that accept lets the change commit" "$(gate 'git commit -am x')" ""
+
+second="$(fresh_agent)"
 edit app.py 'print(4)'
-assert "a commit that lands starts the count over" "$(returns_after "$(returning app.py 'Size everything to the need')")" '[1]'
-assert "a second return of it on the new commit counts two" "$(returns_after "$(returning app.py 'Size everything to the need')")" '[2]'
-assert "the same finding at another line counts three" \
-  "$(returns_after "$(returning app.py 'Size everything to the need' | jq -c '.findings[0].where[0].line = 40')")" '[3]'
-assert "a finding whose first place is another path is new, though a later place repeats" \
-  "$(returns_after "$(returning README.md 'Size everything to the need' | jq -c --arg path "$top/app.py" '.findings[0].where += [{path: $path, line: 1}]')")" '[1]'
+record_as "$second" "$(returning app.py major)" >/dev/null
+assert "a new reviewer on the same change starts at zero" "$(counts "$second")" '[1,1]'
+
+other="$scratch/other"
+mkdir -p "$other"
+(cd "$other" && git init -q -b main && printf 'z = 1\n' >lib.py && git add -A && git commit -q -m base && printf 'z = 2\n' >>lib.py)
+other_top="$(cd "$other" && git rev-parse --show-toplevel)"
+two="$(fresh_agent)"
+record_as "$two" "$(returning app.py major)
+$(report "$other" return ".findings = [$(finding "$other_top/lib.py" 'Size everything to the need' major)]")" >/dev/null
+assert "one report across two repositories counts as one return" "$(counts "$two")" '[1,1]'
+
+designer="$(fresh_agent)"
+record_as "$designer" "$(returning app.py major)" "$DESIGNER" >/dev/null
+assert "a designer's return counts like a reviewer's" "$(counts "$designer")" '[1,1]'
+next_round "$designer" "$(returning app.py minor)" "$DESIGNER"
+assert "a designer's minor-only return counts only under any severity" "$(counts "$designer")" '[2,1]'
+for reason in verify_gap run_blocked run_short; do
+  next_round "$designer" "$(returning app.py major | jq -c --arg reason "$reason" '.reason = $reason')" "$DESIGNER"
+  assert "a designer's $reason return judges no screen, so it counts in neither" "$(counts "$designer")" '[2,1]'
+done
+
+stubborn="$(fresh_agent)"
+unknown="$(returning app.py major | jq -c '.findings[0].rule = "Nothing of the kind"')"
+record_as "$stubborn" "$unknown" >/dev/null
+record_as "$stubborn" "$unknown" >/dev/null
+assert "a report stored as not recorded still carries the numbers, uncounted" \
+  "$(stored "$stubborn" | jq -c '[.gate.recorded, .gate.code, .gate.returns.any_severity]')" '[false,"rule_unknown",0]'
 
 (cd "$repo" && git checkout -q -- app.py)
-edit README.md 'other change'
-assert "a change replaced by one on other paths starts the count over" "$(returns_after "$(returning app.py 'Size everything to the need')")" '[1]'
-reused="$(fresh_agent)"
-record_as "$reused" "$(returning app.py 'An invalid value never exists')" >/dev/null
-hand_back "$reused" >/dev/null
-record_as "$reused" "$(returning app.py 'An invalid value never exists')" >/dev/null
-assert "a reviewer resumed on the fix that returns a finding again counts each round" "$(counts "$reused")" '[2]'
+edit app.py 'print(5)'
+assert "an accept before the return records as any accept" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
+before="$(lines)"
+returner="$(fresh_agent)"
+assert "a reviewer's return is allowed" "$(record_as "$returner" "$(returning app.py major)")" "$(allowed)"
+assert "its record carries repo, verdict and recorded, and no per-commit count" \
+  "$(stored "$returner" | jq -c '.gate.judgments[0]')" \
+  "$(jq -cn --arg repo "$top" '{repo: $repo, verdict: "return", recorded: true, code: null, fix: null}')"
+assert "the return logs its verdict and no gate line" \
+  "$(new_lines "$before" | jq -sc 'map([.event, .verdict, .repo, .agent])')" "$(jq -cn --arg repo "$top" --arg agent "$returner" '[["verdict", "return", $repo, $agent]]')"
+assert "the return voids the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
+assert "an accept after it records as any accept" "$(record_handback "$(report "$repo" accept)")" "$(allowed)"
+assert "that accept lets the commit land" "$(gate 'git commit -am x')" ""
 
 finish

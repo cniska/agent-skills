@@ -14,7 +14,10 @@ Run one task so that it lands whole, does what was asked, and is reviewed by an 
 - **An agent that did not write the change reviews each commit before you make it**: `design-review` for code, `doc-review` for docs, and `ui-review` with captures for an interface. Before the branch lands, another such agent runs `review` on the whole branch.
   - **Fixes:** fix a commit review's return whose findings are all minor, with no conflict, and commit it without another round. Send the fix of any other return, every return of the branch's `review` included, back to the agent that returned it through `SendMessage`.
   - **Separate reviews:** the commit's reviewer, its designer and the branch's `review` each keep one agent across their rounds, since it already holds what it read. Brief a new agent with the earlier returns and the fix only when that one can no longer be reached, as after a session restart.
-  - **Repeat stop:** when a return with a critical or major finding brings one finding back on the same work a third time, stop and report what the returns show; a minor-only return never stops the work, and new findings each round keep it going.
+  - **Cap:** a review stops at the return that raises its number in `gate.returns`, in its agent's stored report, to 3 or more. Fix nothing more; report the returns to whoever rules.
+    - `any_severity`: the whole-branch review.
+    - `critical_or_major`: a commit's, a designer's, and a reviewer's plan or design review. A commit's minor-only return still needs no further round.
+    - A researcher's `second-opinion` reports no findings, so no cap holds it.
 - **Before asking for each review, sweep for drift** as no drift in `principles` says, since drift is what reviews return most often.
 - **Fix what your change causes or what blocks it**, and report other defects as follow-ups, so the change stays one thing.
 - **A defect in a tool, hook or gate stops the task.** Report the command and what it printed, so the defect gets fixed at its source.
