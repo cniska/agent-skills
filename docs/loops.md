@@ -21,7 +21,7 @@ flowchart LR
 
 Start a task with `/task <task>`, or `/cniska-skills:task <task>` with [the plugin](plugin.md).
 
-[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too. Before a branch lands, a designer judges its finished interface whole. Each review goes back to the same agent after a return, until it accepts.
+[task](../skills/workflow/task/SKILL.md) picks the route by what the task changes and loads each step's skill as the step starts, since a skill only helps when something loads it; its routes are the reference. Each commit waits on the [reviewer](reviewer.md), and each one that changes an interface on a [designer](plugin.md#designer-agent) too. Before a branch lands, a designer judges its finished interface whole. After a return, each review's re-review goes back to the agent that returned it.
 
 `<task>` is what you would tell a colleague, in your own words: one line, an issue to fix, or a brief from a coordinating agent. The route reads the code the task names and works out the rest. A task whose shape is unclear starts with `plan`, which asks before it builds.
 

@@ -74,6 +74,13 @@ hand_back "$hasty" >/dev/null
 assert "that reviewer's accept once resumed on the fix records" "$(record_as "$hasty" "$(report "$repo" accept)")" "$(allowed)"
 assert "and lets the fix commit" "$(gate 'git commit -am x')" ""
 
+silent="$(fresh_agent)"
+record_as "$silent" "$(report "$repo" return ".findings = [$(finding "$repo/app.py" 'Not a rule' major)]")" >/dev/null
+hand_back "$silent" >/dev/null
+assert "a reviewer that ends twice with no report after its refused major return ends its round" "$(hand_back "$silent")" ""
+assert "so its accept once resumed records" "$(record_as "$silent" "$(report "$repo" accept)")" "$(allowed)"
+assert "and lets the fix commit" "$(gate 'git commit -am x')" ""
+
 spare="$scratch/spare"
 (cd "$scratch" && git init -q -b main spare)
 spare_reviewer="$(fresh_agent)"

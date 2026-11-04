@@ -132,9 +132,12 @@ assert "a verdict with no reason logs a null reason" "$(decided record_logged "$
 assert "two judgments of one repository log repo_repeated" "$(decided record_logged "$(report "$logged" return)"$'\n'"$(report "$logged" accept)" | jq -r .reason)" repo_repeated
 returner="$(fresh_agent)"
 listed="$(scratch_file "$(diff_in "$logged" n.py)")"
-jq -cn --arg agent "$returner" --arg tool "$VERDICT_TOOL" --arg listed "$listed" --argjson judgment "$(report "$logged" return)" \
+jq -cn --arg agent "$returner" --arg tool "$VERDICT_TOOL" --arg listed "$listed" --argjson judgment "$(report "$logged" return ".findings = [$(at Names major)]")" \
   '{session_id: "s1", agent_id: $agent, hook_event_name: "PreToolUse", tool_name: $tool, tool_input: {diffs: [$listed], judgments: [$judgment]}, agent_type: "cniska-skills:reviewer"}' | "$RECORD" >/dev/null 2>&1
-assert "an accept from the reviewer that returned logs its verdict" \
+assert "an accept in the round of its reviewer's major return logs a same_round note and no verdict" \
+  "$(decided record_logged_as "$returner" "$(report "$logged" accept)" | jq -sc 'map([.gate, .decision, .reason])')" '[["verdict","allow","same_round"]]'
+hand_back "$returner" >/dev/null
+assert "that reviewer's accept once resumed on the fix logs its verdict" \
   "$(decided record_logged_as "$returner" "$(report "$logged" accept)" | jq -sc 'map(.verdict)')" '["accept"]'
 assert "a repo that is not a repository logs repo_not_found" "$(decided record_logged "$(report "$scratch/nowhere" accept)" | jq -r .reason)" repo_not_found
 
