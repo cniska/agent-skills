@@ -97,7 +97,7 @@ assert "a returning verdict logs the return with the fingerprint of the cleared 
 counts() { decided record_logged "$(report "$logged" return "$1")" | jq -c '[.findings, .conflicts, .follow_ups, .rules]'; }
 at() { finding "$logged/n.py" "$1" "$2"; }
 assert "a return counts its findings by severity, its conflicts, its follow-ups and each finding's rule" \
-  "$(counts ".findings = [$(at 'Size everything to the need' critical), $(at 'Named constants' major), $(at 'Size everything to the need' minor)] | .conflicts = [$(at 'Decisions settled' major), $(at Outcome minor)] | .follow_ups = [$(at Names minor)]")" \
+  "$(counts ".findings = [$(at 'Size everything to the need' critical), $(at 'Named constants' major), $(at 'Size everything to the need' minor)] | .conflicts = [$(at Cause major), $(at Outcome minor)] | .follow_ups = [$(at Names minor)]")" \
   '[{"critical":1,"major":1,"minor":1,"fix":0,"consider":0,"unrated":0},2,1,["Size everything to the need","Named constants","Size everything to the need"]]'
 assert "more than 1000 findings of a kind leave the verdict uncounted" "$(counts ".findings = [range(1001) | $(at Names minor)]")" '[null,null,null,null]'
 assert "an uncounted return is still logged" "$(tail -n 1 "$log" | jq -r .verdict)" return

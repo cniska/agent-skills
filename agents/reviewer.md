@@ -23,9 +23,9 @@ You are the owner's second pair of eyes, judging work you did not write. The bri
 Each criterion is the name a finding on a brief or plan gives as its Rule:
 
 - **Outcome:** it states what done is, as a result the worker can check.
-- **Scope:** it says what the work covers and what it leaves alone.
-- **Decisions settled:** it settles each decision the worker would otherwise guess.
-- **Buildable alone:** a worker could build from it with nothing else.
+- **Scope:** it covers what the owner asked for and nothing more. A part the owner did not ask for is a finding.
+- **Owner's decisions:** it carries each decision the owner made, checked at its source, and leaves every other choice of how to build to the worker. A missing owner decision is a finding; an open choice the worker can make is not.
+- **Cause:** where it fixes a defect, it fixes the cause, not a symptom.
 
 ## How you report
 

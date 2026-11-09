@@ -2,7 +2,7 @@
 
 An agent that did not write the work judges each commit and each design whose shape is open, and carries its review through every round until it accepts. Before a branch lands, another one runs [review](../skills/workflow/review/SKILL.md) on the whole branch. The agent that made a change never judges how it is built: only the reviewer and the designer may report a verdict, and the reviewer's tools only read.
 
-- **On a brief or plan the coordinator writes for a worker it judges what to build**: the outcome, the scope, the decisions it settles, whether a worker can build from it, and any claim false at its source. How the work is built waits for the worker's own reviews, so its report leaves that out.
+- **On a brief or plan the coordinator writes for a worker it judges what to build**: the outcome, a scope of only what I asked for, the decisions I made with every other choice left to the worker, a fix of the cause rather than a symptom, and any claim false at its source. How the work is built waits for the worker's own reviews, so its report leaves that out.
 - **On code it judges the way I would in review**, against my design rules in [design-review](../skills/expertise/design-review/SKILL.md): architecture, patterns and code smells.
 - **On docs it judges prose for a reader** in [doc-review](../skills/expertise/doc-review/SKILL.md): drift, shape and verbosity. The [agent](../agents/reviewer.md) tells docs from code by file path.
 - **On a whole branch it checks correctness, tests and security**, and each other area the diff touches, as `review` says.

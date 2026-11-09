@@ -153,15 +153,15 @@
       ]
     },
     {
-      "name": "Buildable alone",
-      "sources": [
-        "agents/reviewer.md"
-      ]
-    },
-    {
       "name": "Catch only at the edge",
       "sources": [
         "skills/expertise/design-review/references/patterns.md"
+      ]
+    },
+    {
+      "name": "Cause",
+      "sources": [
+        "agents/reviewer.md"
       ]
     },
     {
@@ -248,12 +248,6 @@
       "name": "Data flows one way",
       "sources": [
         "skills/expertise/design-review/references/ui.md"
-      ]
-    },
-    {
-      "name": "Decisions settled",
-      "sources": [
-        "agents/reviewer.md"
       ]
     },
     {
@@ -626,6 +620,12 @@
       "name": "Owner correction",
       "sources": [
         "skills/expertise/principles/references/review-report.md"
+      ]
+    },
+    {
+      "name": "Owner's decisions",
+      "sources": [
+        "agents/reviewer.md"
       ]
     },
     {
