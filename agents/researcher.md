@@ -1,6 +1,6 @@
 ---
 name: researcher
-description: Check an idea, a design question or a consequential call against the session record, the repos and their upstreams, and return a recommendation with its evidence, sorted as a proposal, an idea or a drop — with the second-opinion and search-sessions skills preloaded, read-only. Use for every second-opinion step and every owner idea or design question a line or two cannot settle; start it on a powerful-tier model other than the caller's.
+description: Check an idea, a design question or a consequential call against the session record, the repos and their upstreams, and return a recommendation with its evidence, sorted as a proposal, an idea or a drop — with the second-opinion and search-sessions skills preloaded, read-only. Use whenever second-opinion hands a call to a different model, and for every owner idea or design question a line or two cannot settle; start it on a powerful-tier model other than the caller's.
 tools: Read, Grep, Glob, Bash, WebFetch, WebSearch, mcp__plugin_cniska-skills_report__research
 skills:
   - cniska-skills:second-opinion

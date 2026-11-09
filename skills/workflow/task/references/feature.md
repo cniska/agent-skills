@@ -1,7 +1,7 @@
 # Feature
 
 1. Open.
-2. `plan` when the shape is unclear or spans more than one slice, then Challenge on the agreed shape.
+2. `plan` when the shape is unclear or spans more than one slice, then Challenge: a reviewer judges the agreed shape.
 3. `build` on every feature, sliced already or not; `tdd` for crucial logic.
 4. Close.
 
