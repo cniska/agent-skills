@@ -7,6 +7,7 @@ source "$HERE/hook-output.sh"
 source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 source "$HERE/report-store.sh"
+source "$HERE/waits.sh"
 source "$HERE/review-record.sh"
 source "$HERE/ruling-record.sh"
 
@@ -131,6 +132,7 @@ hand_back() {
   fi
   rm -f "$(denials_file "$(reporter_id "$input")")" || die "the bound on denials cannot be reset for $file"
   end_round "$input" || die "the round cannot be ended for $file"
+  release_waits "$(reporter_id "$input")" || die "the waits on and of $file cannot be released"
 }
 
 is_report_tool() {
@@ -198,7 +200,7 @@ on_report_tool() {
     done < <(jq -r '.judgments[] | select(.code) | [.code, .repo] | @tsv' <<<"$gate")
   fi
   if [ "$tool" = verdict ]; then
-    count_return "$input" || die "the return cannot be counted for $file"
+    count_return "$input" "$gate" || die "the return cannot be counted for $file"
   fi
   store "$input" "$tool" "$file" "$gate"
   pre_tool_allow
@@ -214,13 +216,64 @@ on_end() {
     hand_back "$input" "$file"
     return 0
   fi
+  drop_overdue_waits "$(reporter_id "$input")" || die "the overdue waits of $file cannot be dropped"
+  if has_waits "$(reporter_id "$input")"; then
+    keep_waiting "$input"
+    return
+  fi
   if deny_once "$input" missing_report "Call $TOOL_PREFIX$tool with your report before you end. Your caller reads the report from that call, not from your final message."; then
     gate_line "$input" deny missing_report
     return
   fi
   rm -f "$file" || die "the earlier hand-back's report at $file cannot be removed"
   end_round "$input" || die "the round cannot be ended for $file"
+  release_waits "$(reporter_id "$input")" || die "the waits on and of $file cannot be released"
   gate_line "$input" allow missing_report
+}
+
+keep_waiting() {
+  local input="$1" id still ended reason
+  id="$(reporter_id "$input")"
+  hold_wait "$id"
+  still="$(waits_in_state "$id" waiting)"
+  ended="$(waits_in_state "$id" ended)"
+  if [ -n "$ended" ]; then
+    reason="Agent $ended has handed back. Read its verdict with ${TOOL_PREFIX}read_report and carry on with the task."
+    clear_ended_waits "$id"
+  else
+    reason="Agent $still is still judging what you sent it, and the task is still yours. End your turn again to keep waiting; its verdict reaches you as a notification. Do not hand back while you wait."
+  fi
+  gate_line "$input" deny awaiting_review
+  if at_handback "$input"; then
+    pre_tool_deny "$reason"
+    return
+  fi
+  jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
+}
+
+sent_to() {
+  local input="$1" target violations
+  [ -n "$(reporting_tool "$(field "$input" agent_type)")" ] || return 0
+  [ -n "${CLAUDE_PLUGIN_DATA:-}" ] || return 0
+  target="$(jq -r '.tool_input.to // empty' <<<"$input")"
+  violations="$(jq -n -L "$HERE" --slurpfile schemas "$SCHEMAS" --arg id "$target" "$ID_VIOLATIONS")" ||
+    die "jq could not check the agent a message goes to"
+  [ -z "$violations" ] && [ -f "$(report_file "$target")" ] || return 0
+  printf '%s\n' "$target"
+}
+
+on_send() {
+  local input="$1" target
+  target="$(sent_to "$input")"
+  [ -n "$target" ] || return 0
+  wait_on "$(reporter_id "$input")" "$target" || die "the wait on $target cannot be recorded"
+}
+
+on_send_failed() {
+  local input="$1" target
+  target="$(sent_to "$input")"
+  [ -n "$target" ] || return 0
+  drop_wait "$(reporter_id "$input")" "$target" || die "the wait on $target cannot be dropped"
 }
 
 main() {
@@ -235,9 +288,13 @@ main() {
         "$TOOL_PREFIX"ruling) on_ruling "$input" ;;
         "$TOOL_PREFIX"*) on_report_tool "$input" "${tool_name#"$TOOL_PREFIX"}" ;;
         SubagentHandback) on_end "$input" ;;
+        SendMessage) on_send "$input" ;;
       esac
       ;;
     SubagentStop | Stop) on_end "$input" ;;
+    PostToolUseFailure | PermissionDenied)
+      [ "$tool_name" != SendMessage ] || on_send_failed "$input"
+      ;;
   esac
 }
 

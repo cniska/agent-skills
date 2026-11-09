@@ -43,6 +43,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` | `wrong_agent` | the report tool is not its caller's: `verdict` is the reviewer's and the designer's, `research` the researcher's, `task_report` the worker's, and `ruling` refuses any `agent_id` and any `cniska-skills:` `agent_type`; denied every time, and stores nothing |
 | `verdict` | `deny` | `already_reported` | the agent calls a report tool while its stored report awaits its hand-back; denied every time |
 | `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops with no report stored since its last hand-back |
+| `verdict` | `deny` | `awaiting_review` | an agent with a report tool ends with no report of its own while an agent it sent a message to has not ended, or has ended since its last end; sent back to keep waiting or to read the verdict, as [Waits](#waits) says |
 | `verdict` | `deny` or `allow` | `diff_not_read` | a reviewer lists under `diffs` a file it did not read with `Read` |
 | `verdict` | `deny` or `allow` | `repo_not_found` | a judgment's `repo` is not a repository |
 | `verdict` | `deny` or `allow` | `repo_repeated` | two judgments name the same repository |
@@ -52,19 +53,50 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `allow` | `same_round` | a note: a judgment accepts a repository its reviewer returned earlier in the same round with a critical or major finding, a conflict or a malformed `findings` or `conflicts`, so the accept is not recorded until the reviewer is resumed on the fix |
 | `verdict` | `allow` | `accept_covers_nothing` | a note: a judgment accepts while the listed diffs name at least one path and none has its new side in that checkout's index or working tree, and no other worktree holds them, so the diff no longer matches the change and the accept is not recorded |
 
-- **When:** a `verdict` gate judges a report at its tool's `PreToolUse`, while the agent still runs to read a deny. It judges an end without a report at `SubagentHandback`, `SubagentStop` or a top-level worker's `Stop`.
-- **Bound:** each code that denies, but `wrong_agent` and `already_reported`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound; a `ruling` has no bound, since no one must make one. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
-- **Returns:** a reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's round: its agent id and the count of its runs that have ended, so an agent resumed after a hand-back starts a new round.
-- **Minor-only returns:** a recorded return with at least one finding, every finding `minor`, and no conflict covers paths whatever their content, so the fix commits without another review.
-  - **Adds:** an entry for each path in the diff files it lists whose new side the repository holds, and for each path inside the repo that a finding's `where` cites.
-  - **Ends:** at the repository's next return, whatever paths it read, or when `HEAD` moves by a commit, reset or checkout. The gate reads `HEAD`'s reflog for its count of moves, a run of entries on one commit counted once so a `git stash` keeps the cover, and the time `HEAD` arrived on its commit. With no reflog, no entry is added.
-  - **Never:** from a designer, or from a reviewer whose earlier return there in the same round, refused or not, had a critical or major finding, a conflict or a malformed `findings` or `conflicts`, so a minor return never stands in for the re-review its own round's return needs.
-- **Hand-back:** a stored report stands for one hand-back. The end it allows marks it `handed_back`, resets the bound and ends the agent's round, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current, and ends the round too.
-- **Notes:** the two notes deny nothing. The stored record gives each reviewer judgment `{repo, verdict, recorded, code, fix}` for the caller to read.
-- **Return counts:** every reviewer's or designer's stored report holds `gate.returns`, two numbers for that agent, whichever repository or `HEAD` each return was on. `any_severity` counts its returns with a finding of any severity, and `critical_or_major` those with a critical or major finding.
-  - **Counted:** a report the agent got recorded, once however many repositories it judges.
-  - **Not counted:** a return with only conflicts, one with a `reason`, since it judged nothing, and a refused call. A report stored as not recorded carries the numbers without adding to them.
-  - **Starts at zero:** for each new agent, so one that takes over after a restart counts from the start.
+#### When
+
+A `verdict` gate judges a report at its tool's `PreToolUse`, while the agent still runs to read a deny. It judges an end without a report at `SubagentHandback`, `SubagentStop` or a top-level worker's `Stop`.
+
+#### Bound
+
+Each code that denies, but `wrong_agent`, `already_reported` and `awaiting_review`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound; a `ruling` has no bound, since no one must make one. `awaiting_review` is bounded by its wait's 30-minute limit instead, as [Waits](#waits) says. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
+
+#### Returns
+
+A reviewer's return voids its repository's accepts for the paths in every diff file it read, whether or not the call is denied, unless it is refused as `already_reported`. It is also kept against the reviewer's round: its agent id and the count of its runs that have ended, so an agent resumed after a hand-back starts a new round.
+
+#### Minor-only returns
+
+A recorded return with at least one finding, every finding `minor`, and no conflict covers paths whatever their content, so the fix commits without another review.
+
+- **Adds:** an entry for each path in the diff files it lists whose new side the repository holds, and for each path inside the repo that a finding's `where` cites.
+- **Ends:** at the repository's next return, whatever paths it read, or when `HEAD` moves by a commit, reset or checkout. The gate reads `HEAD`'s reflog for its count of moves, a run of entries on one commit counted once so a `git stash` keeps the cover, and the time `HEAD` arrived on its commit. With no reflog, no entry is added.
+- **Never:** from a designer, or from a reviewer whose earlier return there in the same round, refused or not, had a critical or major finding, a conflict or a malformed `findings` or `conflicts`, so a minor return never stands in for the re-review its own round's return needs.
+
+#### Hand-back
+
+A stored report stands for one hand-back. The end it allows marks it `handed_back`, resets the bound and ends the agent's round, so an agent resumed after it reports again, and that report replaces it. An end let through past the bound with no new report removes the handed-back one, so no stale report is read as current, and ends the round too.
+
+#### Notes
+
+The two notes deny nothing. The stored record gives each reviewer judgment `{repo, verdict, recorded, code, fix}` for the caller to read.
+
+#### Waits
+
+A `SendMessage` from an agent with a report tool to an agent with a stored report records a wait. While a wait stands, a waiting agent with no report of its own to hand back has its end held, at `SubagentHandback`, `SubagentStop` or `Stop`. The hold lasts until the awaited agent ends, up to four minutes. Then the end is sent back as `awaiting_review`, with no bound spent and the stored report and the round unchanged:
+
+- **Ended:** the message tells the waiter to read the verdict with `read_report` and carry on.
+- **Still running:** it tells the waiter to end its turn again to keep waiting.
+
+The hook's 300-second timeout covers the hold, and a test keeps it above the hold. The awaited agent ends at its hand-back or past its bound, and the waiter hears of it at its next end, once. A wait is dropped when the send fails or is denied, and when the waiter hands back a report. It also lapses 30 minutes after the send, so an agent that never ends cannot hold its waiter for good.
+
+#### Return counts
+
+Every reviewer's or designer's stored report holds `gate.returns`, two numbers for that agent since its last recorded accept, whichever repository or `HEAD` each return was on. `any_severity` counts its returns with a finding of any severity, and `critical_or_major` those with a critical or major finding.
+
+- **Counted:** a report the agent got recorded, once however many repositories it judges.
+- **Not counted:** a return with only conflicts, one with a `reason`, since it judged nothing, and a refused call. A report stored as not recorded carries the numbers without adding to them.
+- **Starts at zero:** for each new agent, so one that takes over after a restart counts from the start, and again at each recorded report whose every judgment accepts and is recorded. An accept stored as `same_round` or `accept_covers_nothing` keeps the count.
 
 ### `verdict`
 

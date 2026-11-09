@@ -87,7 +87,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
 - A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
 - An accept whose diffs match no checkout is stored with a note and not recorded. So is one in the same round as its reviewer's return there with a critical or major finding, a conflict or a malformed judgment, where a round is one run of the reviewer, from its start or resume to its hand-back. An accept from a reviewer that returned the same change in an earlier round is recorded like any other. The change's author never reaches the tool, since only the reviewer and the designer may call `verdict` and the reviewer's tools only read.
-- Its stored report, like a designer's, carries two numbers for that agent: its returns of any severity and its returns with a critical or major finding. `task` reads the number its review uses to stop the review at the third. [The hook reference](../hooks/events.md) says which returns count.
+- Its stored report, like a designer's, carries two numbers for that agent since its last recorded accept: its returns of any severity and its returns with a critical or major finding. `task` reads the number its review uses to stop the review at the third. [The hook reference](../hooks/events.md) says which returns count.
 
 ## Designer agent
 
@@ -109,6 +109,7 @@ It serves the agents' report tools from `mcp/`, as the MCP server `report` that 
 - **Checked before the call:** the plugin's `PreToolUse` hook checks each `verdict`, `research` or `task_report` call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes. A `ruling` is checked and logged, never stored, as [Rulings](#rulings) says.
 - **Rule names:** each `rule` in a verdict's findings, conflicts and follow-ups must be one of the names in [`hooks/rule-names.json`](../hooks/rule-names.json), which `mise run rule-names` reads from the skills' rule headings. A call naming another is denied once with every name listed; a second such call is stored as not recorded.
 - **Once per hand-back:** a second report call before the hand-back is refused. A reviewer, designer, researcher or worker that ends with no report since its last hand-back is sent back once; handing back a report resets that, so a resumed agent reports again and its report replaces the old. One that still ends without reporting leaves no report to read.
+- **Waiting on a re-review:** an agent that resumes one with a stored report through `SendMessage` keeps running while it waits. Its end is held until that agent hands back, up to four minutes, then sent back to read the verdict, or to wait again. A send that fails or is denied starts no wait, and a wait lapses after 30 minutes.
 - **Read back:** the caller reads the report through `read_report`, never from the agent's closing message.
 
 ## Commit gate
@@ -143,7 +144,7 @@ A coordinator rules on a review that stopped at its cap, and any top-level sessi
 | `owner_instruction` | The owner told the session to commit; needs no earlier return | `owner_words`, `review` `commit` |
 
 - **Effect:** `work_right`, `owner_decision` and `owner_instruction` on `review` `commit` also require `diffs`. The gate takes them like a reviewer's accept, for the paths in those diffs, and they lapse as a reviewer's does.
-- **Every other ruling:** it adds no paths. A `branch` or `plan` ruling reaches the worker as a message, which [task](../skills/workflow/task/SKILL.md) treats as that review's accept. A `designer` ruling settles only the wait for the designer.
+- **Every other ruling:** it adds no paths. A `branch` or `plan` ruling reaches the worker as a message, which is that review's accept. A `designer` ruling settles only the wait for the designer.
 - **Refused every time:** any caller with an `agent_id` or a `cniska-skills:` `agent_type`, even a top-level worker, a call off the schema, and on a commit a diff the session's transcript does not show it read or one that matches nothing in `repo`. [Hook events](../hooks/events.md) lists the codes.
 - **Not checked:** that a coordinator did not write what it rules on. That rule lives in [coordinate](../skills/workflow/coordinate/SKILL.md) and `task`.
 - **On the record:** each ruling logs a `tag` with key `ruling` and its call as value, so agent-record never counts it as a review. The reasons and the owner's words stay in the tool call's input in the session transcript.

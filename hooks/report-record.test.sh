@@ -254,6 +254,76 @@ top_level_call session8 task_report "$TASK_REPORT" >/dev/null
 assert "a top-level worker with a report stops" "$(session_stop session8 "$WORKER")" ""
 assert "a session with no agent type stops" "$(session_stop session6 "")" ""
 
+send() {
+  jq -cn --arg agent "$1" --arg to "$2" --arg event "${3:-PreToolUse}" '
+    {hook_event_name: $event, session_id: "parent1", agent_id: $agent, agent_type: "cniska-skills:worker",
+      tool_name: "SendMessage", tool_input: {to: $to, summary: "Fix", message: "Judge the fix."}}' | "$RECORD" 2>/dev/null
+}
+reported_reviewer() {
+  local reviewer
+  reviewer="$(fresh_agent)"
+  call "$reviewer" "$DESIGNER" verdict "$VERDICT" >/dev/null
+  handback "$reviewer" "$DESIGNER" >/dev/null
+  printf '%s\n' "$reviewer"
+}
+
+export CNISKA_WAIT_HOLD_SECONDS=0
+waiter="$(fresh_agent)"
+rereviewer="$(reported_reviewer)"
+assert "a worker's message to its reviewer passes untouched" "$(send "$waiter" "$rereviewer")" ""
+waiting="$(subagent_stop "$waiter" "$WORKER")"
+assert "a worker ending its turn while that reviewer re-reviews is kept running" "$(decision "$waiting")" block
+assert "and told to keep waiting on it" "$(reason "$waiting" | grep -c "$rereviewer is still judging")" 1
+assert "that wait logs its own gate line" "$(last_gate)" '["verdict","deny","awaiting_review"]'
+assert "and spends no bound: the next end waits again" "$(reason "$(subagent_stop "$waiter" "$WORKER")" | grep -c "still judging")" 1
+eager="$(fresh_agent)"
+send "$eager" "$rereviewer" >/dev/null
+assert "a hand-back with no report while waiting is sent back to wait" "$(reason "$(handback "$eager" "$WORKER")" | grep -c "Do not hand back while you wait")" 1
+call "$rereviewer" "$DESIGNER" verdict "$VERDICT" >/dev/null
+handback "$rereviewer" "$DESIGNER" >/dev/null
+assert "once its reviewer hands back, the waiter is told to read the verdict" "$(reason "$(subagent_stop "$waiter" "$WORKER")" | grep -c "has handed back")" 1
+assert "and its next end is judged again" "$(reason "$(subagent_stop "$waiter" "$WORKER")" | grep -c "with your report before you end")" 1
+waited="$(fresh_agent)"
+send "$waited" "$(reported_reviewer)" >/dev/null
+assert "a waiting worker is not released by another reviewer's hand-back" "$(reason "$(subagent_stop "$waited" "$WORKER")" | grep -c "still judging")" 1
+held="$(fresh_agent)"
+held_reviewer="$(reported_reviewer)"
+send "$held" "$held_reviewer" >/dev/null
+(sleep 1 && call "$held_reviewer" "$DESIGNER" verdict "$VERDICT" >/dev/null && handback "$held_reviewer" "$DESIGNER" >/dev/null) &
+assert "a worker held at its end hears of the hand-back that lands meanwhile" \
+  "$(CNISKA_WAIT_HOLD_SECONDS=10 subagent_stop "$held" "$WORKER" | jq -r .reason | grep -c "has handed back")" 1
+wait
+quiet="$(fresh_agent)"
+quiet_reviewer="$(reported_reviewer)"
+send "$quiet" "$quiet_reviewer" >/dev/null
+handback "$quiet_reviewer" "$DESIGNER" >/dev/null
+assert "a reviewer sent back for no report keeps its waiter waiting" "$(reason "$(subagent_stop "$quiet" "$WORKER")" | grep -c "still judging")" 1
+handback "$quiet_reviewer" "$DESIGNER" >/dev/null
+assert "one that ends past its bound with no report releases it" "$(reason "$(subagent_stop "$quiet" "$WORKER")" | grep -c "has handed back")" 1
+unreported="$(fresh_agent)"
+send "$unreported" "$(fresh_agent)" >/dev/null
+assert "a message to an agent with no stored report starts no wait" "$(reason "$(subagent_stop "$unreported" "$WORKER")" | grep -c "with your report before you end")" 1
+coordinated="$(fresh_agent)"
+send "$coordinated" main >/dev/null
+assert "a message to its coordinator starts no wait" "$(reason "$(subagent_stop "$coordinated" "$WORKER")" | grep -c "with your report before you end")" 1
+for event in PostToolUseFailure PermissionDenied; do
+  refused_send="$(fresh_agent)"
+  refused_target="$(reported_reviewer)"
+  send "$refused_send" "$refused_target" >/dev/null
+  assert "a send that fails at $event leaves nothing to report" "$(send "$refused_send" "$refused_target" "$event")" ""
+  assert "and drops its wait, so the next end is judged" "$(reason "$(subagent_stop "$refused_send" "$WORKER")" | grep -c "with your report before you end")" 1
+done
+gone="$(fresh_agent)"
+send "$gone" "$(reported_reviewer)" >/dev/null
+call "$gone" "$WORKER" task_report "$TASK_REPORT" >/dev/null
+handback "$gone" "$WORKER" >/dev/null
+assert "a waiter's own hand-back drops its waits" "$(reason "$(subagent_stop "$gone" "$WORKER")" | grep -c "with your report before you end")" 1
+overdue="$(fresh_agent)"
+send "$overdue" "$(reported_reviewer)" >/dev/null
+assert "a wait on an agent that never ends lapses at its limit, so the end is judged" \
+  "$(CNISKA_WAIT_LIMIT_SECONDS=0 subagent_stop "$overdue" "$WORKER" | jq -r .reason | grep -c "with your report before you end")" 1
+unset CNISKA_WAIT_HOLD_SECONDS
+
 assert "read_report is not judged" "$(call "$(fresh_agent)" "$REVIEWER" read_report '{"id": "a1"}')" ""
 assert "another tool is not judged" \
   "$(jq -cn '{hook_event_name: "PreToolUse", agent_id: "x1", agent_type: "cniska-skills:reviewer", tool_name: "Bash", tool_input: {command: "ls"}}' | "$RECORD" 2>/dev/null)" ""

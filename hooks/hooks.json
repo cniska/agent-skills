@@ -42,7 +42,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh",
+            "timeout": 300
           }
         ]
       }
@@ -52,18 +53,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh",
+            "timeout": 300
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "SubagentHandback|mcp__plugin_cniska-skills_report__(verdict|research|task_report|ruling)",
+        "matcher": "SubagentHandback|SendMessage|mcp__plugin_cniska-skills_report__(verdict|research|task_report|ruling)",
         "hooks": [
           {
             "type": "command",
-            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh",
+            "timeout": 300
           }
         ]
       },
@@ -93,6 +96,26 @@
           {
             "type": "command",
             "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/permission-record.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "SendMessage",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "SendMessage",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}\"/hooks/report-record.sh"
           }
         ]
       }

@@ -7,9 +7,11 @@ readonly MAX_COUNT=1000
 readonly NO_RETURNS='{"any_severity":0,"critical_or_major":0}'
 readonly COUNTED_RETURN='
   [.tool_input.judgments[] | select(.verdict == "return" and (has("reason") | not)) | .findings[].severity] as $severities
-  | $counts
-  | if ($severities | length) > 0 then .any_severity += 1 else . end
-  | if any($severities[]; . != "minor") then .critical_or_major += 1 else . end'
+  | if all(.tool_input.judgments[]; .verdict == "accept") and all($gate.judgments[]?; .recorded) then $none
+    else $counts
+      | if ($severities | length) > 0 then .any_severity += 1 else . end
+      | if any($severities[]; . != "minor") then .critical_or_major += 1 else . end
+    end'
 
 verdict_counts() {
   jq -c --argjson max "$MAX_COUNT" '
@@ -223,10 +225,10 @@ return_counts() {
 }
 
 count_return() {
-  local input="$1" id file next
+  local input="$1" gate="$2" id file next
   id="$(reporter_id "$input")"
   file="$(return_counts_file "$id")"
-  next="$(jq -c --argjson counts "$(return_counts "$id")" "$COUNTED_RETURN" <<<"$input")" || return 1
+  next="$(jq -c --argjson counts "$(return_counts "$id")" --argjson none "$NO_RETURNS" --argjson gate "$gate" "$COUNTED_RETURN" <<<"$input")" || return 1
   mkdir -p "$(dirname "$file")" && printf '%s\n' "$next" >"$file.tmp" && mv "$file.tmp" "$file"
 }
 

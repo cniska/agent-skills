@@ -40,8 +40,25 @@ hand_back "$first" >/dev/null
 assert "a return past the third is allowed like any other" "$(record_as "$first" "$(returning app.py major)")" "$(allowed)"
 assert "a moved HEAD changes nothing: the count is the reviewer's" "$(counts "$first")" '[4,3]'
 next_round "$first" "$(report "$repo" accept)"
-assert "an accept keeps the count and adds nothing" "$(counts "$first")" '[4,3]'
+assert "a recorded accept ends the review, so its count starts again at zero" "$(counts "$first")" '[0,0]'
 assert "that accept lets the change commit" "$(gate 'git commit -am x')" ""
+
+edit app.py 'print(31)'
+counted=()
+for step in return accept return return return; do
+  if [ "$step" = accept ]; then
+    next_round "$first" "$(report "$repo" accept)"
+  else
+    next_round "$first" "$(returning app.py major)"
+  fi
+  counted+=("$(counts "$first")")
+done
+assert "the next review counts only its returns since the last accept" "${counted[*]}" '[1,1] [0,0] [1,1] [2,2] [3,3]'
+hand_back "$first" >/dev/null
+record_as "$first" "$(returning app.py major | jq -c 'del(.clean)')" >/dev/null
+assert "an accept in the round of a refused return" "$(record_as "$first" "$(report "$repo" accept)" | jq -r .hookSpecificOutput.permissionDecision)" allow
+assert "is not recorded, so it keeps the count" "$(counts "$first")" '[3,3]'
+(cd "$repo" && git checkout -q -- app.py)
 
 second="$(fresh_agent)"
 edit app.py 'print(4)'
