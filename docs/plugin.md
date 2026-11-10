@@ -150,7 +150,7 @@ A coordinator rules on a review that stopped at its cap, and any top-level sessi
 - **Effect:** `work_right`, `owner_decision` and `owner_instruction` on `review` `commit` also require `diffs`. The gate takes them like a reviewer's accept, for the paths in those diffs, and they lapse as a reviewer's does.
 - **Every other ruling:** it adds no paths. A `branch` or `plan` ruling reaches the worker as a message, which is that review's accept. A `designer` ruling settles only the wait for the designer.
 - **Refused every time:** any caller with an `agent_id` or a `cniska-skills:` `agent_type`, even a top-level worker, a call off the schema, and on a commit a diff the session's transcript does not show it read or one that matches nothing in `repo`. [Hook events](../hooks/events.md) lists the codes.
-- **Not checked:** that a coordinator did not write what it rules on. That rule lives in [coordinate](../skills/workflow/coordinate/SKILL.md) and `task`.
+- **Not checked:** that a coordinator did not write what it rules on, a rule [coordinate](../skills/workflow/coordinate/SKILL.md) and `task` hold. A `work_right` needs no earlier return, and `owner_words` is not compared with what the owner said; the `tag` and the transcript are the check.
 - **On the record:** each ruling logs a `tag` with key `ruling` and its call as value, so agent-record never counts it as a review. The reasons and the owner's words stay in the tool call's input in the session transcript.
 
 List the rulings with `agent-record sql "select ts, session, tag_value from hook_event where event = 'tag' and tag_key = 'ruling' order by ts"`.
