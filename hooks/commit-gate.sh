@@ -10,6 +10,10 @@ source "$HERE/hook-output.sh"
 INPUT=""
 COMMIT_PARTS=()
 COMMIT_CALLS=()
+STEPS=()
+SEPARATORS=()
+REACHED_DIR=""
+NAMED_DIR=""
 
 readonly QUOTES="'\""
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
@@ -41,6 +45,14 @@ readonly SHELL_CODE="(ba|da|k|z)?sh([[:space:]]+-[A-Za-z]+)*[[:space:]]+-[A-Za-z
 readonly KEPT_QUOTE_PATTERN="(${REPO_DIR_ARG}|${HEREDOC_OPEN}|${WORD_START}(${SHELL_CODE})[[:space:]]+)\$"
 readonly SUBSTITUTION_PATTERN='\$\(|`'
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
+readonly CD_STEP_PATTERN="^[[:space:]]*cd[[:space:]]+(\"[^\"]*\"|'[^']*'|[^[:space:]${QUOTES}]+)[[:space:]]*\$"
+readonly UNSURE_TARGET_PATTERN='[$`*?[]'
+SHELL_WORDS=" $(compgen -b -k | tr '\n' ' ')"
+readonly SHELL_WORDS
+readonly PLAIN_WORD_PATTERN='^[A-Za-z0-9_./@+%,:~=-]+$'
+readonly HEREDOC_WORD_PATTERN="^<<-?([${QUOTES}]?[A-Za-z0-9_.-]+[${QUOTES}]?)?\$"
+readonly HEREDOC_DELIMITER_PATTERN="^[${QUOTES}]?[A-Za-z0-9_.-]+[${QUOTES}]?\$"
+readonly FILE_REDIRECTION_PATTERN='^[0-9]*(<|>|>>)([A-Za-z0-9_./@+%,:~-]+)?$'
 readonly MULTIPLE_REASON="Commit blocked: this command runs more than one git commit, and the reviewer gate checks one commit per command. Run each commit as its own command."
 readonly AMBIGUOUS_REASON="Commit blocked: this command reaches its repository in a way the reviewer gate cannot follow, so the verdict for this commit cannot be checked. Commit with 'cd <absolute path> && git commit ...'."
 readonly CREATE_REASON="Commit blocked: this command creates the repository it commits to, so no reviewer verdict can cover the commit. Run git init or git clone on its own first, then commit once cniska-skills:reviewer has accepted the diff. A scratch repo passes when the command starts with cd <temp path> && or cd \"\$(mktemp -d)\" && and joins every step with &&."
@@ -146,13 +158,160 @@ walk_commits() {
   done
 }
 
-named_dir() {
-  local prefix="$1" call="$2"
+redirection_amp() {
+  local text="$1" i="$2"
+  [ "${text:i+1:1}" = '>' ] && return 0
+  [ "$i" -gt 0 ] && [[ ${text:i-1:1} == [\<\>] ]]
+}
+
+split_steps() {
+  local text="$1" char next separator step="" quote="" nest=0 tick="" i
+  STEPS=()
+  SEPARATORS=()
+  for ((i = 0; i < ${#text}; i++)); do
+    char="${text:i:1}"
+    if [ -n "$quote" ]; then
+      step+="$char"
+      if [ "$char" = "$BACKSLASH" ] && [ "$quote" = '"' ]; then
+        step+="${text:i+1:1}"
+        i=$((i + 1))
+      elif [ "$char" = "$quote" ]; then
+        quote=""
+      fi
+      continue
+    fi
+    case "$char" in
+      "$BACKSLASH")
+        step+="$char${text:i+1:1}"
+        i=$((i + 1))
+        continue
+        ;;
+      "'" | '"') quote="$char" ;;
+      '#') [ "$i" -gt 0 ] && [[ ${text:i-1:1} != [[:space:]\;\&\|\(\)] ]] || return 1 ;;
+      '`') if [ -n "$tick" ]; then tick=""; else tick=yes; fi ;;
+      '(') nest=$((nest + 1)) ;;
+      ')')
+        nest=$((nest - 1))
+        [ "$nest" -ge 0 ] || return 1
+        ;;
+      ';' | '&' | '|' | $'\n')
+        if [ "$nest" -eq 0 ] && [ -z "$tick" ] && ! { [ "$char" = '&' ] && redirection_amp "$text" "$i"; }; then
+          separator="$char"
+          next="${text:i+1:1}"
+          if [ "$char$next" = '&&' ] || [ "$char$next" = '||' ] || [ "$char$next" = ';;' ]; then
+            separator+="$next"
+            i=$((i + 1))
+          fi
+          STEPS+=("$step")
+          SEPARATORS+=("$separator")
+          step=""
+          continue
+        fi
+        ;;
+    esac
+    step+="$char"
+  done
+  [ -z "$quote" ] && [ -z "$tick" ] || return 1
+  STEPS+=("$step")
+  SEPARATORS+=("")
+}
+
+external_command() {
+  [[ $1 =~ $PLAIN_WORD_PATTERN && $1 != *=* && $SHELL_WORDS != *" $1 "* ]] || return 1
+  [[ $1 == */* ]] || type -P "$1" >/dev/null
+}
+
+external_step() {
+  local word command="" awaits=""
+  local -a words
+  read -ra words -d '' <<<"$1" || true
+  for word in "${words[@]}"; do
+    if [ "$awaits" = delimiter ]; then
+      [[ $word =~ $HEREDOC_DELIMITER_PATTERN ]] || return 1
+      awaits=""
+    elif [ "$awaits" = target ]; then
+      [[ $word =~ $PLAIN_WORD_PATTERN ]] || return 1
+      awaits=""
+    elif [[ $word =~ $HEREDOC_WORD_PATTERN ]]; then
+      [ -n "${BASH_REMATCH[1]}" ] || awaits=delimiter
+    elif [[ $word =~ $FILE_REDIRECTION_PATTERN ]]; then
+      [ -n "${BASH_REMATCH[2]}" ] || awaits=target
+    elif [ -z "$command" ]; then
+      external_command "$word" || return 1
+      command="$word"
+    else
+      [[ $word =~ $PLAIN_WORD_PATTERN ]] || return 1
+    fi
+  done
+  [ -z "$awaits" ] && [ -n "$command" ]
+}
+
+cd_target() {
+  local target dir="$2" path
+  target="$(unquoted "$1")"
+  path="$(expanded_dir "$target" "$dir")"
+  ! [[ ${target:0:1} == - || $path =~ $UNSURE_TARGET_PATTERN ]] || return 1
+  printf '%s\n' "$path"
+}
+
+walked_dir() {
+  local cwd="$2" changes="$3" step after before="" walked=0 may_skip="" unsure="" opaque="" dir n
+  split_steps "$1" || return 1
+  dir="$cwd"
+  for ((n = 0; n < ${#STEPS[@]}; n++)); do
+    step="${STEPS[n]}"
+    after="${SEPARATORS[n]}"
+    if [[ $step =~ ^[[:space:]]*$ ]]; then
+      [ "$after" = $'\n' ] || before="$after"
+      continue
+    fi
+    if [[ $step =~ $CD_STEP_PATTERN ]]; then
+      NAMED_DIR="${BASH_REMATCH[1]}"
+      [ -z "$opaque" ] || return 1
+      case "$before" in
+        "" | ";" | $'\n') ;;
+        "&&") [ -z "$unsure" ] || may_skip=yes ;;
+        *) return 1 ;;
+      esac
+      case "$after" in
+        "&&" | ";" | $'\n') ;;
+        *) return 1 ;;
+      esac
+      if [ "$walked" -gt 0 ] && ! (cd "$dir" 2>/dev/null); then
+        return 1
+      fi
+      dir="$(cd_target "$NAMED_DIR" "$dir")" || return 1
+      walked=$((walked + 1))
+    else
+      external_step "$step" || opaque=yes
+      unsure=yes
+    fi
+    case "$after" in
+      "&&" | "") ;;
+      ";" | $'\n' | "&")
+        [ -z "$may_skip" ] || return 1
+        unsure=""
+        ;;
+      *)
+        [ -z "$may_skip" ] || return 1
+        unsure=yes
+        ;;
+    esac
+    before="$after"
+  done
+  [ "$walked" -gt 0 ] && [ "$walked" -eq "$changes" ] || return 1
+  REACHED_DIR="$dir"
+}
+
+reached_dir() {
+  local prefix="$1" call="$2" cwd="$3" changes="$4"
   if [[ $call =~ $COMMIT_DIR_PATTERN ]]; then
-    printf '%s\n' "${BASH_REMATCH[1]}"
-  elif [[ $prefix =~ $LEADING_CD_PATTERN ]]; then
-    printf '%s\n' "${BASH_REMATCH[1]}"
+    NAMED_DIR="${BASH_REMATCH[1]}"
+    [ "$changes" -eq 1 ] || return 1
+    REACHED_DIR="$(expanded_dir "$NAMED_DIR" "$cwd")"
+    return 0
   fi
+  walked_dir "$prefix" "$cwd" "$changes"
 }
 
 repo_changes() {
@@ -371,7 +530,7 @@ main() {
     return
   fi
 
-  local prefix span named changes repo
+  local prefix span changes repo
   walk_commits "$command"
   prefix="${COMMIT_PARTS[0]}"
   if [[ $prefix =~ $REPO_CLONE_PATTERN || $prefix =~ $REPO_INIT_PATTERN ]]; then
@@ -387,18 +546,17 @@ main() {
     deny "$MULTIPLE_REASON" multiple_commits
     return
   fi
-  named="$(named_dir "$prefix" "${COMMIT_CALLS[0]}")"
   changes="$(repo_changes "$prefix")"
   if [ "$changes" -eq 0 ]; then
     if ! repo="$(repo_root "$cwd")" || [ -z "$repo" ]; then
       record allow outside_repo
       return
     fi
-  elif [ "$changes" -gt 1 ] || [ -z "$named" ]; then
+  elif ! reached_dir "$prefix" "${COMMIT_CALLS[0]}" "$cwd" "$changes"; then
     deny "$AMBIGUOUS_REASON" repo_unclear
     return
-  elif ! repo="$(repo_root "$(expanded_dir "$named" "$cwd")")" || [ -z "$repo" ]; then
-    deny "$(unresolved_reason "$named")" repo_not_found
+  elif ! repo="$(repo_root "$REACHED_DIR")" || [ -z "$repo" ]; then
+    deny "$(unresolved_reason "$NAMED_DIR")" repo_not_found
     return
   fi
   local head code sides fingerprint

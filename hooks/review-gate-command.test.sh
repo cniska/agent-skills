@@ -25,7 +25,6 @@ assert "a commit naming a directory that is not a repository is refused" "$(gate
 assert "a commit from outside any repository naming none passes to git, which refuses it" "$(gate_from 'git commit -am x' "$scratch")" ""
 for command in \
   '(cd ~/project && git commit -am x)' \
-  'git add -A && cd ~/project && git commit -am x' \
   'pushd ~/project && git commit -am x' \
   'git -C ~/project -C . commit -am x' \
   'cd ~/project && git -C sub commit -am x' \
@@ -35,6 +34,68 @@ for command in \
   "bash -c 'cd ~/project && git commit -am x'" \
   '(cd ~/project && git commit)'; do
   assert "a commit reaching its repo as [$command] is refused" "$(gate_from "$command" "$scratch")" "$AMBIGUOUS"
+done
+mkdir -p "$home_repo/briefs"
+for command in \
+  $'cd ~/project/briefs && python3 - <<\'EOF\'\ncd /\nEOF\ncd .. && git add -A && git commit -am x' \
+  $'cd ~/project/briefs && python3 - <<\'EOF\' && cd .. && git commit -am x\nprint(1)\nEOF' \
+  'git log -1 --format=%s; cd ~/project && git add -A && git commit -am x' \
+  'git add -A && cd ~/project && git commit -am x' \
+  $'cd ~/project/briefs &&\ncd ~/project && git commit -am x' \
+  'cd /; cd ~/project; git commit -am x' \
+  $'cd ~/project\ngit commit -am x' \
+  'cd ~/project/briefs && cd .. && git commit -am x' \
+  'cd ~/project && git status || git commit -am x' \
+  'git status >/dev/null; cd ~/project && git commit -am x' \
+  'ls -la 2> err.log && cd ~/project && git commit -am x' \
+  'cd ~/project && if true; then echo; fi && git commit -am x'; do
+  assert "a commit whose cd steps all run, [$command], is gated against the repo they reach" "$(gate_from "$command" "$scratch")" "$(denied 'lib.py (working tree)')"
+done
+for command in \
+  'git status && cd ~/project; git commit -am x' \
+  'git status || cd ~/project && git commit -am x' \
+  'cd ~/nowhere; cd ~/project && git commit -am x' \
+  'cd ~/project | cat && git commit -am x' \
+  'cd ~/project & git commit -am x' \
+  $'if true; then\ncd ~/project\nfi\ngit commit -am x' \
+  $'while true; do\ncd ~/project && git commit -am x' \
+  'f() { cd ~/project; }; f && git commit -am x' \
+  '{ cd ~/project; } && git commit -am x' \
+  "cd \$P && git commit -am x" \
+  'cd ~/project && cd brief* && git commit -am x' \
+  'cd ~/project && cd - && git commit -am x' \
+  'cd ~/project && cd -P briefs && git commit -am x' \
+  $'git status # ; cd ~/project\ngit commit -am x' \
+  'if false; then echo }; cd ~/project; echo {; fi; git commit -am x' \
+  'HOME=/h; cd ~/project && git commit -am x' \
+  'export CDPATH=/e; cd project && git commit -am x' \
+  'cd() { builtin cd /; }; cd ~/project && git commit -am x' \
+  'cd() ( : ); cd ~/project && git commit -am x' \
+  "\\cd ~/project; cd briefs && git commit -am x" \
+  'eval x; cd ~/project && git commit -am x' \
+  'source ~/env; cd ~/project && git commit -am x' \
+  'alias cd=pwd; cd ~/project && git commit -am x' \
+  'trap x DEBUG; cd ~/project && git commit -am x' \
+  'shopt -s cdable_vars; cd ~/project && git commit -am x' \
+  'popd; cd briefs && git commit -am x' \
+  'for HOME in /h; do :; done; cd ~/project && git commit -am x' \
+  'read -r HOME <<</h; cd ~/project && git commit -am x' \
+  'printf -v HOME /h; cd ~/project && git commit -am x' \
+  'print -v HOME /h; cd ~/project && git commit -am x' \
+  'readarray -t CDPATH <<</e; cd briefs && git commit -am x' \
+  ': ${CDPATH:=/e}; cd briefs && git commit -am x' \
+  ': $((HOME = 1)); cd ~/project && git commit -am x' \
+  '${X}cd ~/project; cd briefs && git commit -am x' \
+  'G=$(echo a ) eval x; cd ~/project && git commit -am x' \
+  'echo a && cd ~/project && git commit -am x' \
+  'if true; then echo; fi; cd ~/project && git commit -am x' \
+  "G=\$(ls) && cd ~/project && git commit -am x" \
+  'ls {HOME}>/dev/null; cd ~/project; git commit -am x' \
+  "ls *(e:'HOME=/h':); cd ~/project && git commit -am x" \
+  'python3 - 2>&1; cd ~/project && git commit -am x' \
+  'git log --format="%s"; cd ~/project && git commit -am x' \
+  'nowhere-command; cd ~/project && git commit -am x'; do
+  assert "a commit whose cd steps may not all run [$command] is refused" "$(gate_from "$command" "$scratch")" "$AMBIGUOUS"
 done
 for command in \
   'git -C ~/project commit -am x && git -C ~/other commit -am y' \
