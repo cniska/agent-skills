@@ -39,6 +39,8 @@ mkdir -p "$home_repo/briefs"
 for command in \
   $'cd ~/project/briefs && python3 - <<\'EOF\'\ncd /\nEOF\ncd .. && git add -A && git commit -am x' \
   $'cd ~/project/briefs && python3 - <<\'EOF\' && cd .. && git commit -am x\nprint(1)\nEOF' \
+  $'cd ~/project/briefs && python3 - <<EOF && cd .. && git commit -am x\nprint(1)\nEOF' \
+  $'cd ~/project/briefs && python3 - << EOF\ncd /\nEOF\ncd .. && git commit -am x' \
   'git log -1 --format=%s; cd ~/project && git add -A && git commit -am x' \
   'git add -A && cd ~/project && git commit -am x' \
   $'cd ~/project/briefs &&\ncd ~/project && git commit -am x' \
