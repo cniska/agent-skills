@@ -128,13 +128,12 @@ hand_back() {
 }
 
 report() {
-  jq -cn --arg repo "$1" --arg verdict "$2" '{repo: $repo, verdict: $verdict, findings: [], conflicts: [], follow_ups: [], clean: []}' | jq -c "${3:-.}"
+  jq -cn --arg repo "$1" --arg verdict "$2" '{repo: $repo, verdict: $verdict, findings: [], conflicts: [], follow_ups: []}' | jq -c "${3:-.}"
 }
 finding() {
   jq -cn --arg path "$1" --arg rule "${2:-Size everything to the need}" --arg severity "${3:-minor}" \
     '{where: [{path: $path, line: 1}], rule: $rule, severity: $severity, why: "It is unused.", instead: "Delete it."}'
 }
-clean_at() { jq -cn --arg path "$1" '{rule: "Use what exists", places: [{path: $path}]}'; }
 edit() { (cd "$repo" && printf '%s\n' "$2" >>"$1"); }
 land() { (cd "$repo" && git add -A && git commit -q -m land); }
 

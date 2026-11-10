@@ -22,7 +22,7 @@ verdict_counts() {
 }
 
 location_paths() {
-  jq -r '((.findings + .conflicts + .follow_ups)[].where[], .clean[].places[]) | .path'
+  jq -r '(.findings + .conflicts + .follow_ups)[].where[].path'
 }
 
 cited_worktrees() {

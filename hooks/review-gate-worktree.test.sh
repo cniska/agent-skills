@@ -14,9 +14,9 @@ readonly MISMATCH_FIX="Name the worktree the change is in as the judgment's repo
 citing() {
   local judged="$1" place
   shift
-  local cleans=()
-  for place in "$@"; do cleans+=("$(clean_at "$place")"); done
-  report "$judged" accept ".clean = $(printf '%s\n' "${cleans[@]}" | jq -sc .)"
+  local follow_ups=()
+  for place in "$@"; do follow_ups+=("$(finding "$place")"); done
+  report "$judged" accept ".follow_ups = $(printf '%s\n' "${follow_ups[@]}" | jq -sc .)"
 }
 
 (cd "$worktree" && printf 'print(9)\n' >>app.py)

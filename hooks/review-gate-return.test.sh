@@ -22,7 +22,7 @@ next_round() {
 edit app.py 'print(2)'
 first="$(fresh_agent)"
 assert "a first return off the schema keeps its reviewer running" \
-  "$(record_as "$first" "$(returning app.py major | jq -c 'del(.clean)')" | jq -r .hookSpecificOutput.permissionDecision)" deny
+  "$(record_as "$first" "$(returning app.py major | jq -c 'del(.conflicts)')" | jq -r .hookSpecificOutput.permissionDecision)" deny
 record_as "$first" "$(returning app.py major)" >/dev/null
 assert "the fixed return counts once in both numbers, its refused call not at all" "$(counts "$first")" '[1,1]'
 next_round "$first" "$(returning app.py minor)"
@@ -55,7 +55,7 @@ for step in return accept return return return; do
 done
 assert "the next review counts only its returns since the last accept" "${counted[*]}" '[1,1] [0,0] [1,1] [2,2] [3,3]'
 hand_back "$first" >/dev/null
-record_as "$first" "$(returning app.py major | jq -c 'del(.clean)')" >/dev/null
+record_as "$first" "$(returning app.py major | jq -c 'del(.conflicts)')" >/dev/null
 assert "an accept in the round of a refused return" "$(record_as "$first" "$(report "$repo" accept)" | jq -r .hookSpecificOutput.permissionDecision)" allow
 assert "is not recorded, so it keeps the count" "$(counts "$first")" '[3,3]'
 (cd "$repo" && git checkout -q -- app.py)

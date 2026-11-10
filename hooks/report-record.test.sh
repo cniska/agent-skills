@@ -31,7 +31,7 @@ readonly LOG="$CLAUDE_PLUGIN_DATA/events.jsonl"
 
 readonly LOCATION='{"path": "/repo/app.py", "line": 3}'
 readonly FINDING='{"where": ['"$LOCATION"'], "rule": "Fix the cause", "severity": "major", "why": "It hides the cause.", "instead": "Inject it."}'
-readonly VERDICT='{"diffs": ["/tmp/change.diff"], "judgments": [{"repo": "/repo", "verdict": "return", "findings": ['"$FINDING"'], "conflicts": [], "follow_ups": [], "clean": []}]}'
+readonly VERDICT='{"diffs": ["/tmp/change.diff"], "judgments": [{"repo": "/repo", "verdict": "return", "findings": ['"$FINDING"'], "conflicts": [], "follow_ups": []}]}'
 readonly RESEARCH='{"recommendation": "Go ahead.", "evidence": [{"claim": "It exists.", "source": {"kind": "file", "ref": "a.ts:1"}}], "against": "Cost.", "owner_conflicts": [], "unverified": [], "sort": "proposal"}'
 readonly TASK_REPORT='{"task": "t", "outcome": "parked", "summary": "Parked.", "choices": [], "owner_questions": [], "follow_ups": [], "open": ["slice 1"], "steps_skipped": [], "plugin_update_due": false}'
 
@@ -165,8 +165,6 @@ assert "a wrong rule name in a follow-up is refused" \
   "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed follow_ups "No drift (principles)")")")" deny
 assert "a rule name from the set is allowed in each field" \
   "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(unnamed follow_ups "No drift" | jq -c '.judgments[0].conflicts = .judgments[0].follow_ups')")")" allow
-assert "a clean entry names its rule freely" \
-  "$(decision "$(call "$(fresh_agent)" "$DESIGNER" verdict "$(jq -c '.judgments[0].clean = [{rule: "Correctness", places: [{path: "/repo/app.py"}]}]' <<<"$VERDICT")")")" allow
 assert "a task report's follow-up names its rule freely" \
   "$(decision "$(call "$(fresh_agent)" "$WORKER" task_report "$(jq -c --argjson finding "$FINDING" '.follow_ups = [$finding | .rule = "Tool defect"]' <<<"$TASK_REPORT")")")" allow
 

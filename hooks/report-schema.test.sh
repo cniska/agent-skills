@@ -35,7 +35,7 @@ check() {
 
 readonly LOCATION='{"path": "/repo/app.py", "line": 3}'
 readonly FINDING='{"where": ['"$LOCATION"'], "rule": "Fix the cause", "severity": "major", "why": "It hides the cause.", "instead": "Inject it."}'
-judgment() { printf '{"repo": "/repo", "verdict": "%s", "findings": [%s], "conflicts": [], "follow_ups": [], "clean": [{"rule": "No comments", "places": [%s]}]}' "$1" "${2:-}" "$LOCATION"; }
+judgment() { printf '{"repo": "/repo", "verdict": "%s", "findings": [%s], "conflicts": [], "follow_ups": []}' "$1" "${2:-}"; }
 verdict() { printf '{"diffs": ["/tmp/change.diff"], "judgments": [%s]}' "$1"; }
 readonly RESEARCH='{"recommendation": "Go ahead.", "evidence": [{"claim": "It exists.", "source": {"kind": "file", "ref": "a.ts:1"}}], "against": "Cost.", "owner_conflicts": [], "unverified": [], "sort": "proposal"}'
 readonly SHA=0123456789abcdef0123456789abcdef01234567

@@ -60,20 +60,6 @@
         }
       }
     },
-    "clean": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["rule", "places"],
-      "properties": {
-        "rule": { "$ref": "#/$defs/text" },
-        "places": {
-          "type": "array",
-          "minItems": 1,
-          "items": { "$ref": "#/$defs/location" },
-          "description": "The places the rule was checked in."
-        }
-      }
-    },
     "not_run": {
       "type": "object",
       "additionalProperties": false,
@@ -89,7 +75,7 @@
     "judgment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["repo", "verdict", "findings", "conflicts", "follow_ups", "clean"],
+      "required": ["repo", "verdict", "findings", "conflicts", "follow_ups"],
       "properties": {
         "repo": {
           "$ref": "#/$defs/path",
@@ -117,10 +103,6 @@
           "type": "array",
           "items": { "$ref": "#/$defs/finding" },
           "description": "Real defects that were there before the change and do not block it, each rule named as in findings."
-        },
-        "clean": {
-          "type": "array",
-          "items": { "$ref": "#/$defs/clean" }
         },
         "not_run": {
           "type": "array",

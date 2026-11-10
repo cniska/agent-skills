@@ -31,7 +31,7 @@ assert "that return clears the accept" "$(gate 'git commit -am x')" "$(denied 'a
 
 record_handback "$(report "$repo" accept)" >/dev/null
 malformed="$(fresh_agent)"
-bad_return="$(report "$repo" return 'del(.clean)')"
+bad_return="$(report "$repo" return 'del(.conflicts)')"
 assert "a return off the schema keeps the reviewer running" "$(record_as "$malformed" "$bad_return" | jq -r .hookSpecificOutput.permissionDecision)" deny
 assert "a return off the schema still clears the accept" "$(gate 'git commit -am x')" "$(denied 'app.py (working tree)')"
 record_handback "$(report "$repo" accept)" >/dev/null

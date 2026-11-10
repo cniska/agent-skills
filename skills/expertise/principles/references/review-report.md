@@ -1,6 +1,6 @@
 # Review report
 
-Every review reports in one shape, so a review that runs others merges their results without translating them. The fields are the same in either rendering. Where the caller names a report tool, the outermost review makes its call, once, with every field merged, under the names its schema gives; a review that another runs hands its fields to that review as sections and never calls the tool. Otherwise they are four sections, in this order, each saying `none` when it is empty, and after them only the closing lines the caller asks for:
+Every review reports in one shape, so a review that runs others merges their results without translating them. The fields are the same in either rendering. Where the caller names a report tool, the outermost review makes its call, once, with every field merged, under the names its schema gives; a review that another runs hands its fields to that review as sections and never calls the tool. Otherwise they are three sections, in this order, each saying `none` when it is empty, and after them only the closing lines the caller asks for:
 
 ```
 ## Findings
@@ -18,10 +18,6 @@ Findings the review cannot settle, such as one against a decision the owner made
 ## Follow-ups
 
 Real defects, such as a bug or a security hole, that were there before the change and do not block it, in the same bullets.
-
-## Clean
-
-- **<the rule or check>:** the places it was checked in
 ```
 
 - **Severity** measures how well the work was built the first time, and settles only whether a fix needs another review, as After a return says: **critical** breaks behavior, security or data; **major** is a real defect or a broken convention; **minor** is the rest. A review skill may say how its own findings map onto the three.
@@ -35,7 +31,7 @@ Real defects, such as a bug or a security hole, that were there before the chang
 - **Where** may cite other places with the same problem, so the fix is one structure. A cited place whose problem the change did not cause is fixed with the finding only where the fix needs it, and is otherwise sorted like any other problem that was there before the change.
 - **A re-review** judges the fix it is given against the change's earlier diffs, for findings as for its accept, which then covers the whole change. The reviewer that returned the change already holds those diffs and reads again only what the fix changed; a reviewer new to the change reads them all.
 - **A later review of a change**, the branch's review included, that disagrees with a line an earlier review of it read and left unflagged, whether that review accepted or returned, raises a finding. When the disagreement is against a decision the owner settled, or a ruling the brief names, it is a conflict instead.
-- A rule is marked clean only after the whole scope was checked, not a sample. No summary paragraph or table.
+- No summary paragraph or table.
 
 ## Rule names
 
