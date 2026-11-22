@@ -22,7 +22,6 @@ Run one task so that it lands whole, does what was asked, and is reviewed by an 
 - **Fix what your change causes or what blocks it**, and report other defects as follow-ups, so the change stays one thing.
 - **A defect in a tool, hook or gate stops the task.** Report the command and what it printed, so the defect gets fixed at its source.
 - **Done is the branch landed with CI green on the landed commit**, then remove its worktree.
-- **Wait on a long run in steps shorter than the host's prompt-cache lifetime**, so resuming after each step reads the context from the cache instead of writing it there again.
 
 ## Routes
 

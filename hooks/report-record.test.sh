@@ -320,6 +320,110 @@ overdue="$(fresh_agent)"
 send "$overdue" "$(reported_reviewer)" >/dev/null
 assert "a wait on an agent that never ends lapses at its limit, so the end is judged" \
   "$(CNISKA_WAIT_LIMIT_SECONDS=0 subagent_stop "$overdue" "$WORKER" | jq -r .reason | grep -c "with your report before you end")" 1
+
+mkdir -p "$scratch/bin" "$scratch/runs"
+printf '#!/usr/bin/env bash\n[ -e "${@: -1}.open" ]\n' >"$scratch/bin/lsof"
+chmod +x "$scratch/bin/lsof"
+export PATH="$scratch/bin:$PATH"
+bash_done() {
+  jq -cn --arg agent "$1" --arg type "$2" --arg task "$3" --arg output "$4" '
+    {hook_event_name: "PostToolUse", session_id: "parent1", agent_id: $agent, tool_name: "Bash",
+      tool_input: {command: "mise run test", run_in_background: true},
+      tool_response: ({stdout: "", stderr: "", interrupted: false}
+        + (if $task == "" then {} else {backgroundTaskId: $task, backgroundOutputPath: $output} end))}
+    + (if $type == "" then {} else {agent_type: $type} end)' | "$RECORD" 2>/dev/null
+}
+run_stop() {
+  jq -cn --arg agent "$1" --argjson tasks "$2" --arg transcript "${3:-}" '
+    {hook_event_name: "SubagentStop", session_id: "parent1", agent_id: $agent, agent_type: "cniska-skills:worker", last_assistant_message: "Waiting.",
+      background_tasks: [$tasks | to_entries[] | {id: .key, type: "local_bash", status: .value, command: "mise run test"}]}
+    + (if $transcript == "" then {} else {agent_transcript_path: $transcript} end)' | "$RECORD" 2>/dev/null
+}
+run_output() {
+  : >"$scratch/runs/$1.output"
+  [ "${2:-}" != open ] || : >"$scratch/runs/$1.output.open"
+  printf '%s/runs/%s.output\n' "$scratch" "$1"
+}
+runs_named() { cat "$CLAUDE_PLUGIN_DATA"/runs/*/* 2>/dev/null | grep -c "^$1	"; }
+runs_kept() { find "$CLAUDE_PLUGIN_DATA/runs" -type f 2>/dev/null | wc -l | tr -d ' '; }
+
+runner="$(fresh_agent)"
+assert "a background command's start records its run and passes untouched" \
+  "$(bash_done "$runner" "$WORKER" brun1 "$(run_output brun1 open)")" ""
+running="$(run_stop "$runner" '{"brun1": "running"}')"
+assert "a worker ending its turn while that command runs is kept running" "$(decision "$running")" block
+assert "and told the command is still running" "$(reason "$running" | grep -c "Background command brun1 is still running")" 1
+assert "that wait logs its own gate line" "$(last_gate)" '["verdict","deny","awaiting_run"]'
+rm "$scratch/runs/brun1.output.open"
+assert "once the command's output is closed, the worker is told it ended and where its output is" \
+  "$(reason "$(run_stop "$runner" '{"brun1": "running"}')" | grep -c "Background command brun1 has ended; read its output in $scratch/runs/brun1.output")" 1
+assert "and the next end, with that command still listed as running, is judged" \
+  "$(reason "$(run_stop "$runner" '{"brun1": "running"}')" | grep -c "with your report before you end")" 1
+
+completed="$(fresh_agent)"
+bash_done "$completed" "$WORKER" brun2 "$(run_output brun2 open)" >/dev/null
+assert "a command the host lists as completed holds nothing, though a child keeps its output open" \
+  "$(reason "$(run_stop "$completed" '{"brun2": "completed"}')" | grep -c "with your report before you end")" 1
+assert "and its run is dropped" "$(runs_named brun2)" 0
+
+unlisted="$(fresh_agent)"
+bash_done "$unlisted" "$WORKER" brun3 "$(run_output brun3 open)" >/dev/null
+assert "a stop that lists no background tasks holds nothing" \
+  "$(reason "$(subagent_stop "$unlisted" "$WORKER")" | grep -c "with your report before you end")" 1
+
+held_runner="$(fresh_agent)"
+bash_done "$held_runner" "$WORKER" brun4 "$(run_output brun4 open)" >/dev/null
+(sleep 1 && rm "$scratch/runs/brun4.output.open") &
+assert "a worker held at its end hears of the command that ends meanwhile" \
+  "$(CNISKA_WAIT_HOLD_SECONDS=10 run_stop "$held_runner" '{"brun4": "running"}' | jq -r .reason | grep -c "brun4 has ended")" 1
+wait
+
+bash_done "$(fresh_agent)" "" brun5 "$(run_output brun5 open)" >/dev/null
+assert "an agent with no report tool records no run" "$(runs_named brun5)" 0
+before="$(runs_kept)"
+bash_done "$(fresh_agent)" "$WORKER" "" "" >/dev/null
+assert "a command that ran in the foreground records no run" "$(runs_kept)" "$before"
+
+both="$(fresh_agent)"
+send "$both" "$(reported_reviewer)" >/dev/null
+bash_done "$both" "$WORKER" brun6 "$(run_output brun6 open)" >/dev/null
+assert "a worker waiting on a reviewer and a command is told of both" \
+  "$(reason "$(run_stop "$both" '{"brun6": "running"}')" | grep -c "is still judging what you sent it. Background command brun6 is still running; stop one you no longer need with TaskStop.")" 1
+assert "and the wait logs as a review's" "$(last_gate)" '["verdict","deny","awaiting_review"]'
+both_reviewer="$(reported_reviewer)"
+send "$both" "$both_reviewer" >/dev/null
+call "$both_reviewer" "$DESIGNER" verdict "$VERDICT" >/dev/null
+handback "$both_reviewer" "$DESIGNER" >/dev/null
+assert "a review that ends while the command runs says to wait for the command after reading the verdict" \
+  "$(reason "$(run_stop "$both" '{"brun6": "running"}')" | grep -c "has handed back.*Background command brun6 is still running: end your turn to wait for it")" 1
+
+overdue_runner="$(fresh_agent)"
+bash_done "$overdue_runner" "$WORKER" brun10 "$(run_output brun10 open)" >/dev/null
+assert "a command running past the run limit holds nothing, so the end is judged" \
+  "$(CNISKA_RUN_LIMIT_SECONDS=0 run_stop "$overdue_runner" '{"brun10": "running"}' | jq -r .reason | grep -c "with your report before you end")" 1
+assert "and its run is dropped" "$(runs_named brun10)" 0
+
+guarded="$(fresh_agent)"
+bash_done "$guarded" "$WORKER" brun7 "$(run_output brun7 open)" >/dev/null
+blocks="$scratch/blocks.jsonl"
+blocked_stop() { jq -cn '{type: "attachment", attachment: {type: "hook_blocking_error", hookEvent: "SubagentStop"}}' >>"$blocks"; }
+jq -cn '{type: "assistant", message: {content: [{type: "tool_use", name: "Bash", input: {}}]}}' >"$blocks"
+for _ in 1 2 3 4 5; do blocked_stop; done
+assert "a fifth blocked stop in a row asks for nothing more" \
+  "$(reason "$(run_stop "$guarded" '{"brun7": "running"}' "$blocks")" | grep -c "make one tool call")" 0
+blocked_stop
+assert "a sixth asks for one tool call, so the host's cap does not end the turn" \
+  "$(reason "$(run_stop "$guarded" '{"brun7": "running"}' "$blocks")" | grep -c "make one tool call")" 1
+jq -cn '{type: "assistant", message: {content: [{type: "tool_use", name: "Read", input: {}}]}}' >>"$blocks"
+assert "a tool call after them starts the count again" \
+  "$(reason "$(run_stop "$guarded" '{"brun7": "running"}' "$blocks")" | grep -c "make one tool call")" 0
+
+released="$(fresh_agent)"
+bash_done "$released" "$WORKER" brun8 "$(run_output brun8 open)" >/dev/null
+handback "$released" "$WORKER" >/dev/null
+assert "a hand-back is not held by a running command" "$(runs_named brun8)" 1
+handback "$released" "$WORKER" >/dev/null
+assert "and the end it lets through drops the agent's runs" "$(runs_named brun8)" 0
 unset CNISKA_WAIT_HOLD_SECONDS
 
 assert "read_report is not judged" "$(call "$(fresh_agent)" "$REVIEWER" read_report '{"id": "a1"}')" ""

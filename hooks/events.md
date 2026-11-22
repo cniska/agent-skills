@@ -44,6 +44,7 @@ The [commit gate](../docs/plugin.md#commit-gate) says which sides of a path it j
 | `verdict` | `deny` | `already_reported` | the agent calls a report tool while its stored report awaits its hand-back; denied every time |
 | `verdict` | `deny` or `allow` | `missing_report` | a reviewer, designer, researcher or worker hands back or stops with no report stored since its last hand-back |
 | `verdict` | `deny` | `awaiting_review` | an agent with a report tool ends with no report of its own while an agent it sent a message to has not ended, or has ended since its last end; sent back to keep waiting or to read the verdict, as [Waits](#waits) says |
+| `verdict` | `deny` | `awaiting_run` | a worker, reviewer, designer or researcher stops with no report of its own while a background command it started still runs and no message it sent awaits an answer; sent back to keep waiting or to read the output, as [Waits](#waits) says |
 | `verdict` | `deny` or `allow` | `diff_not_read` | a reviewer lists under `diffs` a file it did not read with `Read` |
 | `verdict` | `deny` or `allow` | `repo_not_found` | a judgment's `repo` is not a repository |
 | `verdict` | `deny` or `allow` | `repo_repeated` | two judgments name the same repository |
@@ -59,7 +60,7 @@ A `verdict` gate judges a report at its tool's `PreToolUse`, while the agent sti
 
 #### Bound
 
-Each code that denies, but `wrong_agent`, `already_reported` and `awaiting_review`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound; a `ruling` has no bound, since no one must make one. `awaiting_review` is bounded by its wait's 30-minute limit instead, as [Waits](#waits) says. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
+Each code that denies, but `wrong_agent`, `already_reported`, `awaiting_review` and `awaiting_run`, is denied once per agent id, or per session id at the top level, until the agent hands back a report, which resets the bound; a `ruling` has no bound, since no one must make one. `awaiting_review` is bounded by its wait's 30-minute limit instead, and `awaiting_run` by the command's end or its own 30-minute limit, as [Waits](#waits) says. A later call with the same fault is allowed, stored as not recorded, and records no verdict, so an agent that never fixes its report still ends.
 
 #### Returns
 
@@ -83,12 +84,25 @@ The two notes deny nothing. The stored record gives each reviewer judgment `{rep
 
 #### Waits
 
-A `SendMessage` from an agent with a report tool to an agent with a stored report records a wait. While a wait stands, a waiting agent with no report of its own to hand back has its end held, at `SubagentHandback`, `SubagentStop` or `Stop`. The hold lasts until the awaited agent ends, up to four minutes. Then the end is sent back as `awaiting_review`, with no bound spent and the stored report and the round unchanged:
+An agent with a report tool and no report of its own to hand back has its end held while it waits on a review or a background command. The hold lasts until what it waits on ends, up to four minutes, and the end is then sent back with no bound spent and the stored report and the round unchanged. The hook's 300-second timeout covers the hold, and a test keeps it above the hold. The host lets a turn end after eight stop hooks in a row block it, so from the sixth the message also asks for one tool call first.
+
+##### Review waits
+
+A `SendMessage` from an agent with a report tool to an agent with a stored report records a wait. While it stands, the waiter's end is held at `SubagentHandback`, `SubagentStop` or `Stop`, and sent back as `awaiting_review`:
 
 - **Ended:** the message tells the waiter to read the verdict with `read_report` and carry on.
 - **Still running:** it tells the waiter to end its turn again to keep waiting.
 
-The hook's 300-second timeout covers the hold, and a test keeps it above the hold. The awaited agent ends at its hand-back or past its bound, and the waiter hears of it at its next end, once. A wait is dropped when the send fails or is denied, and when the waiter hands back a report. It also lapses 30 minutes after the send, so an agent that never ends cannot hold its waiter for good.
+The awaited agent ends at its hand-back or past its bound, and the waiter hears of it at its next end, once. A wait is dropped when the send fails or is denied, and when the waiter hands back a report. It also lapses 30 minutes after the send, so an agent that never ends cannot hold its waiter for good.
+
+##### Background commands
+
+The `PostToolUse` hook on `Bash` records each command a subagent with a report tool runs in the background, by the task id and output file the tool returns. At `SubagentStop`, a recorded command holds the end while the stop's `background_tasks` lists it as running. It also needs some process to still have its output file open, as `lsof`, or else `/proc`, shows. The hook drops a command the host lists otherwise, and one 30 minutes past its start, so a server that never exits cannot hold the agent for good. The end is sent back as `awaiting_run`, or as `awaiting_review` when a review wait also stands:
+
+- **Ended:** the message names the command and its output file, and the command is dropped.
+- **Still running:** it tells the agent to end its turn again to keep waiting, or to stop a command it no longer needs.
+
+A stop that names no `background_tasks`, or one on a machine with neither `lsof` nor `/proc`, holds nothing and says so on stderr.
 
 #### Return counts
 

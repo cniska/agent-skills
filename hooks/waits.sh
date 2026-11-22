@@ -1,6 +1,4 @@
-readonly WAIT_HOLD_SECONDS="${CNISKA_WAIT_HOLD_SECONDS:-240}"
 readonly WAIT_LIMIT_SECONDS="${CNISKA_WAIT_LIMIT_SECONDS:-1800}"
-readonly WAIT_POLL_SECONDS=2
 readonly ENDED_SUFFIX=.ended
 
 waits_dir() {
@@ -59,14 +57,6 @@ has_waits() {
   local dir
   dir="$(waits_dir "$1")"
   [ -d "$dir" ] && [ -n "$(ls -A "$dir")" ]
-}
-
-hold_wait() {
-  local id="$1" waited=0
-  while [ -n "$(waits_in_state "$id" waiting)" ] && [ "$waited" -lt "$WAIT_HOLD_SECONDS" ]; do
-    sleep "$WAIT_POLL_SECONDS"
-    waited=$((waited + WAIT_POLL_SECONDS))
-  done
 }
 
 clear_ended_waits() {

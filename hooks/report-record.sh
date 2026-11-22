@@ -8,6 +8,8 @@ source "$HERE/subagent-gate.sh"
 source "$HERE/event-log.sh"
 source "$HERE/report-store.sh"
 source "$HERE/waits.sh"
+source "$HERE/runs.sh"
+source "$HERE/hold.sh"
 source "$HERE/review-record.sh"
 source "$HERE/ruling-record.sh"
 
@@ -133,6 +135,7 @@ hand_back() {
   rm -f "$(denials_file "$(reporter_id "$input")")" || die "the bound on denials cannot be reset for $file"
   end_round "$input" || die "the round cannot be ended for $file"
   release_waits "$(reporter_id "$input")" || die "the waits on and of $file cannot be released"
+  rm -rf "$(runs_dir "$(reporter_id "$input")")" || die "the background commands of $file cannot be released"
 }
 
 is_report_tool() {
@@ -217,8 +220,13 @@ on_end() {
     return 0
   fi
   drop_overdue_waits "$(reporter_id "$input")" || die "the overdue waits of $file cannot be dropped"
-  if has_waits "$(reporter_id "$input")"; then
-    keep_waiting "$input"
+  local runs=""
+  if [ "$(field "$input" hook_event_name)" = SubagentStop ]; then
+    drop_finished_runs "$input" || die "the finished background commands of $file cannot be dropped"
+    runs="$(held_runs "$input")"
+  fi
+  if has_waits "$(reporter_id "$input")" || [ -n "$runs" ]; then
+    keep_waiting "$input" "$runs"
     return
   fi
   if deny_once "$input" missing_report "Call $TOOL_PREFIX$tool with your report before you end. Your caller reads the report from that call, not from your final message."; then
@@ -228,27 +236,53 @@ on_end() {
   rm -f "$file" || die "the earlier hand-back's report at $file cannot be removed"
   end_round "$input" || die "the round cannot be ended for $file"
   release_waits "$(reporter_id "$input")" || die "the waits on and of $file cannot be released"
+  rm -rf "$(runs_dir "$(reporter_id "$input")")" || die "the background commands of $file cannot be released"
   gate_line "$input" allow missing_report
 }
 
 keep_waiting() {
-  local input="$1" id still ended reason
+  local input="$1" runs="$2" id still ended ran reason code=awaiting_review
   id="$(reporter_id "$input")"
-  hold_wait "$id"
+  hold_wait "$id" "$runs"
   still="$(waits_in_state "$id" waiting)"
   ended="$(waits_in_state "$id" ended)"
-  if [ -n "$ended" ]; then
-    reason="Agent $ended has handed back. Read its verdict with ${TOOL_PREFIX}read_report and carry on with the task."
+  ran="$(ended_runs "$runs")"
+  [ -n "$still$ended" ] || code=awaiting_run
+  if [ -n "$ended$ran" ]; then
+    reason="$(ended_reason "$ended" "$ran" "$(runs_left "$runs" "$ran")")"
     clear_ended_waits "$id"
+    drop_runs "$id" "$ran"
   else
-    reason="Agent $still is still judging what you sent it, and the task is still yours. End your turn again to keep waiting; its verdict reaches you as a notification. Do not hand back while you wait."
+    reason="$(still_reason "$still" "$runs")"
   fi
-  gate_line "$input" deny awaiting_review
+  reason="$reason$(stop_block_guard "$input")"
+  gate_line "$input" deny "$code"
   if at_handback "$input"; then
     pre_tool_deny "$reason"
     return
   fi
   jq -cn --arg reason "$reason" '{decision: "block", reason: $reason}'
+}
+
+ended_reason() {
+  local ended="$1" ran="$2" left="$3" task output parts=()
+  [ -z "$ended" ] || parts+=("Agent $ended has handed back. Read its verdict with ${TOOL_PREFIX}read_report.")
+  while IFS=$'\t' read -r task output; do
+    [ -z "$task" ] || parts+=("Background command $task has ended; read its output in $output.")
+  done <<<"$ran"
+  if [ -n "$left" ]; then
+    parts+=("Background command $(run_tasks "$left") is still running: end your turn to wait for it once you have read this, and do not hand back before it ends.")
+  else
+    parts+=("Carry on with the task.")
+  fi
+  printf '%s\n' "${parts[*]}"
+}
+
+still_reason() {
+  local still="$1" runs="$2" parts=()
+  [ -z "$still" ] || parts+=("Agent $still is still judging what you sent it.")
+  [ -z "$runs" ] || parts+=("Background command $(run_tasks "$runs") is still running; stop one you no longer need with TaskStop.")
+  printf '%s The task is still yours. End your turn again to keep waiting; you are woken when it ends. Do not hand back while you wait.\n' "${parts[*]}"
 }
 
 sent_to() {
@@ -267,6 +301,17 @@ on_send() {
   target="$(sent_to "$input")"
   [ -n "$target" ] || return 0
   wait_on "$(reporter_id "$input")" "$target" || die "the wait on $target cannot be recorded"
+}
+
+on_bash_done() {
+  local input="$1" task output
+  [ -n "$(reporting_tool "$(field "$input" agent_type)")" ] || return 0
+  [ -n "${CLAUDE_PLUGIN_DATA:-}" ] || return 0
+  [ -n "$(field "$input" agent_id)" ] || return 0
+  task="$(jq -r '.tool_response.backgroundTaskId? // empty' <<<"$input")"
+  output="$(jq -r '.tool_response.backgroundOutputPath? // empty' <<<"$input")"
+  [ -n "$task" ] && [ -n "$output" ] || return 0
+  record_run "$(reporter_id "$input")" "$task" "$output" || die "the background command $task cannot be recorded"
 }
 
 on_send_failed() {
@@ -292,6 +337,9 @@ main() {
       esac
       ;;
     SubagentStop | Stop) on_end "$input" ;;
+    PostToolUse)
+      [ "$tool_name" != Bash ] || on_bash_done "$input"
+      ;;
     PostToolUseFailure | PermissionDenied)
       [ "$tool_name" != SendMessage ] || on_send_failed "$input"
       ;;

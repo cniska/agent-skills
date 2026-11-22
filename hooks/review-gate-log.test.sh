@@ -33,7 +33,8 @@ assert "the report recorder judges every hand-back, message and report tool" \
   "$(recorder_on PreToolUse 'SubagentHandback|SendMessage|mcp__plugin_cniska-skills_report__(verdict|research|task_report|ruling)')" 1
 assert "the report recorder hears of a message that fails" "$(recorder_on PostToolUseFailure SendMessage)" 1
 assert "the report recorder hears of a message that is denied" "$(recorder_on PermissionDenied SendMessage)" 1
-wait_default() { sed -n "s/^readonly $1=\"\${CNISKA_[A-Z_]*:-\([0-9]*\)}\"$/\1/p; s/^readonly $1=\([0-9][0-9]*\)$/\1/p" "$HERE/waits.sh"; }
+assert "the report recorder hears of every shell command, to record a background one" "$(recorder_on PostToolUse Bash)" 1
+wait_default() { sed -n "s/^readonly $1=\"\${CNISKA_[A-Z_]*:-\([0-9]*\)}\"$/\1/p; s/^readonly $1=\([0-9][0-9]*\)$/\1/p" "$HERE/hold.sh"; }
 held_for=$(($(wait_default WAIT_HOLD_SECONDS) + $(wait_default WAIT_POLL_SECONDS)))
 assert "every report recorder entry on an end outlasts the hold on a waiting agent's end" \
   "$(jq --argjson held "$held_for" '[.hooks.SubagentStop[], .hooks.Stop[], .hooks.PreToolUse[] | .hooks[] | select(.command | endswith("report-record.sh")) | select((.timeout // 0) <= $held)] | length' "$HERE/hooks.json")" 0
