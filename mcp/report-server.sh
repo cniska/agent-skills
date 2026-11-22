@@ -3,6 +3,7 @@ set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HERE/../hooks/report-store.sh"
+source "$HERE/change.sh"
 readonly SCHEMAS="$HERE/report-schemas.json"
 readonly SCHEMA_LIB="$HERE/../hooks"
 readonly SUPPORTED_VERSIONS='["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]'
@@ -46,11 +47,11 @@ readonly ROUTE='include "report-schema";'"$RPC"'
           | .params.arguments as $arguments
           | if ($root.tools | has($tool | tostring) | not) then failure($id; -32602; "No tool is named \($tool | tojson).")
             elif $tool == "ruling" then tool_text($id; $ruling_received; false)
-            elif $tool != "read_report" then tool_text($id; $received; false)
+            elif $tool != "read_report" and $tool != "change" then tool_text($id; $received; false)
             else
-              [$arguments | tool_violations($root; "read_report") | violation_text] as $violations
+              [$arguments | tool_violations($root; $tool) | violation_text] as $violations
               | if ($violations | length) > 0 then tool_text($id; $violations | join("\n"); true)
-                else {read: $arguments.id, id: $id} end
+                else {serve: $tool, arguments: $arguments, id: $id} end
             end
         else failure($id; -32601; "No method is named \(.method | tojson).")
         end
@@ -58,6 +59,10 @@ readonly ROUTE='include "report-schema";'"$RPC"'
 
 readonly STORED="$RPC"'
   reply($id; {content: [{type: "text", text: ($record[0] | tojson)}], structuredContent: $record[0]})'
+
+readonly WRITTEN="$RPC"'
+  ($change | fromjson) as $files
+  | reply($id; {content: [{type: "text", text: ($files | tojson)}], structuredContent: $files})'
 
 readonly NOT_STORED="$RPC"' tool_text($id; $text; true)'
 
@@ -84,16 +89,31 @@ read_report() {
     not_stored "$rpc_id" "The report stored for $report_id is not valid JSON: $file"
 }
 
+serve_change() {
+  local repo="$1" kind="$2" rpc_id="$3" written
+  if written="$(write_change "$repo" "$kind")"; then
+    jq -cn --argjson id "$rpc_id" --arg change "$written" "$WRITTEN"
+  else
+    not_stored "$rpc_id" "$written"
+  fi
+}
+
 answer() {
   local routed
   routed="$(jq -cn -L "$SCHEMA_LIB" --slurpfile schemas "$SCHEMAS" \
     --arg line "$1" --arg versions "$SUPPORTED_VERSIONS" --arg info "$SERVER_INFO" --arg received "$RECEIVED_TEXT" --arg ruling_received "$RULING_RECEIVED_TEXT" \
     "$ROUTE")" || return 1
   [ -n "$routed" ] || return 0
-  if [ "$(jq -r 'has("read")' <<<"$routed")" = true ]; then
-    read_report "$(jq -r '.read' <<<"$routed")" "$(jq -c '.id' <<<"$routed")"
-    return
-  fi
+  case "$(jq -r '.serve // empty' <<<"$routed")" in
+    read_report)
+      read_report "$(jq -r '.arguments.id' <<<"$routed")" "$(jq -c '.id' <<<"$routed")"
+      return
+      ;;
+    change)
+      serve_change "$(jq -r '.arguments.repo' <<<"$routed")" "$(jq -r '.arguments.kind' <<<"$routed")" "$(jq -c '.id' <<<"$routed")"
+      return
+      ;;
+  esac
   printf '%s\n' "$routed"
 }
 

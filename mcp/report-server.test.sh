@@ -49,7 +49,7 @@ assert "a notification gets no reply" \
   "$(serve '{"jsonrpc": "2.0", "method": "notifications/initialized"}' | wc -l | tr -d ' ')" 0
 assert "ping is answered with an empty result" "$(serve '{"jsonrpc": "2.0", "id": 3, "method": "ping"}')" '{"jsonrpc":"2.0","id":3,"result":{}}'
 
-assert "tools/list lists the five tools" "$(tools | jq -r 'map(.name) | join(" ")')" "verdict research task_report ruling read_report"
+assert "tools/list lists the six tools" "$(tools | jq -r 'map(.name) | join(" ")')" "verdict research task_report ruling read_report change"
 assert "every listed tool loads upfront" "$(tools | jq -c 'map(._meta["anthropic/alwaysLoad"]) | unique')" "[true]"
 assert "every listed tool has a description" "$(tools | jq -c 'map(.description | type) | unique')" '["string"]'
 assert "no listed schema keeps a \$ref" "$(tools | jq -c '[.. | objects | select(has("$ref"))] | length')" 0
@@ -126,6 +126,66 @@ serve_as_claude_code_launches() {
 }
 assert "the server Claude Code launches from the plugin config reads the reports the hooks store" \
   "$(serve_as_claude_code_launches "$(call read_report '{"id": "a1b2"}')" | jq -c '.result.structuredContent.agent_id')" '"a1b2"'
+
+change() {
+  serve "$(call change "$(jq -cn --arg repo "$1" --arg kind "$2" '{repo: $repo, kind: $kind}')")"
+}
+change_field() { jq -r ".result.structuredContent.$1 // empty"; }
+change_error() { jq -c '[.result.isError, .result.content[0].text]'; }
+
+repo="$scratch/repo"
+git init -q -b main "$scratch/origin"
+git -C "$scratch/origin" -c user.name=t -c user.email=t@t commit -q --allow-empty -m base
+git clone -q "$scratch/origin" "$repo" 2>/dev/null
+top="$(cd "$repo" && pwd -P)"
+gitc() { git -C "$repo" -c user.name=t -c user.email=t@t "$@"; }
+printf 'one\n' >"$repo/a.txt"
+gitc add a.txt
+gitc commit -q -m "add a"
+printf 'two\n' >"$repo/b.txt"
+gitc add b.txt
+printf 'unstaged\n' >"$repo/c.txt"
+
+staged="$(change "$repo/b.txt" commit)"
+assert "a commit's change is the staged diff, written to a file" \
+  "$(cat "$(change_field diff <<<"$staged")")" "$(git -C "$repo" diff --cached)"
+assert "the file is under the plugin's data directory, named by its content's hash" \
+  "$(change_field diff <<<"$staged")" "$DATA/changes/$(git -C "$repo" diff --cached | shasum -a 256 | cut -d ' ' -f 1).diff"
+assert "a path inside the worktree names its top level" "$(change_field repo <<<"$staged")" "$top"
+assert "a commit's change has no log" "$(jq -c '.result.structuredContent.log' <<<"$staged")" null
+assert "the result is also JSON text" "$(jq -r '.result.content[0].text | fromjson | .kind' <<<"$staged")" commit
+assert "the same staged change gives the same file" "$(change "$repo" commit | change_field diff)" "$(change_field diff <<<"$staged")"
+
+branch="$(change "$repo" branch)"
+assert "a branch's change is its diff from the base, staged change included" \
+  "$(cat "$(change_field diff <<<"$branch")")" "$(git -C "$repo" diff --cached origin/main)"
+assert "and its log from the base" "$(cat "$(change_field log <<<"$branch")")" "$(git -C "$repo" log origin/main..HEAD)"
+assert "no scratch file is left beside the kept ones" \
+  "$(find "$DATA/changes" \( -name 'diff.*' -o -name 'log.*' \) | wc -l | tr -d ' ')" 0
+
+gitc commit -q -m "add b"
+assert "with nothing staged, a commit's change is a tool error naming the repo" \
+  "$(change "$repo" commit | change_error)" "[true,\"Nothing is staged in $top, so a commit there has no change to judge.\"]"
+git init -q "$scratch/lone"
+lone="$(cd "$scratch/lone" && pwd -P)"
+assert "a branch with no remote base is a tool error" \
+  "$(change "$scratch/lone" branch | change_error)" "[true,\"$lone has no origin/HEAD or origin/main to diff its branch against.\"]"
+git init -q -b main "$scratch/unrelated"
+git -C "$scratch/unrelated" -c user.name=t -c user.email=t@t commit -q --allow-empty -m other
+git -C "$scratch/lone" -c user.name=t -c user.email=t@t commit -q --allow-empty -m own
+git -C "$scratch/lone" fetch -q "$scratch/unrelated" main:refs/remotes/origin/main
+assert "a base with no merge base is a tool error naming the failed step" \
+  "$(change "$scratch/lone" branch | change_error)" "[true,\"git merge-base HEAD origin/main failed in $lone, so no change was written.\"]"
+mkdir -p "$scratch/plain"
+assert "a path outside any repository is a tool error" \
+  "$(change "$scratch/plain" commit | change_error)" "[true,\"$scratch/plain is not in a git repository. Give the worktree the brief names.\"]"
+assert "a kind other than commit or branch is refused by the schema" \
+  "$(change "$repo" tree | change_error)" '[true,"/kind must be one of \"commit\", \"branch\""]'
+assert "a relative repo is refused by the schema" \
+  "$(change repo commit | change_error)" '[true,"/repo must match the pattern ^/"]'
+assert "with no plugin data directory, writing is a tool error" \
+  "$(printf '%s\n' "$(call change "$(jq -cn --arg repo "$repo" '{repo: $repo, kind: "branch"}')")" | env -u CLAUDE_PLUGIN_DATA "$SERVER" | change_error)" \
+  '[true,"No change can be written: CLAUDE_PLUGIN_DATA is not set for the report server."]'
 
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

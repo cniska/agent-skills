@@ -1,8 +1,8 @@
 readonly WORKTREE_MISMATCH_REASON="Name the worktree the change is in as the judgment's repo, not another checkout of its repository."
 readonly REPO_REPEATED_REASON="Give each repository one judgment."
 readonly ACCEPT_WITH_FINDINGS_REASON="An accept has no findings: while a finding stands, the judgment's verdict is return. A defect that was there before the change and does not block it goes under follow_ups."
-readonly SAME_ROUND_FIX="This accept is not recorded: earlier in this run its reviewer returned this repository's change with a critical or major finding, a conflict or a malformed judgment, and no fix has come back since. Fix the change and send the fix's diff to this reviewer through SendMessage."
-readonly STALE_DIFF_FIX="The diff no longer matches the change, most likely because the change was edited after the diff was written. Write a new diff of the change and send it to this reviewer through SendMessage, or brief a new cniska-skills:reviewer with it only when this one can no longer be reached."
+readonly SAME_ROUND_FIX="This accept is not recorded: earlier in this run its reviewer returned this repository's change with a critical or major finding, a conflict or a malformed judgment, and no fix has come back since. Fix the change, stage it and send the fix to this reviewer through SendMessage."
+readonly STALE_DIFF_FIX="The diff no longer matches the change, most likely because the change was edited after the diff was written. Stage the change and send it to this reviewer through SendMessage, which reads it again through its change tool, or brief a new cniska-skills:reviewer only when this one can no longer be reached."
 readonly MAX_COUNT=1000
 readonly NO_RETURNS='{"any_severity":0,"critical_or_major":0}'
 readonly COUNTED_RETURN='

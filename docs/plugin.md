@@ -36,10 +36,11 @@ sequenceDiagram
   participant G as Git hooks
   participant C as CI
   A->>A: task picks a route, steps load skills
-  A->>V: here is the diff
+  A->>V: review the change staged in this worktree
+  Note over V: change call: the staged diff as a file it reads
   V-->>A: verdict call: return, with a major finding
-  A->>V: SendMessage: the fix's diff in a new file
-  Note over V: judges the fix against the earlier diffs it already read
+  A->>V: SendMessage: the fix is staged
+  Note over V: change call again; judges the fix against the earlier diffs it already read
   V-->>A: verdict call: accept, listing the fix's and the earlier diff files
   Note over V: the accept is recorded for each path's content
   A->>P: git commit
@@ -82,7 +83,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 `cniska-skills:reviewer` judges a design or a change it did not write, as [the reviewer](reviewer.md) says.
 
-- It works read-only and preloads only `principles`. By a commit's file paths it loads [design-review](../skills/expertise/design-review/SKILL.md) for code and [doc-review](../skills/expertise/doc-review/SKILL.md) for docs.
+- It works read-only and preloads only `principles`. It reads the change it judges from the files the [report server](#report-server)'s `change` tool writes for the worktree its brief names. By a commit's file paths it loads [design-review](../skills/expertise/design-review/SKILL.md) for code and [doc-review](../skills/expertise/doc-review/SKILL.md) for docs.
 - It judges a coordinator's brief or plan as [the reviewer](reviewer.md) says, and loads [review](../skills/workflow/review/SKILL.md) for a whole branch.
 - A commit's review runs on the model the `model` field of [its agent file](../agents/reviewer.md) sets, the cheaper one. A brief, plan, Challenge design or whole branch is judged on the stronger model that file's description names as the override its caller passes, as `task` and `coordinate` say.
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
@@ -94,7 +95,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 `cniska-skills:designer` judges a change to a running interface it did not make, as [its agent file](../agents/designer.md) says.
 
-- It runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
+- It reads the change through the `change` tool, as the reviewer does, and runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
 - It also judges a branch's finished interface whole, once, before the branch lands.
 - Like the reviewer, it judges each commit on the model its agent file's `model` field sets, and a branch's finished interface on the override that file's description names.
 - Its shell only reads, and syncs the session record, where it looks up the owner's past UI corrections.
@@ -106,13 +107,14 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 ## Report server
 
-It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, `ruling` takes a [ruling](#rulings), and `read_report` returns one stored report by its agent id, or a top-level worker's by its session id.
+It serves the agents' report tools from `mcp/`, as the MCP server `report` that `.mcp.json` starts: `verdict`, `research` and `task_report` take a report as data, `ruling` takes a [ruling](#rulings), `read_report` returns one stored report by its agent id, or a top-level worker's by its session id, and `change` writes the change a reviewer or designer judges.
 
 - **Checked before the call:** the plugin's `PreToolUse` hook checks each `verdict`, `research` or `task_report` call against [the schemas](../mcp/report-schemas.json) and its caller, stores it under the plugin's data directory, and allows it without a permission prompt. A call off the schema is denied once and one from the wrong agent every time, each naming the fix; [hook events](../hooks/events.md) lists the codes. A `ruling` is checked and logged, never stored, as [Rulings](#rulings) says.
 - **Rule names:** each `rule` in a verdict's findings, conflicts and follow-ups must be one of the names in [`hooks/rule-names.json`](../hooks/rule-names.json), which `mise run rule-names` reads from the skills' rule headings. A call naming another is denied once with every name listed; a second such call is stored as not recorded.
 - **Once per hand-back:** a second report call before the hand-back is refused. A reviewer, designer, researcher or worker that ends with no report since its last hand-back is sent back once; handing back a report resets that, so a resumed agent reports again and its report replaces the old. One that still ends without reporting leaves no report to read.
 - **Waiting on a re-review:** an agent that resumes one with a stored report through `SendMessage` keeps running while it waits. Its end is held until that agent hands back, up to four minutes, then sent back to read the verdict, or to wait again. A send that fails or is denied starts no wait, and a wait lapses after 30 minutes.
 - **Read back:** the caller reads the report through `read_report`, never from the agent's closing message.
+- **The change:** `change` writes a commit's staged diff, or a branch's diff from its merge base with `origin/HEAD`, else `origin/main`, to the index, plus its log. Each file goes under the data directory's `changes/`, named by its content's SHA-256, so a file once read never changes. It returns the paths, or a tool error naming why there are none.
 
 ## Commit gate
 
@@ -126,7 +128,7 @@ It blocks a commit until the reviewer or a recorded ruling has accepted the cont
   - **Never:** from a reviewer that returned the repo with a critical or major finding, a conflict or a malformed judgment earlier in the same round. Resumed on the fix, its minor-only return covers as a new reviewer's would.
 - Accepts merge: a later accept adds the paths its reviewer read, and a re-review covers the whole change when its reviewer also lists the change's earlier diff files, which a resumed reviewer has already read.
 - A re-review, needed after any return with a critical or major finding or a conflict, goes to the reviewer that returned the change, resumed through `SendMessage`. Only when that reviewer is gone, as after a session restart, does a new one take over, briefed with the earlier returns and the fix.
-- A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names that commit's diff as the fix; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under follow-ups, which never hold back an accept.
+- A finding about code outside every diff of the change, on an older problem that blocks the change, is fixed in a commit of its own, accepted alone before the returned change, whose re-review then names as the fix the file under `changes/` that commit's own review read; the change's diff keeps to its own paths. A defect there that was there before the change and does not block it goes under follow-ups, which never hold back an accept.
 - Markdown, and a path that `HEAD`'s `.gitattributes` files mark `linguist-generated`, is not code: the gate never judges it, so a change to only such paths needs no accept, before or after one.
 - Only a marking committed in `HEAD` counts, so a `.gitattributes` change exempts paths from the next commit on, and a `.gitattributes` file is never exempt; the refusal names this route, a `.gitattributes` change committed alone and reviewed first. No path counts as generated while the repo's `info/attributes` holds a rule, before the first commit, or when `git check-attr` fails.
 - The accept counts for the repo the reviewer named, so a session can have a change in another repo reviewed.

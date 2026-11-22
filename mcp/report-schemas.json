@@ -365,6 +365,24 @@
           }
         }
       }
+    },
+    "change": {
+      "description": "Write the change you judge as files to Read: a commit's staged diff, or a whole branch's diff, staged fix included, and its log. Returns their paths.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["repo", "kind"],
+        "properties": {
+          "repo": {
+            "$ref": "#/$defs/path",
+            "description": "The worktree the change is in, as the brief names it."
+          },
+          "kind": {
+            "enum": ["commit", "branch"],
+            "description": "commit for a commit's review, branch for a whole branch's."
+          }
+        }
+      }
     }
   }
 }
