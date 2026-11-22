@@ -115,12 +115,20 @@ for command in \
   "command -p 'cd' ~/project && git commit -am x" \
   "builtin 'cd' ~/project && git commit -am x" \
   "time -p 'cd' ~/project; git commit -am x" \
-  "case x in x) 'cd' ~/project;; esac; git commit -am x"; do
+  "case x in x) 'cd' ~/project;; esac; git commit -am x" \
+  "case x in y) :;; x) 'cd' ~/project;; esac; git commit -am x" \
+  "c\$''d ~/project && git commit -am x" \
+  'c$""d ~/project && git commit -am x' \
+  'c$()d ~/project && git commit -am x' \
+  '${X}cd ~/project && git commit -am x' \
+  "\$'\\143d' ~/project && git commit -am x"; do
   assert "a commit behind a cd spelled [$command] is refused, not judged against the cwd's repo" "$(gate_from "$command" "$repo")" "$AMBIGUOUS"
 done
 for command in \
   "git log --grep 'cd' && git -C ~/project commit -am x" \
-  "echo \"cd\" && git -C ~/project commit -am x"; do
+  "echo \"cd\" && git -C ~/project commit -am x" \
+  "echo \"\$(git status)\" \$HOME && git -C ~/project commit -am x" \
+  "echo \$(date) \"x\" && git -C ~/project commit -am x"; do
   assert "a quoted cd that is not a command [$command] leaves the commit gated" "$(gate_from "$command" "$scratch")" "$(denied 'lib.py (working tree)')"
 done
 for command in \
