@@ -12,6 +12,8 @@ An agent that did not write the work judges each commit and each design whose sh
 
 The plugin runs it as the [reviewer agent](plugin.md#reviewer-agent), and the [commit gate](plugin.md#commit-gate) holds each commit until it accepts, a recorded ruling accepts for it, or it returns with only minor findings and no conflict.
 
+Each commit's review runs on a cheaper model than the rest, since commit reviews are most of its runs. Briefs, plans, designs and whole branches get the stronger one. The [agent file](../agents/reviewer.md) names both, and the [reviewer agent](plugin.md#reviewer-agent) section says how each is picked.
+
 It judges the diff, not the screens: a commit that changes an interface also waits for a [designer](plugin.md#designer-agent), which judges the running interface through [ui-review](../skills/expertise/ui-review/SKILL.md).
 
 ## Findings

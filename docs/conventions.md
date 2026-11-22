@@ -23,7 +23,7 @@ Skills reference three capability tiers instead of provider-specific model names
 | `balanced` | Default session model | Whatever you already code with day to day |
 | `powerful` | Synthesis, high-stakes analysis, high reasoning effort | The strongest reasoning model you have access to, run at high effort |
 
-Naming actual models here would be wrong within months, so this column gives the rule for choosing rather than the answer. The validator rejects provider model names in the skills, the README and `docs/`.
+Naming actual models here would be wrong within months, so this column gives the rule for choosing rather than the answer. The validator rejects provider model names in the skills, the README and `docs/`. Only the plugin's agent files, which run on one host, name models: the [reviewer](../agents/reviewer.md) and [designer](../agents/designer.md) name the model of each review they run.
 
 ## Principles
 

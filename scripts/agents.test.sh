@@ -46,6 +46,10 @@ assert "reviewer reads files, loads the review skills and reports its verdict, n
 assert "researcher preloads second-opinion, search-sessions and principles" "$(frontmatter_list "$AGENTS/researcher.md" skills | tr '\n' ' ')" "cniska-skills:second-opinion cniska-skills:search-sessions cniska-skills:principles "
 assert "designer preloads ui-review, ui-design, search-sessions and principles" "$(frontmatter_list "$AGENTS/designer.md" skills | tr '\n' ' ')" "cniska-skills:ui-review cniska-skills:ui-design cniska-skills:search-sessions cniska-skills:principles "
 assert "designer reads files and the record, loads skills and reports its verdict, nothing more" "$(frontmatter_value "$AGENTS/designer.md" tools)" "Read, Grep, Glob, Skill, Bash, mcp__plugin_cniska-skills_report__verdict"
+for agent in reviewer designer; do
+  assert "$agent runs each commit review on sonnet" "$(frontmatter_value "$AGENTS/$agent.md" model)" sonnet
+  assert "$agent names the opus override for its other reviews" "$(frontmatter_value "$AGENTS/$agent.md" description | grep -c 'model override `opus`')" 1
+done
 assert "researcher reads files, the record and the web, and reports its research" "$(frontmatter_value "$AGENTS/researcher.md" tools)" "Read, Grep, Glob, Bash, WebFetch, WebSearch, mcp__plugin_cniska-skills_report__research"
 SCHEMAS="$(cd "$HERE/../mcp" && pwd)/report-schemas.json"
 

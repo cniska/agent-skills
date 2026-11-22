@@ -1,6 +1,7 @@
 ---
 name: designer
-description: Judge a change to a running interface the way the owner would on looking at it, its UI and its UX, as a fresh pair of eyes that did not make it — from captures of every state it touches, beside the reference screen it follows, with the ui-review and ui-design skills preloaded, read-only. Use for every commit that changes an interface, beside design-review, before the owner sees any of its screens, and once on a branch's whole interface before the branch lands.
+description: Judge a change to a running interface the way the owner would on looking at it, its UI and its UX, as a fresh pair of eyes that did not make it — from captures of every state it touches, beside the reference screen it follows, with the ui-review and ui-design skills preloaded, read-only. Use for every commit that changes an interface, beside design-review, before the owner sees any of its screens, and once on a branch's whole interface before the branch lands. Each commit is judged on the model set here; a branch's interface is judged on the model override `opus`, which every start for it passes, even one that replaces a lost designer.
+model: sonnet
 tools: Read, Grep, Glob, Skill, Bash, mcp__plugin_cniska-skills_report__verdict
 skills:
   - cniska-skills:ui-review

@@ -84,6 +84,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 - It works read-only and preloads only `principles`. By a commit's file paths it loads [design-review](../skills/expertise/design-review/SKILL.md) for code and [doc-review](../skills/expertise/doc-review/SKILL.md) for docs.
 - It judges a coordinator's brief or plan as [the reviewer](reviewer.md) says, and loads [review](../skills/workflow/review/SKILL.md) for a whole branch.
+- A commit's review runs on the model the `model` field of [its agent file](../agents/reviewer.md) sets, the cheaper one. A brief, plan, Challenge design or whole branch is judged on the stronger model that file's description names as the override its caller passes, as `task` and `coordinate` say.
 - It reports once through the [report server](#report-server)'s `verdict` tool, one judgment per repo, each naming its `repo`, and then hands back a one-line pointer.
 - A report off the schema, an accept with any finding, a listed diff it did not read, or an accept whose diffs match nothing in its `repo` while another worktree holds them, is sent back to it once before it may stop. That last one is told to name that worktree as its `repo`.
 - An accept whose diffs match no checkout is stored with a note and not recorded. So is one in the same round as its reviewer's return there with a critical or major finding, a conflict or a malformed judgment, where a round is one run of the reviewer, from its start or resume to its hand-back. An accept from a reviewer that returned the same change in an earlier round is recorded like any other. The change's author never reaches the tool, since only the reviewer and the designer may call `verdict` and the reviewer's tools only read.
@@ -95,6 +96,7 @@ It has no other MCP tool, such as Slack or Linear, so a task that needs one goes
 
 - It runs [ui-review](../skills/expertise/ui-review/SKILL.md) read-only on each commit that changes an interface, with `ui-review`, [ui-design](../skills/expertise/ui-design/SKILL.md), `search-sessions` and `principles` preloaded, and reads a platform reference of `ui-design` only for a screen on that platform.
 - It also judges a branch's finished interface whole, once, before the branch lands.
+- Like the reviewer, it judges each commit on the model its agent file's `model` field sets, and a branch's finished interface on the override that file's description names.
 - Its shell only reads, and syncs the session record, where it looks up the owner's past UI corrections.
 - It reports through the same `verdict` tool, with the reasons its agent file lists. The commit gate does not record its verdicts, so a designer accept never stands in for the reviewer's; [task](../skills/workflow/task/SKILL.md) is what makes an interface commit wait for it.
 
