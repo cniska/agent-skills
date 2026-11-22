@@ -362,9 +362,10 @@ assert "and the next end, with that command still listed as running, is judged" 
 
 completed="$(fresh_agent)"
 bash_done "$completed" "$WORKER" brun2 "$(run_output brun2 open)" >/dev/null
-assert "a command the host lists as completed holds nothing, though a child keeps its output open" \
-  "$(reason "$(run_stop "$completed" '{"brun2": "completed"}')" | grep -c "with your report before you end")" 1
+assert "a command the host lists as completed is told as ended, though a child keeps its output open" \
+  "$(reason "$(run_stop "$completed" '{"brun2": "completed"}')" | grep -c "Background command brun2 has ended; read its output in $scratch/runs/brun2.output")" 1
 assert "and its run is dropped" "$(runs_named brun2)" 0
+assert "so the next end is judged" "$(reason "$(run_stop "$completed" '{"brun2": "completed"}')" | grep -c "with your report before you end")" 1
 
 unlisted="$(fresh_agent)"
 bash_done "$unlisted" "$WORKER" brun3 "$(run_output brun3 open)" >/dev/null
@@ -399,9 +400,11 @@ assert "a review that ends while the command runs says to wait for the command a
 
 overdue_runner="$(fresh_agent)"
 bash_done "$overdue_runner" "$WORKER" brun10 "$(run_output brun10 open)" >/dev/null
-assert "a command running past the run limit holds nothing, so the end is judged" \
-  "$(CNISKA_RUN_LIMIT_SECONDS=0 run_stop "$overdue_runner" '{"brun10": "running"}' | jq -r .reason | grep -c "with your report before you end")" 1
+lapsed="$(CNISKA_RUN_LIMIT_SECONDS=0 CNISKA_WAIT_HOLD_SECONDS=10 run_stop "$overdue_runner" '{"brun10": "running"}' | jq -r .reason)"
+assert "a command running past the run limit is told as lapsed, with its output" \
+  "$(grep -c "Background command brun10 has run past the 0-minute limit and no longer holds your end; stop it with TaskStop if you no longer need it, and read its output so far in $scratch/runs/brun10.output" <<<"$lapsed")" 1
 assert "and its run is dropped" "$(runs_named brun10)" 0
+assert "so the next end is judged" "$(reason "$(run_stop "$overdue_runner" '{"brun10": "running"}')" | grep -c "with your report before you end")" 1
 
 guarded="$(fresh_agent)"
 bash_done "$guarded" "$WORKER" brun7 "$(run_output brun7 open)" >/dev/null

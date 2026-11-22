@@ -32,53 +32,58 @@ file_open() {
   return 1
 }
 
-drop_finished_runs() {
-  local input="$1" dir running entry task started now
+can_judge_runs() {
+  local input="$1"
+  [ -d "$(runs_dir "$(reporter_id "$input")")" ] || return 1
+  if ! jq -e 'has("background_tasks")' <<<"$input" >/dev/null; then
+    printf '%s: no background command is held: the stop names no background_tasks\n' "${0##*/}" >&2
+    return 1
+  fi
+  if ! can_see_open_files; then
+    printf '%s: no background command is held: neither lsof nor /proc can tell when one ends\n' "${0##*/}" >&2
+    return 1
+  fi
+}
+
+recorded_runs() {
+  local input="$1" dir running entry task output started now state
   dir="$(runs_dir "$(reporter_id "$input")")"
-  [ -d "$dir" ] || return 0
   running="$(jq -r '.background_tasks[]? | select(.status == "running") | .id' <<<"$input")"
   now="$(date +%s)"
   for entry in "$dir"/*; do
     [ -f "$entry" ] || continue
-    IFS=$'\t' read -r task _ started <"$entry"
-    if ! grep -qxF -- "$task" <<<"$running" || [ "$((now - ${started:-0}))" -ge "$RUN_LIMIT_SECONDS" ]; then
-      rm -f "$entry" || return 1
+    IFS=$'\t' read -r task output started <"$entry"
+    if ! grep -qxF -- "$task" <<<"$running"; then
+      state=ended
+    elif [ "$((now - ${started:-0}))" -ge "$RUN_LIMIT_SECONDS" ]; then
+      state=lapsed
+    else
+      state=running
     fi
+    printf '%s\t%s\t%s\n' "$task" "$output" "$state"
   done
 }
 
-held_runs() {
-  local input="$1" dir entry task output
-  dir="$(runs_dir "$(reporter_id "$input")")"
-  [ -d "$dir" ] || return 0
-  if ! jq -e 'has("background_tasks")' <<<"$input" >/dev/null; then
-    printf '%s: no background command is held: the stop names no background_tasks\n' "${0##*/}" >&2
-    return 0
-  fi
-  if ! can_see_open_files; then
-    printf '%s: no background command is held: neither lsof nor /proc can tell when one ends\n' "${0##*/}" >&2
-    return 0
-  fi
-  for entry in "$dir"/*; do
-    [ -f "$entry" ] || continue
-    IFS=$'\t' read -r task output _ <"$entry"
-    printf '%s\t%s\n' "$task" "$output"
-  done
+runs_in_state() {
+  local task output state
+  while IFS=$'\t' read -r task output state; do
+    [ "$state" != "$2" ] || printf '%s\t%s\t%s\n' "$task" "$output" "$state"
+  done <<<"$1"
 }
 
 ended_runs() {
-  local task output
-  while IFS=$'\t' read -r task output; do
+  local task output state
+  while IFS=$'\t' read -r task output state; do
     [ -n "$task" ] || continue
-    file_open "$output" || printf '%s\t%s\n' "$task" "$output"
+    file_open "$output" || printf '%s\t%s\tended\n' "$task" "$output"
   done <<<"$1"
 }
 
 runs_left() {
-  local runs="$1" ran="$2" line
-  while IFS= read -r line; do
-    [ -n "$line" ] || continue
-    grep -qxF -- "$line" <<<"$ran" || printf '%s\n' "$line"
+  local runs="$1" ran="$2" task output state
+  while IFS=$'\t' read -r task output state; do
+    [ -n "$task" ] || continue
+    cut -f 1 <<<"$ran" | grep -qxF -- "$task" || printf '%s\t%s\t%s\n' "$task" "$output" "$state"
   done <<<"$runs"
 }
 

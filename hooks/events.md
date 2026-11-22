@@ -97,9 +97,9 @@ The awaited agent ends at its hand-back or past its bound, and the waiter hears 
 
 ##### Background commands
 
-The `PostToolUse` hook on `Bash` records each command a subagent with a report tool runs in the background, by the task id and output file the tool returns. At `SubagentStop`, a recorded command holds the end while the stop's `background_tasks` lists it as running. It also needs some process to still have its output file open, as `lsof`, or else `/proc`, shows. The hook drops a command the host lists otherwise, and one 30 minutes past its start, so a server that never exits cannot hold the agent for good. The end is sent back as `awaiting_run`, or as `awaiting_review` when a review wait also stands:
+The `PostToolUse` hook on `Bash` records each command a subagent with a report tool runs in the background, by the task id and output file the tool returns. At `SubagentStop`, a recorded command holds the end while the stop's `background_tasks` lists it as running. It also needs some process to still have its output file open, as `lsof`, or else `/proc`, shows. A command the host lists otherwise has ended, and one 30 minutes past its start has lapsed, so a server that never exits cannot hold the agent for good; either is told at once with no hold. The end is sent back as `awaiting_run`, or as `awaiting_review` when a review wait also stands:
 
-- **Ended:** the message names the command and its output file, and the command is dropped.
+- **Ended or lapsed:** the message names the command and its output file, and the command is dropped. A command still recorded when its agent hands back is dropped with no message.
 - **Still running:** it tells the agent to end its turn again to keep waiting, or to stop a command it no longer needs.
 
 A stop that names no `background_tasks`, or one on a machine with neither `lsof` nor `/proc`, holds nothing and says so on stderr.
@@ -121,7 +121,7 @@ A reviewer reported a well-formed verdict and the commit gate now holds it: one 
 | `verdict` | `accept` or `return` |
 | `repo` | the repository's absolute top level |
 | `fingerprint` | a SHA-256 of the repository's recorded accept set once the verdict is recorded, each entry a line of the `HEAD` commit at its accept (`-` before the first commit), its mode and blob, or `minor-return` with that count and time for a minor-only return's entry, and its path; a return drops the entries of the paths in the diff files its reviewer read and every minor-only return's entry, so it carries the hash of the set that remains, with any entries a minor-only return adds |
-| `reason` | the judgment's `reason`, `no_diff` when the brief gave no diff to read, otherwise `null` |
+| `reason` | the judgment's `reason`, `no_diff` when `change` wrote no diff and the brief named no design or file to read, otherwise `null` |
 | `findings` | the judgment's `findings`, each counted by its `severity` as `critical`, `major` or `minor`; `fix`, `consider` and `unrated` are always 0, since the schema has no such kinds and requires a severity |
 | `conflicts` | the judgment's `conflicts` |
 | `follow_ups` | the judgment's `follow_ups`, the defects that were there before the change and do not block it; none of them is counted under `findings` |

@@ -221,9 +221,8 @@ on_end() {
   fi
   drop_overdue_waits "$(reporter_id "$input")" || die "the overdue waits of $file cannot be dropped"
   local runs=""
-  if [ "$(field "$input" hook_event_name)" = SubagentStop ]; then
-    drop_finished_runs "$input" || die "the finished background commands of $file cannot be dropped"
-    runs="$(held_runs "$input")"
+  if [ "$(field "$input" hook_event_name)" = SubagentStop ] && can_judge_runs "$input"; then
+    runs="$(recorded_runs "$input")"
   fi
   if has_waits "$(reporter_id "$input")" || [ -n "$runs" ]; then
     keep_waiting "$input" "$runs"
@@ -241,19 +240,24 @@ on_end() {
 }
 
 keep_waiting() {
-  local input="$1" runs="$2" id still ended ran reason code=awaiting_review
+  local input="$1" id held finished still ended ran reason code=awaiting_review
   id="$(reporter_id "$input")"
-  hold_wait "$id" "$runs"
+  held="$(runs_in_state "$2" running)"
+  finished="$(
+    runs_in_state "$2" ended
+    runs_in_state "$2" lapsed
+  )"
+  [ -n "$finished" ] || hold_wait "$id" "$held"
   still="$(waits_in_state "$id" waiting)"
   ended="$(waits_in_state "$id" ended)"
-  ran="$(ended_runs "$runs")"
+  ran="$(printf '%s\n%s' "$finished" "$(ended_runs "$held")" | sed '/^$/d')"
   [ -n "$still$ended" ] || code=awaiting_run
   if [ -n "$ended$ran" ]; then
-    reason="$(ended_reason "$ended" "$ran" "$(runs_left "$runs" "$ran")")"
+    reason="$(ended_reason "$ended" "$ran" "$(runs_left "$held" "$ran")")"
     clear_ended_waits "$id"
     drop_runs "$id" "$ran"
   else
-    reason="$(still_reason "$still" "$runs")"
+    reason="$(still_reason "$still" "$held")"
   fi
   reason="$reason$(stop_block_guard "$input")"
   gate_line "$input" deny "$code"
@@ -265,10 +269,13 @@ keep_waiting() {
 }
 
 ended_reason() {
-  local ended="$1" ran="$2" left="$3" task output parts=()
+  local ended="$1" ran="$2" left="$3" task output state parts=()
   [ -z "$ended" ] || parts+=("Agent $ended has handed back. Read its verdict with ${TOOL_PREFIX}read_report.")
-  while IFS=$'\t' read -r task output; do
-    [ -z "$task" ] || parts+=("Background command $task has ended; read its output in $output.")
+  while IFS=$'\t' read -r task output state; do
+    case "$state" in
+      ended) parts+=("Background command $task has ended; read its output in $output.") ;;
+      lapsed) parts+=("Background command $task has run past the $((RUN_LIMIT_SECONDS / 60))-minute limit and no longer holds your end; stop it with TaskStop if you no longer need it, and read its output so far in $output.") ;;
+    esac
   done <<<"$ran"
   if [ -n "$left" ]; then
     parts+=("Background command $(run_tasks "$left") is still running: end your turn to wait for it once you have read this, and do not hand back before it ends.")
