@@ -16,6 +16,10 @@ REACHED_DIR=""
 NAMED_DIR=""
 
 readonly QUOTES="'\""
+readonly BACKSLASH="\\"
+readonly QUOTE_STARTS="${QUOTES}${BACKSLASH}"
+readonly SPELLING_MARKS="[${QUOTE_STARTS}]*"
+readonly SPELLED_DIR_CHANGE="${SPELLING_MARKS}c${SPELLING_MARKS}d|${SPELLING_MARKS}p${SPELLING_MARKS}u${SPELLING_MARKS}s${SPELLING_MARKS}h${SPELLING_MARKS}d"
 readonly WORD_START="(^|[;&|(${QUOTES}]|[[:space:]])"
 readonly WORD_END="([[:space:];&|)${QUOTES}]|\$)"
 readonly COMMAND_START="(^|[;&|(\`]|"$'\n'")[[:space:]]*([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
@@ -28,7 +32,7 @@ readonly LEADING_MKTEMP_CD_PATTERN='^([[:space:]]*cd[[:space:]]+)"\$\(mktemp[[:s
 readonly MKTEMP_NAME="tmp.XXXXXXXXXX"
 readonly CHAIN_BREAK_PATTERN="[;&|"$'\n'"]"
 readonly REPO_OVERRIDE_PATTERN="--git-dir|--work-tree|GIT_DIR=|GIT_WORK_TREE="
-readonly REPO_CHANGE_PATTERN="${WORD_START}(cd|pushd)${WORD_END}|[[:space:]]-C[[:space:]]|${REPO_OVERRIDE_PATTERN}"
+readonly REPO_CHANGE_PATTERN="${WORD_START}(${SPELLED_DIR_CHANGE})${WORD_END}|[[:space:]]-C[[:space:]]|${REPO_OVERRIDE_PATTERN}"
 readonly GIT_SUBCOMMAND="${GIT_COMMAND}${GIT_OPTIONS}[[:space:]]+"
 readonly REPO_INIT_PATTERN="${GIT_SUBCOMMAND}init${WORD_END}"
 readonly REPO_CLONE_PATTERN="${GIT_SUBCOMMAND}clone${WORD_END}"
@@ -39,10 +43,10 @@ readonly PARENT_STEP_PATTERN='(^|/)(\.\.|-)(/|$)'
 readonly TEMP_ROOTS=(/tmp /private/tmp /var/folders /private/var/folders)
 readonly HEREDOC_OPEN="(^|[^<])<<-?[[:space:]]*"
 readonly HEREDOC_PATTERN="${HEREDOC_OPEN}[${QUOTES}]?([A-Za-z0-9_.-]+)[${QUOTES}]?(.*)\$"
-readonly BACKSLASH="\\"
-readonly QUOTE_STARTS="${QUOTES}${BACKSLASH}"
 readonly SHELL_CODE="(ba|da|k|z)?sh([[:space:]]+-[A-Za-z]+)*[[:space:]]+-[A-Za-z]*c|eval"
 readonly KEPT_QUOTE_PATTERN="(${REPO_DIR_ARG}|${HEREDOC_OPEN}|${WORD_START}(${SHELL_CODE})[[:space:]]+)\$"
+readonly COMMAND_WORD_PREFIX="(${COMMAND_START}|[)][[:space:]]*)((if|then|else|elif|do|while|until|time|command|builtin|[!{])([[:space:]]+-[A-Za-z]+)*[[:space:]]+)*[^[:space:];&|()=]*\$"
+readonly LETTERS_PATTERN='^[A-Za-z]*$'
 readonly SUBSTITUTION_PATTERN='\$\(|`'
 readonly HOME_PREFIXES=(\~ "\$HOME" "\${HOME}")
 readonly CD_STEP_PATTERN="^[[:space:]]*cd[[:space:]]+(\"[^\"]*\"|'[^']*'|[^[:space:]${QUOTES}]+)[[:space:]]*\$"
@@ -68,6 +72,9 @@ heredoc_delimiters() {
 quote_kept() {
   local before="$1" quote="$2" body="$3"
   if [[ $before =~ $KEPT_QUOTE_PATTERN ]]; then
+    return 0
+  fi
+  if [[ $body =~ $LETTERS_PATTERN && $before =~ $COMMAND_WORD_PREFIX ]]; then
     return 0
   fi
   [ "$quote" = '"' ] && [[ $body =~ $SUBSTITUTION_PATTERN ]]
